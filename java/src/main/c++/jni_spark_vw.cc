@@ -949,7 +949,7 @@ jobject decision_scores_prediction(example* vec, JNIEnv* env);
 
 jobject probability_density_function_value(example* ex, JNIEnv* env)
 {
-  jclass predClass = env->FindClass("vowpalWabbit/responses/PDFValue");
+  jclass predClass = env->FindClass("vw980/vowpalWabbit/responses/PDFValue");
   CHECK_JNI_EXCEPTION(nullptr);
 
   jmethodID ctr = env->GetMethodID(predClass, "<init>", "(FF)V");
@@ -960,16 +960,16 @@ jobject probability_density_function_value(example* ex, JNIEnv* env)
 
 jobject probability_density_function(example* ex, JNIEnv* env)
 {
-  jclass pdfSegmentClass = env->FindClass("vowpalWabbit/responses/PDFSegment");
+  jclass pdfSegmentClass = env->FindClass("vw980/vowpalWabbit/responses/PDFSegment");
   CHECK_JNI_EXCEPTION(nullptr);
 
   jmethodID ctrPdfSegment = env->GetMethodID(pdfSegmentClass, "<init>", "(FFF)V");
   CHECK_JNI_EXCEPTION(nullptr);
 
-  jclass pdfClass = env->FindClass("vowpalWabbit/responses/PDF");
+  jclass pdfClass = env->FindClass("vw980/vowpalWabbit/responses/PDF");
   CHECK_JNI_EXCEPTION(nullptr);
 
-  jmethodID ctrPdf = env->GetMethodID(pdfClass, "<init>", "([LvowpalWabbit/responses/PDFSegment;)V");
+  jmethodID ctrPdf = env->GetMethodID(pdfClass, "<init>", "([Lvw980/vowpalWabbit/responses/PDFSegment;)V");
   CHECK_JNI_EXCEPTION(nullptr);
 
   auto& pdf = ex->pred.pdf;

@@ -5,14 +5,14 @@
 
 jobject decision_scores_prediction(example* vec, JNIEnv* env)
 {
-  jclass action_score_class = env->FindClass("vowpalWabbit/responses/ActionScore");
+  jclass action_score_class = env->FindClass("vw980/vowpalWabbit/responses/ActionScore");
   jmethodID action_score_constructor = env->GetMethodID(action_score_class, "<init>", "(IF)V");
-  jclass action_scores_class = env->FindClass("vowpalWabbit/responses/ActionScores");
+  jclass action_scores_class = env->FindClass("vw980/vowpalWabbit/responses/ActionScores");
   jmethodID action_scores_constructor =
-      env->GetMethodID(action_scores_class, "<init>", "([LvowpalWabbit/responses/ActionScore;)V");
-  jclass decision_scores_class = env->FindClass("vowpalWabbit/responses/DecisionScores");
+      env->GetMethodID(action_scores_class, "<init>", "([Lvw980/vowpalWabbit/responses/ActionScore;)V");
+  jclass decision_scores_class = env->FindClass("vw980/vowpalWabbit/responses/DecisionScores");
   jmethodID decision_scores_constructor =
-      env->GetMethodID(decision_scores_class, "<init>", "([LvowpalWabbit/responses/ActionScores;)V");
+      env->GetMethodID(decision_scores_class, "<init>", "([Lvw980/vowpalWabbit/responses/ActionScores;)V");
 
   VW980::decision_scores_t decision_scores = vec->pred.decision_scores;
   size_t num_slots = decision_scores.size();
