@@ -287,7 +287,7 @@ JNIEXPORT jobject JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_g
   jstring args = env->NewStringUTF(serializer.str().c_str());
   CHECK_JNI_EXCEPTION(nullptr);
 
-  jclass clazz = env->FindClass("org/vowpalwabbit/spark/VowpalWabbitArguments");
+  jclass clazz = env->FindClass("vw980/org/vowpalwabbit/spark/VowpalWabbitArguments");
   CHECK_JNI_EXCEPTION(nullptr);
 
   jmethodID ctor = env->GetMethodID(clazz, "<init>", "(IILjava/lang/String;DD)V");
@@ -339,7 +339,7 @@ JNIEXPORT jobject JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_g
   VW980::get_best_constant(*all->loss, *all->sd, bestConstant, bestConstantLoss);
   totalNumberOfFeatures = all->sd->total_features;
 
-  jclass clazz = env->FindClass("org/vowpalwabbit/spark/VowpalWabbitPerformanceStatistics");
+  jclass clazz = env->FindClass("vw980/org/vowpalwabbit/spark/VowpalWabbitPerformanceStatistics");
   CHECK_JNI_EXCEPTION(nullptr);
 
   jmethodID ctor = env->GetMethodID(clazz, "<init>", "(JDDDFFJ)V");
@@ -995,7 +995,7 @@ jobject getJavaPrediction(JNIEnv* env, VW980::workspace* all, example* ex)
   switch (all->l->get_output_prediction_type())
   {
     case VW980::prediction_type_t::SCALAR:
-      predClass = env->FindClass("org/vowpalwabbit/spark/prediction/ScalarPrediction");
+      predClass = env->FindClass("vw980/org/vowpalwabbit/spark/prediction/ScalarPrediction");
       CHECK_JNI_EXCEPTION(nullptr);
 
       ctr = env->GetMethodID(predClass, "<init>", "(FF)V");
@@ -1077,7 +1077,7 @@ try
 
   auto result = VW980::merge_models(base, workspaces);
 
-  jclass clazz = env->FindClass("org/vowpalwabbit/spark/VowpalWabbitNative");
+  jclass clazz = env->FindClass("vw980/org/vowpalwabbit/spark/VowpalWabbitNative");
   CHECK_JNI_EXCEPTION(nullptr);
 
   jmethodID ctor = env->GetMethodID(clazz, "<init>", "(J)V");
