@@ -1,8 +1,8 @@
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;
 
 import org.junit.Before;
 import org.junit.Test;
-import vowpalWabbit.VWTestHelper;
+import vw980.vowpalWabbit.VWTestHelper;
 
 import java.io.IOException;
 import java.util.ArrayList;

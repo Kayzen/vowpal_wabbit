@@ -1,4 +1,4 @@
-package org.vowpalwabbit.spark;
+package vw980.org.vowpalwabbit.spark;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -7,10 +7,10 @@ import java.nio.file.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import org.vowpalwabbit.spark.prediction.*;
+import vw980.org.vowpalwabbit.spark.prediction.*;
 
-import vowpalWabbit.responses.ActionProbs;
-import vowpalWabbit.responses.DecisionScores;
+import vw980.vowpalWabbit.responses.ActionProbs;
+import vw980.vowpalWabbit.responses.DecisionScores;
 
 /**
  * command line invocation

@@ -1,6 +1,6 @@
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;
 
-import common.Native;
+import vw980.common.Native;
 
 /**
  * This is the only entrance point to create a VWLearner.  It is the responsibility of the user to supply the type they want

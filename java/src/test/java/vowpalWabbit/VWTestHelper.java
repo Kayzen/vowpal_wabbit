@@ -1,13 +1,13 @@
-package vowpalWabbit;
+package vw980.vowpalWabbit;
 
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import vowpalWabbit.responses.ActionProb;
-import vowpalWabbit.responses.ActionProbs;
-import vowpalWabbit.responses.ActionScore;
-import vowpalWabbit.responses.ActionScores;
+import vw980.vowpalWabbit.responses.ActionProb;
+import vw980.vowpalWabbit.responses.ActionProbs;
+import vw980.vowpalWabbit.responses.ActionScore;
+import vw980.vowpalWabbit.responses.ActionScores;
 
 import java.io.File;
 import java.io.IOException;

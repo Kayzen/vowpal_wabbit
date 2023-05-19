@@ -1,4 +1,4 @@
-package org.vowpalwabbit.spark;
+package vw980.org.vowpalwabbit.spark;
 
 /**
  * Holds performance statistics (e.g. the last block printed in the command line

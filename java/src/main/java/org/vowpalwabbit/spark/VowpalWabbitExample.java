@@ -1,4 +1,4 @@
-package org.vowpalwabbit.spark;
+package vw980.org.vowpalwabbit.spark;
 
 import java.io.Closeable;
 

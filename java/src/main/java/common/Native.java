@@ -1,4 +1,4 @@
-package common;
+package vw980.common;
 
 // TODO: Remove the hardcoded directory when loading the library, so that the
 // loader works cross-platform, but it doesn't support dependencies yet.

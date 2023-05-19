@@ -1,6 +1,6 @@
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;
 
-import vowpalWabbit.responses.ActionProbs;
+import vw980.vowpalWabbit.responses.ActionProbs;
 
 public final class VWActionProbsLearner extends VWLearnerBase<ActionProbs> {
     VWActionProbsLearner(final long nativePointer) {

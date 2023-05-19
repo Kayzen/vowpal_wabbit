@@ -1,4 +1,4 @@
-package org.vowpalwabbit.spark.prediction;
+package vw980.org.vowpalwabbit.spark.prediction;
 
 /**
  * A scalar prediction.

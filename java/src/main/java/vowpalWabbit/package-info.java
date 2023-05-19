@@ -7,4 +7,4 @@
  * <b>NOTE</b>: When finished using VW predictors, <code>close</code> <b>MUST</b> be called in order
  * to free up the memory on the C side.
  */
-package vowpalWabbit;
+package vw980.vowpalWabbit;

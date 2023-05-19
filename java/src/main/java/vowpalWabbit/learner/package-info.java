@@ -3,4 +3,4 @@
  * of VW learners to only occur via VWFactory which is desirable as that will force the correct type.
  *
  */
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;

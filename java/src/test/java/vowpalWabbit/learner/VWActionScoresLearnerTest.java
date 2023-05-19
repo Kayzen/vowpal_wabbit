@@ -1,11 +1,11 @@
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import vowpalWabbit.VWTestHelper;
-import vowpalWabbit.responses.ActionScores;
-import vowpalWabbit.responses.ActionScore;
+import vw980.vowpalWabbit.VWTestHelper;
+import vw980.vowpalWabbit.responses.ActionScores;
+import vw980.vowpalWabbit.responses.ActionScore;
 
 import java.io.IOException;
 
