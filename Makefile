@@ -41,7 +41,7 @@ python_build:
 	cd build; make -j$(nproc) pylibvw
 
 java_build:
-	cd build; make -j$(nproc) vw_jni
+	cd build; make -j$(nproc) vw980_jni
 
 test_build:
 	@echo "vw running test-suite..."
