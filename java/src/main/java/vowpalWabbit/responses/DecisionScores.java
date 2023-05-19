@@ -1,4 +1,4 @@
-package vowpalWabbit.responses;
+package vw980.vowpalWabbit.responses;
 
 import java.util.Arrays;
 

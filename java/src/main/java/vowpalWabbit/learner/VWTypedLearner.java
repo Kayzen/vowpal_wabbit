@@ -1,4 +1,4 @@
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;
 
 /**
  * This is the main generic interface to which all VW predictors should adhere.  VW predictors

@@ -1,4 +1,4 @@
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;
 
 /**
  * @author deak

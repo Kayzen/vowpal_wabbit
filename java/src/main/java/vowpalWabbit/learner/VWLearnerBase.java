@@ -1,4 +1,4 @@
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;
 
 /**
  * This abstract base class allows the authors of new model wrappers to just write

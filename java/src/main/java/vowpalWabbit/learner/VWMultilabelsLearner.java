@@ -1,6 +1,6 @@
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;
 
-import vowpalWabbit.responses.Multilabels;
+import vw980.vowpalWabbit.responses.Multilabels;
 
 public final class VWMultilabelsLearner extends VWLearnerBase<Multilabels> {
     VWMultilabelsLearner(final long nativePointer) {

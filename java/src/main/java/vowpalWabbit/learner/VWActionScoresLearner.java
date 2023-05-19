@@ -1,6 +1,6 @@
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;
 
-import vowpalWabbit.responses.ActionScores;
+import vw980.vowpalWabbit.responses.ActionScores;
 
 public final class VWActionScoresLearner extends VWLearnerBase<ActionScores> {
     VWActionScoresLearner(final long nativePointer) {

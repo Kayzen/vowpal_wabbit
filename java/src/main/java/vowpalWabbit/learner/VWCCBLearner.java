@@ -1,6 +1,6 @@
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;
 
-import vowpalWabbit.responses.DecisionScores;
+import vw980.vowpalWabbit.responses.DecisionScores;
 
 public final class VWCCBLearner extends VWLearnerBase<DecisionScores> {
     VWCCBLearner(final long nativePointer) {

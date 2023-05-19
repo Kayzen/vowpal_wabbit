@@ -1,6 +1,6 @@
-package org.vowpalwabbit.spark;
+package vw980.org.vowpalwabbit.spark;
 
-import common.Native;
+import vw980.common.Native;
 import java.io.Closeable;
 import java.util.Collection;
 import java.util.Iterator;

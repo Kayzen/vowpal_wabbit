@@ -1,9 +1,9 @@
-package vowpalWabbit;
+package vw980.vowpalWabbit;
 
 import com.google.common.util.concurrent.*;
 import org.junit.Test;
-import vowpalWabbit.learner.VWLearners;
-import vowpalWabbit.learner.VWScalarLearner;
+import vw980.vowpalWabbit.learner.VWLearners;
+import vw980.vowpalWabbit.learner.VWScalarLearner;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;

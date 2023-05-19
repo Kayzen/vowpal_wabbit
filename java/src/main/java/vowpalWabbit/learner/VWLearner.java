@@ -1,4 +1,4 @@
-package vowpalWabbit.learner;
+package vw980.vowpalWabbit.learner;
 
 import java.io.Closeable;
 import java.io.File;

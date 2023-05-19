@@ -1,7 +1,7 @@
-package vowpalWabbit;
+package vw980.vowpalWabbit;
 
-import common.Native;
-import vowpalWabbit.learner.VWLearners;
+import vw980.common.Native;
+import vw980.vowpalWabbit.learner.VWLearners;
 
 public final class VW {
     static {
