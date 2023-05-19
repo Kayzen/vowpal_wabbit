@@ -36,13 +36,13 @@ jobject decision_scores_prediction(example* vec, JNIEnv* env)
   return env->NewObject(decision_scores_class, decision_scores_constructor, j_action_scores_array);
 }
 
-JNIEXPORT jobject JNICALL Java_vowpalWabbit_learner_VWCCBLearner_predict(
+JNIEXPORT jobject JNICALL Java_vw980_vowpalWabbit_learner_VWCCBLearner_predict(
     JNIEnv* env, jobject obj, jstring example_string, jboolean learn, jlong vwPtr)
 {
   return base_predict<jobject>(env, example_string, learn, vwPtr, decision_scores_prediction);
 }
 
-JNIEXPORT jobject JNICALL Java_vowpalWabbit_learner_VWCCBLearner_predictMultiline(
+JNIEXPORT jobject JNICALL Java_vw980_vowpalWabbit_learner_VWCCBLearner_predictMultiline(
     JNIEnv* env, jobject obj, jobjectArray example_strings, jboolean learn, jlong vwPtr)
 {
   return base_predict<jobject>(env, example_strings, learn, vwPtr, decision_scores_prediction);

@@ -12,13 +12,13 @@ jfloatArray scalars_predictor(example* vec, JNIEnv* env)
   return r;
 }
 
-JNIEXPORT jfloatArray JNICALL Java_vowpalWabbit_learner_VWScalarsLearner_predict(
+JNIEXPORT jfloatArray JNICALL Java_vw980_vowpalWabbit_learner_VWScalarsLearner_predict(
     JNIEnv* env, jobject obj, jstring example_string, jboolean learn, jlong vwPtr)
 {
   return base_predict<jfloatArray>(env, example_string, learn, vwPtr, scalars_predictor);
 }
 
-JNIEXPORT jfloatArray JNICALL Java_vowpalWabbit_learner_VWScalarsLearner_predictMultiline(
+JNIEXPORT jfloatArray JNICALL Java_vw980_vowpalWabbit_learner_VWScalarsLearner_predictMultiline(
     JNIEnv* env, jobject obj, jobjectArray example_strings, jboolean learn, jlong vwPtr)
 {
   return base_predict<jfloatArray>(env, example_strings, learn, vwPtr, scalars_predictor);

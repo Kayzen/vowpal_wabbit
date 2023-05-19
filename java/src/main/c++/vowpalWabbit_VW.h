@@ -13,7 +13,7 @@ extern "C"
    * Method:    version
    * Signature: ()Ljava/lang/String;
    */
-  JNIEXPORT jstring JNICALL Java_vowpalWabbit_VW_version(JNIEnv*, jclass);
+  JNIEXPORT jstring JNICALL Java_vw980_vowpalWabbit_VW_version(JNIEnv*, jclass);
 
 #  ifdef __cplusplus
 }
