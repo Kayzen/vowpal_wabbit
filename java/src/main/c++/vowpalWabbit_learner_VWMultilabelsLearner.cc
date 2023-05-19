@@ -10,7 +10,7 @@ jobject multilabel_predictor(example* vec, JNIEnv* env)
   jintArray j_labels = env->NewIntArray(num_values);
   env->SetIntArrayRegion(j_labels, 0, num_values, (int*)labels.begin());
 
-  jclass clazz = env->FindClass("vowpalWabbit/responses/Multilabels");
+  jclass clazz = env->FindClass("vw980/vowpalWabbit/responses/Multilabels");
   jmethodID constructor = env->GetMethodID(clazz, "<init>", "([I)V");
   return env->NewObject(clazz, constructor, j_labels);
 }

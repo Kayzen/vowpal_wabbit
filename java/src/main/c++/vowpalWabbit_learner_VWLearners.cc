@@ -3,7 +3,7 @@
 #include "jni_base_learner.h"
 #include "vw/core/vw.h"
 
-#define RETURN_TYPE "vowpalWabbit/learner/VWLearners$VWReturnType"
+#define RETURN_TYPE "vw980/vowpalWabbit/learner/VWLearners$VWReturnType"
 #define RETURN_TYPE_INSTANCE "L" RETURN_TYPE ";"
 
 JNIEXPORT jlong JNICALL Java_vw980_vowpalWabbit_learner_VWLearners_initialize(JNIEnv* env, jclass obj, jstring command)
