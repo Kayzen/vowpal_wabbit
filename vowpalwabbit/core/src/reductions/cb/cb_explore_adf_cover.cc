@@ -27,7 +27,7 @@
 // All exploration algorithms return a vector of id, probability tuples, sorted in order of scores. The probabilities
 // are the probability with which each action should be replaced to the top of the list.
 
-using namespace VW::cb_explore_adf;
+using namespace VW980::cb_explore_adf;
 
 namespace
 {
@@ -35,13 +35,13 @@ class cb_explore_adf_cover
 {
 public:
   cb_explore_adf_cover(size_t cover_size, float psi, bool nounif, float epsilon, bool epsilon_decay, bool first_only,
-      VW::LEARNER::learner* cs_ldf_learner, VW::LEARNER::learner* scorer, VW::cb_type_t cb_type, size_t stride,
-      VW::version_struct model_file_version, VW::io::logger logger);
+      VW980::LEARNER::learner* cs_ldf_learner, VW980::LEARNER::learner* scorer, VW980::cb_type_t cb_type, size_t stride,
+      VW980::version_struct model_file_version, VW980::io::logger logger);
 
   // Should be called through cb_explore_adf_base for pre/post-processing
-  void predict(VW::LEARNER::learner& base, VW::multi_ex& examples) { predict_or_learn_impl<false>(base, examples); }
-  void learn(VW::LEARNER::learner& base, VW::multi_ex& examples) { predict_or_learn_impl<true>(base, examples); }
-  void save_load(VW::io_buf& io, bool read, bool text);
+  void predict(VW980::LEARNER::learner& base, VW980::multi_ex& examples) { predict_or_learn_impl<false>(base, examples); }
+  void learn(VW980::LEARNER::learner& base, VW980::multi_ex& examples) { predict_or_learn_impl<true>(base, examples); }
+  void save_load(VW980::io_buf& io, bool read, bool text);
 
 private:
   size_t _cover_size;
@@ -53,25 +53,25 @@ private:
   size_t _counter;
   size_t _stride;
 
-  VW::LEARNER::learner* _cs_ldf_learner;
-  VW::details::cb_to_cs_adf gen_cs;
+  VW980::LEARNER::learner* _cs_ldf_learner;
+  VW980::details::cb_to_cs_adf gen_cs;
 
-  VW::version_struct _model_file_version;
-  VW::io::logger _logger;
+  VW980::version_struct _model_file_version;
+  VW980::io::logger _logger;
 
-  VW::v_array<VW::action_score> _action_probs;
+  VW980::v_array<VW980::action_score> _action_probs;
   std::vector<float> _scores;
-  VW::cs_label _cs_labels;
-  VW::cs_label _cs_labels_2;
-  std::vector<VW::cs_label> _prepped_cs_labels;
-  std::vector<VW::cb_label> _cb_labels;
+  VW980::cs_label _cs_labels;
+  VW980::cs_label _cs_labels_2;
+  std::vector<VW980::cs_label> _prepped_cs_labels;
+  std::vector<VW980::cb_label> _cb_labels;
   template <bool is_learn>
-  void predict_or_learn_impl(VW::LEARNER::learner& base, VW::multi_ex& examples);
+  void predict_or_learn_impl(VW980::LEARNER::learner& base, VW980::multi_ex& examples);
 };
 
 cb_explore_adf_cover::cb_explore_adf_cover(size_t cover_size, float psi, bool nounif, float epsilon, bool epsilon_decay,
-    bool first_only, VW::LEARNER::learner* cs_ldf_learner, VW::LEARNER::learner* scorer, VW::cb_type_t cb_type,
-    size_t stride, VW::version_struct model_file_version, VW::io::logger logger)
+    bool first_only, VW980::LEARNER::learner* cs_ldf_learner, VW980::LEARNER::learner* scorer, VW980::cb_type_t cb_type,
+    size_t stride, VW980::version_struct model_file_version, VW980::io::logger logger)
     : _cover_size(cover_size)
     , _psi(psi)
     , _nounif(nounif)
@@ -89,23 +89,23 @@ cb_explore_adf_cover::cb_explore_adf_cover(size_t cover_size, float psi, bool no
 }
 
 template <bool is_learn>
-void cb_explore_adf_cover::predict_or_learn_impl(VW::LEARNER::learner& base, VW::multi_ex& examples)
+void cb_explore_adf_cover::predict_or_learn_impl(VW980::LEARNER::learner& base, VW980::multi_ex& examples)
 {
   // Redundant with the call in cb_explore_adf_base, but encapsulation means we need to do this again here
-  gen_cs.known_cost = VW::get_observed_cost_or_default_cb_adf(examples);
+  gen_cs.known_cost = VW980::get_observed_cost_or_default_cb_adf(examples);
 
   // Randomize over predictions from a base set of predictors
   // Use cost sensitive oracle to cover actions to form distribution.
-  const bool is_mtr = gen_cs.cb_type == VW::cb_type_t::MTR;
+  const bool is_mtr = gen_cs.cb_type == VW980::cb_type_t::MTR;
   if (is_learn)
   {
     if (is_mtr)
     {  // use DR estimates for non-ERM policies in MTR
-      VW::details::gen_cs_example_dr<true>(gen_cs, examples, _cs_labels);
+      VW980::details::gen_cs_example_dr<true>(gen_cs, examples, _cs_labels);
     }
     else
     {
-      VW::details::gen_cs_example<false>(gen_cs, examples, _cs_labels, _logger, examples[0]->ft_offset / _stride);
+      VW980::details::gen_cs_example<false>(gen_cs, examples, _cs_labels, _logger, examples[0]->ft_offset / _stride);
     }
 
     if (base.learn_returns_prediction)
@@ -115,18 +115,18 @@ void cb_explore_adf_cover::predict_or_learn_impl(VW::LEARNER::learner& base, VW:
       VW_DBG(examples) << "cb_explore_adf_cover: "
                           "LEARNER::multiline_learn_or_predict<false>()"
                        << std::endl;
-      VW::LEARNER::multiline_learn_or_predict<false>(base, examples, examples[0]->ft_offset);
+      VW980::LEARNER::multiline_learn_or_predict<false>(base, examples, examples[0]->ft_offset);
     }
 
     VW_DBG(examples) << "cb_explore_adf_cover: LEARNER::multiline_learn_or_predict<true>()" << std::endl;
-    VW::LEARNER::multiline_learn_or_predict<true>(base, examples, examples[0]->ft_offset);
+    VW980::LEARNER::multiline_learn_or_predict<true>(base, examples, examples[0]->ft_offset);
   }
   else
   {
-    VW::details::gen_cs_example_ips(examples, _cs_labels, _logger);
-    VW::LEARNER::multiline_learn_or_predict<false>(base, examples, examples[0]->ft_offset);
+    VW980::details::gen_cs_example_ips(examples, _cs_labels, _logger);
+    VW980::LEARNER::multiline_learn_or_predict<false>(base, examples, examples[0]->ft_offset);
   }
-  VW::v_array<VW::action_score>& preds = examples[0]->pred.a_s;
+  VW980::v_array<VW980::action_score>& preds = examples[0]->pred.a_s;
   const uint32_t num_actions = static_cast<uint32_t>(preds.size());
 
   float additive_probability = 1.f / static_cast<float>(_cover_size);
@@ -169,12 +169,12 @@ void cb_explore_adf_cover::predict_or_learn_impl(VW::LEARNER::learner& base, VW:
         _cs_labels_2.costs.push_back({pseudo_cost, j, 0., 0.});
       }
 
-      VW::details::cs_ldf_learn_or_predict<true>(*(_cs_ldf_learner), examples, _cb_labels, _cs_labels_2,
+      VW980::details::cs_ldf_learn_or_predict<true>(*(_cs_ldf_learner), examples, _cb_labels, _cs_labels_2,
           _prepped_cs_labels, true, examples[0]->ft_offset, i + 1);
     }
     else
     {
-      VW::details::cs_ldf_learn_or_predict<false>(*(_cs_ldf_learner), examples, _cb_labels, _cs_labels,
+      VW980::details::cs_ldf_learn_or_predict<false>(*(_cs_ldf_learner), examples, _cb_labels, _cs_labels,
           _prepped_cs_labels, false, examples[0]->ft_offset, i + 1);
     }
 
@@ -205,7 +205,7 @@ void cb_explore_adf_cover::predict_or_learn_impl(VW::LEARNER::learner& base, VW:
     }
   }
 
-  VW::explore::enforce_minimum_probability(
+  VW980::explore::enforce_minimum_probability(
       min_prob * num_actions, !_nounif, begin_scores(_action_probs), end_scores(_action_probs));
 
   sort_action_probs(_action_probs, _scores);
@@ -225,23 +225,23 @@ void cb_explore_adf_cover::predict_or_learn_impl(VW::LEARNER::learner& base, VW:
   if (is_learn) { ++_counter; }
 }
 
-void cb_explore_adf_cover::save_load(VW::io_buf& io, bool read, bool text)
+void cb_explore_adf_cover::save_load(VW980::io_buf& io, bool read, bool text)
 {
   if (io.num_files() == 0) { return; }
-  if (!read || _model_file_version >= VW::version_definitions::VERSION_FILE_WITH_CCB_MULTI_SLOTS_SEEN_FLAG)
+  if (!read || _model_file_version >= VW980::version_definitions::VERSION_FILE_WITH_CCB_MULTI_SLOTS_SEEN_FLAG)
   {
     std::stringstream msg;
     if (!read) { msg << "cb cover adf storing example counter:  = " << _counter << "\n"; }
-    VW::details::bin_text_read_write_fixed_validated(
+    VW980::details::bin_text_read_write_fixed_validated(
         io, reinterpret_cast<char*>(&_counter), sizeof(_counter), read, msg, text);
   }
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_cover_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_explore_adf_cover_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   using config::make_option;
 
   bool cb_explore_adf_option = false;
@@ -285,21 +285,21 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_cover_setup
   // Ensure serialization of cb_adf in all cases.
   if (!options.was_supplied("cb_adf")) { options.insert("cb_adf", ""); }
 
-  auto cb_type = VW::cb_type_from_string(type_string);
+  auto cb_type = VW980::cb_type_from_string(type_string);
   switch (cb_type)
   {
-    case VW::cb_type_t::DR:
-    case VW::cb_type_t::IPS:
+    case VW980::cb_type_t::DR:
+    case VW980::cb_type_t::IPS:
       break;
-    case VW::cb_type_t::MTR:
+    case VW980::cb_type_t::MTR:
       all.logger.err_warn("currently, mtr is only used for the first policy in cover, other policies use dr");
       break;
-    case VW::cb_type_t::DM:
-    case VW::cb_type_t::SM:
+    case VW980::cb_type_t::DM:
+    case VW980::cb_type_t::SM:
       all.logger.err_warn(
-          "cb_type must be in {{'ips','dr','mtr'}}; resetting to mtr. Input received: {}", VW::to_string(cb_type));
+          "cb_type must be in {{'ips','dr','mtr'}}; resetting to mtr. Input received: {}", VW980::to_string(cb_type));
       options.replace("cb_type", "mtr");
-      cb_type = VW::cb_type_t::MTR;
+      cb_type = VW980::cb_type_t::MTR;
       break;
   }
 
@@ -307,9 +307,9 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_cover_setup
   size_t feature_width = cover_size + 1;
 
   // Cover is using doubly robust without the cooperation of the base reduction
-  if (cb_type == VW::cb_type_t::MTR) { feature_width *= 2; }
+  if (cb_type == VW980::cb_type_t::MTR) { feature_width *= 2; }
 
-  auto base = VW::LEARNER::require_multiline(stack_builder.setup_base_learner(feature_width));
+  auto base = VW980::LEARNER::require_multiline(stack_builder.setup_base_learner(feature_width));
 
   bool epsilon_decay;
   if (options.was_supplied("epsilon"))
@@ -323,19 +323,19 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_cover_setup
     epsilon_decay = true;
   }
 
-  auto* scorer = VW::LEARNER::require_singleline(base->get_learner_by_name_prefix("scorer"));
+  auto* scorer = VW980::LEARNER::require_singleline(base->get_learner_by_name_prefix("scorer"));
   auto* cost_sensitive = require_multiline(base->get_learner_by_name_prefix("cs"));
 
   using explore_type = cb_explore_adf_base<cb_explore_adf_cover>;
-  auto data = VW::make_unique<explore_type>(all.global_metrics.are_metrics_enabled(),
-      VW::cast_to_smaller_type<size_t>(cover_size), psi, nounif, epsilon, epsilon_decay, first_only, cost_sensitive,
+  auto data = VW980::make_unique<explore_type>(all.global_metrics.are_metrics_enabled(),
+      VW980::cast_to_smaller_type<size_t>(cover_size), psi, nounif, epsilon, epsilon_decay, first_only, cost_sensitive,
       scorer, cb_type, all.weights.stride(), all.model_file_ver, all.logger);
   auto l = make_reduction_learner(std::move(data), base, explore_type::learn, explore_type::predict,
       stack_builder.get_setupfn_name(cb_explore_adf_cover_setup))
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
-               .set_input_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_PROBS)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
+               .set_input_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
                .set_learn_returns_prediction(true)
                .set_feature_width(feature_width)
                .set_output_example_prediction(explore_type::output_example_prediction)

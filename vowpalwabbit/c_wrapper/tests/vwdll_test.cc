@@ -61,8 +61,8 @@ TEST(Vwdll, ParsedAndConstructedExampleParity)
 
   // check parity
   EXPECT_EQ(score_parsed, score_constructed);
-  auto vw1 = static_cast<VW::workspace*>(handle1);
-  auto vw2 = static_cast<VW::workspace*>(handle2);
+  auto vw1 = static_cast<VW980::workspace*>(handle1);
+  auto vw2 = static_cast<VW980::workspace*>(handle2);
 
   EXPECT_EQ(vw1->weights.sparse, vw2->weights.sparse);
 
@@ -93,10 +93,10 @@ TEST(Vwdll, GetAuditOutput)
   size_t audit_size = 0;
   char* audit_data = VW_GetAuditDataA(handle, &audit_size);
 
-  VW::string_view expected_audit = R"(0
+  VW980::string_view expected_audit = R"(0
 	test:250387:1:0@0	example:99909:1:0@0
 )";
-  VW::string_view audit_data_view(audit_data, audit_size);
+  VW980::string_view audit_data_view(audit_data, audit_size);
   EXPECT_EQ(audit_data_view, expected_audit);
 
   VW_FreeAuditDataA(handle, audit_data);

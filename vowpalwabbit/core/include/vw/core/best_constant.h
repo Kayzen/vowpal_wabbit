@@ -9,7 +9,7 @@
 
 #include <cfloat>
 
-namespace VW
+namespace VW980
 {
 inline void count_label(shared_data& sd, float l)
 {
@@ -31,4 +31,4 @@ inline void count_label(shared_data& sd, float l)
 
 bool get_best_constant(
     const loss_function& loss_func, const shared_data& sd, float& best_constant, float& best_constant_loss);
-}  // namespace VW
+}  // namespace VW980

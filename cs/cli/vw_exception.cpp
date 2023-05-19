@@ -4,7 +4,7 @@
 
 #include "vw_clr.h"
 
-namespace VW
+namespace VW980
 {
 VowpalWabbitException::VowpalWabbitException(const vw_exception& ex)
   : Exception(gcnew System::String(ex.what())), m_filename(gcnew System::String(ex.filename())), m_lineNumber(ex.line_number())

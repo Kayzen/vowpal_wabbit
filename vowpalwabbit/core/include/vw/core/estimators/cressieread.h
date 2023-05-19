@@ -6,14 +6,14 @@
 #include "vw/core/estimators/distributionally_robust.h"
 #include "vw/core/metric_sink.h"
 
-namespace VW
+namespace VW980
 {
 namespace estimators
 {
 class cressieread
 {
 public:
-  VW::estimators::chi_squared chisq;
+  VW980::estimators::chi_squared chisq;
   float ips = 0.0;
   float last_w = 0.0;
   float last_r = 0.0;
@@ -21,7 +21,7 @@ public:
 
   cressieread()
       : chisq(
-            VW::details::DEFAULT_ALPHA, VW::details::CRESSEREAD_DEFAULT_TAU, 0, std::numeric_limits<double>::infinity())
+            VW980::details::DEFAULT_ALPHA, VW980::details::CRESSEREAD_DEFAULT_TAU, 0, std::numeric_limits<double>::infinity())
   {
   }
   cressieread(double alpha, double tau) : chisq(alpha, tau, 0, std::numeric_limits<double>::infinity()) {}
@@ -29,7 +29,7 @@ public:
   void update(float w, float r);
   void persist(metric_sink&, const std::string&);
   float current_ips() const;
-  void reset_stats(double alpha = VW::details::DEFAULT_ALPHA, double tau = VW::details::CRESSEREAD_DEFAULT_TAU);
+  void reset_stats(double alpha = VW980::details::DEFAULT_ALPHA, double tau = VW980::details::CRESSEREAD_DEFAULT_TAU);
   float lower_bound();
   float upper_bound();
 };
@@ -37,7 +37,7 @@ public:
 
 namespace model_utils
 {
-size_t read_model_field(io_buf&, VW::estimators::cressieread&);
-size_t write_model_field(io_buf&, const VW::estimators::cressieread&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::estimators::cressieread&);
+size_t write_model_field(io_buf&, const VW980::estimators::cressieread&, const std::string&, bool);
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980

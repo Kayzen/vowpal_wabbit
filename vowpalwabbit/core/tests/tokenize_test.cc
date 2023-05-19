@@ -17,14 +17,14 @@ using namespace ::testing;
 TEST(Tokenize, TokenizeBasicStringEscaped)
 {
   std::string str = "this is   a string  ";
-  auto const container = VW::details::escaped_tokenize(' ', str);
+  auto const container = VW980::details::escaped_tokenize(' ', str);
   EXPECT_THAT(container, ElementsAre(StrEq("this"), StrEq("is"), StrEq("a"), StrEq("string")));
 }
 
 TEST(Tokenize, TokenizeBasicStringAllowEmptyEscaped)
 {
   std::string str = "this is   a string  ";
-  auto const container = VW::details::escaped_tokenize(' ', str, true);
+  auto const container = VW980::details::escaped_tokenize(' ', str, true);
 
   EXPECT_THAT(container,
       ElementsAre(StrEq("this"), StrEq("is"), StrEq(""), StrEq(""), StrEq("a"), StrEq("string"), StrEq(""), StrEq("")));
@@ -33,7 +33,7 @@ TEST(Tokenize, TokenizeBasicStringAllowEmptyEscaped)
 TEST(Tokenize, TokenizeBasicStringAllowEmptyNoEndSpaceEscaped)
 {
   std::string str = "this is   a string";
-  auto const container = VW::details::escaped_tokenize(' ', str, true);
+  auto const container = VW980::details::escaped_tokenize(' ', str, true);
 
   EXPECT_THAT(container, ElementsAre(StrEq("this"), StrEq("is"), StrEq(""), StrEq(""), StrEq("a"), StrEq("string")));
 }
@@ -41,7 +41,7 @@ TEST(Tokenize, TokenizeBasicStringAllowEmptyNoEndSpaceEscaped)
 TEST(Tokenize, TokenizeBasicStringWithSlashEscaped)
 {
   std::string str = "this is\\ a string";
-  auto const container = VW::details::escaped_tokenize(' ', str, true);
+  auto const container = VW980::details::escaped_tokenize(' ', str, true);
 
   EXPECT_THAT(container, ElementsAre(StrEq("this"), StrEq("is a"), StrEq("string")));
 }
@@ -49,7 +49,7 @@ TEST(Tokenize, TokenizeBasicStringWithSlashEscaped)
 TEST(Tokenize, TokenizeBasicStringWithDoubleslashEscaped)
 {
   std::string str = "this is\\\\ a string";
-  auto const container = VW::details::escaped_tokenize(' ', str, true);
+  auto const container = VW980::details::escaped_tokenize(' ', str, true);
 
   EXPECT_THAT(container, ElementsAre(StrEq("this"), StrEq("is\\"), StrEq("a"), StrEq("string")));
 }
@@ -57,14 +57,14 @@ TEST(Tokenize, TokenizeBasicStringWithDoubleslashEscaped)
 TEST(Tokenize, TokenizeBasicStringWithNormalCharSlashEscaped)
 {
   std::string str = "this \\is a string";
-  auto const container = VW::details::escaped_tokenize(' ', str, true);
+  auto const container = VW980::details::escaped_tokenize(' ', str, true);
   EXPECT_THAT(container, ElementsAre(StrEq("this"), StrEq("is"), StrEq("a"), StrEq("string")));
 }
 
 TEST(Tokenize, TokenizeBasicStringWithEscapeFinalCharacter)
 {
   std::string str = "this is a string\\";
-  auto const container = VW::details::escaped_tokenize(' ', str, true);
+  auto const container = VW980::details::escaped_tokenize(' ', str, true);
 
   EXPECT_THAT(container, ElementsAre(StrEq("this"), StrEq("is"), StrEq("a"), StrEq("string")));
 }
@@ -74,7 +74,7 @@ TEST(Tokenize, TokenizeToArgvWithSpace)
   int argc = 0;
   VW_WARNING_STATE_PUSH
   VW_WARNING_DISABLE_DEPRECATED_USAGE
-  char** argv = VW::to_argv_escaped("--example_queue_limit 1024 -f my_model\\ best.model", argc);
+  char** argv = VW980::to_argv_escaped("--example_queue_limit 1024 -f my_model\\ best.model", argc);
   VW_WARNING_STATE_POP
 
   EXPECT_EQ(argc, 5);
@@ -93,7 +93,7 @@ TEST(Tokenize, BasicTokenizeToArgv)
   int argc = 0;
   VW_WARNING_STATE_PUSH
   VW_WARNING_DISABLE_DEPRECATED_USAGE
-  char** argv = VW::to_argv_escaped("--ccb_explore_adf --json --no_stdin --quiet", argc);
+  char** argv = VW980::to_argv_escaped("--ccb_explore_adf --json --no_stdin --quiet", argc);
   VW_WARNING_STATE_POP
 
   EXPECT_EQ(argc, 5);
@@ -109,36 +109,36 @@ TEST(Tokenize, BasicTokenizeToArgv)
 
 TEST(Tokenize, EscapedSplitCommandLineTest)
 {
-  auto args = VW::split_command_line(VW::string_view(R"(--example_queue_limit 1024 -f my_model\ best.model)"));
+  auto args = VW980::split_command_line(VW980::string_view(R"(--example_queue_limit 1024 -f my_model\ best.model)"));
   EXPECT_THAT(
       args, ElementsAre(StrEq("--example_queue_limit"), StrEq("1024"), StrEq("-f"), StrEq("my_model best.model")));
 }
 
 TEST(Tokenize, BasicSplitCommandLine)
 {
-  auto args = VW::split_command_line(VW::string_view(R"(--ccb_explore_adf --json --no_stdin --quiet)"));
+  auto args = VW980::split_command_line(VW980::string_view(R"(--ccb_explore_adf --json --no_stdin --quiet)"));
   EXPECT_THAT(args, ElementsAre(StrEq("--ccb_explore_adf"), StrEq("--json"), StrEq("--no_stdin"), StrEq("--quiet")));
 }
 
 TEST(Tokenize, ComplexSplitCommandLine)
 {
-  auto args = VW::split_command_line(VW::string_view(R"(-d "this is my file\"" 'another arg' test\ arg \\test)"));
+  auto args = VW980::split_command_line(VW980::string_view(R"(-d "this is my file\"" 'another arg' test\ arg \\test)"));
   EXPECT_THAT(args,
       ElementsAre(StrEq("-d"), StrEq("this is my file\""), StrEq("another arg"), StrEq("test arg"), StrEq(R"(\test)")));
 }
 
 TEST(Tokenize, UnclosedQuoteSplitCommandLine)
 {
-  EXPECT_THROW(VW::split_command_line(VW::string_view(R"(my arg "with strings)")), VW::vw_exception);
+  EXPECT_THROW(VW980::split_command_line(VW980::string_view(R"(my arg "with strings)")), VW980::vw_exception);
 }
 
 TEST(Tokenize, EscapedEndSplitCommandLine)
 {
-  EXPECT_THROW(VW::split_command_line(VW::string_view(R"(my arg \)")), VW::vw_exception);
+  EXPECT_THROW(VW980::split_command_line(VW980::string_view(R"(my arg \)")), VW980::vw_exception);
 }
 
 TEST(Tokenize, MixedQuotesSplitCommandLine)
 {
-  auto args = VW::split_command_line(VW::string_view(R"("this is 'a quoted'" '"unclosed')"));
+  auto args = VW980::split_command_line(VW980::string_view(R"("this is 'a quoted'" '"unclosed')"));
   EXPECT_THAT(args, ElementsAre(StrEq("this is 'a quoted'"), StrEq("\"unclosed")));
 }

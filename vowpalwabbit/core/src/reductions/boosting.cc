@@ -30,9 +30,9 @@
 #include <utility>
 #include <vector>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
-using namespace VW::reductions;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
+using namespace VW980::reductions;
 
 using std::endl;
 
@@ -45,22 +45,22 @@ public:
   int N = 0;  // NOLINT
   float gamma = 0.f;
   std::string alg = "";
-  VW::workspace* all = nullptr;
-  std::shared_ptr<VW::rand_state> random_state;
+  VW980::workspace* all = nullptr;
+  std::shared_ptr<VW980::rand_state> random_state;
   std::vector<std::vector<int64_t> > C;  // NOLINT
   std::vector<float> alpha;
   std::vector<float> v;
   int t = 0;
-  VW::io::logger logger;
+  VW980::io::logger logger;
 
-  explicit boosting(VW::io::logger logger) : logger(std::move(logger)) {}
+  explicit boosting(VW980::io::logger logger) : logger(std::move(logger)) {}
 };
 
 //---------------------------------------------------
 // Online Boost-by-Majority (BBM)
 // --------------------------------------------------
 template <bool is_learn>
-void predict_or_learn(boosting& o, VW::LEARNER::learner& base, VW::example& ec)
+void predict_or_learn(boosting& o, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   auto& ld = ec.l.simple;
 
@@ -83,7 +83,7 @@ void predict_or_learn(boosting& o, VW::LEARNER::learner& base, VW::example& ec)
       else if (o.C[o.N - (i + 1)][static_cast<int64_t>(k)] != -1) { c = o.C[o.N - (i + 1)][static_cast<int64_t>(k)]; }
       else
       {
-        c = VW::math::choose(o.N - (i + 1), static_cast<int64_t>(k));
+        c = VW980::math::choose(o.N - (i + 1), static_cast<int64_t>(k));
         o.C[o.N - (i + 1)][static_cast<int64_t>(k)] = c;
       }
 
@@ -111,7 +111,7 @@ void predict_or_learn(boosting& o, VW::LEARNER::learner& base, VW::example& ec)
 
   ec.weight = u;
   ec.partial_prediction = final_prediction;
-  ec.pred.scalar = VW::math::sign(final_prediction);
+  ec.pred.scalar = VW980::math::sign(final_prediction);
 
   if (ld.label == ec.pred.scalar) { ec.loss = 0.; }
   else { ec.loss = ec.weight; }
@@ -121,7 +121,7 @@ void predict_or_learn(boosting& o, VW::LEARNER::learner& base, VW::example& ec)
 // Logistic boost
 //-----------------------------------------------------------------
 template <bool is_learn>
-void predict_or_learn_logistic(boosting& o, VW::LEARNER::learner& base, VW::example& ec)
+void predict_or_learn_logistic(boosting& o, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   auto& ld = ec.l.simple;
 
@@ -137,7 +137,7 @@ void predict_or_learn_logistic(boosting& o, VW::LEARNER::learner& base, VW::exam
   {
     if (is_learn)
     {
-      float w = 1 / (1 + VW::details::correctedExp(s));
+      float w = 1 / (1 + VW980::details::correctedExp(s));
 
       ec.weight = u * w;
 
@@ -152,7 +152,7 @@ void predict_or_learn_logistic(boosting& o, VW::LEARNER::learner& base, VW::exam
       final_prediction += ec.pred.scalar * o.alpha[i];
 
       // update alpha
-      o.alpha[i] += eta * z / (1 + VW::details::correctedExp(s));
+      o.alpha[i] += eta * z / (1 + VW980::details::correctedExp(s));
       if (o.alpha[i] > 2.) { o.alpha[i] = 2; }
       if (o.alpha[i] < -2.) { o.alpha[i] = -2; }
 
@@ -167,14 +167,14 @@ void predict_or_learn_logistic(boosting& o, VW::LEARNER::learner& base, VW::exam
 
   ec.weight = u;
   ec.partial_prediction = final_prediction;
-  ec.pred.scalar = VW::math::sign(final_prediction);
+  ec.pred.scalar = VW980::math::sign(final_prediction);
 
   if (ld.label == ec.pred.scalar) { ec.loss = 0.; }
   else { ec.loss = ec.weight; }
 }
 
 template <bool is_learn>
-void predict_or_learn_adaptive(boosting& o, VW::LEARNER::learner& base, VW::example& ec)
+void predict_or_learn_adaptive(boosting& o, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   auto& ld = ec.l.simple;
 
@@ -193,7 +193,7 @@ void predict_or_learn_adaptive(boosting& o, VW::LEARNER::learner& base, VW::exam
   {
     if (is_learn)
     {
-      float w = 1 / (1 + VW::details::correctedExp(s));
+      float w = 1 / (1 + VW980::details::correctedExp(s));
 
       ec.weight = u * w;
 
@@ -215,7 +215,7 @@ void predict_or_learn_adaptive(boosting& o, VW::LEARNER::learner& base, VW::exam
       v_normalization += o.v[i];
 
       // update alpha
-      o.alpha[i] += eta * z / (1 + VW::details::correctedExp(s));
+      o.alpha[i] += eta * z / (1 + VW980::details::correctedExp(s));
       if (o.alpha[i] > 2.) { o.alpha[i] = 2; }
       if (o.alpha[i] < -2.) { o.alpha[i] = -2; }
 
@@ -245,18 +245,18 @@ void predict_or_learn_adaptive(boosting& o, VW::LEARNER::learner& base, VW::exam
 
   ec.weight = u;
   ec.partial_prediction = final_prediction;
-  ec.pred.scalar = VW::math::sign(final_prediction);
+  ec.pred.scalar = VW980::math::sign(final_prediction);
 
   if (ld.label == ec.pred.scalar) { ec.loss = 0.; }
   else { ec.loss = ec.weight; }
 }
 
-void save_load_sampling(boosting& o, VW::io_buf& model_file, bool read, bool text)
+void save_load_sampling(boosting& o, VW980::io_buf& model_file, bool read, bool text)
 {
   if (model_file.num_files() == 0) { return; }
   std::stringstream os;
   os << "boosts " << o.N << endl;
-  VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&(o.N)), sizeof(o.N), read, os, text);
+  VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&(o.N)), sizeof(o.N), read, os, text);
 
   if (read)
   {
@@ -276,7 +276,7 @@ void save_load_sampling(boosting& o, VW::io_buf& model_file, bool read, bool tex
     {
       std::stringstream os2;
       os2 << "alpha " << o.alpha[i] << endl;
-      VW::details::bin_text_write_fixed(
+      VW980::details::bin_text_write_fixed(
           model_file, reinterpret_cast<char*>(&(o.alpha[i])), sizeof(o.alpha[i]), os2, text);
     }
   }
@@ -293,7 +293,7 @@ void save_load_sampling(boosting& o, VW::io_buf& model_file, bool read, bool tex
     {
       std::stringstream os2;
       os2 << "v " << o.v[i] << endl;
-      VW::details::bin_text_write_fixed(model_file, reinterpret_cast<char*>(&(o.v[i])), sizeof(o.v[i]), os2, text);
+      VW980::details::bin_text_write_fixed(model_file, reinterpret_cast<char*>(&(o.v[i])), sizeof(o.v[i]), os2, text);
     }
   }
 
@@ -310,12 +310,12 @@ void save_load_sampling(boosting& o, VW::io_buf& model_file, bool read, bool tex
   o.logger.err_info("{}", fmt::to_string(buffer));
 }
 
-void save_load(boosting& o, VW::io_buf& model_file, bool read, bool text)
+void save_load(boosting& o, VW980::io_buf& model_file, bool read, bool text)
 {
   if (model_file.num_files() == 0) { return; }
   std::stringstream os;
   os << "boosts " << o.N << endl;
-  VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&(o.N)), sizeof(o.N), read, os, text);
+  VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&(o.N)), sizeof(o.N), read, os, text);
 
   if (read) { o.alpha.resize(o.N); }
 
@@ -331,7 +331,7 @@ void save_load(boosting& o, VW::io_buf& model_file, bool read, bool text)
     {
       std::stringstream os2;
       os2 << "alpha " << o.alpha[i] << endl;
-      VW::details::bin_text_write_fixed(
+      VW980::details::bin_text_write_fixed(
           model_file, reinterpret_cast<char*>(&(o.alpha[i])), sizeof(o.alpha[i]), os2, text);
     }
   }
@@ -352,14 +352,14 @@ void save_load(boosting& o, VW::io_buf& model_file, bool read, bool text)
   }
 }
 
-void save_load_boosting_noop(boosting&, VW::io_buf&, bool, bool) {}
+void save_load_boosting_noop(boosting&, VW980::io_buf&, bool, bool) {}
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::boosting_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::boosting_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto data = VW::make_unique<boosting>(all.logger);
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto data = VW980::make_unique<boosting>(all.logger);
   option_group_definition new_options("[Reduction] Boosting");
   new_options.add(make_option("boosting", data->N).keep().necessary().help("Online boosting with <N> weak learners"))
       .add(make_option("gamma", data->gamma)
@@ -393,8 +393,8 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::boosting_setup(VW::setup_b
 
   size_t feature_width = data->N;
   std::string name_addition;
-  void (*learn_ptr)(boosting&, VW::LEARNER::learner&, VW::example&);
-  void (*pred_ptr)(boosting&, VW::LEARNER::learner&, VW::example&);
+  void (*learn_ptr)(boosting&, VW980::LEARNER::learner&, VW980::example&);
+  void (*pred_ptr)(boosting&, VW980::LEARNER::learner&, VW980::example&);
   void (*save_load_fn)(boosting&, io_buf&, bool, bool);
 
   if (data->alg == "BBM")
@@ -423,14 +423,14 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::boosting_setup(VW::setup_b
   auto l = make_reduction_learner(std::move(data), require_singleline(stack_builder.setup_base_learner(feature_width)),
       learn_ptr, pred_ptr, stack_builder.get_setupfn_name(boosting_setup) + name_addition)
                .set_feature_width(feature_width)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
-               .set_output_prediction_type(VW::prediction_type_t::SCALAR)
-               .set_input_label_type(VW::label_type_t::SIMPLE)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
+               .set_output_prediction_type(VW980::prediction_type_t::SCALAR)
+               .set_input_label_type(VW980::label_type_t::SIMPLE)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
                .set_save_load(save_load_fn)
-               .set_output_example_prediction(VW::details::output_example_prediction_simple_label<boosting>)
-               .set_update_stats(VW::details::update_stats_simple_label<boosting>)
-               .set_print_update(VW::details::print_update_simple_label<boosting>)
+               .set_output_example_prediction(VW980::details::output_example_prediction_simple_label<boosting>)
+               .set_update_stats(VW980::details::update_stats_simple_label<boosting>)
+               .set_print_update(VW980::details::print_update_simple_label<boosting>)
                .build();
 
   return l;

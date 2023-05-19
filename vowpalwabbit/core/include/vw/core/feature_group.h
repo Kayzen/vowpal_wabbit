@@ -19,7 +19,7 @@
 #include <utility>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 
 using feature_value = float;
@@ -229,7 +229,7 @@ public:
     std::swap(lhs._begin_indices, rhs._begin_indices);
     std::swap(lhs._begin_audit, rhs._begin_audit);
   }
-  friend class ::VW::features;
+  friend class ::VW980::features;
 
 private:
   feature_value_type_t* _begin_values;
@@ -286,7 +286,7 @@ public:
   }
 
   friend bool operator!=(const ns_extent_iterator& lhs, const ns_extent_iterator& rhs) { return !(lhs == rhs); }
-  friend class ::VW::features;
+  friend class ::VW980::features;
 
 private:
   features_t* _feature_group;
@@ -396,7 +396,7 @@ public:
     std::swap(lhs._begin_values, rhs._begin_values);
     std::swap(lhs._begin_indices, rhs._begin_indices);
   }
-  friend class ::VW::features;
+  friend class ::VW980::features;
 
 private:
   feature_value_type_t* _begin_values;
@@ -411,22 +411,22 @@ class features
 public:
   using iterator = details::features_iterator<feature_value, feature_index>;
   using const_iterator = details::features_iterator<const feature_value, const feature_index>;
-  using audit_iterator = details::audit_features_iterator<feature_value, feature_index, VW::audit_strings>;
+  using audit_iterator = details::audit_features_iterator<feature_value, feature_index, VW980::audit_strings>;
   using const_audit_iterator =
-      details::audit_features_iterator<const feature_value, const feature_index, const VW::audit_strings>;
+      details::audit_features_iterator<const feature_value, const feature_index, const VW980::audit_strings>;
   using extent_iterator =
-      details::ns_extent_iterator<features, audit_iterator, std::vector<VW::namespace_extent>::iterator>;
+      details::ns_extent_iterator<features, audit_iterator, std::vector<VW980::namespace_extent>::iterator>;
   using const_extent_iterator = details::ns_extent_iterator<const features, const_audit_iterator,
-      std::vector<VW::namespace_extent>::const_iterator>;
+      std::vector<VW980::namespace_extent>::const_iterator>;
 
-  VW::v_array<feature_value> values;           // Always needed.
-  VW::v_array<feature_index> indices;          // Optional for sparse data.
-  std::vector<VW::audit_strings> space_names;  // Optional for audit mode.
+  VW980::v_array<feature_value> values;           // Always needed.
+  VW980::v_array<feature_index> indices;          // Optional for sparse data.
+  std::vector<VW980::audit_strings> space_names;  // Optional for audit mode.
 
   // Each extent represents a range [begin, end) of values which exist in a
   // given namespace. These extents must not overlap and the indices must not go
   // outside the range of the values container.
-  std::vector<VW::namespace_extent> namespace_extents;
+  std::vector<VW980::namespace_extent> namespace_extents;
 
   float sum_feat_sq = 0.f;
 
@@ -454,8 +454,8 @@ public:
   inline const_iterator cbegin() const { return {values.cbegin(), indices.cbegin()}; }
   inline const_iterator cend() const { return {values.cend(), indices.cend()}; }
 
-  inline VW::generic_range<audit_iterator> audit_range() { return {audit_begin(), audit_end()}; }
-  inline VW::generic_range<const_audit_iterator> audit_range() const { return {audit_cbegin(), audit_cend()}; }
+  inline VW980::generic_range<audit_iterator> audit_range() { return {audit_begin(), audit_end()}; }
+  inline VW980::generic_range<const_audit_iterator> audit_range() const { return {audit_cbegin(), audit_cend()}; }
 
   inline audit_iterator audit_begin() { return {values.begin(), indices.begin(), space_names.data()}; }
   inline const_audit_iterator audit_begin() const { return {values.begin(), indices.begin(), space_names.data()}; }
@@ -506,20 +506,20 @@ public:
   {
     // For an extent to be complete it must not have an end index of 0 and it must be > 0 in width.
     const auto all_extents_complete = std::all_of(namespace_extents.begin(), namespace_extents.end(),
-        [](const VW::namespace_extent& obj) { return obj.begin_index < obj.end_index; });
+        [](const VW980::namespace_extent& obj) { return obj.begin_index < obj.end_index; });
     return all_extents_complete;
   }
 };
 
 /// Both fs1 and fs2 must be sorted.
-/// Most often used with VW::flatten_features
+/// Most often used with VW980::flatten_features
 float features_dot_product(const features& fs1, const features& fs2);
-}  // namespace VW
+}  // namespace VW980
 
-using feature_value VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW::feature_value;
-using feature_index VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW::feature_index;
-using namespace_index VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW::namespace_index;
-using extent_term VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW::extent_term;
-using audit_strings VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW::audit_strings;
-using features VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW::features;
-using feature VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW::feature;
+using feature_value VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW980::feature_value;
+using feature_index VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW980::feature_index;
+using namespace_index VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW980::namespace_index;
+using extent_term VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW980::extent_term;
+using audit_strings VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW980::audit_strings;
+using features VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW980::features;
+using feature VW_DEPRECATED("Moved into VW namespace. Will be removed in VW 10.") = VW980::feature;

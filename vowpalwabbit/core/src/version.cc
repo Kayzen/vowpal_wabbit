@@ -10,7 +10,7 @@
 
 #include <cstdio>
 
-namespace VW
+namespace VW980
 {
 version_struct::version_struct(const char* str)
 {
@@ -31,4 +31,4 @@ const std::string git_commit(COMMIT_VERSION);
 VW_WARNING_STATE_POP
 
 const std::string GIT_COMMIT(COMMIT_VERSION);
-}  // namespace VW
+}  // namespace VW980

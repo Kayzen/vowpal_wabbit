@@ -9,7 +9,7 @@
 
 #include <string>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -20,12 +20,12 @@ public:
   input_parser(std::string name) : _name(std::move(name)) {}
   virtual ~input_parser() = default;
 
-  virtual bool next(VW::workspace& workspace_instance, io_buf& buffer, VW::multi_ex& output_examples) = 0;
-  VW::string_view get_name() const { return _name; }
+  virtual bool next(VW980::workspace& workspace_instance, io_buf& buffer, VW980::multi_ex& output_examples) = 0;
+  VW980::string_view get_name() const { return _name; }
 
 private:
   std::string _name;
 };
 
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980

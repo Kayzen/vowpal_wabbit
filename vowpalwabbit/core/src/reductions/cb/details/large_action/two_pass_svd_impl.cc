@@ -9,7 +9,7 @@
 #include "vw/core/label_dictionary.h"
 #include "vw/core/reductions/gd.h"
 
-namespace VW
+namespace VW980
 {
 namespace cb_explore_adf
 {
@@ -37,7 +37,7 @@ public:
       _non_zero_rows.emplace(index);
       auto combined_index = _row_index + _column_index + _seed;
       // index is the equivalent of going over A's rows which turn out to be A.transpose()'s columns
-      auto calc = feature_value * VW::details::merand48_boxmuller(combined_index) * _shrink_factors[_row_index];
+      auto calc = feature_value * VW980::details::merand48_boxmuller(combined_index) * _shrink_factors[_row_index];
       _triplets.emplace_back(Eigen::Triplet<float>(index & _weights_mask, _column_index, calc));
       if ((index & _weights_mask) > _max_col) { _max_col = (index & _weights_mask); }
     }
@@ -85,11 +85,11 @@ bool two_pass_svd_impl::generate_Y(const multi_ex& examples, const std::vector<f
 
   for (auto* ex : examples)
   {
-    assert(!VW::ec_is_example_header_cb(*ex));
+    assert(!VW980::ec_is_example_header_cb(*ex));
 
-    auto& red_features = ex->ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+    auto& red_features = ex->ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
     auto* shared_example = red_features.shared_example;
-    if (shared_example != nullptr) { VW::details::truncate_example_namespaces_from_example(*ex, *shared_example); }
+    if (shared_example != nullptr) { VW980::details::truncate_example_namespaces_from_example(*ex, *shared_example); }
 
     for (uint64_t col = 0; col < _d; col++)
     {
@@ -97,7 +97,7 @@ bool two_pass_svd_impl::generate_Y(const multi_ex& examples, const std::vector<f
       {
         Y_triplet_constructor tc(_all->weights.sparse_weights.mask(), row_index, col, _seed, _triplets,
             max_non_zero_col, non_zero_rows, shrink_factors);
-        VW::foreach_feature<Y_triplet_constructor, uint64_t, triplet_construction, sparse_parameters>(
+        VW980::foreach_feature<Y_triplet_constructor, uint64_t, triplet_construction, sparse_parameters>(
             _all->weights.sparse_weights, _all->ignore_some_linear, _all->ignore_linear,
             (red_features.generated_interactions ? *red_features.generated_interactions : *ex->interactions),
             (red_features.generated_extent_interactions ? *red_features.generated_extent_interactions
@@ -108,7 +108,7 @@ bool two_pass_svd_impl::generate_Y(const multi_ex& examples, const std::vector<f
       {
         Y_triplet_constructor tc(_all->weights.dense_weights.mask(), row_index, col, _seed, _triplets, max_non_zero_col,
             non_zero_rows, shrink_factors);
-        VW::foreach_feature<Y_triplet_constructor, uint64_t, triplet_construction, dense_parameters>(
+        VW980::foreach_feature<Y_triplet_constructor, uint64_t, triplet_construction, dense_parameters>(
             _all->weights.dense_weights, _all->ignore_some_linear, _all->ignore_linear,
             (red_features.generated_interactions ? *red_features.generated_interactions : *ex->interactions),
             (red_features.generated_extent_interactions ? *red_features.generated_extent_interactions
@@ -117,7 +117,7 @@ bool two_pass_svd_impl::generate_Y(const multi_ex& examples, const std::vector<f
       }
     }
 
-    if (shared_example != nullptr) { VW::details::append_example_namespaces_from_example(*ex, *shared_example); }
+    if (shared_example != nullptr) { VW980::details::append_example_namespaces_from_example(*ex, *shared_example); }
 
     row_index++;
   }
@@ -126,7 +126,7 @@ bool two_pass_svd_impl::generate_Y(const multi_ex& examples, const std::vector<f
   Y.setZero();
   Y.setFromTriplets(_triplets.begin(), _triplets.end());
   // Orthonormalize Y
-  VW::gram_schmidt(Y);
+  VW980::gram_schmidt(Y);
 
   return non_zero_rows.size() > _d;
 }
@@ -141,11 +141,11 @@ void two_pass_svd_impl::generate_B(const multi_ex& examples, const std::vector<f
   uint64_t row_index = 0;
   for (auto* ex : examples)
   {
-    assert(!VW::ec_is_example_header_cb(*ex));
+    assert(!VW980::ec_is_example_header_cb(*ex));
 
-    auto& red_features = ex->ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+    auto& red_features = ex->ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
     auto* shared_example = red_features.shared_example;
-    if (shared_example != nullptr) { VW::details::truncate_example_namespaces_from_example(*ex, *shared_example); }
+    if (shared_example != nullptr) { VW980::details::truncate_example_namespaces_from_example(*ex, *shared_example); }
 
     for (Eigen::Index col = 0; col < Y.outerSize(); ++col)
     {
@@ -153,7 +153,7 @@ void two_pass_svd_impl::generate_B(const multi_ex& examples, const std::vector<f
       if (_all->weights.sparse)
       {
         B_triplet_constructor tc(_all->weights.sparse_weights.mask(), col, Y, final_dot_prod);
-        VW::foreach_feature<B_triplet_constructor, uint64_t, triplet_construction, sparse_parameters>(
+        VW980::foreach_feature<B_triplet_constructor, uint64_t, triplet_construction, sparse_parameters>(
             _all->weights.sparse_weights, _all->ignore_some_linear, _all->ignore_linear,
             (red_features.generated_interactions ? *red_features.generated_interactions : *ex->interactions),
             (red_features.generated_extent_interactions ? *red_features.generated_extent_interactions
@@ -163,7 +163,7 @@ void two_pass_svd_impl::generate_B(const multi_ex& examples, const std::vector<f
       else
       {
         B_triplet_constructor tc(_all->weights.dense_weights.mask(), col, Y, final_dot_prod);
-        VW::foreach_feature<B_triplet_constructor, uint64_t, triplet_construction, dense_parameters>(
+        VW980::foreach_feature<B_triplet_constructor, uint64_t, triplet_construction, dense_parameters>(
             _all->weights.dense_weights, _all->ignore_some_linear, _all->ignore_linear,
             (red_features.generated_interactions ? *red_features.generated_interactions : *ex->interactions),
             (red_features.generated_extent_interactions ? *red_features.generated_extent_interactions
@@ -174,7 +174,7 @@ void two_pass_svd_impl::generate_B(const multi_ex& examples, const std::vector<f
       B(row_index, col) = shrink_factors[row_index] * final_dot_prod;
     }
 
-    if (shared_example != nullptr) { VW::details::append_example_namespaces_from_example(*ex, *shared_example); }
+    if (shared_example != nullptr) { VW980::details::append_example_namespaces_from_example(*ex, *shared_example); }
 
     row_index++;
   }
@@ -210,10 +210,10 @@ void two_pass_svd_impl::run(const multi_ex& examples, const std::vector<float>& 
 }
 
 two_pass_svd_impl::two_pass_svd_impl(
-    VW::workspace* all, uint64_t d, uint64_t seed, size_t, size_t, size_t, size_t, bool)
+    VW980::workspace* all, uint64_t d, uint64_t seed, size_t, size_t, size_t, size_t, bool)
     : _all(all), _d(d), _seed(seed)
 {
 }
 
 }  // namespace cb_explore_adf
-}  // namespace VW
+}  // namespace VW980

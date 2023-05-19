@@ -9,12 +9,12 @@
 
 #include <string>
 
-VW::hash_func_t get_hasher(const std::string& s) { return VW::get_hasher(s); }
+VW980::hash_func_t get_hasher(const std::string& s) { return VW980::get_hasher(s); }
 
-VW::hash_func_t VW::get_hasher(const std::string& s)
+VW980::hash_func_t VW980::get_hasher(const std::string& s)
 {
-  if (s == "strings") { return VW::details::hashstring; }
-  else if (s == "all") { return VW::details::hashall; }
+  if (s == "strings") { return VW980::details::hashstring; }
+  else if (s == "all") { return VW980::details::hashall; }
   else
     THROW("Unknown hash function: " << s);
 }

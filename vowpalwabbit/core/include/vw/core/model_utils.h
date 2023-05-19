@@ -15,7 +15,7 @@
 #include <string>
 #include <type_traits>
 
-namespace VW
+namespace VW980
 {
 namespace model_utils
 {
@@ -34,7 +34,7 @@ size_t write_text_mode_output(io_buf& io, const T& var, const std::string& name_
 
   std::string message;
   // If the user has supplied a template string then use that.
-  if (name_or_readable_field_template.find("{}") != VW::string_view::npos)
+  if (name_or_readable_field_template.find("{}") != VW980::string_view::npos)
   {
 #if FMT_VERSION >= 80000
     message = fmt::format(fmt::runtime(name_or_readable_field_template), var);
@@ -353,7 +353,7 @@ size_t read_model_field(io_buf& io, std::unique_ptr<T>& ptr)
     return bytes;
   }
 
-  ptr = VW::make_unique<T>();
+  ptr = VW980::make_unique<T>();
   bytes += read_model_field(io, *ptr);
   return bytes;
 }
@@ -375,4 +375,4 @@ size_t write_model_field(io_buf& io, const std::unique_ptr<T>& ptr, const std::s
 }
 
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980

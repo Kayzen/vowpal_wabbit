@@ -2,18 +2,18 @@
 
 #include "vw.net.workspace.h"
 
-API int SetupExample(vw_net_native::workspace_context* vw, VW::example* ex, VW::experimental::api_status* status)
+API int SetupExample(vw_net_native::workspace_context* vw, VW980::example* ex, VW980::experimental::api_status* status)
 {
   try
   {
-    VW::setup_example(*vw->vw, ex);
-    return VW::experimental::error_code::success;
+    VW980::setup_example(*vw->vw, ex);
+    return VW980::experimental::error_code::success;
   }
   CATCH_RETURN_STATUS
 }
 
 API vw_net_native::builder_context* CreateBuilder(
-    vw_net_native::workspace_context* vw, VW::example* ex, unsigned char feature_group)
+    vw_net_native::workspace_context* vw, VW980::example* ex, unsigned char feature_group)
 {
   vw_net_native::builder_context* builder = new vw_net_native::builder_context();
   builder->ex = ex;
@@ -32,7 +32,7 @@ API void DeleteBuilder(vw_net_native::builder_context* builder)
   // example is not necessarily in a "valid" state.
   if (builder->feature_data->size() > 0)
   {
-    VW::example& ex = *builder->ex;
+    VW980::example& ex = *builder->ex;
     const unsigned char feature_group = builder->feature_group;
 
     // avoid duplicate insertion
@@ -57,7 +57,7 @@ API void BuilderPreallocate(vw_net_native::builder_context* builder, vw_net_nati
   if (size < 0) { return; }
 
   size_t native_size = static_cast<size_t>(size);
-  VW::features& features = *builder->feature_data;
+  VW980::features& features = *builder->feature_data;
 
   features.values.reserve(native_size);
   features.indices.reserve(native_size);
@@ -71,7 +71,7 @@ API void BuilderAddFeature(vw_net_native::builder_context* builder, uint64_t wei
 API void BuilderAddFeaturesUnchecked(
     vw_net_native::builder_context* builder, uint64_t weight_index_base, float* begin, float* end)
 {
-  VW::features& features = *builder->feature_data;
+  VW980::features& features = *builder->feature_data;
 
   for (; begin != end; begin++)
   {

@@ -21,8 +21,8 @@
 // input = contextual bandit label
 // output = chosen ranking
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
@@ -73,12 +73,12 @@ public:
 class explore_eval
 {
 public:
-  VW::cb_class known_cost;
-  VW::workspace* all = nullptr;
-  std::shared_ptr<VW::rand_state> random_state;
+  VW980::cb_class known_cost;
+  VW980::workspace* all = nullptr;
+  std::shared_ptr<VW980::rand_state> random_state;
   uint64_t offset = 0;
-  VW::cb_label action_label;
-  VW::cb_label empty_label;
+  VW980::cb_label action_label;
+  VW980::cb_label empty_label;
   size_t example_counter = 0;
   rate_target rt_target;
 
@@ -112,8 +112,8 @@ void finish(explore_eval& data)
 // Semantics: Currently we compute the IPS loss no matter what flags
 // are specified. We print the first action and probability, based on
 // ordering by scores in the final output.
-void update_stats_explore_eval(const VW::workspace& all, VW::shared_data& sd, const explore_eval& data,
-    const VW::multi_ex& ec_seq, VW::io::logger& /* logger */)
+void update_stats_explore_eval(const VW980::workspace& all, VW980::shared_data& sd, const explore_eval& data,
+    const VW980::multi_ex& ec_seq, VW980::io::logger& /* logger */)
 {
   if (ec_seq.empty()) { return; }
   const auto& ec = **(ec_seq.begin());
@@ -122,12 +122,12 @@ void update_stats_explore_eval(const VW::workspace& all, VW::shared_data& sd, co
   size_t num_features = 0;
 
   float loss = 0.;
-  VW::action_scores preds = ec.pred.a_s;
-  VW::label_type_t label_type = all.example_parser->lbl_parser.label_type;
+  VW980::action_scores preds = ec.pred.a_s;
+  VW980::label_type_t label_type = all.example_parser->lbl_parser.label_type;
 
   for (size_t i = 0; i < ec_seq.size(); i++)
   {
-    if (!VW::LEARNER::ec_is_example_header(*ec_seq[i], label_type)) { num_features += ec_seq[i]->get_num_features(); }
+    if (!VW980::LEARNER::ec_is_example_header(*ec_seq[i], label_type)) { num_features += ec_seq[i]->get_num_features(); }
   }
 
   bool labeled_example = true;
@@ -147,8 +147,8 @@ void update_stats_explore_eval(const VW::workspace& all, VW::shared_data& sd, co
   sd.update(holdout_example, labeled_example, loss, ec.weight, num_features);
 }
 
-void print_update_explore_eval(VW::workspace& all, VW::shared_data& /*sd*/, const explore_eval& data,
-    const VW::multi_ex& ec_seq, VW::io::logger& /*logger*/)
+void print_update_explore_eval(VW980::workspace& all, VW980::shared_data& /*sd*/, const explore_eval& data,
+    const VW980::multi_ex& ec_seq, VW980::io::logger& /*logger*/)
 {
   if (ec_seq.empty()) { return; }
   const auto& ec = **(ec_seq.begin());
@@ -157,11 +157,11 @@ void print_update_explore_eval(VW::workspace& all, VW::shared_data& /*sd*/, cons
   bool labeled_example = true;
   if (data.known_cost.probability <= 0) { labeled_example = false; }
 
-  VW::details::print_update_cb(all, !labeled_example, ec, &ec_seq, true, nullptr);
+  VW980::details::print_update_cb(all, !labeled_example, ec, &ec_seq, true, nullptr);
 }
 
 void output_example_prediction_explore_eval(
-    VW::workspace& all, const explore_eval& /*data*/, const VW::multi_ex& ec_seq, VW::io::logger& /*logger*/)
+    VW980::workspace& all, const explore_eval& /*data*/, const VW980::multi_ex& ec_seq, VW980::io::logger& /*logger*/)
 {
   if (ec_seq.empty()) { return; }
   const auto& ec = **(ec_seq.begin());
@@ -169,7 +169,7 @@ void output_example_prediction_explore_eval(
 
   for (auto& sink : all.final_prediction_sink)
   {
-    VW::details::print_action_score(sink.get(), ec.pred.a_s, ec.tag, all.logger);
+    VW980::details::print_action_score(sink.get(), ec.pred.a_s, ec.tag, all.logger);
   }
 
   if (all.raw_prediction != nullptr)
@@ -187,13 +187,13 @@ void output_example_prediction_explore_eval(
     all.print_text_by_ref(all.raw_prediction.get(), "", ec_seq[0]->tag, all.logger);
   }
 
-  VW::details::global_print_newline(all.final_prediction_sink, all.logger);
+  VW980::details::global_print_newline(all.final_prediction_sink, all.logger);
 }
 
 template <bool is_learn>
-void do_actual_learning(explore_eval& data, learner& base, VW::multi_ex& ec_seq)
+void do_actual_learning(explore_eval& data, learner& base, VW980::multi_ex& ec_seq)
 {
-  VW::example* label_example = VW::test_cb_adf_sequence(ec_seq);
+  VW980::example* label_example = VW980::test_cb_adf_sequence(ec_seq);
 
   if (label_example != nullptr)  // extract label
   {
@@ -210,12 +210,12 @@ void do_actual_learning(explore_eval& data, learner& base, VW::multi_ex& ec_seq)
     data.empty_label.weight = 1.f;
   }
 
-  data.known_cost = VW::get_observed_cost_or_default_cb_adf(ec_seq);
+  data.known_cost = VW980::get_observed_cost_or_default_cb_adf(ec_seq);
   if (label_example != nullptr && is_learn)
   {
     data.example_counter++;
 
-    VW::action_scores& a_s = ec_seq[0]->pred.a_s;
+    VW980::action_scores& a_s = ec_seq[0]->pred.a_s;
 
     float action_probability = 0;
     bool action_found = false;
@@ -249,8 +249,8 @@ void do_actual_learning(explore_eval& data, learner& base, VW::multi_ex& ec_seq)
 
     if (data.random_state->get_and_update_random() < threshold)
     {
-      VW::example* ec_found = nullptr;
-      for (VW::example*& ec : ec_seq)
+      VW980::example* ec_found = nullptr;
+      for (VW980::example*& ec : ec_seq)
       {
         if (ec->l.cb.costs.size() == 1 && ec->l.cb.costs[0].cost != FLT_MAX && ec->l.cb.costs[0].probability > 0)
         {
@@ -280,11 +280,11 @@ void do_actual_learning(explore_eval& data, learner& base, VW::multi_ex& ec_seq)
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::explore_eval_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::explore_eval_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto data = VW::make_unique<explore_eval>();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto data = VW980::make_unique<explore_eval>();
   bool explore_eval_option = false;
   float target_rate = 1.f;
   option_group_definition new_options("[Reduction] Explore Evaluation");
@@ -316,10 +316,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::explore_eval_setup(VW::set
   auto l = make_reduction_learner(std::move(data), base, do_actual_learning<true>, do_actual_learning<false>,
       stack_builder.get_setupfn_name(explore_eval_setup))
                .set_learn_returns_prediction(true)
-               .set_input_prediction_type(VW::prediction_type_t::ACTION_PROBS)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_PROBS)
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
+               .set_input_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
                .set_update_stats(update_stats_explore_eval)
                .set_output_example_prediction(output_example_prediction_explore_eval)
                .set_print_update(print_update_explore_eval)

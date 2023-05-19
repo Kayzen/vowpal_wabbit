@@ -8,9 +8,9 @@
 #include "vowpalwabbit.h"
 #include "vw/core/learner.h"
 
-namespace VW
+namespace VW980
 {
-void CheckExample(VW::workspace* vw, example* ex, prediction_type_t type)
+void CheckExample(VW980::workspace* vw, example* ex, prediction_type_t type)
 { if (vw == nullptr)
     throw gcnew ArgumentNullException("vw");
 
@@ -22,32 +22,32 @@ void CheckExample(VW::workspace* vw, example* ex, prediction_type_t type)
   { auto sb = gcnew StringBuilder();
     sb->Append("Prediction type must be ");
     // Note: we know this is a static lifetime string constant that is null terminated.
-    sb->Append(gcnew String(VW::to_string(type).data()));
+    sb->Append(gcnew String(VW980::to_string(type).data()));
     sb->Append(" but is ");
     // Note: we know this is a static lifetime string constant that is null terminated.
-    sb->Append(gcnew String(VW::to_string(ex_pred_type).data()));
+    sb->Append(gcnew String(VW980::to_string(ex_pred_type).data()));
 
     throw gcnew ArgumentException(sb->ToString());
   }
 }
 
-float VowpalWabbitScalarPredictionFactory::Create(VW::workspace* vw, example* ex)
+float VowpalWabbitScalarPredictionFactory::Create(VW980::workspace* vw, example* ex)
 { CheckExample(vw, ex, PredictionType);
 
   try
-  { return VW::get_prediction(ex);
+  { return VW980::get_prediction(ex);
   }
   CATCHRETHROW
 }
 
 
-VowpalWabbitScalar VowpalWabbitScalarConfidencePredictionFactory::Create(VW::workspace* vw, example* ex)
+VowpalWabbitScalar VowpalWabbitScalarConfidencePredictionFactory::Create(VW980::workspace* vw, example* ex)
 { CheckExample(vw, ex, PredictionType);
 
   try
   { VowpalWabbitScalar ret;
 
-    ret.Value = VW::get_prediction(ex);
+    ret.Value = VW980::get_prediction(ex);
     ret.Confidence = ex->confidence;
 
     return ret;
@@ -55,7 +55,7 @@ VowpalWabbitScalar VowpalWabbitScalarConfidencePredictionFactory::Create(VW::wor
   CATCHRETHROW
 }
 
-cli::array<float>^ VowpalWabbitScalarsPredictionFactory::Create(VW::workspace* vw, example* ex)
+cli::array<float>^ VowpalWabbitScalarsPredictionFactory::Create(VW980::workspace* vw, example* ex)
 { CheckExample(vw, ex, PredictionType);
 
   try
@@ -70,22 +70,22 @@ cli::array<float>^ VowpalWabbitScalarsPredictionFactory::Create(VW::workspace* v
   CATCHRETHROW
 }
 
-float VowpalWabbitProbabilityPredictionFactory::Create(VW::workspace* vw, example* ex)
+float VowpalWabbitProbabilityPredictionFactory::Create(VW980::workspace* vw, example* ex)
 { CheckExample(vw, ex, PredictionType);
 
   return ex->pred.prob;
 }
 
-float VowpalWabbitCostSensitivePredictionFactory::Create(VW::workspace* vw, example* ex)
+float VowpalWabbitCostSensitivePredictionFactory::Create(VW980::workspace* vw, example* ex)
 { CheckExample(vw, ex, PredictionType);
 
   try
-  { return VW::get_cost_sensitive_prediction(ex);
+  { return VW980::get_cost_sensitive_prediction(ex);
   }
   CATCHRETHROW
 }
 
-Dictionary<int, float>^ VowpalWabbitMulticlassProbabilitiesPredictionFactory::Create(VW::workspace* vw, example* ex)
+Dictionary<int, float>^ VowpalWabbitMulticlassProbabilitiesPredictionFactory::Create(VW980::workspace* vw, example* ex)
 {
 #if _DEBUG
   if (ex == nullptr)
@@ -94,7 +94,7 @@ Dictionary<int, float>^ VowpalWabbitMulticlassProbabilitiesPredictionFactory::Cr
   v_array<float> confidence_scores;
 
   try
-  { confidence_scores = VW::get_cost_sensitive_prediction_confidence_scores(ex);
+  { confidence_scores = VW980::get_cost_sensitive_prediction_confidence_scores(ex);
   }
   CATCHRETHROW
 
@@ -107,20 +107,20 @@ Dictionary<int, float>^ VowpalWabbitMulticlassProbabilitiesPredictionFactory::Cr
   return values;
 }
 
-uint32_t VowpalWabbitMulticlassPredictionFactory::Create(VW::workspace* vw, example* ex)
+uint32_t VowpalWabbitMulticlassPredictionFactory::Create(VW980::workspace* vw, example* ex)
 { CheckExample(vw, ex, PredictionType);
 
   return ex->pred.multiclass;
 }
 
-cli::array<int>^ VowpalWabbitMultilabelPredictionFactory::Create(VW::workspace* vw, example* ex)
+cli::array<int>^ VowpalWabbitMultilabelPredictionFactory::Create(VW980::workspace* vw, example* ex)
 { CheckExample(vw, ex, prediction_type_t::MULTILABELS);
 
   size_t length;
   uint32_t* labels;
 
   try
-  { labels = VW::get_multilabel_predictions(ex, length);
+  { labels = VW980::get_multilabel_predictions(ex, length);
   }
   CATCHRETHROW
 
@@ -135,7 +135,7 @@ cli::array<int>^ VowpalWabbitMultilabelPredictionFactory::Create(VW::workspace* 
   return values;
 }
 
-cli::array<ActionScore>^ VowpalWabbitActionScoreBasePredictionFactory::Create(VW::workspace* vw, example* ex)
+cli::array<ActionScore>^ VowpalWabbitActionScoreBasePredictionFactory::Create(VW980::workspace* vw, example* ex)
 { CheckExample(vw, ex, PredictionType);
 
   auto& a_s = ex->pred.a_s;
@@ -151,7 +151,7 @@ cli::array<ActionScore>^ VowpalWabbitActionScoreBasePredictionFactory::Create(VW
   return values;
 }
 
-cli::array<float>^ VowpalWabbitTopicPredictionFactory::Create(VW::workspace* vw, example* ex)
+cli::array<float>^ VowpalWabbitTopicPredictionFactory::Create(VW980::workspace* vw, example* ex)
 { if (ex == nullptr)
     throw gcnew ArgumentNullException("ex");
 
@@ -161,7 +161,7 @@ cli::array<float>^ VowpalWabbitTopicPredictionFactory::Create(VW::workspace* vw,
   return values;
 }
 
-VowpalWabbitActiveMulticlass^ VowpalWabbitActiveMulticlassPredictionFactory::Create(VW::workspace* vw, example* ex)
+VowpalWabbitActiveMulticlass^ VowpalWabbitActiveMulticlassPredictionFactory::Create(VW980::workspace* vw, example* ex)
 {
   CheckExample(vw, ex, prediction_type_t::ACTIVE_MULTICLASS);
   auto struct_obj = gcnew VowpalWabbitActiveMulticlass();
@@ -179,7 +179,7 @@ VowpalWabbitActiveMulticlass^ VowpalWabbitActiveMulticlassPredictionFactory::Cre
   return struct_obj;
 }
 
-System::Object^ VowpalWabbitDynamicPredictionFactory::Create(VW::workspace* vw, example* ex)
+System::Object^ VowpalWabbitDynamicPredictionFactory::Create(VW980::workspace* vw, example* ex)
 { if (ex == nullptr)
     throw gcnew ArgumentNullException("ex");
 
@@ -206,7 +206,7 @@ System::Object^ VowpalWabbitDynamicPredictionFactory::Create(VW::workspace* vw, 
     { auto sb = gcnew StringBuilder();
       sb->Append("Unsupported prediction type: ");
       // Note: we know this is a static lifetime string constant that is null terminated.
-      sb->Append(gcnew String(VW::to_string(vw->l->get_output_prediction_type()).data()));
+      sb->Append(gcnew String(VW980::to_string(vw->l->get_output_prediction_type()).data()));
       throw gcnew ArgumentException(sb->ToString());
     }
   }

@@ -11,7 +11,7 @@ constexpr float CS_FLOAT_TOL = 0.1f;
 
 TEST(ConfidenceSeq, IncrementalFsumTest)
 {
-  VW::details::incremental_f_sum fsum;
+  VW980::details::incremental_f_sum fsum;
   fsum += 1.0;
   fsum += 2.0;
   fsum += 3.0;
@@ -27,7 +27,7 @@ TEST(ConfidenceSeq, IncrementalFsumTest)
 
 TEST(ConfidenceSeq, ConfidenceSequenceTest)
 {
-  VW::estimators::confidence_sequence cs;
+  VW980::estimators::confidence_sequence cs;
   std::vector<double> rs;
   for (int i = 0; i < 1000; ++i)
   {

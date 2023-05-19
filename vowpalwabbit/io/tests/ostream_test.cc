@@ -22,8 +22,8 @@ TEST(CustomOstream, CustomOstream)
   };
 
   auto ptr = std::unique_ptr<std::streambuf>(
-      new VW::io::writer_stream_buf(VW::io::create_custom_writer(nullptr, output_func)));
-  VW::io::owning_ostream stream{std::move(ptr)};
+      new VW980::io::writer_stream_buf(VW980::io::create_custom_writer(nullptr, output_func)));
+  VW980::io::owning_ostream stream{std::move(ptr)};
 
   stream << "This is the test input, " << 123 << std ::endl;
 }

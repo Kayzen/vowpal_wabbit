@@ -19,16 +19,16 @@
 #include <cassert>
 #include <limits>
 
-using namespace VW::config;
-using namespace VW::LEARNER;
+using namespace VW980::config;
+using namespace VW980::LEARNER;
 
 using std::vector;
-using VW::cb_class;
+using VW980::cb_class;
 
 #undef VW_DEBUG_LOG
 #define VW_DEBUG_LOG vw_dbg::CATS_TREE
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
@@ -162,7 +162,7 @@ uint32_t cats_tree::predict(LEARNER::learner& base, example& ec)
 
   // Handle degenerate cases of zero node trees
   if (_binary_tree.leaf_node_count() == 0) { return 0; }
-  VW::cb_label saved_label = std::move(ec.l.cb);
+  VW980::cb_label saved_label = std::move(ec.l.cb);
   ec.l.simple.label = std::numeric_limits<float>::max();  // says it is a test example
   auto cur_node = nodes[0];
 
@@ -175,7 +175,7 @@ uint32_t cats_tree::predict(LEARNER::learner& base, example& ec)
       ec.partial_prediction = 0.f;
       ec.pred.scalar = 0.f;
       base.predict(ec, cur_node.id);
-      VW_DBG(ec) << "tree_c: predict() after base.predict() " << VW::debug::scalar_pred_to_string(ec)
+      VW_DBG(ec) << "tree_c: predict() after base.predict() " << VW980::debug::scalar_pred_to_string(ec)
                  << ", nodeid = " << cur_node.id << std::endl;
       if (ec.pred.scalar < 0) { cur_node = nodes[cur_node.left_id]; }
       else { cur_node = nodes[cur_node.right_id]; }
@@ -257,10 +257,10 @@ void cats_tree::learn(LEARNER::learner& base, example& ec)
         if (ec.weight < weight_th)
         {
           // generate a new seed
-          uint64_t new_random_seed = VW::uniform_hash(
+          uint64_t new_random_seed = VW980::uniform_hash(
               reinterpret_cast<const char*>(&app_seed), sizeof(app_seed), static_cast<uint32_t>(app_seed));
           // pick a uniform random number between 0.0 - .001f
-          float random_draw = VW::details::merand48(new_random_seed) * weight_th;
+          float random_draw = VW980::details::merand48(new_random_seed) * weight_th;
           if (random_draw < ec.weight) { ec.weight = weight_th; }
           else { filter = true; }
         }
@@ -270,7 +270,7 @@ void cats_tree::learn(LEARNER::learner& base, example& ec)
           base.learn(ec, v.parent_id);
           _binary_tree.nodes[v.parent_id].learn_count++;
           base.predict(ec, v.parent_id);
-          VW_DBG(ec) << "tree_c: learn() after binary predict:" << VW::debug::scalar_pred_to_string(ec)
+          VW_DBG(ec) << "tree_c: learn() after binary predict:" << VW980::debug::scalar_pred_to_string(ec)
                      << ", local_action = " << (local_action) << std::endl;
           float trained_action = (ec.pred.scalar < 0) ? LEFT : RIGHT;
 
@@ -312,32 +312,32 @@ cats_tree::~cats_tree()
 std::string cats_tree::tree_stats_to_string() { return _binary_tree.tree_stats_to_string(); }
 }  // namespace cats
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980
 namespace
 {
-void predict(VW::reductions::cats::cats_tree& ot, learner& base, VW::example& ec)
+void predict(VW980::reductions::cats::cats_tree& ot, learner& base, VW980::example& ec)
 {
-  VW_DBG(ec) << "tree_c: before tree.predict() " << VW::debug::multiclass_pred_to_string(ec)
-             << VW::debug::features_to_string(ec) << std::endl;
+  VW_DBG(ec) << "tree_c: before tree.predict() " << VW980::debug::multiclass_pred_to_string(ec)
+             << VW980::debug::features_to_string(ec) << std::endl;
   ec.pred.multiclass = ot.predict(base, ec);
-  VW_DBG(ec) << "tree_c: after tree.predict() " << VW::debug::multiclass_pred_to_string(ec)
-             << VW::debug::features_to_string(ec) << std::endl;
+  VW_DBG(ec) << "tree_c: after tree.predict() " << VW980::debug::multiclass_pred_to_string(ec)
+             << VW980::debug::features_to_string(ec) << std::endl;
 }
 
-void learn(VW::reductions::cats::cats_tree& tree, learner& base, VW::example& ec)
+void learn(VW980::reductions::cats::cats_tree& tree, learner& base, VW980::example& ec)
 {
-  VW_DBG(ec) << "tree_c: before tree.learn() " << VW::debug::cb_label_to_string(ec) << VW::debug::features_to_string(ec)
+  VW_DBG(ec) << "tree_c: before tree.learn() " << VW980::debug::cb_label_to_string(ec) << VW980::debug::features_to_string(ec)
              << std::endl;
   tree.learn(base, ec);
-  VW_DBG(ec) << "tree_c: after tree.learn() " << VW::debug::cb_label_to_string(ec) << VW::debug::features_to_string(ec)
+  VW_DBG(ec) << "tree_c: after tree.learn() " << VW980::debug::cb_label_to_string(ec) << VW980::debug::features_to_string(ec)
              << std::endl;
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cats_tree_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cats_tree_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
 
   option_group_definition new_options("[Reduction] CATS Tree");
   uint32_t num_actions;  // = K = 2^D
@@ -358,7 +358,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cats_tree_setup(VW::setup_
   // default behaviour uses binary
   if (!options.was_supplied("link")) { options.insert("binary", ""); }
 
-  auto tree = VW::make_unique<VW::reductions::cats::cats_tree>();
+  auto tree = VW980::make_unique<VW980::reductions::cats::cats_tree>();
   tree->init(num_actions, bandwidth);
   tree->set_trace_message(all.trace_message, all.quiet);
 
@@ -367,10 +367,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cats_tree_setup(VW::setup_
   auto l = make_reduction_learner(
       std::move(tree), require_singleline(base), learn, predict, stack_builder.get_setupfn_name(cats_tree_setup))
                .set_feature_width(feature_width)
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
-               .set_output_prediction_type(VW::prediction_type_t::MULTICLASS)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
+               .set_output_prediction_type(VW980::prediction_type_t::MULTICLASS)
                .build();
   return l;
 }

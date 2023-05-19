@@ -6,7 +6,7 @@
 
 #include "vw/core/model_utils.h"
 
-namespace VW
+namespace VW980
 {
 namespace estimators
 {
@@ -23,7 +23,7 @@ void cressieread::persist(metric_sink& metrics, const std::string& suffix)
 {
   metrics.set_uint("upcnt" + suffix, update_count);
   metrics.set_float("ips" + suffix, current_ips());
-  VW::details::ScoredDual sd = chisq.recompute_duals();
+  VW980::details::ScoredDual sd = chisq.recompute_duals();
   metrics.set_float("bound" + suffix, static_cast<float>(sd.first));
   metrics.set_float("w" + suffix, last_w);
   metrics.set_float("r" + suffix, last_r);
@@ -47,7 +47,7 @@ float cressieread::upper_bound() { return chisq.cressieread_upper_bound(); }
 
 namespace model_utils
 {
-size_t read_model_field(io_buf& io, VW::estimators::cressieread& sc)
+size_t read_model_field(io_buf& io, VW980::estimators::cressieread& sc)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, sc.chisq);
@@ -58,7 +58,7 @@ size_t read_model_field(io_buf& io, VW::estimators::cressieread& sc)
   return bytes;
 }
 
-size_t write_model_field(io_buf& io, const VW::estimators::cressieread& sc, const std::string& upstream_name, bool text)
+size_t write_model_field(io_buf& io, const VW980::estimators::cressieread& sc, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, sc.chisq, upstream_name + "_chisq", text);
@@ -69,4 +69,4 @@ size_t write_model_field(io_buf& io, const VW::estimators::cressieread& sc, cons
   return bytes;
 }
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980

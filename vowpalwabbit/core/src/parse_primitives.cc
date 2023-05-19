@@ -15,7 +15,7 @@
 #include <stdexcept>
 #include <string>
 
-std::vector<std::string> VW::details::escaped_tokenize(char delim, VW::string_view s, bool allow_empty)
+std::vector<std::string> VW980::details::escaped_tokenize(char delim, VW980::string_view s, bool allow_empty)
 {
   std::vector<std::string> tokens;
   std::string current;
@@ -23,7 +23,7 @@ std::vector<std::string> VW::details::escaped_tokenize(char delim, VW::string_vi
   const char delims[3] = {'\\', delim, '\0'};
   bool last_space = false;
 
-  while (!s.empty() && ((end_pos = s.find_first_of(delims)) != VW::string_view::npos))
+  while (!s.empty() && ((end_pos = s.find_first_of(delims)) != VW980::string_view::npos))
   {
     if (s[end_pos] == '\\')
     {
@@ -116,11 +116,11 @@ std::vector<std::string> split_impl(It begin, It end)
   return ret;
 }
 
-namespace VW
+namespace VW980
 {
-std::string trim_whitespace(const std::string& str) { return std::string(VW::trim_whitespace(VW::string_view(str))); }
+std::string trim_whitespace(const std::string& str) { return std::string(VW980::trim_whitespace(VW980::string_view(str))); }
 
-VW::string_view trim_whitespace(VW::string_view str)
+VW980::string_view trim_whitespace(VW980::string_view str)
 {
   // Determine start
   auto start = std::find_if_not(str.begin(), str.end(), [](char c) { return std::isspace(c); });
@@ -135,7 +135,7 @@ VW::string_view trim_whitespace(VW::string_view str)
   return str.substr(start_pos, (end_pos - start_pos) + 1);
 }
 
-std::vector<std::string> split_command_line(VW::string_view cmd_line)
+std::vector<std::string> split_command_line(VW980::string_view cmd_line)
 {
   return split_impl(cmd_line.begin(), cmd_line.end());
 }
@@ -145,9 +145,9 @@ std::vector<std::string> split_command_line(const std::string& cmd_line)
   return split_impl(cmd_line.begin(), cmd_line.end());
 }
 
-std::vector<VW::string_view> split_by_limit(const VW::string_view& s, size_t limit)
+std::vector<VW980::string_view> split_by_limit(const VW980::string_view& s, size_t limit)
 {
-  std::vector<VW::string_view> result;
+  std::vector<VW980::string_view> result;
   size_t start = 0;
   while (start < s.size())
   {
@@ -158,4 +158,4 @@ std::vector<VW::string_view> split_by_limit(const VW::string_view& s, size_t lim
   }
   return result;
 }
-}  // namespace VW
+}  // namespace VW980

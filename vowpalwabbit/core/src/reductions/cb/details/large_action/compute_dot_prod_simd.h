@@ -11,7 +11,7 @@
 #  include "vw/core/example.h"
 #  include "vw/core/global_data.h"
 
-namespace VW
+namespace VW980
 {
 namespace cb_explore_adf
 {
@@ -24,12 +24,12 @@ inline bool cpu_supports_avx512()
 }
 
 // A data parallel implementation of the foreach_feature that processes 8 features at once.
-float compute_dot_prod_avx2(uint64_t column_index, VW::workspace* _all, uint64_t seed, VW::example* ex);
+float compute_dot_prod_avx2(uint64_t column_index, VW980::workspace* _all, uint64_t seed, VW980::example* ex);
 
 // A data parallel implementation of the foreach_feature that processes 16 features at once.
-float compute_dot_prod_avx512(uint64_t column_index, VW::workspace* _all, uint64_t seed, VW::example* ex);
+float compute_dot_prod_avx512(uint64_t column_index, VW980::workspace* _all, uint64_t seed, VW980::example* ex);
 
 }  // namespace cb_explore_adf
-}  // namespace VW
+}  // namespace VW980
 
 #endif

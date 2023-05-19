@@ -24,8 +24,8 @@
 // #define B_SEARCH_MAX_ITER 50
 #define B_SEARCH_MAX_ITER 20
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 using std::endl;
 
@@ -44,7 +44,7 @@ public:
   bool is_range_overlapped;  // Indicator of whether this label's cost range overlaps with the cost range that has the
                              // minimum max_pred
   bool query_needed;         // Used in reduction mode: tell upper-layer whether a query is needed for this label
-  VW::cs_class* cl;
+  VW980::cs_class* cl;
 };
 
 class cs_active
@@ -66,14 +66,14 @@ public:
   bool is_baseline = false;
   bool use_domination = false;
 
-  VW::workspace* all = nullptr;  // statistics, loss
-  VW::LEARNER::learner* l = nullptr;
+  VW980::workspace* all = nullptr;  // statistics, loss
+  VW980::LEARNER::learner* l = nullptr;
 
-  VW::v_array<lq_data> query_data;
+  VW980::v_array<lq_data> query_data;
 
   size_t num_any_queries = 0;  // examples where at least one label is queried
   size_t overlapped_and_range_small = 0;
-  VW::v_array<size_t> examples_by_queries;
+  VW980::v_array<size_t> examples_by_queries;
   size_t labels_outside_range = 0;
   float distance_to_range = 0.f;
   float range = 0.f;
@@ -100,13 +100,13 @@ float binary_search(float fhat, float delta, float sens, float tol)
 }
 
 template <bool is_learn, bool is_simulation>
-inline void inner_loop(cs_active& cs_a, learner& base, VW::example& ec, uint32_t i, float cost, uint32_t& prediction,
+inline void inner_loop(cs_active& cs_a, learner& base, VW980::example& ec, uint32_t i, float cost, uint32_t& prediction,
     float& score, float& partial_prediction, bool query_this_label, bool& query_needed)
 {
   base.predict(ec, i - 1);
   if (is_learn)
   {
-    VW::workspace& all = *cs_a.all;
+    VW980::workspace& all = *cs_a.all;
     ec.weight = 1.;
     if (is_simulation)
     {
@@ -152,7 +152,7 @@ inline void inner_loop(cs_active& cs_a, learner& base, VW::example& ec, uint32_t
   VW_ADD_PASSTHROUGH_FEATURE(ec, i, ec.partial_prediction);
 }
 
-inline void find_cost_range(cs_active& cs_a, learner& base, VW::example& ec, uint32_t i, float delta, float eta,
+inline void find_cost_range(cs_active& cs_a, learner& base, VW980::example& ec, uint32_t i, float delta, float eta,
     float& min_pred, float& max_pred, bool& is_range_large)
 {
   float tol = 1e-6f;
@@ -188,9 +188,9 @@ inline void find_cost_range(cs_active& cs_a, learner& base, VW::example& ec, uin
 }
 
 template <bool is_learn, bool is_simulation>
-void predict_or_learn(cs_active& cs_a, learner& base, VW::example& ec)
+void predict_or_learn(cs_active& cs_a, learner& base, VW980::example& ec)
 {
-  VW::cs_label ld = ec.l.cs;
+  VW980::cs_label ld = ec.l.cs;
 
   if (cs_a.all->sd->queries >= cs_a.min_labels * cs_a.num_classes)
   {
@@ -198,7 +198,7 @@ void predict_or_learn(cs_active& cs_a, learner& base, VW::example& ec)
     std::stringstream filename;
     filename << cs_a.all->final_regressor_name << "." << ec.example_counter << "." << cs_a.all->sd->queries << "."
              << cs_a.num_any_queries;
-    VW::save_predictor(*(cs_a.all), filename.str());
+    VW980::save_predictor(*(cs_a.all), filename.str());
     *(cs_a.all->trace_message) << endl << "Number of examples with at least one query = " << cs_a.num_any_queries;
     // Double label query budget
     cs_a.min_labels *= 2;
@@ -222,7 +222,7 @@ void predict_or_learn(cs_active& cs_a, learner& base, VW::example& ec)
   uint32_t prediction = 1;
   float score = FLT_MAX;
   ec.l.simple = {0.f};
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
 
   float min_max_cost = FLT_MAX;
   float t = static_cast<float>(cs_a.t);  // ec.example_t;  // current round
@@ -235,7 +235,7 @@ void predict_or_learn(cs_active& cs_a, learner& base, VW::example& ec)
   if (ld.costs.size() > 0)
   {
     // Create metadata structure
-    for (VW::cs_class& cl : ld.costs)
+    for (VW980::cs_class& cl : ld.costs)
     {
       lq_data f = {0.0, 0.0, 0, 0, 0, &cl};
       cs_a.query_data.push_back(f);
@@ -303,8 +303,8 @@ void predict_or_learn(cs_active& cs_a, learner& base, VW::example& ec)
   ec.l.cs = ld;
 }
 
-void update_stats_cs_active(const VW::workspace& /* all */, VW::shared_data& sd, const cs_active& /* data */,
-    const VW::example& ec, VW::io::logger& logger)
+void update_stats_cs_active(const VW980::workspace& /* all */, VW980::shared_data& sd, const cs_active& /* data */,
+    const VW980::example& ec, VW980::io::logger& logger)
 {
   const auto& label = ec.l.cs;
   const auto multiclass_prediction = ec.pred.active_multiclass.predicted_class;
@@ -335,7 +335,7 @@ void update_stats_cs_active(const VW::workspace& /* all */, VW::shared_data& sd,
 }
 
 void output_example_prediction_cs_active(
-    VW::workspace& all, const cs_active& /* data */, const VW::example& ec, VW::io::logger& /* unused */)
+    VW980::workspace& all, const cs_active& /* data */, const VW980::example& ec, VW980::io::logger& /* unused */)
 {
   const auto& label = ec.l.cs;
   const auto multiclass_prediction = ec.pred.active_multiclass.predicted_class;
@@ -348,7 +348,7 @@ void output_example_prediction_cs_active(
     }
     else
     {
-      VW::string_view sv_pred = all.sd->ldict->get(multiclass_prediction);
+      VW980::string_view sv_pred = all.sd->ldict->get(multiclass_prediction);
       all.print_text_by_ref(sink.get(), std::string{sv_pred}, ec.tag, all.logger);
     }
   }
@@ -366,21 +366,21 @@ void output_example_prediction_cs_active(
   }
 }
 
-void print_update_cs_active(VW::workspace& all, VW::shared_data& /* sd */, const cs_active& /* data */,
-    const VW::example& ec, VW::io::logger& /* unused */)
+void print_update_cs_active(VW980::workspace& all, VW980::shared_data& /* sd */, const cs_active& /* data */,
+    const VW980::example& ec, VW980::io::logger& /* unused */)
 {
   const auto& label = ec.l.cs;
   const auto multiclass_prediction = ec.pred.active_multiclass.predicted_class;
 
-  VW::details::print_cs_update(all, label.is_test_label(), ec, nullptr, false, multiclass_prediction);
+  VW980::details::print_cs_update(all, label.is_test_label(), ec, nullptr, false, multiclass_prediction);
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cs_active_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cs_active_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto data = VW::make_unique<cs_active>();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto data = VW980::make_unique<cs_active>();
 
   bool simulation = false;
   int32_t domination;
@@ -442,8 +442,8 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cs_active_setup(VW::setup_
 
   for (uint32_t i = 0; i < data->num_classes + 1; i++) { data->examples_by_queries.push_back(0); }
 
-  void (*learn_ptr)(cs_active & cs_a, learner & base, VW::example & ec);
-  void (*predict_ptr)(cs_active & cs_a, learner & base, VW::example & ec);
+  void (*learn_ptr)(cs_active & cs_a, learner & base, VW980::example & ec);
+  void (*predict_ptr)(cs_active & cs_a, learner & base, VW980::example & ec);
   std::string name_addition;
 
   if (simulation)
@@ -464,10 +464,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cs_active_setup(VW::setup_
       learn_ptr, predict_ptr, stack_builder.get_setupfn_name(cs_active_setup) + name_addition)
                .set_feature_width(feature_width)
                .set_learn_returns_prediction(true)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
-               .set_output_prediction_type(VW::prediction_type_t::ACTIVE_MULTICLASS)
-               .set_input_label_type(VW::label_type_t::CS)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTIVE_MULTICLASS)
+               .set_input_label_type(VW980::label_type_t::CS)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
                .set_output_example_prediction(output_example_prediction_cs_active)
                .set_print_update(print_update_cs_active)
                .set_update_stats(update_stats_cs_active)

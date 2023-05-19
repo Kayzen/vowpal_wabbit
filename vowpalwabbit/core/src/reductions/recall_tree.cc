@@ -20,8 +20,8 @@
 #include <memory>
 #include <sstream>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
@@ -35,7 +35,7 @@ public:
   node_pred(uint32_t a) : label(a), label_count(0) {}
 };
 
-static_assert(std::is_trivial<node_pred>::value, "To be used in VW::v_array node_pred must be trivial");
+static_assert(std::is_trivial<node_pred>::value, "To be used in VW980::v_array node_pred must be trivial");
 
 class node
 {
@@ -53,7 +53,7 @@ public:
   double entropy;
   double passes;
 
-  VW::v_array<node_pred> preds;
+  VW980::v_array<node_pred> preds;
 
   node()
       : parent(0)
@@ -73,8 +73,8 @@ public:
 class recall_tree
 {
 public:
-  VW::workspace* all = nullptr;
-  std::shared_ptr<VW::rand_state> random_state;
+  VW980::workspace* all = nullptr;
+  std::shared_ptr<VW980::rand_state> random_state;
   uint32_t k = 0;
   bool node_only = false;
 
@@ -91,7 +91,7 @@ public:
 VW_STD14_CONSTEXPR float to_prob(float x)
 {
   constexpr float alpha = 2.0f;
-  return VW::math::clamp(0.5f * (1.0f + alpha * x), 0.f, 1.f);
+  return VW980::math::clamp(0.5f * (1.0f + alpha * x), 0.f, 1.f);
 }
 
 void init_tree(recall_tree& b, uint32_t root, uint32_t depth, uint32_t& routers_used)
@@ -128,7 +128,7 @@ void init_tree(recall_tree& b)
   b.max_routers = routers_used;
 }
 
-node_pred* find(recall_tree& b, uint32_t cn, VW::example& ec)
+node_pred* find(recall_tree& b, uint32_t cn, VW980::example& ec)
 {
   node_pred* ls;
 
@@ -137,7 +137,7 @@ node_pred* find(recall_tree& b, uint32_t cn, VW::example& ec)
   return ls;
 }
 
-node_pred* find_or_create(recall_tree& b, uint32_t cn, VW::example& ec)
+node_pred* find_or_create(recall_tree& b, uint32_t cn, VW980::example& ec)
 {
   node_pred* ls = find(b, cn, ec);
 
@@ -171,7 +171,7 @@ void compute_recall_lbest(const recall_tree& b, node& n)
 
 double plogp(double c, double n) { return (c == 0) ? 0 : (c / n) * log(c / n); }
 
-double updated_entropy(recall_tree& b, uint32_t cn, VW::example& ec)
+double updated_entropy(recall_tree& b, uint32_t cn, VW980::example& ec)
 {
   node_pred* ls = find(b, cn, ec);
 
@@ -200,7 +200,7 @@ double updated_entropy(recall_tree& b, uint32_t cn, VW::example& ec)
   return newentropy;
 }
 
-void insert_example_at_node(recall_tree& b, uint32_t cn, VW::example& ec)
+void insert_example_at_node(recall_tree& b, uint32_t cn, VW980::example& ec)
 {
   node_pred* ls = find_or_create(b, cn, ec);
 
@@ -221,14 +221,14 @@ void insert_example_at_node(recall_tree& b, uint32_t cn, VW::example& ec)
 
 // TODO: handle if features already in this namespace
 
-void add_node_id_feature(recall_tree& b, uint32_t cn, VW::example& ec)
+void add_node_id_feature(recall_tree& b, uint32_t cn, VW980::example& ec)
 {
-  VW::workspace* all = b.all;
+  VW980::workspace* all = b.all;
   uint64_t mask = all->weights.mask();
   size_t ss = all->weights.stride_shift();
 
-  ec.indices.push_back(VW::details::NODE_ID_NAMESPACE);
-  auto& fs = ec.feature_space[VW::details::NODE_ID_NAMESPACE];
+  ec.indices.push_back(VW980::details::NODE_ID_NAMESPACE);
+  auto& fs = ec.feature_space[VW980::details::NODE_ID_NAMESPACE];
 
   if (b.node_only) { fs.push_back(1., ((static_cast<uint64_t>(868771) * cn) << ss) & mask); }
   else
@@ -244,23 +244,23 @@ void add_node_id_feature(recall_tree& b, uint32_t cn, VW::example& ec)
   // TODO: if namespace already exists ?
 }
 
-void remove_node_id_feature(recall_tree& /* b */, uint32_t /* cn */, VW::example& ec)
+void remove_node_id_feature(recall_tree& /* b */, uint32_t /* cn */, VW980::example& ec)
 {
-  auto& fs = ec.feature_space[VW::details::NODE_ID_NAMESPACE];
+  auto& fs = ec.feature_space[VW980::details::NODE_ID_NAMESPACE];
   fs.clear();
   ec.indices.pop_back();
 }
 
-uint32_t oas_predict(recall_tree& b, learner& base, uint32_t cn, VW::example& ec)
+uint32_t oas_predict(recall_tree& b, learner& base, uint32_t cn, VW980::example& ec)
 {
-  VW::multiclass_label mc = ec.l.multi;
+  VW980::multiclass_label mc = ec.l.multi;
   uint32_t save_pred = ec.pred.multiclass;
 
   uint32_t amaxscore = 0;
 
   add_node_id_feature(b, cn, ec);
   ec.l.simple = {FLT_MAX};
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
   float maxscore = std::numeric_limits<float>::lowest();
   for (node_pred* ls = b.nodes[cn].preds.begin();
        ls != b.nodes[cn].preds.end() && ls < b.nodes[cn].preds.begin() + b.max_candidates; ++ls)
@@ -281,7 +281,7 @@ uint32_t oas_predict(recall_tree& b, learner& base, uint32_t cn, VW::example& ec
   return amaxscore;
 }
 
-bool is_candidate(recall_tree& b, uint32_t cn, VW::example& ec)
+bool is_candidate(recall_tree& b, uint32_t cn, VW980::example& ec)
 {
   for (node_pred* ls = b.nodes[cn].preds.begin();
        ls != b.nodes[cn].preds.end() && ls < b.nodes[cn].preds.begin() + b.max_candidates; ++ls)
@@ -308,13 +308,13 @@ bool stop_recurse_check(recall_tree& b, uint32_t parent, uint32_t child)
   return b.bern_hyper > 0 && b.nodes[parent].recall_lbest >= b.nodes[child].recall_lbest;
 }
 
-predict_type predict_from(recall_tree& b, learner& base, VW::example& ec, uint32_t cn)
+predict_type predict_from(recall_tree& b, learner& base, VW980::example& ec, uint32_t cn)
 {
-  VW::multiclass_label mc = ec.l.multi;
+  VW980::multiclass_label mc = ec.l.multi;
   uint32_t save_pred = ec.pred.multiclass;
 
   ec.l.simple = {FLT_MAX};
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
   while (b.nodes[cn].internal)
   {
     base.predict(ec, b.nodes[cn].base_router);
@@ -332,16 +332,16 @@ predict_type predict_from(recall_tree& b, learner& base, VW::example& ec, uint32
   return predict_type(cn, oas_predict(b, base, cn, ec));
 }
 
-void predict(recall_tree& b, learner& base, VW::example& ec)
+void predict(recall_tree& b, learner& base, VW980::example& ec)
 {
   predict_type pred = predict_from(b, base, ec, 0);
 
   ec.pred.multiclass = pred.class_prediction;
 }
 
-float train_node(recall_tree& b, learner& base, VW::example& ec, uint32_t cn)
+float train_node(recall_tree& b, learner& base, VW980::example& ec, uint32_t cn)
 {
-  VW::multiclass_label mc = ec.l.multi;
+  VW980::multiclass_label mc = ec.l.multi;
   uint32_t save_pred = ec.pred.multiclass;
 
   // minimize entropy
@@ -362,7 +362,7 @@ float train_node(recall_tree& b, learner& base, VW::example& ec, uint32_t cn)
   // float imp_weight = fabs((float)(delta_left - delta_right));
 
   ec.l.simple = {route_label};
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
   // Bug?
   // Notes: looks like imp_weight was not used since ec.l.simple.weight is not
   // used in gd.
@@ -386,7 +386,7 @@ float train_node(recall_tree& b, learner& base, VW::example& ec, uint32_t cn)
   return save_scalar;
 }
 
-void learn(recall_tree& b, learner& base, VW::example& ec)
+void learn(recall_tree& b, learner& base, VW980::example& ec)
 {
   if (b.all->training && ec.l.multi.label != static_cast<uint32_t>(-1))  // if training the tree
   {
@@ -415,13 +415,13 @@ void learn(recall_tree& b, learner& base, VW::example& ec)
 
     if (is_candidate(b, cn, ec))
     {
-      VW::multiclass_label mc = ec.l.multi;
+      VW980::multiclass_label mc = ec.l.multi;
       uint32_t save_pred = ec.pred.multiclass;
 
       add_node_id_feature(b, cn, ec);
 
       ec.l.simple = {1.f};
-      ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+      ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
       base.learn(ec, b.max_routers + mc.label - 1);
       ec.l.simple = {-1.f};
 
@@ -439,68 +439,68 @@ void learn(recall_tree& b, learner& base, VW::example& ec)
   }
 }
 
-void save_load_tree(recall_tree& b, VW::io_buf& model_file, bool read, bool text)
+void save_load_tree(recall_tree& b, VW980::io_buf& model_file, bool read, bool text)
 {
   if (model_file.num_files() > 0)
   {
     if (read)
     {
-      VW::model_utils::read_model_field(model_file, b.k);
-      VW::model_utils::read_model_field(model_file, b.node_only);
+      VW980::model_utils::read_model_field(model_file, b.k);
+      VW980::model_utils::read_model_field(model_file, b.node_only);
       size_t n_nodes = 0;
-      VW::model_utils::read_model_field(model_file, n_nodes);
+      VW980::model_utils::read_model_field(model_file, n_nodes);
       b.nodes.clear();
       for (uint32_t j = 0; j < n_nodes; ++j) { b.nodes.emplace_back(); }
-      VW::model_utils::read_model_field(model_file, b.max_candidates);
-      VW::model_utils::read_model_field(model_file, b.max_depth);
+      VW980::model_utils::read_model_field(model_file, b.max_candidates);
+      VW980::model_utils::read_model_field(model_file, b.max_depth);
       for (auto& cn : b.nodes)
       {
-        VW::model_utils::read_model_field(model_file, cn.parent);
-        VW::model_utils::read_model_field(model_file, cn.recall_lbest);
-        VW::model_utils::read_model_field(model_file, cn.internal);
-        VW::model_utils::read_model_field(model_file, cn.depth);
-        VW::model_utils::read_model_field(model_file, cn.base_router);
-        VW::model_utils::read_model_field(model_file, cn.left);
-        VW::model_utils::read_model_field(model_file, cn.right);
-        VW::model_utils::read_model_field(model_file, cn.n);
-        VW::model_utils::read_model_field(model_file, cn.entropy);
-        VW::model_utils::read_model_field(model_file, cn.passes);
+        VW980::model_utils::read_model_field(model_file, cn.parent);
+        VW980::model_utils::read_model_field(model_file, cn.recall_lbest);
+        VW980::model_utils::read_model_field(model_file, cn.internal);
+        VW980::model_utils::read_model_field(model_file, cn.depth);
+        VW980::model_utils::read_model_field(model_file, cn.base_router);
+        VW980::model_utils::read_model_field(model_file, cn.left);
+        VW980::model_utils::read_model_field(model_file, cn.right);
+        VW980::model_utils::read_model_field(model_file, cn.n);
+        VW980::model_utils::read_model_field(model_file, cn.entropy);
+        VW980::model_utils::read_model_field(model_file, cn.passes);
         size_t n_preds = 0;
-        VW::model_utils::read_model_field(model_file, n_preds);
+        VW980::model_utils::read_model_field(model_file, n_preds);
         cn.preds.clear();
         for (uint32_t k = 0; k < n_preds; ++k) { cn.preds.push_back(node_pred(0)); }
         for (auto& pred : cn.preds)
         {
-          VW::model_utils::read_model_field(model_file, pred.label);
-          VW::model_utils::read_model_field(model_file, pred.label_count);
+          VW980::model_utils::read_model_field(model_file, pred.label);
+          VW980::model_utils::read_model_field(model_file, pred.label_count);
         }
         compute_recall_lbest(b, cn);
       }
     }
     else
     {
-      VW::model_utils::write_model_field(model_file, b.k, "k", text);
-      VW::model_utils::write_model_field(model_file, b.node_only, "node_only", text);
-      VW::model_utils::write_model_field(model_file, b.nodes.size(), "nodes", text);
-      VW::model_utils::write_model_field(model_file, b.max_candidates, "max_candidates", text);
-      VW::model_utils::write_model_field(model_file, b.max_depth, "max_depth", text);
+      VW980::model_utils::write_model_field(model_file, b.k, "k", text);
+      VW980::model_utils::write_model_field(model_file, b.node_only, "node_only", text);
+      VW980::model_utils::write_model_field(model_file, b.nodes.size(), "nodes", text);
+      VW980::model_utils::write_model_field(model_file, b.max_candidates, "max_candidates", text);
+      VW980::model_utils::write_model_field(model_file, b.max_depth, "max_depth", text);
       for (const auto& cn : b.nodes)
       {
-        VW::model_utils::write_model_field(model_file, cn.parent, "parent", text);
-        VW::model_utils::write_model_field(model_file, cn.recall_lbest, "recall_lbest", text);
-        VW::model_utils::write_model_field(model_file, cn.internal, "internal", text);
-        VW::model_utils::write_model_field(model_file, cn.depth, "depth", text);
-        VW::model_utils::write_model_field(model_file, cn.base_router, "base_router", text);
-        VW::model_utils::write_model_field(model_file, cn.left, "left", text);
-        VW::model_utils::write_model_field(model_file, cn.right, "right", text);
-        VW::model_utils::write_model_field(model_file, cn.n, "n", text);
-        VW::model_utils::write_model_field(model_file, cn.entropy, "entropy", text);
-        VW::model_utils::write_model_field(model_file, cn.passes, "passes", text);
-        VW::model_utils::write_model_field(model_file, cn.preds.size(), "n_preds", text);
+        VW980::model_utils::write_model_field(model_file, cn.parent, "parent", text);
+        VW980::model_utils::write_model_field(model_file, cn.recall_lbest, "recall_lbest", text);
+        VW980::model_utils::write_model_field(model_file, cn.internal, "internal", text);
+        VW980::model_utils::write_model_field(model_file, cn.depth, "depth", text);
+        VW980::model_utils::write_model_field(model_file, cn.base_router, "base_router", text);
+        VW980::model_utils::write_model_field(model_file, cn.left, "left", text);
+        VW980::model_utils::write_model_field(model_file, cn.right, "right", text);
+        VW980::model_utils::write_model_field(model_file, cn.n, "n", text);
+        VW980::model_utils::write_model_field(model_file, cn.entropy, "entropy", text);
+        VW980::model_utils::write_model_field(model_file, cn.passes, "passes", text);
+        VW980::model_utils::write_model_field(model_file, cn.preds.size(), "n_preds", text);
         for (const auto& pred : cn.preds)
         {
-          VW::model_utils::write_model_field(model_file, pred.label, "label", text);
-          VW::model_utils::write_model_field(model_file, pred.label_count, "label_count", text);
+          VW980::model_utils::write_model_field(model_file, pred.label, "label", text);
+          VW980::model_utils::write_model_field(model_file, pred.label_count, "label_count", text);
         }
       }
     }
@@ -509,11 +509,11 @@ void save_load_tree(recall_tree& b, VW::io_buf& model_file, bool read, bool text
 
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::recall_tree_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::recall_tree_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto tree = VW::make_unique<recall_tree>();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto tree = VW980::make_unique<recall_tree>();
   option_group_definition new_options("[Reduction] Recall Tree");
   uint64_t max_candidates = 0;
   uint64_t max_depth = 0;
@@ -529,10 +529,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::recall_tree_setup(VW::setu
   tree->all = &all;
   tree->random_state = all.get_random_state();
   tree->max_candidates = options.was_supplied("max_candidates")
-      ? VW::cast_to_smaller_type<size_t>(max_candidates)
+      ? VW980::cast_to_smaller_type<size_t>(max_candidates)
       : std::min(tree->k, 4 * static_cast<uint32_t>(ceil(log(tree->k) / log(2.0))));
   tree->max_depth = options.was_supplied("max_depth")
-      ? VW::cast_to_smaller_type<size_t>(max_depth)
+      ? VW980::cast_to_smaller_type<size_t>(max_depth)
       : static_cast<uint32_t>(std::ceil(std::log(tree->k) / std::log(2.0)));
 
   init_tree(*tree.get());
@@ -551,14 +551,14 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::recall_tree_setup(VW::setu
   auto l = make_reduction_learner(std::move(tree), require_singleline(stack_builder.setup_base_learner(feature_width)),
       learn, predict, stack_builder.get_setupfn_name(recall_tree_setup))
                .set_feature_width(feature_width)
-               .set_update_stats(VW::details::update_stats_multiclass_label<recall_tree>)
-               .set_output_example_prediction(VW::details::output_example_prediction_multiclass_label<recall_tree>)
-               .set_print_update(VW::details::print_update_multiclass_label<recall_tree>)
+               .set_update_stats(VW980::details::update_stats_multiclass_label<recall_tree>)
+               .set_output_example_prediction(VW980::details::output_example_prediction_multiclass_label<recall_tree>)
+               .set_print_update(VW980::details::print_update_multiclass_label<recall_tree>)
                .set_save_load(save_load_tree)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
-               .set_output_prediction_type(VW::prediction_type_t::MULTICLASS)
-               .set_input_label_type(VW::label_type_t::MULTICLASS)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
+               .set_output_prediction_type(VW980::prediction_type_t::MULTICLASS)
+               .set_input_label_type(VW980::label_type_t::MULTICLASS)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
                .build();
   return l;
 }

@@ -25,7 +25,7 @@ int64_t fill_topic_allocation(vw_net_native::workspace_context* workspace, T& we
 
   for (auto iter = weights.begin(); iter != weights.end(); ++iter)
   {
-    VW::weight* wp = &(*iter);
+    VW980::weight* wp = &(*iter);
     for (uint64_t k = 0; k < topic_count; k++) { topic_weight_buffers[(int)k][(int)iter.index()] = wp[k] + lda_rho; }
   }
 
@@ -48,10 +48,10 @@ API int64_t WorkspaceFillTopicAllocation(vw_net_native::workspace_context* works
 }
 
 API vw_net_native::dotnet_size_t WorkspaceFillSingleTopicTopWeights(vw_net_native::workspace_context* workspace,
-    int topic, VW::feature* topic_weight_buffer, vw_net_native::dotnet_size_t buffer_size)
+    int topic, VW980::feature* topic_weight_buffer, vw_net_native::dotnet_size_t buffer_size)
 {
-  std::vector<VW::feature> top_weights;
-  VW::reductions::lda::get_top_weights(workspace->vw, buffer_size, topic, top_weights);
+  std::vector<VW980::feature> top_weights;
+  VW980::reductions::lda::get_top_weights(workspace->vw, buffer_size, topic, top_weights);
 
   return vw_net_native::stdvector_copy_to_managed(top_weights, topic_weight_buffer, buffer_size);
 }

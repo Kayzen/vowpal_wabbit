@@ -7,7 +7,7 @@
 #include "nonstd/string_view.hpp"
 
 // This is a special case of the namespacing rules since it is a commonly used type.
-namespace VW
+namespace VW980
 {
 using string_view = nonstd::string_view;
 }

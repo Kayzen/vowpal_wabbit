@@ -17,7 +17,7 @@
 #include <set>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -29,25 +29,25 @@ constexpr unsigned char INTERACTION_NS_END = '~';
 inline constexpr bool is_interaction_ns(const unsigned char ns)
 {
   return (ns >= details::INTERACTION_NS_START && ns <= details::INTERACTION_NS_END) ||
-      (ns == VW::details::CCB_SLOT_NAMESPACE);
+      (ns == VW980::details::CCB_SLOT_NAMESPACE);
 }
 
-inline bool contains_wildcard(const std::vector<VW::namespace_index>& interaction)
+inline bool contains_wildcard(const std::vector<VW980::namespace_index>& interaction)
 {
-  return std::find(interaction.begin(), interaction.end(), VW::details::WILDCARD_NAMESPACE) != interaction.end();
+  return std::find(interaction.begin(), interaction.end(), VW980::details::WILDCARD_NAMESPACE) != interaction.end();
 }
 
-inline bool contains_wildcard(const std::vector<VW::extent_term>& interaction)
+inline bool contains_wildcard(const std::vector<VW980::extent_term>& interaction)
 {
   return std::find(interaction.begin(), interaction.end(),
-             VW::extent_term{VW::details::WILDCARD_NAMESPACE, VW::details::WILDCARD_NAMESPACE}) != interaction.end();
+             VW980::extent_term{VW980::details::WILDCARD_NAMESPACE, VW980::details::WILDCARD_NAMESPACE}) != interaction.end();
 }
 
 // function estimates how many new features will be generated for example and their sum(value^2).
 float eval_sum_ft_squared_of_generated_ft(bool permutations,
-    const std::vector<std::vector<VW::namespace_index>>& interactions,
-    const std::vector<std::vector<VW::extent_term>>& extent_interactions,
-    const std::array<VW::features, VW::NUM_NAMESPACES>& feature_spaces);
+    const std::vector<std::vector<VW980::namespace_index>>& interactions,
+    const std::vector<std::vector<VW980::extent_term>>& extent_interactions,
+    const std::array<VW980::features, VW980::NUM_NAMESPACES>& feature_spaces);
 
 template <typename T>
 using generate_func_t = std::vector<std::vector<T>>(const std::set<T>& namespaces, size_t num_to_pick);
@@ -191,7 +191,7 @@ std::vector<std::vector<T>> generate_namespace_combinations_with_repetition(
   // Factorial 22 would result in 64 bit overflow.
   if ((namespaces.size() + num_to_pick) <= 21)
   {
-    auto num_combinations = static_cast<uint64_t>(VW::math::number_of_combinations_with_repetition(
+    auto num_combinations = static_cast<uint64_t>(VW980::math::number_of_combinations_with_repetition(
         static_cast<uint64_t>(namespaces.size()), static_cast<uint64_t>(num_to_pick)));
     // If this is too large for size_t thats fine we just wont reserve.
     if (static_cast<uint64_t>(num_combinations) < static_cast<uint64_t>(std::numeric_limits<size_t>::max()))
@@ -230,7 +230,7 @@ std::vector<std::vector<T>> generate_namespace_permutations_with_repetition(
     const std::set<T>& namespaces, size_t num_to_pick)
 {
   std::vector<std::vector<T>> result;
-  result.reserve(VW::math::number_of_permutations_with_repetition(namespaces.size(), num_to_pick));
+  result.reserve(VW980::math::number_of_permutations_with_repetition(namespaces.size(), num_to_pick));
 
   std::vector<size_t> one_based_chosen_indices(num_to_pick, 0);
   for (size_t i = 0; i < num_to_pick - 1; i++) { one_based_chosen_indices[i] = 1; }
@@ -262,21 +262,21 @@ std::vector<std::vector<T>> generate_namespace_permutations_with_repetition(
   return result;
 }
 
-std::vector<std::vector<VW::namespace_index>> expand_quadratics_wildcard_interactions(
-    bool leave_duplicate_interactions, const std::set<VW::namespace_index>& new_example_indices);
+std::vector<std::vector<VW980::namespace_index>> expand_quadratics_wildcard_interactions(
+    bool leave_duplicate_interactions, const std::set<VW980::namespace_index>& new_example_indices);
 
-bool sort_interactions_comparator(const std::vector<VW::namespace_index>& a, const std::vector<VW::namespace_index>& b);
+bool sort_interactions_comparator(const std::vector<VW980::namespace_index>& a, const std::vector<VW980::namespace_index>& b);
 
-template <generate_func_t<VW::namespace_index> generate_func, bool leave_duplicate_interactions>
-std::vector<std::vector<VW::namespace_index>> compile_interaction(
-    const std::vector<VW::namespace_index>& interaction, const std::set<VW::namespace_index>& indices)
+template <generate_func_t<VW980::namespace_index> generate_func, bool leave_duplicate_interactions>
+std::vector<std::vector<VW980::namespace_index>> compile_interaction(
+    const std::vector<VW980::namespace_index>& interaction, const std::set<VW980::namespace_index>& indices)
 {
   std::vector<size_t> insertion_indices;
-  std::vector<VW::namespace_index> insertion_ns;
+  std::vector<VW980::namespace_index> insertion_ns;
   size_t num_wildcards = 0;
   for (size_t i = 0; i < interaction.size(); i++)
   {
-    if (interaction[i] != VW::details::WILDCARD_NAMESPACE)
+    if (interaction[i] != VW980::details::WILDCARD_NAMESPACE)
     {
       insertion_indices.push_back(i);
       insertion_ns.push_back(interaction[i]);
@@ -294,16 +294,16 @@ std::vector<std::vector<VW::namespace_index>> compile_interaction(
   return result;
 }
 
-template <generate_func_t<VW::extent_term> generate_func, bool leave_duplicate_interactions>
-std::vector<std::vector<VW::extent_term>> compile_extent_interaction(
-    const std::vector<VW::extent_term>& interaction, const std::set<VW::extent_term>& _all_seen_extents)
+template <generate_func_t<VW980::extent_term> generate_func, bool leave_duplicate_interactions>
+std::vector<std::vector<VW980::extent_term>> compile_extent_interaction(
+    const std::vector<VW980::extent_term>& interaction, const std::set<VW980::extent_term>& _all_seen_extents)
 {
   std::vector<size_t> insertion_indices;
-  std::vector<VW::extent_term> insertion_ns;
+  std::vector<VW980::extent_term> insertion_ns;
   size_t num_wildcards = 0;
   for (size_t i = 0; i < interaction.size(); i++)
   {
-    if (interaction[i].first != VW::details::WILDCARD_NAMESPACE)
+    if (interaction[i].first != VW980::details::WILDCARD_NAMESPACE)
     {
       insertion_indices.push_back(i);
       insertion_ns.push_back(interaction[i]);
@@ -320,11 +320,11 @@ std::vector<std::vector<VW::extent_term>> compile_extent_interaction(
 }
 
 // Compiling an interaction means to expand out wildcards (:) for each index present
-template <generate_func_t<VW::namespace_index> generate_func, bool leave_duplicate_interactions>
-std::vector<std::vector<VW::namespace_index>> compile_interactions(
-    const std::vector<std::vector<VW::namespace_index>>& interactions, const std::set<VW::namespace_index>& indices)
+template <generate_func_t<VW980::namespace_index> generate_func, bool leave_duplicate_interactions>
+std::vector<std::vector<VW980::namespace_index>> compile_interactions(
+    const std::vector<std::vector<VW980::namespace_index>>& interactions, const std::set<VW980::namespace_index>& indices)
 {
-  std::vector<std::vector<VW::namespace_index>> final_interactions;
+  std::vector<std::vector<VW980::namespace_index>> final_interactions;
 
   for (const auto& inter : interactions)
   {
@@ -335,19 +335,19 @@ std::vector<std::vector<VW::namespace_index>> compile_interactions(
     }
     else { final_interactions.push_back(inter); }
   }
-  std::sort(final_interactions.begin(), final_interactions.end(), VW::details::sort_interactions_comparator);
+  std::sort(final_interactions.begin(), final_interactions.end(), VW980::details::sort_interactions_comparator);
   size_t removed_cnt = 0;
   size_t sorted_cnt = 0;
-  VW::details::sort_and_filter_duplicate_interactions(
+  VW980::details::sort_and_filter_duplicate_interactions(
       final_interactions, !leave_duplicate_interactions, removed_cnt, sorted_cnt);
   return final_interactions;
 }
 
-template <generate_func_t<VW::extent_term> generate_func, bool leave_duplicate_interactions>
-std::vector<std::vector<VW::extent_term>> compile_extent_interactions(
-    const std::vector<std::vector<VW::extent_term>>& interactions, const std::set<VW::extent_term>& indices)
+template <generate_func_t<VW980::extent_term> generate_func, bool leave_duplicate_interactions>
+std::vector<std::vector<VW980::extent_term>> compile_extent_interactions(
+    const std::vector<std::vector<VW980::extent_term>>& interactions, const std::set<VW980::extent_term>& indices)
 {
-  std::vector<std::vector<VW::extent_term>> final_interactions;
+  std::vector<std::vector<VW980::extent_term>> final_interactions;
 
   for (const auto& inter : interactions)
   {
@@ -360,7 +360,7 @@ std::vector<std::vector<VW::extent_term>> compile_extent_interactions(
   }
   size_t removed_cnt = 0;
   size_t sorted_cnt = 0;
-  VW::details::sort_and_filter_duplicate_interactions(
+  VW980::details::sort_and_filter_duplicate_interactions(
       final_interactions, !leave_duplicate_interactions, removed_cnt, sorted_cnt);
   return final_interactions;
 }
@@ -369,13 +369,13 @@ std::vector<std::vector<VW::extent_term>> compile_extent_interactions(
 class interactions_generator
 {
 public:
-  std::vector<std::vector<VW::namespace_index>> generated_interactions;
-  std::vector<std::vector<VW::extent_term>> generated_extent_interactions;
+  std::vector<std::vector<VW980::namespace_index>> generated_interactions;
+  std::vector<std::vector<VW980::extent_term>> generated_extent_interactions;
   bool store_in_reduction_features = false;
 
-  template <generate_func_t<VW::namespace_index> generate_func, bool leave_duplicate_interactions>
-  void update_interactions_if_new_namespace_seen(const std::vector<std::vector<VW::namespace_index>>& interactions,
-      const VW::v_array<VW::namespace_index>& new_example_indices)
+  template <generate_func_t<VW980::namespace_index> generate_func, bool leave_duplicate_interactions>
+  void update_interactions_if_new_namespace_seen(const std::vector<std::vector<VW980::namespace_index>>& interactions,
+      const VW980::v_array<VW980::namespace_index>& new_example_indices)
   {
     auto prev_count = _all_seen_namespaces.size();
     _all_seen_namespaces.insert(new_example_indices.begin(), new_example_indices.end());
@@ -386,7 +386,7 @@ public:
       // generally they are used for implementation details and special behavior
       // and not user inputted features. The two exceptions are default_namespace
       // and ccb_slot_namespace (the default namespace for CCB slots)
-      std::set<VW::namespace_index> indices_to_interact;
+      std::set<VW980::namespace_index> indices_to_interact;
       for (auto ns_index : _all_seen_namespaces)
       {
         if (is_interaction_ns(ns_index)) { indices_to_interact.insert(ns_index); }
@@ -400,10 +400,10 @@ public:
     }
   }
 
-  template <generate_func_t<VW::extent_term> generate_func, bool leave_duplicate_interactions>
-  void update_extent_interactions_if_new_namespace_seen(const std::vector<std::vector<VW::extent_term>>& interactions,
-      const VW::v_array<VW::namespace_index>& indices,
-      const std::array<VW::features, VW::NUM_NAMESPACES>& feature_space)
+  template <generate_func_t<VW980::extent_term> generate_func, bool leave_duplicate_interactions>
+  void update_extent_interactions_if_new_namespace_seen(const std::vector<std::vector<VW980::extent_term>>& interactions,
+      const VW980::v_array<VW980::namespace_index>& indices,
+      const std::array<VW980::features, VW980::NUM_NAMESPACES>& feature_space)
   {
     auto prev_count = _all_seen_extents.size();
     for (auto ns_index : indices)
@@ -438,36 +438,36 @@ public:
   }
 
 private:
-  std::set<VW::namespace_index> _all_seen_namespaces;
-  std::set<VW::extent_term> _all_seen_extents;
+  std::set<VW980::namespace_index> _all_seen_namespaces;
+  std::set<VW980::extent_term> _all_seen_extents;
 };
 
-}  // namespace VW
+}  // namespace VW980
 
 namespace INTERACTIONS  // NOLINT
 {
 VW_DEPRECATED("Moved to VW namespace")
-inline constexpr bool is_interaction_ns(const unsigned char ns) { return VW::is_interaction_ns(ns); }
+inline constexpr bool is_interaction_ns(const unsigned char ns) { return VW980::is_interaction_ns(ns); }
 
 VW_DEPRECATED("Moved to VW namespace")
-inline bool contains_wildcard(const std::vector<VW::namespace_index>& interaction)
+inline bool contains_wildcard(const std::vector<VW980::namespace_index>& interaction)
 {
-  return VW::contains_wildcard(interaction);
+  return VW980::contains_wildcard(interaction);
 }
 
 VW_DEPRECATED("Moved to VW namespace")
-inline bool contains_wildcard(const std::vector<VW::extent_term>& interaction)
+inline bool contains_wildcard(const std::vector<VW980::extent_term>& interaction)
 {
-  return VW::contains_wildcard(interaction);
+  return VW980::contains_wildcard(interaction);
 }
 
 VW_DEPRECATED("Moved to VW namespace")
 inline float eval_sum_ft_squared_of_generated_ft(bool permutations,
-    const std::vector<std::vector<VW::namespace_index>>& interactions,
-    const std::vector<std::vector<VW::extent_term>>& extent_interactions,
-    const std::array<VW::features, VW::NUM_NAMESPACES>& feature_spaces)
+    const std::vector<std::vector<VW980::namespace_index>>& interactions,
+    const std::vector<std::vector<VW980::extent_term>>& extent_interactions,
+    const std::array<VW980::features, VW980::NUM_NAMESPACES>& feature_spaces)
 {
-  return VW::eval_sum_ft_squared_of_generated_ft(permutations, interactions, extent_interactions, feature_spaces);
+  return VW980::eval_sum_ft_squared_of_generated_ft(permutations, interactions, extent_interactions, feature_spaces);
 }
 
 template <typename T>
@@ -475,6 +475,6 @@ VW_DEPRECATED("Moved to VW namespace")
 void sort_and_filter_duplicate_interactions(
     std::vector<std::vector<T>>& vec, bool filter_duplicates, size_t& removed_cnt, size_t& sorted_cnt)
 {
-  VW::details::sort_and_filter_duplicate_interactions(vec, filter_duplicates, removed_cnt, sorted_cnt);
+  VW980::details::sort_and_filter_duplicate_interactions(vec, filter_duplicates, removed_cnt, sorted_cnt);
 }
 }  // namespace INTERACTIONS

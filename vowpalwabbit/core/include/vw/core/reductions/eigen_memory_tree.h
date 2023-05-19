@@ -17,11 +17,11 @@
 // Uncommenting this enables a timer that prints the pass time at the end of each pass.
 // #define VW_ENABLE_EMT_DEBUG_TIMER
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> eigen_memory_tree_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> eigen_memory_tree_setup(VW980::setup_base_i& stack_builder);
 
 namespace eigen_memory_tree
 {
@@ -41,8 +41,8 @@ enum class emt_router_type : uint32_t
   EIGEN = 2
 };
 
-emt_scorer_type emt_scorer_type_from_string(VW::string_view val);
-emt_router_type emt_router_type_from_string(VW::string_view val);
+emt_scorer_type emt_scorer_type_from_string(VW980::string_view val);
+emt_router_type emt_router_type_from_string(VW980::string_view val);
 
 float emt_median(std::vector<float>&);
 float emt_inner(const emt_feats&, const emt_feats&);
@@ -51,10 +51,10 @@ void emt_abs(emt_feats&);
 void emt_scale(emt_feats&, float);
 void emt_normalize(emt_feats&);
 emt_feats emt_scale_add(float, const emt_feats&, float, const emt_feats&);
-emt_feats emt_router_eigen(std::vector<emt_feats>&, VW::rand_state&);
+emt_feats emt_router_eigen(std::vector<emt_feats>&, VW980::rand_state&);
 
 template <typename RandomIt>
-void emt_shuffle(RandomIt first, RandomIt last, VW::rand_state& rng)
+void emt_shuffle(RandomIt first, RandomIt last, VW980::rand_state& rng)
 {
   // This is Richard Durstenfeld's method popularized by Donald Knuth in The Art of Computer Programming.
   // This algorithm is unbiased (i.e., all possible permutations are equally likely to occur).
@@ -76,7 +76,7 @@ struct emt_example
   uint32_t label = 0;
 
   emt_example() = default;
-  emt_example(VW::workspace&, VW::example*);
+  emt_example(VW980::workspace&, VW980::example*);
 };
 
 struct emt_lru
@@ -105,16 +105,16 @@ struct emt_node
 
 struct emt_tree
 {
-  VW::workspace* all = nullptr;
-  std::shared_ptr<VW::rand_state> random_state;
+  VW980::workspace* all = nullptr;
+  std::shared_ptr<VW980::rand_state> random_state;
 
   // how many memories before splitting a leaf node
   uint32_t leaf_split = 100;
   emt_scorer_type scorer_type = emt_scorer_type::SELF_CONSISTENT_RANK;
   emt_router_type router_type = emt_router_type::EIGEN;
 
-  std::unique_ptr<VW::example> ex;  // we create one of these which we re-use so we don't have to reallocate examples
-  std::unique_ptr<std::vector<std::vector<VW::namespace_index>>> empty_interactions_for_ex;
+  std::unique_ptr<VW980::example> ex;  // we create one of these which we re-use so we don't have to reallocate examples
+  std::unique_ptr<std::vector<std::vector<VW980::namespace_index>>> empty_interactions_for_ex;
   std::unique_ptr<std::vector<std::vector<extent_term>>> empty_extent_interactions_for_ex;
 
 #ifdef VW_ENABLE_EMT_DEBUG_TIMER
@@ -124,7 +124,7 @@ struct emt_tree
   std::unique_ptr<emt_node> root;
   std::unique_ptr<emt_lru> bounder = nullptr;
 
-  emt_tree(VW::workspace* all, std::shared_ptr<VW::rand_state> random_state, uint32_t leaf_split,
+  emt_tree(VW980::workspace* all, std::shared_ptr<VW980::rand_state> random_state, uint32_t leaf_split,
       emt_scorer_type scorer_type, emt_router_type router_type, uint64_t tree_bound);
 };
 
@@ -143,4 +143,4 @@ size_t read_model_field(io_buf& io, reductions::eigen_memory_tree::emt_tree& tre
 size_t write_model_field(
     io_buf& io, const reductions::eigen_memory_tree::emt_tree& tree, const std::string& upstream_name, bool text);
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980

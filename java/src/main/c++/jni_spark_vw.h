@@ -40,8 +40,8 @@ public:
 class VowpalWabbitExampleWrapper
 {
 public:
-  VW::workspace* _all;
+  VW980::workspace* _all;
   example* _example;
 
-  VowpalWabbitExampleWrapper(VW::workspace* all, example* example) : _all(all), _example(example) {}
+  VowpalWabbitExampleWrapper(VW980::workspace* all, example* example) : _all(all), _example(example) {}
 };

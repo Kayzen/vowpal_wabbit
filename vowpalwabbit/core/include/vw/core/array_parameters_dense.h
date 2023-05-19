@@ -11,7 +11,7 @@
 #include <iterator>
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 
 namespace details
@@ -90,8 +90,8 @@ private:
 class dense_parameters
 {
 public:
-  using iterator = details::dense_iterator<VW::weight>;
-  using const_iterator = details::dense_iterator<const VW::weight>;
+  using iterator = details::dense_iterator<VW980::weight>;
+  using const_iterator = details::dense_iterator<const VW980::weight>;
 
   dense_parameters(size_t length, uint32_t stride_shift = 0);
   dense_parameters();
@@ -102,14 +102,14 @@ public:
   dense_parameters(dense_parameters&&) noexcept;
 
   bool not_null();
-  VW::weight* first()
+  VW980::weight* first()
   {
     return _begin.get();
   }  // TODO: Temporary fix for allreduce.
 
-  VW::weight* data() { return _begin.get(); }
+  VW980::weight* data() { return _begin.get(); }
 
-  const VW::weight* data() const { return _begin.get(); }
+  const VW980::weight* data() const { return _begin.get(); }
 
   // iterator with stride
   iterator begin() { return iterator(_begin.get(), _begin.get(), stride_shift()); }
@@ -119,14 +119,14 @@ public:
   const_iterator cbegin() const { return const_iterator(_begin.get(), _begin.get(), stride_shift()); }
   const_iterator cend() const { return const_iterator(_begin.get() + _weight_mask + 1, _begin.get(), stride_shift()); }
 
-  inline const VW::weight& operator[](size_t i) const { return _begin.get()[i & _weight_mask]; }
-  inline VW::weight& operator[](size_t i) { return _begin.get()[i & _weight_mask]; }
+  inline const VW980::weight& operator[](size_t i) const { return _begin.get()[i & _weight_mask]; }
+  inline VW980::weight& operator[](size_t i) { return _begin.get()[i & _weight_mask]; }
 
   VW_ATTR(nodiscard) static dense_parameters shallow_copy(const dense_parameters& input);
   VW_ATTR(nodiscard) static dense_parameters deep_copy(const dense_parameters& input);
 
-  inline VW::weight& strided_index(size_t index) { return operator[](index << _stride_shift); }
-  inline const VW::weight& strided_index(size_t index) const { return operator[](index << _stride_shift); }
+  inline VW980::weight& strided_index(size_t index) { return operator[](index << _stride_shift); }
+  inline const VW980::weight& strided_index(size_t index) const { return operator[](index << _stride_shift); }
 
   template <typename Lambda>
   void set_default(Lambda&& default_func)
@@ -136,7 +136,7 @@ public:
       auto iter = begin();
       for (size_t i = 0; iter != end(); ++iter, i += stride())
       {
-        // Types are required to be VW::weight* and uint64_t.
+        // Types are required to be VW980::weight* and uint64_t.
         default_func(&(*iter), iter.index());
       }
     }
@@ -161,9 +161,9 @@ public:
 #endif
 
 private:
-  std::shared_ptr<VW::weight> _begin;
+  std::shared_ptr<VW980::weight> _begin;
   uint64_t _weight_mask;  // (stride*(1 << num_bits) -1)
   uint32_t _stride_shift;
 };
-}  // namespace VW
-using dense_parameters VW_DEPRECATED("dense_parameters moved into VW namespace") = VW::dense_parameters;
+}  // namespace VW980
+using dense_parameters VW_DEPRECATED("dense_parameters moved into VW namespace") = VW980::dense_parameters;

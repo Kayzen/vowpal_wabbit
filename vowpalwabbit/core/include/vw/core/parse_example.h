@@ -6,48 +6,48 @@
 #include "vw/common/future_compat.h"
 #include "vw/text_parser/parse_example_text.h"
 
-VW_DEPRECATED("substring_to_example moved to VW::parsers::text::details::substring_to_example")
-inline void substring_to_example(VW::workspace* all, VW::example* ae, VW::string_view example)
+VW_DEPRECATED("substring_to_example moved to VW980::parsers::text::details::substring_to_example")
+inline void substring_to_example(VW980::workspace* all, VW980::example* ae, VW980::string_view example)
 {
-  VW::parsers::text::details::substring_to_example(all, ae, example);
+  VW980::parsers::text::details::substring_to_example(all, ae, example);
 }
 
-namespace VW
+namespace VW980
 {
-VW_DEPRECATED("read_line moved to VW::parsers::text::read_line")
-inline void read_line(VW::workspace& all, example* ex, VW::string_view line)
+VW_DEPRECATED("read_line moved to VW980::parsers::text::read_line")
+inline void read_line(VW980::workspace& all, example* ex, VW980::string_view line)
 {
-  VW::parsers::text::read_line(all, ex, line);
+  VW980::parsers::text::read_line(all, ex, line);
 }
 
-VW_DEPRECATED("read_line moved to VW::parsers::text::read_line and should be used with a string_view")
-inline void read_line(VW::workspace& all, example* ex, const char* line)
+VW_DEPRECATED("read_line moved to VW980::parsers::text::read_line and should be used with a string_view")
+inline void read_line(VW980::workspace& all, example* ex, const char* line)
 {
-  VW::parsers::text::read_line(all, ex, VW::string_view(line));
+  VW980::parsers::text::read_line(all, ex, VW980::string_view(line));
 }
 
-VW_DEPRECATED("read_lines moved to VW::parsers::text::read_lines and should be used with a string_view")
-inline void read_lines(VW::workspace* all, const char* line, size_t len, VW::multi_ex& examples)
+VW_DEPRECATED("read_lines moved to VW980::parsers::text::read_lines and should be used with a string_view")
+inline void read_lines(VW980::workspace* all, const char* line, size_t len, VW980::multi_ex& examples)
 {
-  VW::parsers::text::read_lines(all, VW::string_view(line, len), examples);
+  VW980::parsers::text::read_lines(all, VW980::string_view(line, len), examples);
 }
 
-VW_DEPRECATED("read_lines moved to VW::parsers::text::read_lines")
-inline void read_lines(VW::workspace* all, VW::string_view lines, VW::multi_ex& examples)
+VW_DEPRECATED("read_lines moved to VW980::parsers::text::read_lines")
+inline void read_lines(VW980::workspace* all, VW980::string_view lines, VW980::multi_ex& examples)
 {
-  VW::parsers::text::read_lines(all, lines, examples);
+  VW980::parsers::text::read_lines(all, lines, examples);
 }
 
-}  // namespace VW
+}  // namespace VW980
 
-VW_DEPRECATED("read_features_string moved to VW::parsers::text::read_features_string")
-inline int read_features_string(VW::workspace* all, VW::io_buf& buf, VW::multi_ex& examples)
+VW_DEPRECATED("read_features_string moved to VW980::parsers::text::read_features_string")
+inline int read_features_string(VW980::workspace* all, VW980::io_buf& buf, VW980::multi_ex& examples)
 {
-  return VW::parsers::text::read_features_string(all, buf, examples);
+  return VW980::parsers::text::read_features_string(all, buf, examples);
 }
 
-VW_DEPRECATED("read_features moved to VW::parsers::text::details::read_features")
-inline size_t read_features(VW::io_buf& buf, char*& line, size_t& num_chars)
+VW_DEPRECATED("read_features moved to VW980::parsers::text::details::read_features")
+inline size_t read_features(VW980::io_buf& buf, char*& line, size_t& num_chars)
 {
-  return VW::parsers::text::details::read_features(buf, line, num_chars);
+  return VW980::parsers::text::details::read_features(buf, line, num_chars);
 }

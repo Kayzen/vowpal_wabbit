@@ -7,11 +7,11 @@
 
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> metrics_setup(VW::setup_base_i& stack_builder);
-void output_metrics(VW::workspace& all);
+std::shared_ptr<VW980::LEARNER::learner> metrics_setup(VW980::setup_base_i& stack_builder);
+void output_metrics(VW980::workspace& all);
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

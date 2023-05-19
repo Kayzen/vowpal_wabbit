@@ -22,14 +22,14 @@
 
 #include <fstream>
 
-using namespace VW::config;
+using namespace VW980::config;
 
-VW::workspace* setup(std::unique_ptr<options_i, VW::options_deleter_type> options)
+VW980::workspace* setup(std::unique_ptr<options_i, VW980::options_deleter_type> options)
 {
-  VW::workspace* all = nullptr;
+  VW980::workspace* all = nullptr;
   try
   {
-    all = VW::initialize(std::move(options));
+    all = VW980::initialize(std::move(options));
   }
   catch (const std::exception& ex)
   {
@@ -59,21 +59,21 @@ int main(int argc, char* argv[])
   driver_config.add(make_option("fb_out", converter.output_flatbuffer_name));
   driver_config.add(make_option("collection_size", converter.collection_size));
 
-  std::vector<VW::workspace*> alls;
+  std::vector<VW980::workspace*> alls;
 
   std::vector<std::string> opts(argv + 1, argv + argc);
   opts.emplace_back("--quiet");
 
-  std::unique_ptr<options_cli, VW::options_deleter_type> ptr(
-      new options_cli(opts), [](VW::config::options_i* ptr) { delete ptr; });
+  std::unique_ptr<options_cli, VW980::options_deleter_type> ptr(
+      new options_cli(opts), [](VW980::config::options_i* ptr) { delete ptr; });
   ptr->add_and_parse(driver_config);
   alls.push_back(setup(std::move(ptr)));
   if (converter.collection_size > 0) { converter.collection = true; }
 
-  VW::workspace& all = *alls[0];
+  VW980::workspace& all = *alls[0];
 
-  VW::start_parser(all);
+  VW980::start_parser(all);
   converter.convert_txt_to_flat(all);
-  VW::end_parser(all);
+  VW980::end_parser(all);
   return 0;
 }

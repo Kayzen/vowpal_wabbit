@@ -11,7 +11,7 @@ JNIEXPORT jlong JNICALL Java_vowpalWabbit_learner_VWLearners_initialize(JNIEnv* 
   jlong vwPtr = 0;
   try
   {
-    VW::workspace* vwInstance = VW::initialize(env->GetStringUTFChars(command, NULL));
+    VW980::workspace* vwInstance = VW980::initialize(env->GetStringUTFChars(command, NULL));
     vwPtr = (jlong)vwInstance;
   }
   catch (...)
@@ -25,13 +25,13 @@ JNIEXPORT void JNICALL Java_vowpalWabbit_learner_VWLearners_performRemainingPass
 {
   try
   {
-    VW::workspace* vwInstance = (VW::workspace*)vwPtr;
+    VW980::workspace* vwInstance = (VW980::workspace*)vwPtr;
     if (vwInstance->numpasses > 1)
     {
       vwInstance->do_reset_source = true;
-      VW::start_parser(*vwInstance);
-      VW::LEARNER::generic_driver(*vwInstance);
-      VW::end_parser(*vwInstance);
+      VW980::start_parser(*vwInstance);
+      VW980::LEARNER::generic_driver(*vwInstance);
+      VW980::end_parser(*vwInstance);
     }
   }
   catch (...)
@@ -44,7 +44,7 @@ JNIEXPORT void JNICALL Java_vowpalWabbit_learner_VWLearners_closeInstance(JNIEnv
 {
   try
   {
-    VW::workspace* vwInstance = (VW::workspace*)vwPtr;
+    VW980::workspace* vwInstance = (VW980::workspace*)vwPtr;
     vwInstance->finish();
     delete vwInstance;
   }
@@ -63,7 +63,7 @@ JNIEXPORT void JNICALL Java_vowpalWabbit_learner_VWLearners_saveModel(
     std::string filenameCpp(utf_string);
     env->ReleaseStringUTFChars(filename, utf_string);
     env->DeleteLocalRef(filename);
-    VW::save_predictor(*(VW::workspace*)vwPtr, filenameCpp);
+    VW980::save_predictor(*(VW980::workspace*)vwPtr, filenameCpp);
   }
   catch (...)
   {
@@ -75,31 +75,31 @@ JNIEXPORT jobject JNICALL Java_vowpalWabbit_learner_VWLearners_getReturnType(JNI
 {
   jclass clVWReturnType = env->FindClass(RETURN_TYPE);
   jfieldID field;
-  VW::workspace* vwInstance = (VW::workspace*)vwPtr;
+  VW980::workspace* vwInstance = (VW980::workspace*)vwPtr;
   switch (vwInstance->l->get_output_prediction_type())
   {
-    case VW::prediction_type_t::ACTION_PROBS:
+    case VW980::prediction_type_t::ACTION_PROBS:
       field = env->GetStaticFieldID(clVWReturnType, "ActionProbs", RETURN_TYPE_INSTANCE);
       break;
-    case VW::prediction_type_t::ACTION_SCORES:
+    case VW980::prediction_type_t::ACTION_SCORES:
       field = env->GetStaticFieldID(clVWReturnType, "ActionScores", RETURN_TYPE_INSTANCE);
       break;
-    case VW::prediction_type_t::MULTICLASS:
+    case VW980::prediction_type_t::MULTICLASS:
       field = env->GetStaticFieldID(clVWReturnType, "Multiclass", RETURN_TYPE_INSTANCE);
       break;
-    case VW::prediction_type_t::MULTILABELS:
+    case VW980::prediction_type_t::MULTILABELS:
       field = env->GetStaticFieldID(clVWReturnType, "Multilabels", RETURN_TYPE_INSTANCE);
       break;
-    case VW::prediction_type_t::PROB:
+    case VW980::prediction_type_t::PROB:
       field = env->GetStaticFieldID(clVWReturnType, "Prob", RETURN_TYPE_INSTANCE);
       break;
-    case VW::prediction_type_t::SCALAR:
+    case VW980::prediction_type_t::SCALAR:
       field = env->GetStaticFieldID(clVWReturnType, "Scalar", RETURN_TYPE_INSTANCE);
       break;
-    case VW::prediction_type_t::SCALARS:
+    case VW980::prediction_type_t::SCALARS:
       field = env->GetStaticFieldID(clVWReturnType, "Scalars", RETURN_TYPE_INSTANCE);
       break;
-    case VW::prediction_type_t::DECISION_PROBS:
+    case VW980::prediction_type_t::DECISION_PROBS:
       field = env->GetStaticFieldID(clVWReturnType, "DecisionProbs", RETURN_TYPE_INSTANCE);
       break;
     default:

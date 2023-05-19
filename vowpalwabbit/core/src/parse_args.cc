@@ -59,9 +59,9 @@
 #endif
 
 using std::endl;
-using namespace VW::config;
+using namespace VW980::config;
 
-uint64_t hash_file_contents(VW::io::reader* file_reader)
+uint64_t hash_file_contents(VW980::io::reader* file_reader)
 {
   uint64_t hash = 5289374183516789128;
   static const uint64_t BUFFER_SIZE = 1024;
@@ -99,7 +99,7 @@ std::string find_in_path(const std::vector<std::string>& paths, const std::strin
   for (const auto& path : paths)
   {
     std::string full = path;
-    if (!VW::ends_with(path, delimiter)) { full += delimiter; }
+    if (!VW980::ends_with(path, delimiter)) { full += delimiter; }
     full += fname;
     std::ifstream f(full.c_str());
     if (f.good()) { return full; }
@@ -107,14 +107,14 @@ std::string find_in_path(const std::vector<std::string>& paths, const std::strin
   return "";
 }
 
-void VW::details::parse_dictionary_argument(VW::workspace& all, const std::string& str)
+void VW980::details::parse_dictionary_argument(VW980::workspace& all, const std::string& str)
 {
   if (str.length() == 0) { return; }
   // expecting 'namespace:file', for instance 'w:foo.txt'
   // in the case of just 'foo.txt' it's applied to the default namespace
 
   char ns = ' ';
-  VW::string_view s(str);
+  VW980::string_view s(str);
   if ((str.length() > 2) && (str[1] == ':'))
   {
     ns = str[0];
@@ -124,11 +124,11 @@ void VW::details::parse_dictionary_argument(VW::workspace& all, const std::strin
   std::string file_name = find_in_path(all.dictionary_path, std::string(s));
   if (file_name.empty()) THROW("error: cannot find dictionary '" << s << "' in path; try adding --dictionary_path")
 
-  bool is_gzip = VW::ends_with(file_name, ".gz");
-  std::unique_ptr<VW::io::reader> file_adapter;
+  bool is_gzip = VW980::ends_with(file_name, ".gz");
+  std::unique_ptr<VW980::io::reader> file_adapter;
   try
   {
-    file_adapter = is_gzip ? VW::io::open_compressed_file_reader(file_name) : VW::io::open_file_reader(file_name);
+    file_adapter = is_gzip ? VW980::io::open_compressed_file_reader(file_name) : VW980::io::open_file_reader(file_name);
   }
   catch (...)
   {
@@ -156,10 +156,10 @@ void VW::details::parse_dictionary_argument(VW::workspace& all, const std::strin
     }
   }
 
-  std::unique_ptr<VW::io::reader> fd;
+  std::unique_ptr<VW980::io::reader> fd;
   try
   {
-    fd = VW::io::open_file_reader(file_name);
+    fd = VW980::io::open_file_reader(file_name);
   }
   catch (...)
   {
@@ -169,13 +169,13 @@ void VW::details::parse_dictionary_argument(VW::workspace& all, const std::strin
   // mimicking old v_hashmap behavior for load factor.
   // A smaller factor will generally use more memory but have faster access
   map->max_load_factor(0.25);
-  VW::example ec;
+  VW980::example ec;
 
   auto def = static_cast<size_t>(' ');
 
   ssize_t size = 2048, pos, num_read;
   char rc;
-  char* buffer = VW::details::calloc_or_throw<char>(size);
+  char* buffer = VW980::details::calloc_or_throw<char>(size);
   do {
     pos = 0;
     do {
@@ -221,10 +221,10 @@ void VW::details::parse_dictionary_argument(VW::workspace& all, const std::strin
     }
     d--;
     *d = '|';  // set up for parser::read_line
-    VW::parsers::text::read_line(all, &ec, d);
+    VW980::parsers::text::read_line(all, &ec, d);
     // now we just need to grab stuff from the default namespace of ec!
     if (ec.feature_space[def].empty()) { continue; }
-    map->emplace(word, VW::make_unique<VW::features>(ec.feature_space[def]));
+    map->emplace(word, VW980::make_unique<VW980::features>(ec.feature_space[def]));
 
     // clear up ec
     ec.tag.clear();
@@ -244,11 +244,11 @@ void VW::details::parse_dictionary_argument(VW::workspace& all, const std::strin
   all.loaded_dictionaries.push_back(info);
 }
 
-void parse_affix_argument(VW::workspace& all, const std::string& str)
+void parse_affix_argument(VW980::workspace& all, const std::string& str)
 {
   if (str.length() == 0) { return; }
-  char* cstr = VW::details::calloc_or_throw<char>(str.length() + 1);
-  VW::string_cpy(cstr, (str.length() + 1), str.c_str());
+  char* cstr = VW980::details::calloc_or_throw<char>(str.length() + 1);
+  VW980::string_cpy(cstr, (str.length() + 1), str.c_str());
 
   char* next_token;
   char* p = strtok_s(cstr, ",", &next_token);
@@ -271,7 +271,7 @@ void parse_affix_argument(VW::workspace& all, const std::string& str)
       auto ns = static_cast<uint16_t>(' ');  // default namespace
       if (q[1] != 0)
       {
-        if (VW::valid_ns(q[1])) { ns = static_cast<uint16_t>(q[1]); }
+        if (VW980::valid_ns(q[1])) { ns = static_cast<uint16_t>(q[1]); }
         else
           THROW("malformed affix argument (invalid namespace): " << p)
 
@@ -294,7 +294,7 @@ void parse_affix_argument(VW::workspace& all, const std::string& str)
   free(cstr);
 }
 
-void parse_diagnostics(options_i& options, VW::workspace& all)
+void parse_diagnostics(options_i& options, VW980::workspace& all)
 {
   bool version_arg = false;
   bool help = false;
@@ -317,11 +317,11 @@ void parse_diagnostics(options_i& options, VW::workspace& all)
   if (help)
   {
     all.quiet = true;
-    all.logger.set_level(VW::io::log_level::OFF_LEVEL);
+    all.logger.set_level(VW980::io::log_level::OFF_LEVEL);
     // This is valid:
     // https://stackoverflow.com/questions/25690636/is-it-valid-to-construct-an-stdostream-from-a-null-buffer This
     // results in the ostream not outputting anything.
-    all.trace_message = VW::make_unique<std::ostream>(nullptr);
+    all.trace_message = VW980::make_unique<std::ostream>(nullptr);
   }
 
   // pass all.quiet around
@@ -330,7 +330,7 @@ void parse_diagnostics(options_i& options, VW::workspace& all)
   // Upon direct query for version -- spit it out directly to stdout
   if (version_arg)
   {
-    std::cout << VW::VERSION.to_string() << " (git commit: " << VW::GIT_COMMIT << ")\n";
+    std::cout << VW980::VERSION.to_string() << " (git commit: " << VW980::GIT_COMMIT << ")\n";
     exit(0);
   }
 
@@ -369,9 +369,9 @@ void parse_diagnostics(options_i& options, VW::workspace& all)
   }
 }
 
-VW::details::input_options parse_source(VW::workspace& all, options_i& options)
+VW980::details::input_options parse_source(VW980::workspace& all, options_i& options)
 {
-  VW::details::input_options parsed_options;
+  VW980::details::input_options parsed_options;
 
   option_group_definition input_options("Input");
   input_options.add(make_option("data", all.data_filename).short_name("d").help("Example set"))
@@ -408,8 +408,8 @@ VW::details::input_options parse_source(VW::workspace& all, options_i& options)
                .help("Data file will be interpreted as a flatbuffer file")
                .experimental());
 #ifdef VW_BUILD_CSV
-  parsed_options.csv_opts = VW::make_unique<VW::parsers::csv::csv_parser_options>();
-  VW::parsers::csv::csv_parser::set_parse_args(input_options, *parsed_options.csv_opts);
+  parsed_options.csv_opts = VW980::make_unique<VW980::parsers::csv::csv_parser_options>();
+  VW980::parsers::csv::csv_parser::set_parse_args(input_options, *parsed_options.csv_opts);
 #endif
 
   options.add_and_parse(input_options);
@@ -454,22 +454,22 @@ VW::details::input_options parse_source(VW::workspace& all, options_i& options)
   }
 
 #ifdef VW_BUILD_CSV
-  VW::parsers::csv::csv_parser::handle_parse_args(*parsed_options.csv_opts);
+  VW980::parsers::csv::csv_parser::handle_parse_args(*parsed_options.csv_opts);
 #endif
 
   return parsed_options;
 }
 
-namespace VW
+namespace VW980
 {
 
 namespace details
 {
-std::tuple<std::string, std::string> extract_ignored_feature(VW::string_view namespace_feature)
+std::tuple<std::string, std::string> extract_ignored_feature(VW980::string_view namespace_feature)
 {
   std::string feature_delimiter = "|";
   auto feature_delimiter_index = namespace_feature.find(feature_delimiter);
-  if (feature_delimiter_index != VW::string_view::npos)
+  if (feature_delimiter_index != VW980::string_view::npos)
   {
     auto ns = namespace_feature.substr(0, feature_delimiter_index);
     // check for default namespace
@@ -481,24 +481,24 @@ std::tuple<std::string, std::string> extract_ignored_feature(VW::string_view nam
   return {};
 }
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980
 
-std::vector<VW::namespace_index> parse_char_interactions(VW::string_view input, VW::io::logger& logger)
+std::vector<VW980::namespace_index> parse_char_interactions(VW980::string_view input, VW980::io::logger& logger)
 {
-  std::vector<VW::namespace_index> result;
+  std::vector<VW980::namespace_index> result;
 
-  auto decoded = VW::decode_inline_hex(input, logger);
+  auto decoded = VW980::decode_inline_hex(input, logger);
   result.insert(result.begin(), decoded.begin(), decoded.end());
   return result;
 }
 
-std::vector<VW::extent_term> VW::details::parse_full_name_interactions(VW::workspace& all, VW::string_view str)
+std::vector<VW980::extent_term> VW980::details::parse_full_name_interactions(VW980::workspace& all, VW980::string_view str)
 {
   std::vector<extent_term> result;
-  auto encoded = VW::decode_inline_hex(str, all.logger);
+  auto encoded = VW980::decode_inline_hex(str, all.logger);
 
-  std::vector<VW::string_view> tokens;
-  VW::tokenize('|', str, tokens, true);
+  std::vector<VW980::string_view> tokens;
+  VW980::tokenize('|', str, tokens, true);
   for (const auto& token : tokens)
   {
     if (token.empty()) { THROW("A term in --experimental_full_name_interactions cannot be empty. Given: " << str) }
@@ -510,18 +510,18 @@ std::vector<VW::extent_term> VW::details::parse_full_name_interactions(VW::works
             "A wildcard term in --experimental_full_name_interactions cannot contain characters other than ':'. Found: "
             << token)
       }
-      result.emplace_back(VW::details::WILDCARD_NAMESPACE, VW::details::WILDCARD_NAMESPACE);
+      result.emplace_back(VW980::details::WILDCARD_NAMESPACE, VW980::details::WILDCARD_NAMESPACE);
     }
     else
     {
-      const auto ns_hash = VW::hash_space(all, std::string{token});
-      result.emplace_back(static_cast<VW::namespace_index>(token[0]), ns_hash);
+      const auto ns_hash = VW980::hash_space(all, std::string{token});
+      result.emplace_back(static_cast<VW980::namespace_index>(token[0]), ns_hash);
     }
   }
   return result;
 }
 
-void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interactions_settings_duplicated,
+void parse_feature_tweaks(options_i& options, VW980::workspace& all, bool interactions_settings_duplicated,
     std::vector<std::string>& dictionary_nses)
 {
   std::string hash_function;
@@ -617,19 +617,19 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
   options.add_and_parse(feature_options);
 
   // feature manipulation
-  all.example_parser->hasher = VW::get_hasher(hash_function);
+  all.example_parser->hasher = VW980::get_hasher(hash_function);
 
   if (options.was_supplied("spelling"))
   {
     for (auto& spelling_n : spelling_ns)
     {
-      spelling_n = VW::decode_inline_hex(spelling_n, all.logger);
+      spelling_n = VW980::decode_inline_hex(spelling_n, all.logger);
       if (spelling_n[0] == '_') { all.spelling_features[static_cast<unsigned char>(' ')] = true; }
       else { all.spelling_features[static_cast<size_t>(spelling_n[0])] = true; }
     }
   }
 
-  if (options.was_supplied("affix")) { parse_affix_argument(all, VW::decode_inline_hex(affix, all.logger)); }
+  if (options.was_supplied("affix")) { parse_affix_argument(all, VW980::decode_inline_hex(affix, all.logger)); }
 
   // Process ngram and skips arguments
   if (options.was_supplied("skips"))
@@ -644,20 +644,20 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
     std::vector<std::string> hex_decoded_ngram_strings;
     hex_decoded_ngram_strings.reserve(ngram_strings.size());
     std::transform(ngram_strings.begin(), ngram_strings.end(), std::back_inserter(hex_decoded_ngram_strings),
-        [&](const std::string& arg) { return VW::decode_inline_hex(arg, all.logger); });
+        [&](const std::string& arg) { return VW980::decode_inline_hex(arg, all.logger); });
 
     std::vector<std::string> hex_decoded_skip_strings;
     hex_decoded_skip_strings.reserve(skip_strings.size());
     std::transform(skip_strings.begin(), skip_strings.end(), std::back_inserter(hex_decoded_skip_strings),
-        [&](const std::string& arg) { return VW::decode_inline_hex(arg, all.logger); });
+        [&](const std::string& arg) { return VW980::decode_inline_hex(arg, all.logger); });
 
-    all.skip_gram_transformer = VW::make_unique<VW::kskip_ngram_transformer>(
-        VW::kskip_ngram_transformer::build(hex_decoded_ngram_strings, hex_decoded_skip_strings, all.quiet, all.logger));
+    all.skip_gram_transformer = VW980::make_unique<VW980::kskip_ngram_transformer>(
+        VW980::kskip_ngram_transformer::build(hex_decoded_ngram_strings, hex_decoded_skip_strings, all.quiet, all.logger));
   }
 
   if (options.was_supplied("feature_limit"))
   {
-    VW::details::compile_limits(all.limit_strings, all.limit, all.quiet, all.logger);
+    VW980::details::compile_limits(all.limit_strings, all.limit, all.quiet, all.logger);
   }
 
   if (options.was_supplied("bit_precision"))
@@ -669,11 +669,11 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
     all.default_bits = false;
     all.num_bits = new_bits;
 
-    VW::validate_num_bits(all);
+    VW980::validate_num_bits(all);
   }
 
   // prepare namespace interactions
-  std::vector<std::vector<VW::namespace_index>> decoded_interactions;
+  std::vector<std::vector<VW980::namespace_index>> decoded_interactions;
 
   if ( ( (!all.interactions.empty() && /*data was restored from old model file directly to v_array and will be overriden automatically*/
           (options.was_supplied("quadratic") || options.was_supplied("cubic") || options.was_supplied("interactions")) ) )
@@ -737,7 +737,7 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
     if (!all.quiet && !options.was_supplied("leave_duplicate_interactions"))
     {
       auto any_contain_wildcards = std::any_of(decoded_interactions.begin(), decoded_interactions.end(),
-          [](const std::vector<VW::namespace_index>& interaction) { return VW::contains_wildcard(interaction); });
+          [](const std::vector<VW980::namespace_index>& interaction) { return VW980::contains_wildcard(interaction); });
       if (any_contain_wildcards)
       {
         all.logger.err_warn(
@@ -747,12 +747,12 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
     }
 
     // Sorts the overall list
-    std::sort(decoded_interactions.begin(), decoded_interactions.end(), VW::details::sort_interactions_comparator);
+    std::sort(decoded_interactions.begin(), decoded_interactions.end(), VW980::details::sort_interactions_comparator);
 
     size_t removed_cnt = 0;
     size_t sorted_cnt = 0;
     // Sorts individual interactions
-    VW::details::sort_and_filter_duplicate_interactions(
+    VW980::details::sort_and_filter_duplicate_interactions(
         decoded_interactions, !leave_duplicate_interactions, removed_cnt, sorted_cnt);
 
     if (removed_cnt > 0 && !all.quiet)
@@ -778,7 +778,7 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
   {
     for (const auto& i : full_name_interactions)
     {
-      auto parsed = VW::details::parse_full_name_interactions(all, i);
+      auto parsed = VW980::details::parse_full_name_interactions(all, i);
       if (parsed.size() < 2) { THROW("Feature interactions must involve at least two namespaces") }
       std::sort(parsed.begin(), parsed.end());
       all.extent_interactions.push_back(parsed);
@@ -791,7 +791,7 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
     }
   }
 
-  for (size_t i = 0; i < VW::NUM_NAMESPACES; i++)
+  for (size_t i = 0; i < VW980::NUM_NAMESPACES; i++)
   {
     all.ignore[i] = false;
     all.ignore_linear[i] = false;
@@ -805,14 +805,14 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
 
     for (auto& i : ignores)
     {
-      i = VW::decode_inline_hex(i, all.logger);
+      i = VW980::decode_inline_hex(i, all.logger);
       for (auto j : i) { all.ignore[static_cast<size_t>(static_cast<unsigned char>(j))] = true; }
     }
 
     if (!all.quiet)
     {
       *(all.trace_message) << "ignoring namespaces beginning with:";
-      for (size_t i = 0; i < VW::NUM_NAMESPACES; ++i)
+      for (size_t i = 0; i < VW980::NUM_NAMESPACES; ++i)
       {
         if (all.ignore[i]) { *(all.trace_message) << " " << static_cast<unsigned char>(i); }
       }
@@ -826,14 +826,14 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
 
     for (auto& i : ignore_linears)
     {
-      i = VW::decode_inline_hex(i, all.logger);
+      i = VW980::decode_inline_hex(i, all.logger);
       for (auto j : i) { all.ignore_linear[static_cast<size_t>(static_cast<unsigned char>(j))] = true; }
     }
 
     if (!all.quiet)
     {
       *(all.trace_message) << "ignoring linear terms for namespaces beginning with:";
-      for (size_t i = 0; i < VW::NUM_NAMESPACES; ++i)
+      for (size_t i = 0; i < VW980::NUM_NAMESPACES; ++i)
       {
         if (all.ignore_linear[i]) { *(all.trace_message) << " " << static_cast<unsigned char>(i); }
       }
@@ -845,7 +845,7 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
   {
     for (const auto& ignored : ignore_features_dsjson)
     {
-      auto namespace_and_feature = VW::details::extract_ignored_feature(ignored);
+      auto namespace_and_feature = VW980::details::extract_ignored_feature(ignored);
       const auto& ns = std::get<0>(namespace_and_feature);
       const auto& feature_name = std::get<1>(namespace_and_feature);
       if (!(ns.empty() || feature_name.empty()))
@@ -861,20 +861,20 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
 
   if (options.was_supplied("keep"))
   {
-    for (size_t i = 0; i < VW::NUM_NAMESPACES; i++) { all.ignore[i] = true; }
+    for (size_t i = 0; i < VW980::NUM_NAMESPACES; i++) { all.ignore[i] = true; }
 
     all.ignore_some = true;
 
     for (auto& i : keeps)
     {
-      i = VW::decode_inline_hex(i, all.logger);
+      i = VW980::decode_inline_hex(i, all.logger);
       for (const auto& j : i) { all.ignore[static_cast<size_t>(static_cast<unsigned char>(j))] = false; }
     }
 
     if (!all.quiet)
     {
       *(all.trace_message) << "using namespaces beginning with:";
-      for (size_t i = 0; i < VW::NUM_NAMESPACES; ++i)
+      for (size_t i = 0; i < VW980::NUM_NAMESPACES; ++i)
       {
         if (!all.ignore[i]) { *(all.trace_message) << " " << static_cast<unsigned char>(i); }
       }
@@ -888,14 +888,14 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
   if (options.was_supplied("redefine"))
   {
     // initial values: i-th namespace is redefined to i itself
-    for (size_t i = 0; i < VW::NUM_NAMESPACES; i++) { all.redefine[i] = static_cast<unsigned char>(i); }
+    for (size_t i = 0; i < VW980::NUM_NAMESPACES; i++) { all.redefine[i] = static_cast<unsigned char>(i); }
 
     // note: --redefine declaration order is matter
     // so --redefine :=L --redefine ab:=M  --ignore L  will ignore all except a and b under new M namspace
 
     for (const auto& arg : redefines)
     {
-      const std::string& argument = VW::decode_inline_hex(arg, all.logger);
+      const std::string& argument = VW980::decode_inline_hex(arg, all.logger);
       size_t arg_len = argument.length();
 
       size_t operator_pos = 0;  // keeps operator pos + 1 to stay unsigned type
@@ -941,7 +941,7 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
           else
           {
             // wildcard found: redefine all except default and break
-            for (size_t j = 0; j < VW::NUM_NAMESPACES; j++) { all.redefine[j] = new_namespace; }
+            for (size_t j = 0; j < VW980::NUM_NAMESPACES; j++) { all.redefine[j] = new_namespace; }
             break;  // break processing S
           }
         }
@@ -992,7 +992,7 @@ void parse_feature_tweaks(options_i& options, VW::workspace& all, bool interacti
   if (noconstant) { all.add_constant = false; }
 }
 
-void parse_example_tweaks(options_i& options, VW::workspace& all)
+void parse_example_tweaks(options_i& options, VW980::workspace& all)
 {
   std::string named_labels;
   std::string loss_function;
@@ -1052,15 +1052,15 @@ void parse_example_tweaks(options_i& options, VW::workspace& all)
                      "labels, comma-sep, eg \"--named_labels Noun,Verb,Adj,Punc\""));
   options.add_and_parse(example_options);
 
-  all.numpasses = VW::cast_to_smaller_type<size_t>(numpasses);
+  all.numpasses = VW980::cast_to_smaller_type<size_t>(numpasses);
   if (pass_length < -1) { THROW("pass_length must be -1 or positive"); }
 
   if (max_examples < -1) { THROW("--examples must be -1 or positive"); }
 
   all.pass_length =
-      pass_length == -1 ? std::numeric_limits<size_t>::max() : VW::cast_signed_to_unsigned<size_t>(pass_length);
+      pass_length == -1 ? std::numeric_limits<size_t>::max() : VW980::cast_signed_to_unsigned<size_t>(pass_length);
   all.max_examples =
-      max_examples == -1 ? std::numeric_limits<size_t>::max() : VW::cast_signed_to_unsigned<size_t>(max_examples);
+      max_examples == -1 ? std::numeric_limits<size_t>::max() : VW980::cast_signed_to_unsigned<size_t>(max_examples);
 
   if (test_only || all.eta == 0.)
   {
@@ -1083,7 +1083,7 @@ void parse_example_tweaks(options_i& options, VW::workspace& all)
 
   if (options.was_supplied("named_labels"))
   {
-    all.sd->ldict = VW::make_unique<VW::named_labels>(named_labels);
+    all.sd->ldict = VW980::make_unique<VW980::named_labels>(named_labels);
     if (!all.quiet) { *(all.trace_message) << "parsed " << all.sd->ldict->getK() << " named labels" << endl; }
   }
 
@@ -1155,7 +1155,7 @@ void parse_example_tweaks(options_i& options, VW::workspace& all)
   }
 }
 
-void parse_update_options(options_i& options, VW::workspace& all)
+void parse_update_options(options_i& options, VW980::workspace& all)
 {
   option_group_definition update_args("Update");
   float t_arg = 0.f;
@@ -1183,7 +1183,7 @@ void parse_update_options(options_i& options, VW::workspace& all)
   all.initial_t = static_cast<float>(all.sd->t);
 }
 
-void parse_output_preds(options_i& options, VW::workspace& all)
+void parse_output_preds(options_i& options, VW980::workspace& all)
 {
   std::string predictions;
   std::string raw_predictions;
@@ -1201,13 +1201,13 @@ void parse_output_preds(options_i& options, VW::workspace& all)
 
     if (predictions == "stdout")
     {
-      all.final_prediction_sink.push_back(VW::io::open_stdout());  // stdout
+      all.final_prediction_sink.push_back(VW980::io::open_stdout());  // stdout
     }
     else
     {
       try
       {
-        all.final_prediction_sink.push_back(VW::io::open_file_writer(predictions));
+        all.final_prediction_sink.push_back(VW980::io::open_file_writer(predictions));
       }
       catch (...)
       {
@@ -1226,12 +1226,12 @@ void parse_output_preds(options_i& options, VW::workspace& all)
         all.logger.err_warn("--raw_predictions has no defined value when --binary specified, expect no output");
       }
     }
-    if (raw_predictions == "stdout") { all.raw_prediction = VW::io::open_stdout(); }
-    else { all.raw_prediction = VW::io::open_file_writer(raw_predictions); }
+    if (raw_predictions == "stdout") { all.raw_prediction = VW980::io::open_stdout(); }
+    else { all.raw_prediction = VW980::io::open_file_writer(raw_predictions); }
   }
 }
 
-void parse_output_model(options_i& options, VW::workspace& all)
+void parse_output_model(options_i& options, VW980::workspace& all)
 {
   bool predict_only_model = false;
   bool save_resume = false;
@@ -1298,7 +1298,7 @@ void parse_output_model(options_i& options, VW::workspace& all)
   }
 }
 
-void load_input_model(VW::workspace& all, VW::io_buf& io_temp)
+void load_input_model(VW980::workspace& all, VW980::io_buf& io_temp)
 {
   // Need to see if we have to load feature mask first or second.
   // -i and -mask are from same file, load -i file first so mask can use it
@@ -1308,11 +1308,11 @@ void load_input_model(VW::workspace& all, VW::io_buf& io_temp)
     all.l->save_load(io_temp, true, false);
     io_temp.close_file();
 
-    VW::details::parse_mask_regressor_args(all, all.feature_mask, all.initial_regressors);
+    VW980::details::parse_mask_regressor_args(all, all.feature_mask, all.initial_regressors);
   }
   else
   {  // load mask first
-    VW::details::parse_mask_regressor_args(all, all.feature_mask, all.initial_regressors);
+    VW980::details::parse_mask_regressor_args(all, all.feature_mask, all.initial_regressors);
 
     // load rest of regressor
     all.l->save_load(io_temp, true, false);
@@ -1322,19 +1322,19 @@ void load_input_model(VW::workspace& all, VW::io_buf& io_temp)
 
 ssize_t trace_message_wrapper_adapter(void* context, const char* buffer, size_t num_bytes)
 {
-  auto* wrapper_context = reinterpret_cast<VW::details::trace_message_wrapper*>(context);
+  auto* wrapper_context = reinterpret_cast<VW980::details::trace_message_wrapper*>(context);
   const std::string str(buffer, num_bytes);
   wrapper_context->trace_message(wrapper_context->inner_context, str);
   return static_cast<ssize_t>(num_bytes);
 }
 
-std::unique_ptr<VW::workspace> VW::details::parse_args(std::unique_ptr<options_i, options_deleter_type> options,
-    VW::trace_message_t trace_listener, void* trace_context, VW::io::logger* custom_logger)
+std::unique_ptr<VW980::workspace> VW980::details::parse_args(std::unique_ptr<options_i, options_deleter_type> options,
+    VW980::trace_message_t trace_listener, void* trace_context, VW980::io::logger* custom_logger)
 {
   auto logger = custom_logger != nullptr
       ? *custom_logger
-      : (trace_listener != nullptr ? VW::io::create_custom_sink_logger_legacy(trace_context, trace_listener)
-                                   : VW::io::create_default_logger());
+      : (trace_listener != nullptr ? VW980::io::create_custom_sink_logger_legacy(trace_context, trace_listener)
+                                   : VW980::io::create_default_logger());
 
   bool quiet = false;
   bool driver_output_off = false;
@@ -1374,23 +1374,23 @@ std::unique_ptr<VW::workspace> VW::details::parse_args(std::unique_ptr<options_i
     driver_output_off = true;
   }
 
-  auto level = VW::io::get_log_level(log_level);
+  auto level = VW980::io::get_log_level(log_level);
   logger.set_level(level);
-  auto location = VW::io::get_output_location(log_output_stream);
+  auto location = VW980::io::get_output_location(log_output_stream);
   logger.set_location(location);
 
   // Don't print warning if a custom log output trace_listener is supplied.
-  if (trace_listener == nullptr && location == VW::io::output_location::COMPAT)
+  if (trace_listener == nullptr && location == VW980::io::output_location::COMPAT)
   {
     logger.err_warn("'compat' mode for --log_output is deprecated and will be removed in a future release.");
   }
 
   if (options->was_supplied("limit_output") && (upper_limit != 0))
   {
-    logger.set_max_output(VW::cast_to_smaller_type<size_t>(upper_limit));
+    logger.set_max_output(VW980::cast_to_smaller_type<size_t>(upper_limit));
   }
 
-  auto all = VW::make_unique<VW::workspace>(logger);
+  auto all = VW980::make_unique<VW980::workspace>(logger);
   all->options = std::move(options);
   all->quiet = quiet;
 
@@ -1399,7 +1399,7 @@ std::unique_ptr<VW::workspace> VW::details::parse_args(std::unique_ptr<options_i
     // This is valid:
     // https://stackoverflow.com/questions/25690636/is-it-valid-to-construct-an-stdostream-from-a-null-buffer This
     // results in the ostream not outputting anything.
-    all->trace_message = VW::make_unique<std::ostream>(nullptr);
+    all->trace_message = VW980::make_unique<std::ostream>(nullptr);
   }
   else
   {
@@ -1415,14 +1415,14 @@ std::unique_ptr<VW::workspace> VW::details::parse_args(std::unique_ptr<options_i
       // need to adapt between them here.
       all->trace_message_wrapper_context =
           std::make_shared<details::trace_message_wrapper>(trace_context, trace_listener);
-      all->trace_message = VW::make_unique<VW::io::owning_ostream>(VW::make_unique<VW::io::writer_stream_buf>(
-          VW::io::create_custom_writer(all->trace_message_wrapper_context.get(), trace_message_wrapper_adapter)));
+      all->trace_message = VW980::make_unique<VW980::io::owning_ostream>(VW980::make_unique<VW980::io::writer_stream_buf>(
+          VW980::io::create_custom_writer(all->trace_message_wrapper_context.get(), trace_message_wrapper_adapter)));
     }
     else if (driver_output_stream == "stdout")
     {
-      all->trace_message = VW::make_unique<std::ostream>(std::cout.rdbuf());
+      all->trace_message = VW980::make_unique<std::ostream>(std::cout.rdbuf());
     }
-    else { all->trace_message = VW::make_unique<std::ostream>(std::cerr.rdbuf()); }
+    else { all->trace_message = VW980::make_unique<std::ostream>(std::cerr.rdbuf()); }
   }
 
   bool strict_parse = false;
@@ -1453,7 +1453,7 @@ std::unique_ptr<VW::workspace> VW::details::parse_args(std::unique_ptr<options_i
     }
   }
 
-  all->example_parser = VW::make_unique<VW::parser>(final_example_queue_limit, strict_parse);
+  all->example_parser = VW980::make_unique<VW980::parser>(final_example_queue_limit, strict_parse);
 
   option_group_definition weight_args("Weight");
   weight_args
@@ -1498,10 +1498,10 @@ std::unique_ptr<VW::workspace> VW::details::parse_args(std::unique_ptr<options_i
 
   if (all->options->was_supplied("span_server"))
   {
-    all->selected_all_reduce_type = VW::all_reduce_type::SOCKET;
-    all->all_reduce.reset(new VW::all_reduce_sockets(span_server_arg,
-        VW::cast_to_smaller_type<int>(span_server_port_arg), VW::cast_to_smaller_type<size_t>(unique_id_arg),
-        VW::cast_to_smaller_type<size_t>(total_arg), VW::cast_to_smaller_type<size_t>(node_arg), all->quiet));
+    all->selected_all_reduce_type = VW980::all_reduce_type::SOCKET;
+    all->all_reduce.reset(new VW980::all_reduce_sockets(span_server_arg,
+        VW980::cast_to_smaller_type<int>(span_server_port_arg), VW980::cast_to_smaller_type<size_t>(unique_id_arg),
+        VW980::cast_to_smaller_type<size_t>(total_arg), VW980::cast_to_smaller_type<size_t>(node_arg), all->quiet));
   }
 
   parse_diagnostics(*all->options, *all);
@@ -1525,7 +1525,7 @@ bool check_interaction_settings_collision(options_i& options, const std::string&
   return file_options_has_interaction;
 }
 
-bool is_opt_long_option_like(VW::string_view token) { return token.find("--") == 0 && token.size() > 2; }
+bool is_opt_long_option_like(VW980::string_view token) { return token.find("--") == 0 && token.size() > 2; }
 
 // The model file contains a command line but it has much greater constraints than the user supplied command line. These
 // constraints greatly help us unambiguously process it. The command line will ONLY consist of bool switches or options
@@ -1554,8 +1554,8 @@ std::unordered_map<std::string, std::vector<std::string>> parse_model_command_li
   return m_map;
 }
 
-void VW::details::merge_options_from_header_strings(const std::vector<std::string>& strings, bool skip_interactions,
-    VW::config::options_i& options, bool& is_ccb_input_model)
+void VW980::details::merge_options_from_header_strings(const std::vector<std::string>& strings, bool skip_interactions,
+    VW980::config::options_i& options, bool& is_ccb_input_model)
 {
   auto parsed_model_command_line = parse_model_command_line_legacy(strings);
 
@@ -1578,8 +1578,8 @@ void VW::details::merge_options_from_header_strings(const std::vector<std::strin
   }
 }
 
-options_i& VW::details::load_header_merge_options(
-    options_i& options, VW::workspace& all, VW::io_buf& model, bool& interactions_settings_duplicated)
+options_i& VW980::details::load_header_merge_options(
+    options_i& options, VW980::workspace& all, VW980::io_buf& model, bool& interactions_settings_duplicated)
 {
   std::string file_options;
   save_load_header(all, model, true, false, file_options, options);
@@ -1591,13 +1591,13 @@ options_i& VW::details::load_header_merge_options(
   const std::vector<std::string> container{
       std::istream_iterator<std::string>{ss}, std::istream_iterator<std::string>{}};
 
-  VW::details::merge_options_from_header_strings(
+  VW980::details::merge_options_from_header_strings(
       container, interactions_settings_duplicated, options, all.is_ccb_input_model);
 
   return options;
 }
 
-void VW::details::parse_modules(options_i& options, VW::workspace& all, bool interactions_settings_duplicated,
+void VW980::details::parse_modules(options_i& options, VW980::workspace& all, bool interactions_settings_duplicated,
     std::vector<std::string>& dictionary_namespaces)
 {
   option_group_definition rand_options("Randomization");
@@ -1620,11 +1620,11 @@ void VW::details::parse_modules(options_i& options, VW::workspace& all, bool int
 // note: Although we have the option to override setup_base_i,
 // the most common scenario is to use the default_reduction_stack_setup.
 // Expect learner_builder to be nullptr most/all of the cases.
-void VW::details::instantiate_learner(VW::workspace& all, std::unique_ptr<VW::setup_base_i> learner_builder)
+void VW980::details::instantiate_learner(VW980::workspace& all, std::unique_ptr<VW980::setup_base_i> learner_builder)
 {
   if (!learner_builder)
   {
-    learner_builder = VW::make_unique<VW::default_reduction_stack_setup>(all, *all.options.get());
+    learner_builder = VW980::make_unique<VW980::default_reduction_stack_setup>(all, *all.options.get());
   }
   else { learner_builder->delayed_state_attach(all, *all.options.get()); }
 
@@ -1634,7 +1634,7 @@ void VW::details::instantiate_learner(VW::workspace& all, std::unique_ptr<VW::se
   all.l = learner_builder->setup_base_learner();
 
   // Setup label parser based on the stack which was just created.
-  all.example_parser->lbl_parser = VW::get_label_parser(all.l->get_input_label_type());
+  all.example_parser->lbl_parser = VW980::get_label_parser(all.l->get_input_label_type());
 
   // explicit destroy of learner_builder state
   // avoids misuse of this interface:
@@ -1642,7 +1642,7 @@ void VW::details::instantiate_learner(VW::workspace& all, std::unique_ptr<VW::se
   assert(learner_builder == nullptr);
 }
 
-void VW::details::parse_sources(options_i& options, VW::workspace& all, VW::io_buf& model, bool skip_model_load)
+void VW980::details::parse_sources(options_i& options, VW980::workspace& all, VW980::io_buf& model, bool skip_model_load)
 {
   if (!skip_model_load) { load_input_model(all, model); }
   else { model.close_file(); }
@@ -1656,7 +1656,7 @@ void VW::details::parse_sources(options_i& options, VW::workspace& all, VW::io_b
   all.total_feature_width = (1 << interleave_shifts) >> all.weights.stride_shift();
 }
 
-void VW::details::print_enabled_learners(VW::workspace& all, std::vector<std::string>& enabled_learners)
+void VW980::details::print_enabled_learners(VW980::workspace& all, std::vector<std::string>& enabled_learners)
 {
   // output list of enabled learners
   if (!all.quiet && !all.options->was_supplied("audit_regressor") && !enabled_learners.empty())
@@ -1672,6 +1672,6 @@ void VW::details::print_enabled_learners(VW::workspace& all, std::vector<std::st
 
 std::string spoof_hex_encoded_namespaces(const std::string& arg)
 {
-  auto nl = VW::io::create_null_logger();
-  return VW::decode_inline_hex(arg, nl);
+  auto nl = VW980::io::create_null_logger();
+  return VW980::decode_inline_hex(arg, nl);
 }

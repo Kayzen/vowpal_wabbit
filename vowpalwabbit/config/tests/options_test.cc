@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 template <typename T>
 std::shared_ptr<T> to_opt_ptr(option_builder<T>&& builder)
@@ -112,7 +112,7 @@ TEST(Options, NameExtractionFromOptionGroup)
   EXPECT_EQ(name_extractor.was_supplied("random"), false);
 
   // should throw since we validate that reductions should use add_parse_and_check_necessary
-  EXPECT_THROW(name_extractor.add_and_parse(ag), VW::vw_exception);
+  EXPECT_THROW(name_extractor.add_and_parse(ag), VW980::vw_exception);
 }
 
 TEST(Options, NameExtractionMultiNecessary)
@@ -136,7 +136,7 @@ TEST(Options, NameExtractionMultiNecessary)
   EXPECT_EQ(name_extractor.was_supplied("random"), false);
 
   // should throw since we validate that reductions should use add_parse_and_check_necessary
-  EXPECT_THROW(name_extractor.add_and_parse(ag), VW::vw_exception);
+  EXPECT_THROW(name_extractor.add_and_parse(ag), VW980::vw_exception);
 }
 
 TEST(Options, NameExtractionShouldThrow)
@@ -152,13 +152,13 @@ TEST(Options, NameExtractionShouldThrow)
   auto name_extractor = options_name_extractor();
 
   // should throw since no .necessary() is defined
-  EXPECT_THROW(name_extractor.add_parse_and_check_necessary(ag), VW::vw_exception);
+  EXPECT_THROW(name_extractor.add_parse_and_check_necessary(ag), VW980::vw_exception);
 
   // should throw since these methods will never be implemented by options_name_extractor
   std::vector<std::string> warnings;
-  EXPECT_THROW(warnings = name_extractor.check_unregistered(), VW::vw_exception);
-  EXPECT_THROW(name_extractor.insert("opt2", "blah"), VW::vw_exception);
-  EXPECT_THROW(name_extractor.replace("opt2", "blah"), VW::vw_exception);
+  EXPECT_THROW(warnings = name_extractor.check_unregistered(), VW980::vw_exception);
+  EXPECT_THROW(name_extractor.insert("opt2", "blah"), VW980::vw_exception);
+  EXPECT_THROW(name_extractor.replace("opt2", "blah"), VW980::vw_exception);
 }
 
 TEST(Options, NameExtractionRecycle)
@@ -201,14 +201,14 @@ TEST(Options, SetTags)
 TEST(Options, SetTagsDuplicate)
 {
   typed_option<bool> opt("my_opt");
-  EXPECT_THROW(opt.set_tags(std::vector<std::string>{"taga", "tagb", "tagb"}), VW::vw_exception);
+  EXPECT_THROW(opt.set_tags(std::vector<std::string>{"taga", "tagb", "tagb"}), VW980::vw_exception);
 }
 
 TEST(Options, SetTagsInvalidName)
 {
   typed_option<bool> opt("my_opt");
-  EXPECT_THROW(opt.set_tags(std::vector<std::string>{"tag1"}), VW::vw_exception);
-  EXPECT_THROW(opt.set_tags(std::vector<std::string>{"Tag"}), VW::vw_exception);
-  EXPECT_THROW(opt.set_tags(std::vector<std::string>{"a b"}), VW::vw_exception);
-  EXPECT_THROW(opt.set_tags(std::vector<std::string>{"t-a-g"}), VW::vw_exception);
+  EXPECT_THROW(opt.set_tags(std::vector<std::string>{"tag1"}), VW980::vw_exception);
+  EXPECT_THROW(opt.set_tags(std::vector<std::string>{"Tag"}), VW980::vw_exception);
+  EXPECT_THROW(opt.set_tags(std::vector<std::string>{"a b"}), VW980::vw_exception);
+  EXPECT_THROW(opt.set_tags(std::vector<std::string>{"t-a-g"}), VW980::vw_exception);
 }

@@ -18,8 +18,8 @@
 #include <string>
 
 using internal_action_space_op =
-    VW::cb_explore_adf::cb_explore_adf_base<VW::cb_explore_adf::cb_explore_adf_large_action_space<
-        VW::cb_explore_adf::one_pass_svd_impl, VW::cb_explore_adf::one_rank_spanner_state>>;
+    VW980::cb_explore_adf::cb_explore_adf_base<VW980::cb_explore_adf::cb_explore_adf_large_action_space<
+        VW980::cb_explore_adf::one_pass_svd_impl, VW980::cb_explore_adf::one_rank_spanner_state>>;
 
 TEST(Las, CheckFindingMaxVolume)
 {
@@ -29,15 +29,15 @@ TEST(Las, CheckFindingMaxVolume)
     std::vector<std::string> args{"--cb_explore_adf", "--large_action_space", "--max_actions", std::to_string(d),
         "--quiet", "--random_seed", "0"};
     if (use_simd) { args.emplace_back("--las_hint_explicit_simd"); }
-    auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(args));
+    auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args));
 
     uint64_t seed = vw->get_random_state()->get_current_state() * 10.f;
-    VW::cb_explore_adf::cb_explore_adf_large_action_space<VW::cb_explore_adf::one_pass_svd_impl,
-        VW::cb_explore_adf::one_rank_spanner_state>
+    VW980::cb_explore_adf::cb_explore_adf_large_action_space<VW980::cb_explore_adf::one_pass_svd_impl,
+        VW980::cb_explore_adf::one_rank_spanner_state>
         largecb(
             /*d=*/0, /*c=*/2, false, vw.get(), seed, 1 << vw->num_bits,
             /*thread_pool_size*/ 0, /*block_size*/ 0, /*cache slack size*/ 50, /*use_explicit_simd=*/use_simd,
-            VW::cb_explore_adf::implementation_type::one_pass_svd);
+            VW980::cb_explore_adf::implementation_type::one_pass_svd);
     largecb.U = Eigen::MatrixXf{{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {0, 0, 0}, {7, 5, 3}, {6, 4, 8}};
     Eigen::MatrixXf X{{1, 2, 3}, {3, 2, 1}, {2, 1, 3}};
 
@@ -67,7 +67,7 @@ TEST(Las, CheckFindingMaxVolume)
 TEST(Las, CheckSpannerResultsSquarecb)
 {
   auto d = 2;
-  std::vector<std::unique_ptr<VW::workspace>> vws;
+  std::vector<std::unique_ptr<VW980::workspace>> vws;
   for (const int seed : {1, 0})
   {
     for (const bool use_simd : {false, true})
@@ -75,7 +75,7 @@ TEST(Las, CheckSpannerResultsSquarecb)
       std::vector<std::string> args{"--cb_explore_adf", "--large_action_space", "--max_actions", std::to_string(d),
           "--quiet", "--random_seed", std::to_string(seed)};
       if (use_simd) { args.emplace_back("--las_hint_explicit_simd"); }
-      vws.push_back(VW::initialize(VW::make_unique<VW::config::options_cli>(args)));
+      vws.push_back(VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args)));
     }
   }
 
@@ -84,65 +84,65 @@ TEST(Las, CheckSpannerResultsSquarecb)
     auto& vw = *vw_ptr;
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "0:1.0:0.5 | 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
-      examples.push_back(VW::read_example(vw, "| a_7:0.9 a_8:0.05 a_9:0.45"));
-      examples.push_back(VW::read_example(vw, "| a_10:5.9 a_11:5.05 a_12:5.45"));
-
-      vw.learn(examples);
-      vw.finish_example(examples);
-    }
-
-    {
-      VW::multi_ex examples;
-
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(vw, "0:1.0:0.5 | a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
-      examples.push_back(VW::read_example(vw, "| a_7:0.9 a_8:0.05 a_9:0.45"));
-      examples.push_back(VW::read_example(vw, "| a_10:5.9 a_11:5.05 a_12:5.45"));
+      examples.push_back(VW980::read_example(vw, "0:1.0:0.5 | 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
+      examples.push_back(VW980::read_example(vw, "| a_7:0.9 a_8:0.05 a_9:0.45"));
+      examples.push_back(VW980::read_example(vw, "| a_10:5.9 a_11:5.05 a_12:5.45"));
 
       vw.learn(examples);
       vw.finish_example(examples);
     }
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(vw, "0:1.0:0.5 | a_4:0.8 a_5:0.32 a_6:0.15"));
-      examples.push_back(VW::read_example(vw, "| a_7:0.9 a_8:0.05 a_9:0.45"));
-      examples.push_back(VW::read_example(vw, "| a_10:5.9 a_11:5.05 a_12:5.45"));
-
-      vw.learn(examples);
-      vw.finish_example(examples);
-    }
-
-    {
-      VW::multi_ex examples;
-
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
-      examples.push_back(VW::read_example(vw, "0:1.0:0.5 | a_7:0.9 a_8:0.05 a_9:0.45"));
-      examples.push_back(VW::read_example(vw, "| a_10:5.9 a_11:5.05 a_12:5.45"));
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(vw, "0:1.0:0.5 | a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
+      examples.push_back(VW980::read_example(vw, "| a_7:0.9 a_8:0.05 a_9:0.45"));
+      examples.push_back(VW980::read_example(vw, "| a_10:5.9 a_11:5.05 a_12:5.45"));
 
       vw.learn(examples);
       vw.finish_example(examples);
     }
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
-      examples.push_back(VW::read_example(vw, "| a_7:0.9 a_8:0.05 a_9:0.45"));
-      examples.push_back(VW::read_example(vw, "0:0.1:0.5 | a_10:5.9 a_11:5.05 a_12:5.45"));
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "0:1.0:0.5 | a_4:0.8 a_5:0.32 a_6:0.15"));
+      examples.push_back(VW980::read_example(vw, "| a_7:0.9 a_8:0.05 a_9:0.45"));
+      examples.push_back(VW980::read_example(vw, "| a_10:5.9 a_11:5.05 a_12:5.45"));
+
+      vw.learn(examples);
+      vw.finish_example(examples);
+    }
+
+    {
+      VW980::multi_ex examples;
+
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
+      examples.push_back(VW980::read_example(vw, "0:1.0:0.5 | a_7:0.9 a_8:0.05 a_9:0.45"));
+      examples.push_back(VW980::read_example(vw, "| a_10:5.9 a_11:5.05 a_12:5.45"));
+
+      vw.learn(examples);
+      vw.finish_example(examples);
+    }
+
+    {
+      VW980::multi_ex examples;
+
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
+      examples.push_back(VW980::read_example(vw, "| a_7:0.9 a_8:0.05 a_9:0.45"));
+      examples.push_back(VW980::read_example(vw, "0:0.1:0.5 | a_10:5.9 a_11:5.05 a_12:5.45"));
 
       vw.learn(examples);
       vw.finish_example(examples);
@@ -155,20 +155,20 @@ TEST(Las, CheckSpannerResultsSquarecb)
       FAIL() << "cb_explore_adf_large_action_space not found in enabled learners";
     }
 
-    VW::LEARNER::learner* learner =
+    VW980::LEARNER::learner* learner =
         require_multiline(vw.l->get_learner_by_name_prefix("cb_explore_adf_large_action_space"));
 
     auto* action_space = (internal_action_space_op*)learner->get_internal_type_erased_data_pointer_test_use_only();
     EXPECT_EQ(action_space != nullptr, true);
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
-      examples.push_back(VW::read_example(vw, "| a_7:0.9 a_8:0.05 a_9:0.45"));
-      examples.push_back(VW::read_example(vw, "| a_10:5.9 a_11:5.05 a_12:5.45"));
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
+      examples.push_back(VW980::read_example(vw, "| a_7:0.9 a_8:0.05 a_9:0.45"));
+      examples.push_back(VW980::read_example(vw, "| a_10:5.9 a_11:5.05 a_12:5.45"));
 
       vw.predict(examples);
 
@@ -201,7 +201,7 @@ TEST(Las, CheckSpannerResultsEpsilonGreedy)
   auto d = 2;
   float epsilon = 0.2f;
 
-  std::vector<std::unique_ptr<VW::workspace>> vws;
+  std::vector<std::unique_ptr<VW980::workspace>> vws;
   for (const int seed : {3, 0})
   {
     for (const bool use_simd : {false, true})
@@ -210,7 +210,7 @@ TEST(Las, CheckSpannerResultsEpsilonGreedy)
           "--max_actions", std::to_string(d), "--quiet", "--thread_pool_size", "4", "--random_seed",
           std::to_string(seed)};
       if (use_simd) { args.emplace_back("--las_hint_explicit_simd"); }
-      vws.push_back(VW::initialize(VW::make_unique<VW::config::options_cli>(args)));
+      vws.push_back(VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args)));
     }
   }
 
@@ -219,33 +219,33 @@ TEST(Las, CheckSpannerResultsEpsilonGreedy)
     auto& vw = *vw_ptr;
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "0:1.0:0.5 | 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-
-      vw.learn(examples);
-      vw.finish_example(examples);
-    }
-
-    {
-      VW::multi_ex examples;
-
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(vw, "0:1.0:0.5 | a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "0:1.0:0.5 | 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
 
       vw.learn(examples);
       vw.finish_example(examples);
     }
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(vw, "0:1.0:0.5 | a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(vw, "0:1.0:0.5 | a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+
+      vw.learn(examples);
+      vw.finish_example(examples);
+    }
+
+    {
+      VW980::multi_ex examples;
+
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "0:1.0:0.5 | a_1:0.5 a_2:0.65 a_3:0.12"));
 
       vw.learn(examples);
       vw.finish_example(examples);
@@ -258,18 +258,18 @@ TEST(Las, CheckSpannerResultsEpsilonGreedy)
       FAIL() << "cb_explore_adf_large_action_space not found in enabled learners";
     }
 
-    VW::LEARNER::learner* learner =
+    VW980::LEARNER::learner* learner =
         require_multiline(vw.l->get_learner_by_name_prefix("cb_explore_adf_large_action_space"));
 
     auto* action_space = (internal_action_space_op*)learner->get_internal_type_erased_data_pointer_test_use_only();
     EXPECT_EQ(action_space != nullptr, true);
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
 
       vw.predict(examples);
 
@@ -310,12 +310,12 @@ TEST(Las, CheckSpannerResultsEpsilonGreedy)
 TEST(Las, CheckUniformProbabilitiesBeforeLearning)
 {
   auto d = 2;
-  std::vector<std::pair<std::unique_ptr<VW::workspace>, bool>> vws;
-  auto vw_epsilon = VW::initialize(vwtest::make_args("--cb_explore_adf", "--large_action_space", "--max_actions",
+  std::vector<std::pair<std::unique_ptr<VW980::workspace>, bool>> vws;
+  auto vw_epsilon = VW980::initialize(vwtest::make_args("--cb_explore_adf", "--large_action_space", "--max_actions",
       std::to_string(d), "--quiet", "--noconstant", "--two_pass_svd"));
   vws.emplace_back(std::move(vw_epsilon), false);
 
-  auto vw_squarecb = VW::initialize(vwtest::make_args("--cb_explore_adf", "--squarecb", "--large_action_space",
+  auto vw_squarecb = VW980::initialize(vwtest::make_args("--cb_explore_adf", "--squarecb", "--large_action_space",
       "--max_actions", std::to_string(d), "--quiet", "--noconstant", "--two_pass_svd"));
   vws.emplace_back(std::move(vw_squarecb), true);
 
@@ -323,15 +323,15 @@ TEST(Las, CheckUniformProbabilitiesBeforeLearning)
   {
     auto& vw = *std::get<0>(vw_pair);
 
-    VW::LEARNER::learner* learner =
+    VW980::LEARNER::learner* learner =
         require_multiline(vw.l->get_learner_by_name_prefix("cb_explore_adf_large_action_space"));
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "| 1"));
-      examples.push_back(VW::read_example(vw, "| 1"));
-      examples.push_back(VW::read_example(vw, "| 1"));
+      examples.push_back(VW980::read_example(vw, "| 1"));
+      examples.push_back(VW980::read_example(vw, "| 1"));
+      examples.push_back(VW980::read_example(vw, "| 1"));
 
       learner->predict(examples);
 
@@ -353,36 +353,36 @@ TEST(Las, CheckProbabilitiesWhenDIsLarger)
     std::vector<std::string> args{"--cb_explore_adf", "--large_action_space", "--max_actions", std::to_string(d),
         "--quiet", "--random_seed", "5"};
     if (use_simd) { args.emplace_back("--las_hint_explicit_simd"); }
-    auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(args));
+    auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args));
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(*vw, "0:1.0:0.5 | 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(*vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(*vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
+      examples.push_back(VW980::read_example(*vw, "0:1.0:0.5 | 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(*vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(*vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
 
       vw->learn(examples);
       vw->finish_example(examples);
     }
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(*vw, "| 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(*vw, "0:1.0:0.5 | a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(*vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
+      examples.push_back(VW980::read_example(*vw, "| 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(*vw, "0:1.0:0.5 | a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(*vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
 
       vw->learn(examples);
       vw->finish_example(examples);
     }
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(*vw, "| 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(*vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(*vw, "0:1.0:0.5 | a_4:0.8 a_5:0.32 a_6:0.15"));
+      examples.push_back(VW980::read_example(*vw, "| 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(*vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(*vw, "0:1.0:0.5 | a_4:0.8 a_5:0.32 a_6:0.15"));
 
       vw->learn(examples);
       vw->finish_example(examples);
@@ -395,18 +395,18 @@ TEST(Las, CheckProbabilitiesWhenDIsLarger)
       FAIL() << "cb_explore_adf_large_action_space not found in enabled learners";
     }
 
-    VW::LEARNER::learner* learner =
+    VW980::LEARNER::learner* learner =
         require_multiline(vw->l->get_learner_by_name_prefix("cb_explore_adf_large_action_space"));
 
     auto* action_space = (internal_action_space_op*)learner->get_internal_type_erased_data_pointer_test_use_only();
     EXPECT_EQ(action_space != nullptr, true);
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(*vw, "| 1:0.1 2:0.12 3:0.13"));
-      examples.push_back(VW::read_example(*vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
-      examples.push_back(VW::read_example(*vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
+      examples.push_back(VW980::read_example(*vw, "| 1:0.1 2:0.12 3:0.13"));
+      examples.push_back(VW980::read_example(*vw, "| a_1:0.5 a_2:0.65 a_3:0.12"));
+      examples.push_back(VW980::read_example(*vw, "| a_4:0.8 a_5:0.32 a_6:0.15"));
 
       vw->predict(examples);
 
@@ -458,7 +458,7 @@ TEST(Las, CheckSpannerChoosesActionsThatClearlyMaximiseVolume)
   auto exs = gen_cb_examples(K - d, 10, 1.f);
   auto dexs = gen_cb_examples(d, 10, 100.f, false);
 
-  std::vector<std::unique_ptr<VW::workspace>> vws;
+  std::vector<std::unique_ptr<VW980::workspace>> vws;
   for (const int seed : {6, 0})
   {
     for (const bool use_simd : {false, true})
@@ -466,7 +466,7 @@ TEST(Las, CheckSpannerChoosesActionsThatClearlyMaximiseVolume)
       std::vector<std::string> args{"--cb_explore_adf", "--squarecb", "--large_action_space", "--max_actions",
           std::to_string(d), "--quiet", "--random_seed", std::to_string(seed)};
       if (use_simd) { args.emplace_back("--las_hint_explicit_simd"); }
-      vws.push_back(VW::initialize(VW::make_unique<VW::config::options_cli>(args)));
+      vws.push_back(VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args)));
     }
   }
 
@@ -475,10 +475,10 @@ TEST(Las, CheckSpannerChoosesActionsThatClearlyMaximiseVolume)
     auto& vw = *vw_ptr;
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      for (const auto& ex : dexs) { examples.push_back(VW::read_example(vw, ex)); }
-      for (const auto& ex : exs) { examples.push_back(VW::read_example(vw, ex)); }
+      for (const auto& ex : dexs) { examples.push_back(VW980::read_example(vw, ex)); }
+      for (const auto& ex : exs) { examples.push_back(VW980::read_example(vw, ex)); }
 
       vw.learn(examples);
       vw.finish_example(examples);
@@ -491,7 +491,7 @@ TEST(Las, CheckSpannerChoosesActionsThatClearlyMaximiseVolume)
       FAIL() << "cb_explore_adf_large_action_space not found in enabled learners";
     }
 
-    VW::LEARNER::learner* learner =
+    VW980::LEARNER::learner* learner =
         require_multiline(vw.l->get_learner_by_name_prefix("cb_explore_adf_large_action_space"));
 
     auto* action_space = (internal_action_space_op*)learner->get_internal_type_erased_data_pointer_test_use_only();
@@ -499,11 +499,11 @@ TEST(Las, CheckSpannerChoosesActionsThatClearlyMaximiseVolume)
     action_space->explore._populate_all_testing_components();
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      for (const auto& ex : exs) { examples.push_back(VW::read_example(vw, ex)); }
+      for (const auto& ex : exs) { examples.push_back(VW980::read_example(vw, ex)); }
       // check that the LAST 5 examples are chosen in the spanner
-      for (const auto& ex : dexs) { examples.push_back(VW::read_example(vw, ex)); }
+      for (const auto& ex : dexs) { examples.push_back(VW980::read_example(vw, ex)); }
 
       vw.predict(examples);
 
@@ -547,11 +547,11 @@ TEST(Las, CheckSpannerChoosesActionsThatClearlyMaximiseVolume)
     }
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
       // check that the FIRST 5 examples are chosen in the spanner
-      for (const auto& ex : dexs) { examples.push_back(VW::read_example(vw, ex)); }
-      for (const auto& ex : exs) { examples.push_back(VW::read_example(vw, ex)); }
+      for (const auto& ex : dexs) { examples.push_back(VW980::read_example(vw, ex)); }
+      for (const auto& ex : exs) { examples.push_back(VW980::read_example(vw, ex)); }
 
       vw.predict(examples);
 
@@ -599,7 +599,7 @@ TEST(Las, CheckSpannerRejectsSameActions)
 {
   // 8 actions and I want spanner to reject the duplicate
   auto d = 7;
-  std::vector<std::unique_ptr<VW::workspace>> vws;
+  std::vector<std::unique_ptr<VW980::workspace>> vws;
   for (const int seed : {8, 0})
   {
     for (const bool use_simd : {false, true})
@@ -607,7 +607,7 @@ TEST(Las, CheckSpannerRejectsSameActions)
       std::vector<std::string> args{"--cb_explore_adf", "--squarecb", "--large_action_space", "--max_actions",
           std::to_string(d), "--quiet", "--random_seed", std::to_string(seed)};
       if (use_simd) { args.emplace_back("--las_hint_explicit_simd"); }
-      vws.push_back(VW::initialize(VW::make_unique<VW::config::options_cli>(args)));
+      vws.push_back(VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args)));
     }
   }
 
@@ -616,18 +616,18 @@ TEST(Las, CheckSpannerRejectsSameActions)
     auto& vw = *vw_ptr;
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13 b200:2 c500:9"));
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13 b200:2 c500:9"));
       // duplicates start
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12 a100:4 a200:33"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12 a100:4 a200:33"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12 a100:4 a200:33"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12 a100:4 a200:33"));
       // duplicates end
-      examples.push_back(VW::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15 d1:0.2 d10:0.2"));
-      examples.push_back(VW::read_example(vw, "| a_7 a_8 a_9 v1:0.99"));
-      examples.push_back(VW::read_example(vw, "| a_10 a_11 a_12"));
-      examples.push_back(VW::read_example(vw, "| a_13 a_14 a_15"));
-      examples.push_back(VW::read_example(vw, "| a_16 a_17 a_18:0.2"));
+      examples.push_back(VW980::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15 d1:0.2 d10:0.2"));
+      examples.push_back(VW980::read_example(vw, "| a_7 a_8 a_9 v1:0.99"));
+      examples.push_back(VW980::read_example(vw, "| a_10 a_11 a_12"));
+      examples.push_back(VW980::read_example(vw, "| a_13 a_14 a_15"));
+      examples.push_back(VW980::read_example(vw, "| a_16 a_17 a_18:0.2"));
 
       vw.learn(examples);
       vw.finish_example(examples);
@@ -640,7 +640,7 @@ TEST(Las, CheckSpannerRejectsSameActions)
       FAIL() << "cb_explore_adf_large_action_space not found in enabled learners";
     }
 
-    VW::LEARNER::learner* learner =
+    VW980::LEARNER::learner* learner =
         require_multiline(vw.l->get_learner_by_name_prefix("cb_explore_adf_large_action_space"));
 
     auto* action_space = (internal_action_space_op*)learner->get_internal_type_erased_data_pointer_test_use_only();
@@ -648,18 +648,18 @@ TEST(Las, CheckSpannerRejectsSameActions)
     action_space->explore._populate_all_testing_components();
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13 b200:2 c500:9"));
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13 b200:2 c500:9"));
       // duplicates start
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12 a100:4 a200:33"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12 a100:4 a200:33"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12 a100:4 a200:33"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.65 a_3:0.12 a100:4 a200:33"));
       // duplicates end
-      examples.push_back(VW::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15 d1:0.2 d10:0.2"));
-      examples.push_back(VW::read_example(vw, "| a_7 a_8 a_9 v1:0.99"));
-      examples.push_back(VW::read_example(vw, "| a_10 a_11 a_12"));
-      examples.push_back(VW::read_example(vw, "| a_13 a_14 a_15"));
-      examples.push_back(VW::read_example(vw, "| a_16 a_17 a_18:0.2"));
+      examples.push_back(VW980::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15 d1:0.2 d10:0.2"));
+      examples.push_back(VW980::read_example(vw, "| a_7 a_8 a_9 v1:0.99"));
+      examples.push_back(VW980::read_example(vw, "| a_10 a_11 a_12"));
+      examples.push_back(VW980::read_example(vw, "| a_13 a_14 a_15"));
+      examples.push_back(VW980::read_example(vw, "| a_16 a_17 a_18:0.2"));
 
       vw.predict(examples);
 
@@ -682,7 +682,7 @@ TEST(Las, CheckSpannerRejectsSameActions)
 TEST(Las, CheckSpannerWithActionsThatAreLinearCombinationsOfOtherActions)
 {
   auto d = 8;
-  std::vector<std::unique_ptr<VW::workspace>> vws;
+  std::vector<std::unique_ptr<VW980::workspace>> vws;
   for (const int seed : {10, 0})
   {
     for (const bool use_simd : {false, true})
@@ -690,7 +690,7 @@ TEST(Las, CheckSpannerWithActionsThatAreLinearCombinationsOfOtherActions)
       std::vector<std::string> args{"--cb_explore_adf", "--squarecb", "--large_action_space", "--max_actions",
           std::to_string(d), "--quiet", "--random_seed", std::to_string(seed)};
       if (use_simd) { args.emplace_back("--las_hint_explicit_simd"); }
-      vws.push_back(VW::initialize(VW::make_unique<VW::config::options_cli>(args)));
+      vws.push_back(VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args)));
     }
   }
 
@@ -704,7 +704,7 @@ TEST(Las, CheckSpannerWithActionsThatAreLinearCombinationsOfOtherActions)
       FAIL() << "cb_explore_adf_large_action_space not found in enabled learners";
     }
 
-    VW::LEARNER::learner* learner =
+    VW980::LEARNER::learner* learner =
         require_multiline(vw.l->get_learner_by_name_prefix("cb_explore_adf_large_action_space"));
 
     auto* action_space = (internal_action_space_op*)learner->get_internal_type_erased_data_pointer_test_use_only();
@@ -712,21 +712,21 @@ TEST(Las, CheckSpannerWithActionsThatAreLinearCombinationsOfOtherActions)
     action_space->explore._populate_all_testing_components();
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13 b200:2 c500:9"));
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13 b200:2 c500:9"));
 
-      examples.push_back(VW::read_example(vw, "| a_1:0.1 a_2:0.25 a_3:0.12 a100:1 a200:0.1"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.2 a_2:0.32 a_3:0.15 a100:0.2 a200:0.2"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.1 a_2:0.25 a_3:0.12 a100:1 a200:0.1"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.2 a_2:0.32 a_3:0.15 a100:0.2 a200:0.2"));
       // linear combination of the above two actions
       // action_4 = action_2 + 2 * action_3
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.89 a_3:0.42 a100:1.4 a200:0.5"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.89 a_3:0.42 a100:1.4 a200:0.5"));
 
-      examples.push_back(VW::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15 d1:0.2 d10: 0.2"));
-      examples.push_back(VW::read_example(vw, "| a_7 a_8 a_9 v1:0.99"));
-      examples.push_back(VW::read_example(vw, "| a_10 a_11 a_12"));
-      examples.push_back(VW::read_example(vw, "| a_13 a_14 a_15"));
-      examples.push_back(VW::read_example(vw, "| a_16 a_17 a_18:0.2"));
+      examples.push_back(VW980::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15 d1:0.2 d10: 0.2"));
+      examples.push_back(VW980::read_example(vw, "| a_7 a_8 a_9 v1:0.99"));
+      examples.push_back(VW980::read_example(vw, "| a_10 a_11 a_12"));
+      examples.push_back(VW980::read_example(vw, "| a_13 a_14 a_15"));
+      examples.push_back(VW980::read_example(vw, "| a_16 a_17 a_18:0.2"));
 
       vw.learn(examples);
       vw.finish_example(examples);
@@ -742,21 +742,21 @@ TEST(Las, CheckSpannerWithActionsThatAreLinearCombinationsOfOtherActions)
     action_space->explore._test_only_set_rank(non_degenerate_singular_values);
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      examples.push_back(VW::read_example(vw, "| 1:0.1 2:0.12 3:0.13 b200:2 c500:9"));
+      examples.push_back(VW980::read_example(vw, "| 1:0.1 2:0.12 3:0.13 b200:2 c500:9"));
 
-      examples.push_back(VW::read_example(vw, "| a_1:0.1 a_2:0.25 a_3:0.12 a100:1 a200:0.1"));
-      examples.push_back(VW::read_example(vw, "| a_1:0.2 a_2:0.32 a_3:0.15 a100:0.2 a200:0.2"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.1 a_2:0.25 a_3:0.12 a100:1 a200:0.1"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.2 a_2:0.32 a_3:0.15 a100:0.2 a200:0.2"));
       // linear combination of the above two actions
       // action_4 = action_2 + 2 * action_3
-      examples.push_back(VW::read_example(vw, "| a_1:0.5 a_2:0.89 a_3:0.42 a100:1.4 a200:0.5"));
+      examples.push_back(VW980::read_example(vw, "| a_1:0.5 a_2:0.89 a_3:0.42 a100:1.4 a200:0.5"));
 
-      examples.push_back(VW::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15 d1:0.2 d10: 0.2"));
-      examples.push_back(VW::read_example(vw, "| a_7 a_8 a_9 v1:0.99"));
-      examples.push_back(VW::read_example(vw, "| a_10 a_11 a_12"));
-      examples.push_back(VW::read_example(vw, "| a_13 a_14 a_15"));
-      examples.push_back(VW::read_example(vw, "| a_16 a_17 a_18:0.2"));
+      examples.push_back(VW980::read_example(vw, "| a_4:0.8 a_5:0.32 a_6:0.15 d1:0.2 d10: 0.2"));
+      examples.push_back(VW980::read_example(vw, "| a_7 a_8 a_9 v1:0.99"));
+      examples.push_back(VW980::read_example(vw, "| a_10 a_11 a_12"));
+      examples.push_back(VW980::read_example(vw, "| a_13 a_14 a_15"));
+      examples.push_back(VW980::read_example(vw, "| a_16 a_17 a_18:0.2"));
 
       vw.predict(examples);
 
@@ -800,13 +800,13 @@ TEST(Las, CheckSingularValueSumDiffForDiffRanksIsSmall)
     std::vector<std::string> args{"--cb_explore_adf", "--large_action_space", "--max_actions", std::to_string(d),
         "--quiet", "--random_seed", "12"};
     if (use_simd) { args.emplace_back("--las_hint_explicit_simd"); }
-    auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(args));
+    auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args));
 
     {
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      for (const auto& ex : dexs) { examples.push_back(VW::read_example(*vw, ex)); }
-      for (const auto& ex : exs) { examples.push_back(VW::read_example(*vw, ex)); }
+      for (const auto& ex : dexs) { examples.push_back(VW980::read_example(*vw, ex)); }
+      for (const auto& ex : exs) { examples.push_back(VW980::read_example(*vw, ex)); }
 
       vw->learn(examples);
       vw->finish_example(examples);
@@ -819,7 +819,7 @@ TEST(Las, CheckSingularValueSumDiffForDiffRanksIsSmall)
       FAIL() << "cb_explore_adf_large_action_space not found in enabled learners";
     }
 
-    VW::LEARNER::learner* learner =
+    VW980::LEARNER::learner* learner =
         require_multiline(vw->l->get_learner_by_name_prefix("cb_explore_adf_large_action_space"));
 
     auto* action_space = (internal_action_space_op*)learner->get_internal_type_erased_data_pointer_test_use_only();
@@ -831,10 +831,10 @@ TEST(Las, CheckSingularValueSumDiffForDiffRanksIsSmall)
 
     {
       action_space->explore._test_only_set_rank(d);
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      for (const auto& ex : dexs) { examples.push_back(VW::read_example(*vw, ex)); }
-      for (const auto& ex : exs) { examples.push_back(VW::read_example(*vw, ex)); }
+      for (const auto& ex : dexs) { examples.push_back(VW980::read_example(*vw, ex)); }
+      for (const auto& ex : exs) { examples.push_back(VW980::read_example(*vw, ex)); }
 
       vw->predict(examples);
 
@@ -844,10 +844,10 @@ TEST(Las, CheckSingularValueSumDiffForDiffRanksIsSmall)
 
     {
       action_space->explore._test_only_set_rank(d);
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      for (const auto& ex : dexs) { examples.push_back(VW::read_example(*vw, ex)); }
-      for (const auto& ex : exs) { examples.push_back(VW::read_example(*vw, ex)); }
+      for (const auto& ex : dexs) { examples.push_back(VW980::read_example(*vw, ex)); }
+      for (const auto& ex : exs) { examples.push_back(VW980::read_example(*vw, ex)); }
 
       vw->predict(examples);
 
@@ -857,10 +857,10 @@ TEST(Las, CheckSingularValueSumDiffForDiffRanksIsSmall)
 
     {
       action_space->explore._test_only_set_rank(d + 10);
-      VW::multi_ex examples;
+      VW980::multi_ex examples;
 
-      for (const auto& ex : dexs) { examples.push_back(VW::read_example(*vw, ex)); }
-      for (const auto& ex : exs) { examples.push_back(VW::read_example(*vw, ex)); }
+      for (const auto& ex : dexs) { examples.push_back(VW980::read_example(*vw, ex)); }
+      for (const auto& ex : exs) { examples.push_back(VW980::read_example(*vw, ex)); }
 
       vw->predict(examples);
 
@@ -880,18 +880,18 @@ TEST(Las, CheckLearnReturnsCorrectPredictions)
     std::vector<std::string> args{"--cb_explore_adf", "--large_action_space", "--max_actions", std::to_string(d),
         "--quiet", "--random_seed", "12"};
     if (use_simd) { args.emplace_back("--las_hint_explicit_simd"); }
-    auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(args));
+    auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args));
 
-    VW::multi_ex examples;
-    examples.push_back(VW::read_example(*vw, "| 1:0.1 2:0.12 3:0.13 b200:2 c500:9"));
-    examples.push_back(VW::read_example(*vw, "| a_1:0.1 a_2:0.25 a_3:0.12 a100:1 a200:0.1"));
-    examples.push_back(VW::read_example(*vw, "| a_1:0.2 a_2:0.32 a_3:0.15 a100:0.2 a200:0.2"));
-    examples.push_back(VW::read_example(*vw, "| a_1:0.5 a_2:0.89 a_3:0.42 a100:1.4 a200:0.5"));
-    examples.push_back(VW::read_example(*vw, "| a_4:0.8 a_5:0.32 a_6:0.15 d1:0.2 d10: 0.2"));
-    examples.push_back(VW::read_example(*vw, "| a_7 a_8 a_9 v1:0.99"));
-    examples.push_back(VW::read_example(*vw, "| a_10 a_11 a_12"));
-    examples.push_back(VW::read_example(*vw, "| a_13 a_14 a_15"));
-    examples.push_back(VW::read_example(*vw, "| a_16 a_17 a_18:0.2"));
+    VW980::multi_ex examples;
+    examples.push_back(VW980::read_example(*vw, "| 1:0.1 2:0.12 3:0.13 b200:2 c500:9"));
+    examples.push_back(VW980::read_example(*vw, "| a_1:0.1 a_2:0.25 a_3:0.12 a100:1 a200:0.1"));
+    examples.push_back(VW980::read_example(*vw, "| a_1:0.2 a_2:0.32 a_3:0.15 a100:0.2 a200:0.2"));
+    examples.push_back(VW980::read_example(*vw, "| a_1:0.5 a_2:0.89 a_3:0.42 a100:1.4 a200:0.5"));
+    examples.push_back(VW980::read_example(*vw, "| a_4:0.8 a_5:0.32 a_6:0.15 d1:0.2 d10: 0.2"));
+    examples.push_back(VW980::read_example(*vw, "| a_7 a_8 a_9 v1:0.99"));
+    examples.push_back(VW980::read_example(*vw, "| a_10 a_11 a_12"));
+    examples.push_back(VW980::read_example(*vw, "| a_13 a_14 a_15"));
+    examples.push_back(VW980::read_example(*vw, "| a_16 a_17 a_18:0.2"));
 
     vw->learn(examples);
 

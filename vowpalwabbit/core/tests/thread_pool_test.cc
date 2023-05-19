@@ -46,7 +46,7 @@ TEST(ThreadPool, WithZeroThreads)
   std::vector<std::vector<size_t>> vector_of_vectors;
   vector_of_vectors.resize(outer_vector_size);
 
-  VW::thread_pool thread_pool(0);
+  VW980::thread_pool thread_pool(0);
   std::vector<std::future<size_t>> fts;
 
   for (size_t i = 0; i < vector_of_vectors.size(); i++)
@@ -71,7 +71,7 @@ TEST(ThreadPool, WithMoreThreadsThanTasks)
   std::vector<std::vector<size_t>> vector_of_vectors;
   vector_of_vectors.resize(outer_vector_size);
 
-  VW::thread_pool thread_pool(20);
+  VW980::thread_pool thread_pool(20);
   std::vector<std::future<size_t>> fts;
 
   for (size_t i = 0; i < vector_of_vectors.size(); i++)
@@ -96,7 +96,7 @@ TEST(ThreadPool, WithLessThreadsThanTasks)
   std::vector<std::vector<size_t>> vector_of_vectors;
   vector_of_vectors.resize(outer_vector_size);
 
-  VW::thread_pool thread_pool(5);
+  VW980::thread_pool thread_pool(5);
   std::vector<std::future<size_t>> fts;
 
   for (size_t i = 0; i < vector_of_vectors.size(); i++)

@@ -9,7 +9,7 @@
 #include <cmath>
 #include <limits>
 
-namespace VW
+namespace VW980
 {
 namespace continuous_actions
 {
@@ -31,4 +31,4 @@ public:
 };
 
 }  // namespace continuous_actions
-}  // namespace VW
+}  // namespace VW980

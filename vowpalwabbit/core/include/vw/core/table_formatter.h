@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 enum class wrap_type
 {
@@ -55,7 +55,7 @@ void format_row(const std::array<std::string, num_cols>& contents,
   {
     if (column_definitions[i].wrapping == wrap_type::wrap_space)
     {
-      VW::tokenize('\n', VW::wrap_text(contents[i], column_definitions[i].column_width, false),
+      VW980::tokenize('\n', VW980::wrap_text(contents[i], column_definitions[i].column_width, false),
           column_contents_split_into_lines[i]);
     }
     else if (column_definitions[i].wrapping == wrap_type::wrap_char)
@@ -127,4 +127,4 @@ std::string format_row(const std::array<std::string, num_cols>& contents,
   return ss.str();
 }
 
-}  // namespace VW
+}  // namespace VW980

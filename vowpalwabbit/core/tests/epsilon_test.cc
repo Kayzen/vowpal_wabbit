@@ -12,13 +12,13 @@
 
 TEST(Epsilon, SetEpsilonTest)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
-  VW::multi_ex examples;
-  examples.push_back(VW::read_example(*vw, std::string("")));
-  auto& ep_fts = examples[0]->ex_reduction_features.template get<VW::cb_explore_adf::greedy::reduction_features>();
+  auto vw = VW980::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
+  VW980::multi_ex examples;
+  examples.push_back(VW980::read_example(*vw, std::string("")));
+  auto& ep_fts = examples[0]->ex_reduction_features.template get<VW980::cb_explore_adf::greedy::reduction_features>();
   EXPECT_FLOAT_EQ(ep_fts.epsilon, -1.f);
   ep_fts.epsilon = 0.5f;
-  auto& ep_fts2 = examples[0]->ex_reduction_features.template get<VW::cb_explore_adf::greedy::reduction_features>();
+  auto& ep_fts2 = examples[0]->ex_reduction_features.template get<VW980::cb_explore_adf::greedy::reduction_features>();
   EXPECT_FLOAT_EQ(ep_fts2.epsilon, 0.5f);
   ep_fts2.reset_to_default();
   EXPECT_FLOAT_EQ(ep_fts2.epsilon, -1.f);

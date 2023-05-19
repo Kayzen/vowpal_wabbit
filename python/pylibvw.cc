@@ -35,7 +35,7 @@ namespace py = boost::python;
 
 class py_log_wrapper;
 
-typedef boost::shared_ptr<VW::workspace> vw_ptr;
+typedef boost::shared_ptr<VW980::workspace> vw_ptr;
 typedef boost::shared_ptr<example> example_ptr;
 typedef boost::shared_ptr<Search::search> search_ptr;
 typedef boost::shared_ptr<Search::predictor> predictor_ptr;
@@ -75,19 +75,19 @@ const size_t tUNSET = 3;
 
 void dont_delete_me(void* arg) {}
 
-class OptionManager : VW::config::typed_option_visitor
+class OptionManager : VW980::config::typed_option_visitor
 {
-  std::map<std::string, std::vector<VW::config::option_group_definition>> m_option_group_dic;
+  std::map<std::string, std::vector<VW980::config::option_group_definition>> m_option_group_dic;
   // see pyvw.py class VWOption
   py::object m_py_opt_class;
-  VW::config::options_i& m_opt;
+  VW980::config::options_i& m_opt;
   std::vector<std::string>& m_enabled_learners;
   std::string default_group_name;
 
   py::object* m_visitor_output_var;
 
 public:
-  OptionManager(VW::config::options_i& options, std::vector<std::string>& enabled_learners, py::object py_class)
+  OptionManager(VW980::config::options_i& options, std::vector<std::string>& enabled_learners, py::object py_class)
       : m_opt(options)
       , m_enabled_learners(enabled_learners)
       , m_option_group_dic(options.get_collection_of_options())
@@ -97,7 +97,7 @@ public:
     m_visitor_output_var = nullptr;
   }
 
-  py::object* value_to_pyobject(VW::config::typed_option<bool>& opt)
+  py::object* value_to_pyobject(VW980::config::typed_option<bool>& opt)
   {
     if (m_opt.was_supplied(opt.m_name))
     {
@@ -120,7 +120,7 @@ public:
   }
 
   template <typename T>
-  py::object* value_to_pyobject(VW::config::typed_option<T>& opt)
+  py::object* value_to_pyobject(VW980::config::typed_option<T>& opt)
   {
     T not_supplied{};
 
@@ -145,7 +145,7 @@ public:
   }
 
   template <typename T>
-  py::object* value_to_pyobject(VW::config::typed_option<std::vector<T>>& opt)
+  py::object* value_to_pyobject(VW980::config::typed_option<std::vector<T>>& opt)
   {
     py::list values;
 
@@ -164,18 +164,18 @@ public:
   }
 
   template <typename T>
-  py::object* transform_if_t(VW::config::base_option& base_option)
+  py::object* transform_if_t(VW980::config::base_option& base_option)
   {
     if (base_option.m_type_hash == typeid(T).hash_code())
     {
-      auto typed = dynamic_cast<VW::config::typed_option<T>&>(base_option);
+      auto typed = dynamic_cast<VW980::config::typed_option<T>&>(base_option);
       return value_to_pyobject(typed);
     }
 
     return nullptr;
   }
 
-  py::object base_option_to_pyobject(VW::config::base_option& option)
+  py::object base_option_to_pyobject(VW980::config::base_option& option)
   {
     option.accept(*this);
     if (m_visitor_output_var != nullptr)
@@ -226,14 +226,14 @@ public:
     return dres;
   }
 
-  void visit(VW::config::typed_option<uint32_t>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
-  void visit(VW::config::typed_option<uint64_t>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
-  void visit(VW::config::typed_option<int64_t>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
-  void visit(VW::config::typed_option<int32_t>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
-  void visit(VW::config::typed_option<bool>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
-  void visit(VW::config::typed_option<float>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
-  void visit(VW::config::typed_option<std::string>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
-  void visit(VW::config::typed_option<std::vector<std::string>>& opt) override
+  void visit(VW980::config::typed_option<uint32_t>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
+  void visit(VW980::config::typed_option<uint64_t>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
+  void visit(VW980::config::typed_option<int64_t>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
+  void visit(VW980::config::typed_option<int32_t>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
+  void visit(VW980::config::typed_option<bool>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
+  void visit(VW980::config::typed_option<float>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
+  void visit(VW980::config::typed_option<std::string>& opt) override { m_visitor_output_var = value_to_pyobject(opt); };
+  void visit(VW980::config::typed_option<std::vector<std::string>>& opt) override
   {
     m_visitor_output_var = value_to_pyobject(opt);
   };
@@ -269,16 +269,16 @@ vw_ptr my_initialize_with_log(py::list args, py_log_wrapper_ptr py_log)
 
   if (std::find(args_vec.begin(), args_vec.end(), "--no_stdin") == args_vec.end()) { args_vec.push_back("--no_stdin"); }
 
-  VW::driver_output_func_t trace_listener = nullptr;
+  VW980::driver_output_func_t trace_listener = nullptr;
   void* trace_context = nullptr;
-  std::unique_ptr<VW::io::logger> logger_ptr = nullptr;
+  std::unique_ptr<VW980::io::logger> logger_ptr = nullptr;
 
   if (py_log)
   {
     trace_listener = py_log_wrapper::trace_listener_py;
     trace_context = py_log.get();
 
-    const auto log_function = [](void* context, VW::io::log_level level, const std::string& message)
+    const auto log_function = [](void* context, VW980::io::log_level level, const std::string& message)
     {
       _UNUSED(level);
       try
@@ -295,41 +295,41 @@ vw_ptr my_initialize_with_log(py::list args, py_log_wrapper_ptr py_log)
       }
     };
 
-    logger_ptr = VW::make_unique<VW::io::logger>(VW::io::create_custom_sink_logger(py_log.get(), log_function));
+    logger_ptr = VW980::make_unique<VW980::io::logger>(VW980::io::create_custom_sink_logger(py_log.get(), log_function));
   }
 
-  auto options = VW::make_unique<VW::config::options_cli>(args_vec);
-  auto foo = VW::initialize(std::move(options), nullptr, trace_listener, trace_context, logger_ptr.get());
-  return boost::shared_ptr<VW::workspace>(foo.release());
+  auto options = VW980::make_unique<VW980::config::options_cli>(args_vec);
+  auto foo = VW980::initialize(std::move(options), nullptr, trace_listener, trace_context, logger_ptr.get());
+  return boost::shared_ptr<VW980::workspace>(foo.release());
 }
 
 vw_ptr my_initialize(py::list args) { return my_initialize_with_log(args, nullptr); }
 
-boost::shared_ptr<VW::workspace> merge_workspaces(vw_ptr base_workspace, py::list workspaces)
+boost::shared_ptr<VW980::workspace> merge_workspaces(vw_ptr base_workspace, py::list workspaces)
 {
-  std::vector<const VW::workspace*> const_workspaces;
+  std::vector<const VW980::workspace*> const_workspaces;
   for (size_t i = 0; i < py::len(workspaces); i++)
   {
-    const_workspaces.push_back(py::extract<VW::workspace*>(workspaces[i]));
+    const_workspaces.push_back(py::extract<VW980::workspace*>(workspaces[i]));
   }
-  return boost::shared_ptr<VW::workspace>(VW::merge_models(base_workspace.get(), const_workspaces));
+  return boost::shared_ptr<VW980::workspace>(VW980::merge_models(base_workspace.get(), const_workspaces));
 }
 
 void my_run_parser(vw_ptr all)
 {
-  VW::start_parser(*all);
-  VW::LEARNER::generic_driver(*all);
-  VW::end_parser(*all);
+  VW980::start_parser(*all);
+  VW980::LEARNER::generic_driver(*all);
+  VW980::end_parser(*all);
 }
 
-struct python_dict_writer : VW::metric_sink_visitor
+struct python_dict_writer : VW980::metric_sink_visitor
 {
   python_dict_writer(py::dict& dest_dict) : _dest_dict(dest_dict) {}
   void int_metric(const std::string& key, uint64_t value) override { _dest_dict[key] = value; }
   void float_metric(const std::string& key, float value) override { _dest_dict[key] = value; }
   void string_metric(const std::string& key, const std::string& value) override { _dest_dict[key] = value; }
   void bool_metric(const std::string& key, bool value) override { _dest_dict[key] = value; }
-  void sink_metric(const std::string& key, const VW::metric_sink& value)
+  void sink_metric(const std::string& key, const VW980::metric_sink& value)
   {
     py::dict nested;
     auto nested_py = python_dict_writer(nested);
@@ -361,7 +361,7 @@ void my_finish(vw_ptr all)
   all->finish();  // don't delete all because python will do that for us!
 }
 
-void my_save(vw_ptr all, std::string name) { VW::save_predictor(*all, name); }
+void my_save(vw_ptr all, std::string name) { VW980::save_predictor(*all, name); }
 
 search_ptr get_search_ptr(vw_ptr all)
 {
@@ -376,13 +376,13 @@ py::object get_options(vw_ptr all, py::object py_class, bool enabled_only)
   return opt_manager.get_vw_option_pyobjects(enabled_only);
 }
 
-void my_audit_example(vw_ptr all, example_ptr ec) { VW::details::print_audit_features(*all, *ec); }
+void my_audit_example(vw_ptr all, example_ptr ec) { VW980::details::print_audit_features(*all, *ec); }
 
 const char* get_model_id(vw_ptr all) { return all->id.c_str(); }
 
 std::string get_arguments(vw_ptr all)
 {
-  VW::config::cli_options_serializer serializer;
+  VW980::config::cli_options_serializer serializer;
   for (auto const& option : all->options->get_all_options())
   {
     if (all->options->was_supplied(option->m_name)) serializer.add(*option);
@@ -407,47 +407,47 @@ predictor_ptr get_predictor(search_ptr _sch, ptag my_tag)
   return boost::shared_ptr<Search::predictor>(P);
 }
 
-VW::label_parser* get_label_parser(VW::workspace* all, size_t labelType)
+VW980::label_parser* get_label_parser(VW980::workspace* all, size_t labelType)
 {
   switch (labelType)
   {
     case lDEFAULT:
       return all ? &all->example_parser->lbl_parser : NULL;
     case lBINARY:  // or #lSIMPLE
-      return &VW::simple_label_parser_global;
+      return &VW980::simple_label_parser_global;
     case lMULTICLASS:
-      return &VW::multiclass_label_parser_global;
+      return &VW980::multiclass_label_parser_global;
     case lCOST_SENSITIVE:
-      return &VW::cs_label_parser_global;
+      return &VW980::cs_label_parser_global;
     case lCONTEXTUAL_BANDIT:
-      return &VW::cb_label_parser_global;
+      return &VW980::cb_label_parser_global;
     case lCONDITIONAL_CONTEXTUAL_BANDIT:
-      return &VW::ccb_label_parser_global;
+      return &VW980::ccb_label_parser_global;
     case lSLATES:
-      return &VW::slates::slates_label_parser;
+      return &VW980::slates::slates_label_parser;
     case lCONTINUOUS:
-      return &VW::cb_continuous::the_label_parser;
+      return &VW980::cb_continuous::the_label_parser;
     case lCONTEXTUAL_BANDIT_EVAL:
-      return &VW::cb_eval_label_parser_global;
+      return &VW980::cb_eval_label_parser_global;
     case lMULTILABEL:
-      return &VW::multilabel_label_parser_global;
+      return &VW980::multilabel_label_parser_global;
     default:
       THROW("get_label_parser called on invalid label type");
   }
 }
 
-size_t my_get_label_type(VW::workspace* all)
+size_t my_get_label_type(VW980::workspace* all)
 {
-  VW::label_parser* lp = &all->example_parser->lbl_parser;
-  if (lp->parse_label == VW::simple_label_parser_global.parse_label) { return lSIMPLE; }
-  else if (lp->parse_label == VW::multiclass_label_parser_global.parse_label) { return lMULTICLASS; }
-  else if (lp->parse_label == VW::cs_label_parser_global.parse_label) { return lCOST_SENSITIVE; }
-  else if (lp->parse_label == VW::cb_label_parser_global.parse_label) { return lCONTEXTUAL_BANDIT; }
-  else if (lp->parse_label == VW::cb_eval_label_parser_global.parse_label) { return lCONTEXTUAL_BANDIT_EVAL; }
-  else if (lp->parse_label == VW::ccb_label_parser_global.parse_label) { return lCONDITIONAL_CONTEXTUAL_BANDIT; }
-  else if (lp->parse_label == VW::slates::slates_label_parser.parse_label) { return lSLATES; }
-  else if (lp->parse_label == VW::cb_continuous::the_label_parser.parse_label) { return lCONTINUOUS; }
-  else if (lp->parse_label == VW::multilabel_label_parser_global.parse_label) { return lMULTILABEL; }
+  VW980::label_parser* lp = &all->example_parser->lbl_parser;
+  if (lp->parse_label == VW980::simple_label_parser_global.parse_label) { return lSIMPLE; }
+  else if (lp->parse_label == VW980::multiclass_label_parser_global.parse_label) { return lMULTICLASS; }
+  else if (lp->parse_label == VW980::cs_label_parser_global.parse_label) { return lCOST_SENSITIVE; }
+  else if (lp->parse_label == VW980::cb_label_parser_global.parse_label) { return lCONTEXTUAL_BANDIT; }
+  else if (lp->parse_label == VW980::cb_eval_label_parser_global.parse_label) { return lCONTEXTUAL_BANDIT_EVAL; }
+  else if (lp->parse_label == VW980::ccb_label_parser_global.parse_label) { return lCONDITIONAL_CONTEXTUAL_BANDIT; }
+  else if (lp->parse_label == VW980::slates::slates_label_parser.parse_label) { return lSLATES; }
+  else if (lp->parse_label == VW980::cb_continuous::the_label_parser.parse_label) { return lCONTINUOUS; }
+  else if (lp->parse_label == VW980::multilabel_label_parser_global.parse_label) { return lMULTILABEL; }
   else { THROW("unsupported label parser used"); }
 }
 
@@ -455,31 +455,31 @@ size_t my_get_prediction_type(vw_ptr all)
 {
   switch (all->l->get_output_prediction_type())
   {
-    case VW::prediction_type_t::SCALAR:
+    case VW980::prediction_type_t::SCALAR:
       return pSCALAR;
-    case VW::prediction_type_t::SCALARS:
+    case VW980::prediction_type_t::SCALARS:
       return pSCALARS;
-    case VW::prediction_type_t::ACTION_SCORES:
+    case VW980::prediction_type_t::ACTION_SCORES:
       return pACTION_SCORES;
-    case VW::prediction_type_t::ACTION_PROBS:
+    case VW980::prediction_type_t::ACTION_PROBS:
       return pACTION_PROBS;
-    case VW::prediction_type_t::MULTICLASS:
+    case VW980::prediction_type_t::MULTICLASS:
       return pMULTICLASS;
-    case VW::prediction_type_t::MULTILABELS:
+    case VW980::prediction_type_t::MULTILABELS:
       return pMULTILABELS;
-    case VW::prediction_type_t::PROB:
+    case VW980::prediction_type_t::PROB:
       return pPROB;
-    case VW::prediction_type_t::MULTICLASS_PROBS:
+    case VW980::prediction_type_t::MULTICLASS_PROBS:
       return pMULTICLASSPROBS;
-    case VW::prediction_type_t::DECISION_PROBS:
+    case VW980::prediction_type_t::DECISION_PROBS:
       return pDECISION_SCORES;
-    case VW::prediction_type_t::ACTION_PDF_VALUE:
+    case VW980::prediction_type_t::ACTION_PDF_VALUE:
       return pACTION_PDF_VALUE;
-    case VW::prediction_type_t::PDF:
+    case VW980::prediction_type_t::PDF:
       return pPDF;
-    case VW::prediction_type_t::ACTIVE_MULTICLASS:
+    case VW980::prediction_type_t::ACTIVE_MULTICLASS:
       return pACTIVE_MULTICLASS;
-    case VW::prediction_type_t::NOPRED:
+    case VW980::prediction_type_t::NOPRED:
       return pNOPRED;
     default:
       THROW("unsupported prediction type used");
@@ -488,14 +488,14 @@ size_t my_get_prediction_type(vw_ptr all)
 
 void my_delete_example(void* voidec)
 {
-  VW::example* ec = (VW::example*)voidec;
+  VW980::example* ec = (VW980::example*)voidec;
   delete ec;
 }
 
-VW::example* my_empty_example0(vw_ptr vw, size_t labelType)
+VW980::example* my_empty_example0(vw_ptr vw, size_t labelType)
 {
-  VW::label_parser* lp = get_label_parser(&*vw, labelType);
-  VW::example* ec = new VW::example;
+  VW980::label_parser* lp = get_label_parser(&*vw, labelType);
+  VW980::example* ec = new VW980::example;
   lp->default_label(ec->l);
   ec->interactions = &vw->interactions;
   ec->extent_interactions = &vw->extent_interactions;
@@ -504,22 +504,22 @@ VW::example* my_empty_example0(vw_ptr vw, size_t labelType)
 
 example_ptr my_empty_example(vw_ptr vw, size_t labelType)
 {
-  VW::example* ec = my_empty_example0(vw, labelType);
-  return boost::shared_ptr<VW::example>(ec, my_delete_example);
+  VW980::example* ec = my_empty_example0(vw, labelType);
+  return boost::shared_ptr<VW980::example>(ec, my_delete_example);
 }
 
 example_ptr my_read_example(vw_ptr all, size_t labelType, char* str)
 {
-  VW::example* ec = my_empty_example0(all, labelType);
-  VW::parsers::text::read_line(*all, ec, str);
-  VW::setup_example(*all, ec);
-  return boost::shared_ptr<VW::example>(ec, my_delete_example);
+  VW980::example* ec = my_empty_example0(all, labelType);
+  VW980::parsers::text::read_line(*all, ec, str);
+  VW980::setup_example(*all, ec);
+  return boost::shared_ptr<VW980::example>(ec, my_delete_example);
 }
 
 example_ptr my_existing_example(vw_ptr all, size_t labelType, example_ptr existing_example)
 {
   return existing_example;
-  // return boost::shared_ptr<VW::example>(existing_example);
+  // return boost::shared_ptr<VW980::example>(existing_example);
 }
 
 multi_ex unwrap_example_list(py::list& ec)
@@ -565,17 +565,17 @@ void predict_or_learn(vw_ptr& all, py::list& ec)
 
 py::list my_parse(vw_ptr& all, char* str)
 {
-  VW::multi_ex examples;
-  examples.push_back(&VW::get_unused_example(all.get()));
-  all->example_parser->text_reader(all.get(), VW::string_view(str, strlen(str)), examples);
+  VW980::multi_ex examples;
+  examples.push_back(&VW980::get_unused_example(all.get()));
+  all->example_parser->text_reader(all.get(), VW980::string_view(str, strlen(str)), examples);
 
   py::list example_collection;
   for (auto* ex : examples)
   {
-    VW::setup_example(*all, ex);
+    VW980::setup_example(*all, ex);
     // Examples created from parsed text should not be deleted normally. Instead they need to be
     // returned to the pool using finish_example.
-    example_collection.append(boost::shared_ptr<VW::example>(ex, dont_delete_me));
+    example_collection.append(boost::shared_ptr<VW980::example>(ex, dont_delete_me));
   }
   return example_collection;
 }
@@ -584,7 +584,7 @@ void my_learn_multi_ex(vw_ptr& all, py::list& ec) { predict_or_learn<true>(all, 
 
 void my_predict_multi_ex(vw_ptr& all, py::list& ec) { predict_or_learn<false>(all, ec); }
 
-std::string varray_char_to_string(VW::v_array<char>& a)
+std::string varray_char_to_string(VW980::v_array<char>& a)
 {
   std::string ret = "";
   for (auto c : a) ret += c;
@@ -592,7 +592,7 @@ std::string varray_char_to_string(VW::v_array<char>& a)
 }
 
 template <class T>
-py::list varray_to_pylist(const VW::v_array<T>& a)
+py::list varray_to_pylist(const VW980::v_array<T>& a)
 {
   py::list list;
   for (const auto& elem : a) { list.append(elem); }
@@ -657,7 +657,7 @@ void ex_push_feature_list(example_ptr ec, vw_ptr vw, unsigned char ns_first_lett
       py::extract<std::string> get_str(ai);
       if (get_str.check())
       {
-        f.weight_index = VW::hash_feature(*vw, get_str(), ns_hash);
+        f.weight_index = VW980::hash_feature(*vw, get_str(), ns_hash);
         got = true;
       }
       else
@@ -758,7 +758,7 @@ void ex_push_dictionary(example_ptr ec, vw_ptr vw, PyObject* o)
 
     std::string ns_full = ns_e();
     unsigned char ns_first_letter = ns_full[0];
-    uint64_t ns_hash = VW::hash_space(*vw, ns_full);
+    uint64_t ns_hash = VW980::hash_space(*vw, ns_full);
 
     ex_ensure_namespace_exists(ec, ns_first_letter);
 
@@ -801,11 +801,11 @@ bool ex_pop_namespace(example_ptr ec)
   return true;
 }
 
-void my_setup_example(vw_ptr vw, example_ptr ec) { VW::setup_example(*vw, ec.get()); }
+void my_setup_example(vw_ptr vw, example_ptr ec) { VW980::setup_example(*vw, ec.get()); }
 
 void unsetup_example(vw_ptr vwP, example_ptr ae)
 {
-  VW::workspace& all = *vwP;
+  VW980::workspace& all = *vwP;
   ae->partial_prediction = 0.;
   ae->num_features = 0;
   ae->reset_total_sum_feat_sq();
@@ -820,13 +820,13 @@ void unsetup_example(vw_ptr vwP, example_ptr ae)
 
   if (all.add_constant)
   {
-    ae->feature_space[VW::details::CONSTANT_NAMESPACE].clear();
+    ae->feature_space[VW980::details::CONSTANT_NAMESPACE].clear();
     int hit_constant = -1;
     size_t N = ae->indices.size();
     for (size_t i = 0; i < N; i++)
     {
       int j = (int)(N - 1 - i);
-      if (ae->indices[j] == VW::details::CONSTANT_NAMESPACE)
+      if (ae->indices[j] == VW980::details::CONSTANT_NAMESPACE)
       {
         if (hit_constant >= 0) { THROW("Constant namespace was found twice. It can only exist 1 or 0 times."); }
         hit_constant = j;
@@ -848,9 +848,9 @@ void unsetup_example(vw_ptr vwP, example_ptr ae)
 
 void ex_set_label_string(example_ptr ec, vw_ptr vw, std::string label, size_t labelType)
 {  // SPEEDUP: if it's already set properly, don't modify
-  VW::label_parser& old_lp = vw->example_parser->lbl_parser;
+  VW980::label_parser& old_lp = vw->example_parser->lbl_parser;
   vw->example_parser->lbl_parser = *get_label_parser(&*vw, labelType);
-  VW::parse_example_label(*vw, *ec, label);
+  VW980::parse_example_label(*vw, *ec, label);
   vw->example_parser->lbl_parser = old_lp;
 }
 
@@ -858,7 +858,7 @@ float ex_get_simplelabel_label(example_ptr ec) { return ec->l.simple.label; }
 float ex_get_simplelabel_weight(example_ptr ec) { return ec->weight; }
 float ex_get_simplelabel_initial(example_ptr ec)
 {
-  return ec->ex_reduction_features.template get<VW::simple_label_reduction_features>().initial;
+  return ec->ex_reduction_features.template get<VW980::simple_label_reduction_features>().initial;
 }
 float ex_get_simplelabel_prediction(example_ptr ec) { return ec->pred.scalar; }
 float ex_get_prob(example_ptr ec) { return ec->pred.prob; }
@@ -1016,11 +1016,11 @@ size_t ex_get_slates_type(example_ptr ec)
 {
   switch (ec->l.slates.type)
   {
-    case VW::slates::example_type::SHARED:
+    case VW980::slates::example_type::SHARED:
       return tSHARED;
-    case VW::slates::example_type::ACTION:
+    case VW980::slates::example_type::ACTION:
       return tACTION;
-    case VW::slates::example_type::SLOT:
+    case VW980::slates::example_type::SLOT:
       return tSLOT;
     default:
       return tUNSET;
@@ -1046,11 +1046,11 @@ size_t ex_get_ccb_type(example_ptr ec)
 {
   switch (ec->l.conditional_contextual_bandit.type)
   {
-    case VW::ccb_example_type::SHARED:
+    case VW980::ccb_example_type::SHARED:
       return tSHARED;
-    case VW::ccb_example_type::ACTION:
+    case VW980::ccb_example_type::ACTION:
       return tACTION;
-    case VW::ccb_example_type::SLOT:
+    case VW980::ccb_example_type::SLOT:
       return tSLOT;
     default:
       return tUNSET;
@@ -1381,7 +1381,7 @@ BOOST_PYTHON_MODULE(pylibvw)
   py::docstring_options local_docstring_options(true, true, false);
 
   // define the vw class
-  py::class_<VW::workspace, vw_ptr, boost::noncopyable>(
+  py::class_<VW980::workspace, vw_ptr, boost::noncopyable>(
       "vw", "the basic VW object that holds with weight vector, parser, etc.", py::no_init)
       .def("__init__", py::make_constructor(my_initialize))
       .def("__init__", py::make_constructor(my_initialize_with_log))
@@ -1394,8 +1394,8 @@ BOOST_PYTHON_MODULE(pylibvw)
       .def("learn", &my_learn, "given a pyvw example, learn (and predict) on that example")
       .def("json_weights", &my_json_weights, "get json string of current weights")
       .def("predict", &my_predict, "given a pyvw example, predict on that example")
-      .def("hash_space", &VW::hash_space, "given a namespace (as a string), compute the hash of that namespace")
-      .def("hash_feature", &VW::hash_feature,
+      .def("hash_space", &VW980::hash_space, "given a namespace (as a string), compute the hash of that namespace")
+      .def("hash_feature", &VW980::hash_feature,
           "given a feature string (arg2) and a hashed namespace (arg3), hash that feature")
       .def("_finish_example", &my_finish_example, "tell VW that you're done with a given example")
       .def("_finish_example_multi_ex", &my_finish_multi_ex, "tell VW that you're done with the given examples")
@@ -1404,10 +1404,10 @@ BOOST_PYTHON_MODULE(pylibvw)
       .def("unsetup_example", &unsetup_example,
           "reverse the process of setup, so that you can go back and modify this example")
 
-      .def("num_weights", &VW::num_weights, "how many weights are we learning?")
-      .def("get_weight", &VW::get_weight, "get the weight for a particular index")
-      .def("set_weight", &VW::set_weight, "set the weight for a particular index")
-      .def("get_stride", &VW::get_stride, "return the internal stride")
+      .def("num_weights", &VW980::num_weights, "how many weights are we learning?")
+      .def("get_weight", &VW980::get_weight, "get the weight for a particular index")
+      .def("set_weight", &VW980::set_weight, "set the weight for a particular index")
+      .def("get_stride", &VW980::get_stride, "return the internal stride")
 
       .def("_get_label_type", &my_get_label_type, "return parse label type")
       .def("_get_prediction_type", &my_get_prediction_type, "return prediction type")
@@ -1481,9 +1481,9 @@ BOOST_PYTHON_MODULE(pylibvw)
       .def("set_test_only", &my_set_test_only, "Change the test-only bit on an example")
 
       .def("get_tag", &my_get_tag, "Returns the tag associated with this example")
-      .def("get_topic_prediction", &VW::get_topic_prediction,
+      .def("get_topic_prediction", &VW980::get_topic_prediction,
           "For LDA models, returns the topic prediction for the topic id given")
-      .def("get_feature_number", &VW::get_feature_number, "Returns the total number of features for this example")
+      .def("get_feature_number", &VW980::get_feature_number, "Returns the total number of features for this example")
 
       .def("get_example_counter", &get_example_counter,
           "Returns the counter of total number of examples seen up to and including this one")

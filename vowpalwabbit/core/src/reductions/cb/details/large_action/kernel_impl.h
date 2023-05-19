@@ -10,7 +10,7 @@
 #  include <intrin.h>
 #endif
 
-namespace VW
+namespace VW980
 {
 namespace cb_explore_adf
 {
@@ -39,4 +39,4 @@ inline void kernel_impl(float feature_value, uint64_t index, uint64_t weights_ma
 }
 
 }  // namespace cb_explore_adf
-}  // namespace VW
+}  // namespace VW980

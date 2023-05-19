@@ -24,9 +24,9 @@
 #include <cmath>
 #include <functional>
 #include <vector>
-using namespace VW::cb_explore_adf;
+using namespace VW980::cb_explore_adf;
 
-namespace VW
+namespace VW980
 {
 namespace cb_explore_adf
 {
@@ -55,7 +55,7 @@ private:
   uint64_t& _max_col;
 };
 
-bool _test_only_generate_A(VW::workspace* _all, const multi_ex& examples, std::vector<Eigen::Triplet<float>>& _triplets,
+bool _test_only_generate_A(VW980::workspace* _all, const multi_ex& examples, std::vector<Eigen::Triplet<float>>& _triplets,
     Eigen::SparseMatrix<float>& _A)
 {
   uint64_t row_index = 0;
@@ -63,16 +63,16 @@ bool _test_only_generate_A(VW::workspace* _all, const multi_ex& examples, std::v
   _triplets.clear();
   for (auto* ex : examples)
   {
-    assert(!VW::ec_is_example_header_cb(*ex));
+    assert(!VW980::ec_is_example_header_cb(*ex));
 
-    auto& red_features = ex->ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+    auto& red_features = ex->ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
     auto* shared_example = red_features.shared_example;
-    if (shared_example != nullptr) { VW::details::truncate_example_namespaces_from_example(*ex, *shared_example); }
+    if (shared_example != nullptr) { VW980::details::truncate_example_namespaces_from_example(*ex, *shared_example); }
 
     if (_all->weights.sparse)
     {
       A_triplet_constructor w(_all->weights.sparse_weights.mask(), row_index, _triplets, max_non_zero_col);
-      VW::foreach_feature<A_triplet_constructor, uint64_t, triplet_construction, sparse_parameters>(
+      VW980::foreach_feature<A_triplet_constructor, uint64_t, triplet_construction, sparse_parameters>(
           _all->weights.sparse_weights, _all->ignore_some_linear, _all->ignore_linear,
           (red_features.generated_interactions ? *red_features.generated_interactions : *ex->interactions),
           (red_features.generated_extent_interactions ? *red_features.generated_extent_interactions
@@ -83,7 +83,7 @@ bool _test_only_generate_A(VW::workspace* _all, const multi_ex& examples, std::v
     {
       A_triplet_constructor w(_all->weights.dense_weights.mask(), row_index, _triplets, max_non_zero_col);
 
-      VW::foreach_feature<A_triplet_constructor, uint64_t, triplet_construction, dense_parameters>(
+      VW980::foreach_feature<A_triplet_constructor, uint64_t, triplet_construction, dense_parameters>(
           _all->weights.dense_weights, _all->ignore_some_linear, _all->ignore_linear,
           (red_features.generated_interactions ? *red_features.generated_interactions : *ex->interactions),
           (red_features.generated_extent_interactions ? *red_features.generated_extent_interactions
@@ -91,7 +91,7 @@ bool _test_only_generate_A(VW::workspace* _all, const multi_ex& examples, std::v
           _all->permutations, *ex, w, _all->generate_interactions_object_cache_state);
     }
 
-    if (shared_example != nullptr) { VW::details::append_example_namespaces_from_example(*ex, *shared_example); }
+    if (shared_example != nullptr) { VW980::details::append_example_namespaces_from_example(*ex, *shared_example); }
 
     row_index++;
   }
@@ -142,14 +142,14 @@ size_t cb_explore_adf_large_action_space<randomized_svd_impl, spanner_impl>::num
 
 template <typename randomized_svd_impl, typename spanner_impl>
 void cb_explore_adf_large_action_space<randomized_svd_impl, spanner_impl>::update_example_prediction(
-    VW::multi_ex& examples)
+    VW980::multi_ex& examples)
 {
   auto& preds = examples[0]->pred.a_s;
 
   if (_d < preds.size())
   {
     auto& red_features =
-        examples[0]->ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+        examples[0]->ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
 
     shrink_fact_config.calculate_shrink_factor(red_features.squarecb_gamma, _d, preds, shrink_factors);
     randomized_SVD(examples);
@@ -189,7 +189,7 @@ void cb_explore_adf_large_action_space<randomized_svd_impl, spanner_impl>::updat
 
 template <typename randomized_svd_impl, typename spanner_impl>
 void cb_explore_adf_large_action_space<randomized_svd_impl, spanner_impl>::predict(
-    VW::LEARNER::learner& base, multi_ex& examples)
+    VW980::LEARNER::learner& base, multi_ex& examples)
 {
   base.predict(examples);
   update_example_prediction(examples);
@@ -197,10 +197,10 @@ void cb_explore_adf_large_action_space<randomized_svd_impl, spanner_impl>::predi
 
 template <typename randomized_svd_impl, typename spanner_impl>
 void cb_explore_adf_large_action_space<randomized_svd_impl, spanner_impl>::learn(
-    VW::LEARNER::learner& base, multi_ex& examples)
+    VW980::LEARNER::learner& base, multi_ex& examples)
 {
-  VW::v_array<VW::action_score> preds = std::move(examples[0]->pred.a_s);
-  auto restore_guard = VW::scope_exit([&preds, &examples] { examples[0]->pred.a_s = std::move(preds); });
+  VW980::v_array<VW980::action_score> preds = std::move(examples[0]->pred.a_s);
+  auto restore_guard = VW980::scope_exit([&preds, &examples] { examples[0]->pred.a_s = std::move(preds); });
   base.learn(examples);
 }
 
@@ -220,17 +220,17 @@ void generate_Z(const multi_ex& examples, Eigen::MatrixXf& Z, Eigen::MatrixXf& B
       for (uint64_t inner_index = 0; inner_index < d; inner_index++)
       {
         auto combined_index = inner_index + col + seed;
-        auto dot_prod_prod = B(row, inner_index) * VW::details::merand48_boxmuller(combined_index);
+        auto dot_prod_prod = B(row, inner_index) * VW980::details::merand48_boxmuller(combined_index);
         Z(row, col) += dot_prod_prod;
       }
     }
   }
-  VW::gram_schmidt(Z);
+  VW980::gram_schmidt(Z);
 }
 
 template <typename T, typename S>
 cb_explore_adf_large_action_space<T, S>::cb_explore_adf_large_action_space(uint64_t d, float c,
-    bool apply_shrink_factor, VW::workspace* all, uint64_t seed, size_t total_size, size_t thread_pool_size,
+    bool apply_shrink_factor, VW980::workspace* all, uint64_t seed, size_t total_size, size_t thread_pool_size,
     size_t block_size, size_t action_cache_slack, bool use_explicit_simd, implementation_type impl_type)
     : _d(d)
     , _all(all)
@@ -245,7 +245,7 @@ cb_explore_adf_large_action_space<T, S>::cb_explore_adf_large_action_space(uint6
 shrink_factor_config::shrink_factor_config(bool apply_shrink_factor) : _apply_shrink_factor(apply_shrink_factor) {}
 
 void shrink_factor_config::calculate_shrink_factor(
-    float gamma, size_t max_actions, const VW::action_scores& preds, std::vector<float>& shrink_factors)
+    float gamma, size_t max_actions, const VW980::action_scores& preds, std::vector<float>& shrink_factors)
 {
   if (_apply_shrink_factor)
   {
@@ -262,45 +262,45 @@ void shrink_factor_config::calculate_shrink_factor(
 template class cb_explore_adf_large_action_space<one_pass_svd_impl, one_rank_spanner_state>;
 template class cb_explore_adf_large_action_space<two_pass_svd_impl, one_rank_spanner_state>;
 }  // namespace cb_explore_adf
-}  // namespace VW
+}  // namespace VW980
 
 namespace
 {
 template <typename T, typename S>
-void persist_metrics(cb_explore_adf_large_action_space<T, S>& data, VW::metric_sink& metrics)
+void persist_metrics(cb_explore_adf_large_action_space<T, S>& data, VW980::metric_sink& metrics)
 {
   metrics.set_uint("cb_las_filtering_factor", data.number_of_non_degenerate_singular_values());
 }
 
 template <typename T, typename S>
-void predict(cb_explore_adf_large_action_space<T, S>& data, VW::LEARNER::learner& base, VW::multi_ex& examples)
+void predict(cb_explore_adf_large_action_space<T, S>& data, VW980::LEARNER::learner& base, VW980::multi_ex& examples)
 {
   data.predict(base, examples);
 }
 
 template <typename T, typename S>
-void learn(cb_explore_adf_large_action_space<T, S>& data, VW::LEARNER::learner& base, VW::multi_ex& examples)
+void learn(cb_explore_adf_large_action_space<T, S>& data, VW980::LEARNER::learner& base, VW980::multi_ex& examples)
 {
   data.learn(base, examples);
 }
 
 template <typename T, typename S>
-std::shared_ptr<VW::LEARNER::learner> make_las_with_impl(VW::setup_base_i& stack_builder,
-    std::shared_ptr<VW::LEARNER::learner> base, implementation_type& impl_type, VW::workspace& all, uint64_t d, float c,
+std::shared_ptr<VW980::LEARNER::learner> make_las_with_impl(VW980::setup_base_i& stack_builder,
+    std::shared_ptr<VW980::LEARNER::learner> base, implementation_type& impl_type, VW980::workspace& all, uint64_t d, float c,
     bool apply_shrink_factor, size_t thread_pool_size, size_t block_size, size_t action_cache_slack,
     bool use_explicit_simd)
 {
   float seed = (all.get_random_state()->get_random() + 1) * 10.f;
 
-  auto data = VW::make_unique<cb_explore_adf_large_action_space<T, S>>(d, c, apply_shrink_factor, &all, seed,
+  auto data = VW980::make_unique<cb_explore_adf_large_action_space<T, S>>(d, c, apply_shrink_factor, &all, seed,
       1 << all.num_bits, thread_pool_size, block_size, action_cache_slack, use_explicit_simd, impl_type);
 
   auto l = make_reduction_learner(std::move(data), base, learn<T, S>, predict<T, S>,
-      stack_builder.get_setupfn_name(VW::reductions::cb_explore_adf_large_action_space_setup))
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
-               .set_input_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_SCORES)
+      stack_builder.get_setupfn_name(VW980::reductions::cb_explore_adf_large_action_space_setup))
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
+               .set_input_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
                .set_persist_metrics(persist_metrics<T, S>)
                .set_learn_returns_prediction(false)
                .build();
@@ -308,11 +308,11 @@ std::shared_ptr<VW::LEARNER::learner> make_las_with_impl(VW::setup_base_i& stack
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_large_action_space_setup(
-    VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_explore_adf_large_action_space_setup(
+    VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   using config::make_option;
   bool cb_explore_adf_option = false;
   bool large_action_space = false;

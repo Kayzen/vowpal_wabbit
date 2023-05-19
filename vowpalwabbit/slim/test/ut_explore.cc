@@ -32,7 +32,7 @@ TEST(ExploreSlim, SamplingRank)
     // Sample from the pdf
     uint32_t chosen_action_idx;
     ASSERT_EQ(S_EXPLORATION_OK,
-        VW::explore::sample_after_normalizing(s.str().c_str(), std::begin(pdf), std::end(pdf), chosen_action_idx));
+        VW980::explore::sample_after_normalizing(s.str().c_str(), std::begin(pdf), std::end(pdf), chosen_action_idx));
 
     // Swap top element with chosen one (unless chosen is the top)
     if (chosen_action_idx != 0)

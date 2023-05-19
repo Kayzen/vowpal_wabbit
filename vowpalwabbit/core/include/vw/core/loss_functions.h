@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 
-namespace VW
+namespace VW980
 {
 // Information on how to implement a custom loss function in Loss functions · VowpalWabbit/vowpal_wabbit Wiki
 // https://github.com/VowpalWabbit/vowpal_wabbit/wiki/Loss-functions#how-to-write-my-own-loss-function
@@ -36,5 +36,5 @@ public:
 };
 
 std::unique_ptr<loss_function> get_loss_function(
-    VW::workspace&, const std::string& funcName, float function_parameter_0 = -1.0f, float function_parameter_1 = 1.0f);
-}  // namespace VW
+    VW980::workspace&, const std::string& funcName, float function_parameter_0 = -1.0f, float function_parameter_1 = 1.0f);
+}  // namespace VW980

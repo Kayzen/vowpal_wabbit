@@ -69,7 +69,7 @@ __attribute__((packed))
 
 }  // namespace
 
-size_t VW::parsers::cache::details::read_cached_tag(io_buf& cache, VW::v_array<char>& tag)
+size_t VW980::parsers::cache::details::read_cached_tag(io_buf& cache, VW980::v_array<char>& tag)
 {
   char* read_head = nullptr;
   auto tag_size = cache.read_value<size_t>("tag size");
@@ -81,13 +81,13 @@ size_t VW::parsers::cache::details::read_cached_tag(io_buf& cache, VW::v_array<c
   return tag_size + sizeof(tag_size);
 }
 
-size_t VW::parsers::cache::details::read_cached_index(io_buf& input, VW::namespace_index& index)
+size_t VW980::parsers::cache::details::read_cached_index(io_buf& input, VW980::namespace_index& index)
 {
-  index = input.read_value<VW::namespace_index>("index");
+  index = input.read_value<VW980::namespace_index>("index");
   return sizeof(index);
 }
 
-size_t VW::parsers::cache::details::read_cached_features(io_buf& input, features& feats, bool& sorted)
+size_t VW980::parsers::cache::details::read_cached_features(io_buf& input, features& feats, bool& sorted)
 {
   // The example is sorted until we see an example of an unsorted sequence.
   sorted = true;
@@ -126,7 +126,7 @@ size_t VW::parsers::cache::details::read_cached_features(io_buf& input, features
   return total;
 }
 
-void VW::parsers::cache::details::cache_tag(io_buf& cache, const VW::v_array<char>& tag)
+void VW980::parsers::cache::details::cache_tag(io_buf& cache, const VW980::v_array<char>& tag)
 {
   char* write_head = nullptr;
   size_t tag_size = tag.size();
@@ -141,12 +141,12 @@ void VW::parsers::cache::details::cache_tag(io_buf& cache, const VW::v_array<cha
   cache.set(write_head);
 }
 
-void VW::parsers::cache::details::cache_index(io_buf& cache, VW::namespace_index index)
+void VW980::parsers::cache::details::cache_index(io_buf& cache, VW980::namespace_index index)
 {
-  cache.write_value<VW::namespace_index>(index);
+  cache.write_value<VW980::namespace_index>(index);
 }
 
-void VW::parsers::cache::details::cache_features(io_buf& cache, const features& feats, uint64_t mask)
+void VW980::parsers::cache::details::cache_features(io_buf& cache, const features& feats, uint64_t mask)
 {
   size_t storage = feats.size() * INTS_SIZE;
   for (auto feat : feats.values)
@@ -183,8 +183,8 @@ void VW::parsers::cache::details::cache_features(io_buf& cache, const features& 
   std::memcpy(storage_size_loc, &storage_size, sizeof(size_t));
 }
 
-void VW::parsers::cache::write_example_to_cache(io_buf& output, example* ex_ptr, VW::label_parser& lbl_parser,
-    uint64_t parse_mask, VW::parsers::cache::details::cache_temp_buffer& temp_buffer)
+void VW980::parsers::cache::write_example_to_cache(io_buf& output, example* ex_ptr, VW980::label_parser& lbl_parser,
+    uint64_t parse_mask, VW980::parsers::cache::details::cache_temp_buffer& temp_buffer)
 {
   temp_buffer.backing_buffer->clear();
   io_buf& temp_cache = temp_buffer.temporary_cache_buffer;
@@ -193,7 +193,7 @@ void VW::parsers::cache::write_example_to_cache(io_buf& output, example* ex_ptr,
   temp_cache.write_value<unsigned char>(ex_ptr->is_newline ? NEWLINE_EXAMPLE_INDICATOR : NON_NEWLINE_EXAMPLE_INDICATOR);
   assert(ex_ptr->indices.size() < 256);
   temp_cache.write_value<unsigned char>(static_cast<unsigned char>(ex_ptr->indices.size()));
-  for (VW::namespace_index ns_idx : ex_ptr->indices)
+  for (VW980::namespace_index ns_idx : ex_ptr->indices)
   {
     details::cache_index(temp_cache, ns_idx);
     details::cache_features(temp_cache, ex_ptr->feature_space[ns_idx], parse_mask);
@@ -205,7 +205,7 @@ void VW::parsers::cache::write_example_to_cache(io_buf& output, example* ex_ptr,
   output.bin_write_fixed(temp_buffer.backing_buffer->data(), temp_buffer.backing_buffer->size());
 }
 
-int VW::parsers::cache::read_example_from_cache(VW::workspace* all, io_buf& input, VW::multi_ex& examples)
+int VW980::parsers::cache::read_example_from_cache(VW980::workspace* all, io_buf& input, VW980::multi_ex& examples)
 {
   assert(all != nullptr);
   // uint64_t size; TODO: Use to be able to skip cached examples on a read failure.

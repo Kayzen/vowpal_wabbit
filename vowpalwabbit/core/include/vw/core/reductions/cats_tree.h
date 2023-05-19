@@ -12,11 +12,11 @@
 #include <memory>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> cats_tree_setup(setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> cats_tree_setup(setup_base_i& stack_builder);
 
 namespace cats
 {
@@ -75,7 +75,7 @@ public:
   void init(uint32_t num_actions, uint32_t bandwidth);
   int32_t learner_count() const;
   uint32_t predict(LEARNER::learner& base, example& ec);
-  void init_node_costs(std::vector<VW::cb_class>& ac);
+  void init_node_costs(std::vector<VW980::cb_class>& ac);
   const tree_node& get_sibling(const tree_node& tree_node);
   float return_cost(const tree_node& w);
   void learn(LEARNER::learner& base, example& ec);
@@ -83,7 +83,7 @@ public:
   ~cats_tree();
 
 private:
-  uint64_t app_seed = VW::uniform_hash("vw", 2, 0);
+  uint64_t app_seed = VW980::uniform_hash("vw", 2, 0);
   std::string tree_stats_to_string();
   min_depth_binary_tree _binary_tree;
   float _cost_star = 0.f;
@@ -95,4 +95,4 @@ private:
 
 }  // namespace cats
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <utility>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 std::vector<std::shared_ptr<base_option>> options_i::get_all_options()
 {
@@ -25,7 +25,7 @@ std::vector<std::shared_ptr<base_option>> options_i::get_all_options()
   return output_values;
 }
 
-std::vector<std::shared_ptr<const base_option>> VW::config::options_i::get_all_options() const
+std::vector<std::shared_ptr<const base_option>> VW980::config::options_i::get_all_options() const
 {
   std::vector<std::shared_ptr<const base_option>> output_values;
   output_values.reserve(_options.size());
@@ -36,7 +36,7 @@ std::vector<std::shared_ptr<const base_option>> VW::config::options_i::get_all_o
 // This function is called by both the const and non-const version. The const version will implicitly upgrade the
 // shared_ptr to const
 std::shared_ptr<base_option> internal_get_option(
-    const std::string& key, const std::map<std::string, std::shared_ptr<VW::config::base_option>>& options)
+    const std::string& key, const std::map<std::string, std::shared_ptr<VW980::config::base_option>>& options)
 {
   auto it = options.find(key);
   if (it != options.end()) { return it->second; }
@@ -44,12 +44,12 @@ std::shared_ptr<base_option> internal_get_option(
   throw std::out_of_range(key + " was not found.");
 }
 
-std::shared_ptr<base_option> VW::config::options_i::get_option(const std::string& key)
+std::shared_ptr<base_option> VW980::config::options_i::get_option(const std::string& key)
 {
   return internal_get_option(key, _options);
 }
 
-std::shared_ptr<const base_option> VW::config::options_i::get_option(const std::string& key) const
+std::shared_ptr<const base_option> VW980::config::options_i::get_option(const std::string& key) const
 {
   // shared_ptr can implicitly upgrade to const from non-const
   return internal_get_option(key, _options);

@@ -40,7 +40,7 @@ using gzFile = struct gzFile_s*;
 #  define O_LARGEFILE 0
 #endif
 
-using namespace VW::io;
+using namespace VW980::io;
 
 enum class file_mode
 {
@@ -182,7 +182,7 @@ private:
   size_t _len;
 };
 
-namespace VW
+namespace VW980
 {
 namespace io
 {
@@ -233,7 +233,7 @@ std::unique_ptr<reader> create_buffer_view(const char* data, size_t len)
   return std::unique_ptr<reader>(new buffer_view(data, len));
 }
 }  // namespace io
-}  // namespace VW
+}  // namespace VW980
 
 //
 // socket_adapter

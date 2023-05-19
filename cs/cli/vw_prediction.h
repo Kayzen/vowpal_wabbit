@@ -8,7 +8,7 @@
 
 #include "vw/core/prediction_type.h"
 
-namespace VW
+namespace VW980
 {
 ref class VowpalWabbitExample;
 ref class VowpalWabbit;
@@ -27,12 +27,12 @@ public:
   /// </summary>
   /// <returns>A prediction result.</returns>
   /// <remarks>Implementation must be thread-safe.</remarks>
-  T Create(VW::workspace* vw, example* ex);
+  T Create(VW980::workspace* vw, example* ex);
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType { VW::prediction_type_t get(); }
+  property VW980::prediction_type_t PredictionType { VW980::prediction_type_t get(); }
 };
 
 /// <summary>
@@ -44,14 +44,14 @@ public:
   /// <summary>
   /// Extracts prediction results from example.
   /// </summary>
-  virtual System::Object ^ Create(VW::workspace* vw, example* ex) sealed;
+  virtual System::Object ^ Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() sealed
+    virtual VW980::prediction_type_t get() sealed
     { throw gcnew NotSupportedException("Prediction type is not available.");
     }
   }
@@ -66,14 +66,14 @@ public:
   /// <summary>
   /// Extracts prediction results from example.
   /// </summary>
-  virtual float Create(VW::workspace* vw, example* ex) sealed;
+  virtual float Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() sealed { return VW::prediction_type_t::SCALAR; }
+    virtual VW980::prediction_type_t get() sealed { return VW980::prediction_type_t::SCALAR; }
   }
 };
 
@@ -94,14 +94,14 @@ public:
   /// <summary>
   /// Extracts prediction results from example.
   /// </summary>
-  virtual VowpalWabbitScalar Create(VW::workspace* vw, example* ex) sealed;
+  virtual VowpalWabbitScalar Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() sealed { return VW::prediction_type_t::SCALAR; }
+    virtual VW980::prediction_type_t get() sealed { return VW980::prediction_type_t::SCALAR; }
   }
 };
 
@@ -114,14 +114,14 @@ public:
   /// <summary>
   /// Extracts prediction results from example.
   /// </summary>
-  virtual cli::array<float> ^ Create(VW::workspace* vw, example* ex) sealed;
+  virtual cli::array<float> ^ Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() sealed { return VW::prediction_type_t::SCALARS; }
+    virtual VW980::prediction_type_t get() sealed { return VW980::prediction_type_t::SCALARS; }
   }
 };
 
@@ -134,14 +134,14 @@ public:
   /// <summary>
   /// Extracts prediction results from example.
   /// </summary>
-  virtual float Create(VW::workspace* vw, example* ex) sealed;
+  virtual float Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() sealed { return VW::prediction_type_t::PROB; }
+    virtual VW980::prediction_type_t get() sealed { return VW980::prediction_type_t::PROB; }
   }
 };
 
@@ -154,14 +154,14 @@ public:
   /// <summary>
   /// Extracts cost sensitive prediction results from example.
   /// </summary>
-  virtual float Create(VW::workspace* vw, example* ex) sealed;
+  virtual float Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() sealed { return VW::prediction_type_t::MULTICLASS; }
+    virtual VW980::prediction_type_t get() sealed { return VW980::prediction_type_t::MULTICLASS; }
   }
 };
 
@@ -174,14 +174,14 @@ public:
   /// <summary>
   /// Extracts cost sensitive prediction results from example.
   /// </summary>
-  virtual uint32_t Create(VW::workspace* vw, example* ex) sealed;
+  virtual uint32_t Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() sealed { return VW::prediction_type_t::MULTICLASS; }
+    virtual VW980::prediction_type_t get() sealed { return VW980::prediction_type_t::MULTICLASS; }
   }
 };
 
@@ -195,14 +195,14 @@ public:
   /// <summary>
   /// Extracts cost sensitive prediction results from example, including confidence score.
   /// </summary>
-  virtual Dictionary<int, float> ^ Create(VW::workspace* vw, example* ex) sealed;
+  virtual Dictionary<int, float> ^ Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() sealed { return VW::prediction_type_t::MULTICLASS_PROBS; }
+    virtual VW980::prediction_type_t get() sealed { return VW980::prediction_type_t::MULTICLASS_PROBS; }
   }
 };
 
@@ -215,14 +215,14 @@ public:
   /// <summary>
   /// Extracts multilabel prediction results from example.
   /// </summary>
-  virtual cli::array<int> ^ Create(VW::workspace* vw, example* ex) sealed;
+  virtual cli::array<int> ^ Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() sealed { return VW::prediction_type_t::MULTILABELS; }
+    virtual VW980::prediction_type_t get() sealed { return VW980::prediction_type_t::MULTILABELS; }
   }
 };
 
@@ -245,12 +245,12 @@ public:
   /// <summary>
   /// Extracts multilabel prediction results from example.
   /// </summary>
-  virtual cli::array<ActionScore> ^ Create(VW::workspace* vw, example* ex) sealed;
+  virtual cli::array<ActionScore> ^ Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType { virtual VW::prediction_type_t get() abstract; }
+  property VW980::prediction_type_t PredictionType { virtual VW980::prediction_type_t get() abstract; }
 };
 
 /// <summary>
@@ -263,9 +263,9 @@ public:
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() override sealed { return VW::prediction_type_t::ACTION_SCORES; }
+    virtual VW980::prediction_type_t get() override sealed { return VW980::prediction_type_t::ACTION_SCORES; }
   }
 };
 
@@ -279,9 +279,9 @@ public:
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() override sealed { return VW::prediction_type_t::ACTION_PROBS; }
+    virtual VW980::prediction_type_t get() override sealed { return VW980::prediction_type_t::ACTION_PROBS; }
   }
 };
 
@@ -294,14 +294,14 @@ public:
   /// <summary>
   /// Extracts prediction results from example. The predicted topics.
   /// </summary>
-  virtual cli::array<float> ^ Create(VW::workspace* vw, example* ex) sealed;
+  virtual cli::array<float> ^ Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() sealed
+    virtual VW980::prediction_type_t get() sealed
     { throw gcnew NotSupportedException("Prediction type is not available.");
     }
   }
@@ -323,14 +323,14 @@ public:
   /// <summary>
   /// Extracts prediction results from example.
   /// </summary>
-  virtual VowpalWabbitActiveMulticlass ^ Create(VW::workspace* vw, example* ex) sealed;
+  virtual VowpalWabbitActiveMulticlass ^ Create(VW980::workspace* vw, example* ex) sealed;
 
   /// <summary>
   /// Returns the supported prediction type.
   /// </summary>
-  property VW::prediction_type_t PredictionType
+  property VW980::prediction_type_t PredictionType
   {
-    virtual VW::prediction_type_t get() sealed { return VW::prediction_type_t::ACTIVE_MULTICLASS; }
+    virtual VW980::prediction_type_t get() sealed { return VW980::prediction_type_t::ACTIVE_MULTICLASS; }
   }
 };
 

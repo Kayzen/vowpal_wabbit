@@ -5,7 +5,7 @@
 #pragma once
 
 #define ERROR_CODE_DEFINITION(code, name, message) \
-  namespace VW                                     \
+  namespace VW980                                     \
   {                                                \
   namespace experimental                           \
   {                                                \
@@ -19,7 +19,7 @@
 
 #include "error_data.h"
 
-namespace VW
+namespace VW980
 {
 namespace experimental
 {
@@ -29,9 +29,9 @@ namespace error_code
 constexpr int success = 0;
 }  // namespace error_code
 }  // namespace experimental
-}  // namespace VW
+}  // namespace VW980
 
-namespace VW
+namespace VW980
 {
 namespace experimental
 {
@@ -40,6 +40,6 @@ namespace error_code
 char const* const unknown_s = "Unexpected error.";
 }
 }  // namespace experimental
-}  // namespace VW
+}  // namespace VW980
 
 #undef ERROR_CODE_DEFINITION

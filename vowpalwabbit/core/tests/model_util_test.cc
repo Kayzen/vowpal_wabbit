@@ -16,17 +16,17 @@ using namespace ::testing;
 TEST(ModelUtil, UniquePtrNullptr)
 {
   auto backing_buffer = std::make_shared<std::vector<char>>();
-  VW::io_buf write_buffer;
-  write_buffer.add_file(VW::io::create_vector_writer(backing_buffer));
+  VW980::io_buf write_buffer;
+  write_buffer.add_file(VW980::io::create_vector_writer(backing_buffer));
 
   std::unique_ptr<char> my_ptr = nullptr;
-  EXPECT_GT(VW::model_utils::write_model_field(write_buffer, my_ptr, "test", false), 0);
+  EXPECT_GT(VW980::model_utils::write_model_field(write_buffer, my_ptr, "test", false), 0);
   write_buffer.flush();
 
-  VW::io_buf read_buffer;
-  read_buffer.add_file(VW::io::create_buffer_view(backing_buffer->data(), backing_buffer->size()));
+  VW980::io_buf read_buffer;
+  read_buffer.add_file(VW980::io::create_buffer_view(backing_buffer->data(), backing_buffer->size()));
   std::unique_ptr<char> my_read_ptr = nullptr;
-  EXPECT_GT(VW::model_utils::read_model_field(read_buffer, my_read_ptr), 0);
+  EXPECT_GT(VW980::model_utils::read_model_field(read_buffer, my_read_ptr), 0);
 
   EXPECT_EQ(my_read_ptr, nullptr);
 }
@@ -34,17 +34,17 @@ TEST(ModelUtil, UniquePtrNullptr)
 TEST(ModelUtil, UniquePtrOverwritesValueWithnullptr)
 {
   auto backing_buffer = std::make_shared<std::vector<char>>();
-  VW::io_buf write_buffer;
-  write_buffer.add_file(VW::io::create_vector_writer(backing_buffer));
+  VW980::io_buf write_buffer;
+  write_buffer.add_file(VW980::io::create_vector_writer(backing_buffer));
 
   std::unique_ptr<char> my_ptr = nullptr;
-  EXPECT_GT(VW::model_utils::write_model_field(write_buffer, my_ptr, "test", false), 0);
+  EXPECT_GT(VW980::model_utils::write_model_field(write_buffer, my_ptr, "test", false), 0);
   write_buffer.flush();
 
-  VW::io_buf read_buffer;
-  read_buffer.add_file(VW::io::create_buffer_view(backing_buffer->data(), backing_buffer->size()));
-  std::unique_ptr<char> my_read_ptr = VW::make_unique<char>('c');
-  EXPECT_GT(VW::model_utils::read_model_field(read_buffer, my_read_ptr), 0);
+  VW980::io_buf read_buffer;
+  read_buffer.add_file(VW980::io::create_buffer_view(backing_buffer->data(), backing_buffer->size()));
+  std::unique_ptr<char> my_read_ptr = VW980::make_unique<char>('c');
+  EXPECT_GT(VW980::model_utils::read_model_field(read_buffer, my_read_ptr), 0);
 
   EXPECT_EQ(my_read_ptr, nullptr);
 }
@@ -52,17 +52,17 @@ TEST(ModelUtil, UniquePtrOverwritesValueWithnullptr)
 TEST(ModelUtil, UniquePtrSimpleValue)
 {
   auto backing_buffer = std::make_shared<std::vector<char>>();
-  VW::io_buf write_buffer;
-  write_buffer.add_file(VW::io::create_vector_writer(backing_buffer));
+  VW980::io_buf write_buffer;
+  write_buffer.add_file(VW980::io::create_vector_writer(backing_buffer));
 
-  std::unique_ptr<char> my_ptr = VW::make_unique<char>('c');
-  EXPECT_GT(VW::model_utils::write_model_field(write_buffer, my_ptr, "test", false), 0);
+  std::unique_ptr<char> my_ptr = VW980::make_unique<char>('c');
+  EXPECT_GT(VW980::model_utils::write_model_field(write_buffer, my_ptr, "test", false), 0);
   write_buffer.flush();
 
-  VW::io_buf read_buffer;
-  read_buffer.add_file(VW::io::create_buffer_view(backing_buffer->data(), backing_buffer->size()));
+  VW980::io_buf read_buffer;
+  read_buffer.add_file(VW980::io::create_buffer_view(backing_buffer->data(), backing_buffer->size()));
   std::unique_ptr<char> my_read_ptr = nullptr;
-  EXPECT_GT(VW::model_utils::read_model_field(read_buffer, my_read_ptr), 0);
+  EXPECT_GT(VW980::model_utils::read_model_field(read_buffer, my_read_ptr), 0);
 
   EXPECT_NE(my_read_ptr, nullptr);
   EXPECT_EQ(*my_read_ptr, 'c');
@@ -71,17 +71,17 @@ TEST(ModelUtil, UniquePtrSimpleValue)
 TEST(ModelUtil, UniquePtrString)
 {
   auto backing_buffer = std::make_shared<std::vector<char>>();
-  VW::io_buf write_buffer;
-  write_buffer.add_file(VW::io::create_vector_writer(backing_buffer));
+  VW980::io_buf write_buffer;
+  write_buffer.add_file(VW980::io::create_vector_writer(backing_buffer));
 
-  std::unique_ptr<std::string> my_ptr = VW::make_unique<std::string>("my string");
-  EXPECT_GT(VW::model_utils::write_model_field(write_buffer, my_ptr, "test", false), 0);
+  std::unique_ptr<std::string> my_ptr = VW980::make_unique<std::string>("my string");
+  EXPECT_GT(VW980::model_utils::write_model_field(write_buffer, my_ptr, "test", false), 0);
   write_buffer.flush();
 
-  VW::io_buf read_buffer;
-  read_buffer.add_file(VW::io::create_buffer_view(backing_buffer->data(), backing_buffer->size()));
+  VW980::io_buf read_buffer;
+  read_buffer.add_file(VW980::io::create_buffer_view(backing_buffer->data(), backing_buffer->size()));
   std::unique_ptr<std::string> my_read_ptr = nullptr;
-  EXPECT_GT(VW::model_utils::read_model_field(read_buffer, my_read_ptr), 0);
+  EXPECT_GT(VW980::model_utils::read_model_field(read_buffer, my_read_ptr), 0);
 
   EXPECT_NE(my_read_ptr, nullptr);
   EXPECT_EQ(*my_read_ptr, "my string");
@@ -90,20 +90,20 @@ TEST(ModelUtil, UniquePtrString)
 TEST(ModelUtil, VectorUniquePtrString)
 {
   auto backing_buffer = std::make_shared<std::vector<char>>();
-  VW::io_buf write_buffer;
-  write_buffer.add_file(VW::io::create_vector_writer(backing_buffer));
+  VW980::io_buf write_buffer;
+  write_buffer.add_file(VW980::io::create_vector_writer(backing_buffer));
 
   std::vector<std::unique_ptr<std::string>> my_ptrs;
-  my_ptrs.push_back(VW::make_unique<std::string>("my string"));
-  my_ptrs.push_back(VW::make_unique<std::string>("another"));
-  my_ptrs.push_back(VW::make_unique<std::string>("more"));
-  EXPECT_GT(VW::model_utils::write_model_field(write_buffer, my_ptrs, "test", false), 0);
+  my_ptrs.push_back(VW980::make_unique<std::string>("my string"));
+  my_ptrs.push_back(VW980::make_unique<std::string>("another"));
+  my_ptrs.push_back(VW980::make_unique<std::string>("more"));
+  EXPECT_GT(VW980::model_utils::write_model_field(write_buffer, my_ptrs, "test", false), 0);
   write_buffer.flush();
 
-  VW::io_buf read_buffer;
-  read_buffer.add_file(VW::io::create_buffer_view(backing_buffer->data(), backing_buffer->size()));
+  VW980::io_buf read_buffer;
+  read_buffer.add_file(VW980::io::create_buffer_view(backing_buffer->data(), backing_buffer->size()));
   std::vector<std::unique_ptr<std::string>> my_read_ptrs;
-  EXPECT_GT(VW::model_utils::read_model_field(read_buffer, my_read_ptrs), 0);
+  EXPECT_GT(VW980::model_utils::read_model_field(read_buffer, my_read_ptrs), 0);
 
   EXPECT_EQ(my_read_ptrs.size(), 3);
   EXPECT_EQ(*(my_read_ptrs[0]), "my string");

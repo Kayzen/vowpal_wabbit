@@ -14,11 +14,11 @@
 
 using simulator::callback_map;
 using simulator::cb_sim;
-using namespace VW::reductions::epsilon_decay;
+using namespace VW980::reductions::epsilon_decay;
 
 namespace epsilon_decay_test
 {
-epsilon_decay_data* get_epsilon_decay_data(VW::workspace& all)
+epsilon_decay_data* get_epsilon_decay_data(VW980::workspace& all)
 {
   std::vector<std::string> e_r;
   all.l->get_enabled_learners(e_r);
@@ -27,7 +27,7 @@ epsilon_decay_data* get_epsilon_decay_data(VW::workspace& all)
     THROW("Epsilon decay not found in enabled learners");
   }
 
-  VW::LEARNER::learner* epsilon_decay_learner = require_multiline(all.l->get_learner_by_name_prefix("epsilon_decay"));
+  VW980::LEARNER::learner* epsilon_decay_learner = require_multiline(all.l->get_learner_by_name_prefix("epsilon_decay"));
 
   return (epsilon_decay_data*)epsilon_decay_learner->get_internal_type_erased_data_pointer_test_use_only();
 }
@@ -39,9 +39,9 @@ TEST(EpsilonDecay, ThrowIfNoExplore)
       {
         try
         {
-          auto result = VW::initialize(vwtest::make_args("--epsilon_decay", "--cb_adf"));
+          auto result = VW980::initialize(vwtest::make_args("--epsilon_decay", "--cb_adf"));
         }
-        catch (const VW::vw_exception& e)
+        catch (const VW980::vw_exception& e)
         {
           EXPECT_STREQ(
               "Input prediction type: prediction_type_t::ACTION_PROBS of learner: epsilon_decay does not match "
@@ -50,7 +50,7 @@ TEST(EpsilonDecay, ThrowIfNoExplore)
           throw;
         }
       },
-      VW::vw_exception);
+      VW980::vw_exception);
 }
 
 TEST(EpsilonDecay, InitWIterations)
@@ -69,7 +69,7 @@ TEST(EpsilonDecay, ChampChangeWIterations)
   callback_map test_hooks;
 
   test_hooks.emplace(deterministic_champ_switch - 1,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
         epsilon_decay_data* epsilon_decay = epsilon_decay_test::get_epsilon_decay_data(all);
         EXPECT_EQ(epsilon_decay->conf_seq_estimators[0][0].update_count, 87);
@@ -86,7 +86,7 @@ TEST(EpsilonDecay, ChampChangeWIterations)
       });
 
   test_hooks.emplace(deterministic_champ_switch,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
         epsilon_decay_data* epsilon_decay = epsilon_decay_test::get_epsilon_decay_data(all);
         EXPECT_EQ(epsilon_decay->conf_seq_estimators[0][0].update_count, 0);
@@ -117,7 +117,7 @@ TEST(EpsilonDecay, UpdateCountWIterations)
   callback_map test_hooks;
 
   test_hooks.emplace(100,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
         epsilon_decay_data* epsilon_decay = epsilon_decay_test::get_epsilon_decay_data(all);
         EXPECT_EQ(epsilon_decay->conf_seq_estimators[0][0].update_count, 100);
@@ -138,7 +138,7 @@ TEST(EpsilonDecay, UpdateCountWIterations)
       });
 
   test_hooks.emplace(101,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
         epsilon_decay_data* epsilon_decay = epsilon_decay_test::get_epsilon_decay_data(all);
         EXPECT_EQ(epsilon_decay->conf_seq_estimators[0][0].update_count, 0);
@@ -159,7 +159,7 @@ TEST(EpsilonDecay, UpdateCountWIterations)
       });
 
   test_hooks.emplace(102,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
         epsilon_decay_data* epsilon_decay = epsilon_decay_test::get_epsilon_decay_data(all);
         EXPECT_EQ(epsilon_decay->conf_seq_estimators[0][0].update_count, 0);
@@ -180,7 +180,7 @@ TEST(EpsilonDecay, UpdateCountWIterations)
       });
 
   test_hooks.emplace(103,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
         epsilon_decay_data* epsilon_decay = epsilon_decay_test::get_epsilon_decay_data(all);
         EXPECT_EQ(epsilon_decay->conf_seq_estimators[0][0].update_count, 0);
@@ -201,7 +201,7 @@ TEST(EpsilonDecay, UpdateCountWIterations)
       });
 
   test_hooks.emplace(104,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
         epsilon_decay_data* epsilon_decay = epsilon_decay_test::get_epsilon_decay_data(all);
         EXPECT_EQ(epsilon_decay->conf_seq_estimators[0][0].update_count, 1);
@@ -253,7 +253,7 @@ TEST(EpsilonDecay, ScoreBoundsUnit)
   // Initialize epsilon_decay_data class with 5 models
   uint64_t num_models = 5;
   uint32_t feature_width = 8;
-  VW::dense_parameters dense_weights(num_models);
+  VW980::dense_parameters dense_weights(num_models);
   epsilon_decay_data ep_data(
       num_models, 100, .05, .1, dense_weights, "", false, feature_width, 0, 1.f, 0, false, 1e-6, "bisect", false);
 
@@ -339,7 +339,7 @@ TEST(EpsilonDecay, HorizonBoundsUnit)
   // Initialize epsilon_decay_data class with 5 models
   uint64_t num_models = 5;
   uint32_t feature_width = 8;
-  VW::dense_parameters dense_weights(num_models);
+  VW980::dense_parameters dense_weights(num_models);
   epsilon_decay_data ep_data(
       num_models, 100, .05, .1, dense_weights, "", false, feature_width, 0, 1.f, 0, false, 1e-6, "bisect", false);
 

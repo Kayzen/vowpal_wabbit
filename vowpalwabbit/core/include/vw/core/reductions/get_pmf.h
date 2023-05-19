@@ -7,11 +7,11 @@
 
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
 // Setup reduction in stack
-std::shared_ptr<VW::LEARNER::learner> get_pmf_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> get_pmf_setup(VW980::setup_base_i& stack_builder);
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

@@ -13,11 +13,11 @@
 #include <string>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> epsilon_decay_setup(VW::setup_base_i&);
+std::shared_ptr<VW980::LEARNER::learner> epsilon_decay_setup(VW980::setup_base_i&);
 
 namespace epsilon_decay
 {
@@ -30,7 +30,7 @@ public:
       double epsilon_decay_estimator_decay, dense_parameters& weights, std::string epsilon_decay_audit_str,
       bool constant_epsilon, uint32_t& feature_width, uint64_t _min_champ_examples, float initial_epsilon,
       uint64_t shift_model_bounds, bool reward_as_cost, double tol_x, bool is_brentq, bool predict_only_model);
-  void update_weights(float init_ep, VW::LEARNER::learner& base, VW::multi_ex& examples);
+  void update_weights(float init_ep, VW980::LEARNER::learner& base, VW980::multi_ex& examples);
   void promote_model(int64_t model_ind, int64_t swap_dist);
   void rebalance_greater_models(int64_t model_ind, int64_t swap_dist, int64_t model_count);
   void clear_weights_and_estimators(int64_t swap_dist, int64_t model_count);
@@ -38,7 +38,7 @@ public:
   void check_estimator_bounds();
   void check_horizon_bounds();
 
-  std::vector<std::vector<VW::estimators::confidence_sequence_robust>> conf_seq_estimators;
+  std::vector<std::vector<VW980::estimators::confidence_sequence_robust>> conf_seq_estimators;
   std::vector<uint64_t> _weight_indices;
   uint64_t _model_count;
   uint64_t _min_scope;
@@ -62,7 +62,7 @@ public:
 
 namespace model_utils
 {
-size_t read_model_field(io_buf&, VW::reductions::epsilon_decay::epsilon_decay_data&);
-size_t write_model_field(io_buf&, const VW::reductions::epsilon_decay::epsilon_decay_data&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::reductions::epsilon_decay::epsilon_decay_data&);
+size_t write_model_field(io_buf&, const VW980::reductions::epsilon_decay::epsilon_decay_data&, const std::string&, bool);
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980

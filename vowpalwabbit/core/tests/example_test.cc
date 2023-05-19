@@ -9,11 +9,11 @@
 
 TEST(Example, MoveCtorMovesPred)
 {
-  VW::example ex;
+  VW980::example ex;
   ex.pred.scalars.push_back(8);
   EXPECT_EQ(ex.pred.scalars.size(), 1);
 
-  VW::example ex2(std::move(ex));
+  VW980::example ex2(std::move(ex));
 
   EXPECT_EQ(ex.pred.scalars.size(), 0);
   EXPECT_EQ(ex2.pred.scalars.size(), 1);
@@ -21,11 +21,11 @@ TEST(Example, MoveCtorMovesPred)
 
 TEST(Example, MoveAssignOpMovesPred)
 {
-  VW::example ex;
+  VW980::example ex;
   ex.pred.a_s.push_back({0, 0});
   EXPECT_EQ(ex.pred.a_s.size(), 1);
 
-  VW::example ex2;
+  VW980::example ex2;
   EXPECT_EQ(ex2.pred.a_s.size(), 0);
   ex2 = std::move(ex);
 

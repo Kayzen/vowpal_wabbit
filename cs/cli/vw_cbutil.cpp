@@ -5,7 +5,7 @@
 #include "vw_cbutil.h"
 #include "vw/core/reductions/cb/cb_algs.h"
 
-namespace VW
+namespace VW980
 {
 float VowpalWabbitContextualBanditUtil::GetUnbiasedCost(uint32_t actionObservered, uint32_t actionTaken, float cost, float probability)
 {

@@ -17,14 +17,14 @@
 
 #include <string>
 
-using namespace VW::config;
+using namespace VW980::config;
 namespace
 {
 constexpr size_t NUM_COLS = 3;
-constexpr std::array<VW::column_definition, NUM_COLS> AUDIT_REGRESSOR_COLUMNS = {
-    VW::column_definition(8, VW::align_type::left, VW::wrap_type::wrap_space),    // example counter
-    VW::column_definition(9, VW::align_type::right, VW::wrap_type::wrap_space),   // values audited
-    VW::column_definition(12, VW::align_type::right, VW::wrap_type::wrap_space),  // total progress
+constexpr std::array<VW980::column_definition, NUM_COLS> AUDIT_REGRESSOR_COLUMNS = {
+    VW980::column_definition(8, VW980::align_type::left, VW980::wrap_type::wrap_space),    // example counter
+    VW980::column_definition(9, VW980::align_type::right, VW980::wrap_type::wrap_space),   // values audited
+    VW980::column_definition(12, VW980::align_type::right, VW980::wrap_type::wrap_space),  // total progress
 };
 const std::array<std::string, NUM_COLS> AUDIT_REGRESSOR_HEADER = {
     "example\ncounter", "values\naudited", "total\nprogress"};
@@ -32,22 +32,22 @@ const std::array<std::string, NUM_COLS> AUDIT_REGRESSOR_HEADER = {
 class audit_regressor_data
 {
 public:
-  audit_regressor_data(VW::workspace* all, std::unique_ptr<VW::io::writer>&& output) : all(all)
+  audit_regressor_data(VW980::workspace* all, std::unique_ptr<VW980::io::writer>&& output) : all(all)
   {
     out_file.add_file(std::move(output));
   }
 
-  VW::workspace* all;
+  VW980::workspace* all;
   size_t feature_width_below = 0;
   size_t cur_class = 0;
   size_t total_class_cnt = 0;
   std::vector<std::string> ns_pre;
-  VW::io_buf out_file;
+  VW980::io_buf out_file;
   size_t loaded_regressor_values = 0;
   size_t values_audited = 0;
 };
 
-inline void audit_regressor_interaction(audit_regressor_data& dat, const VW::audit_strings* f)
+inline void audit_regressor_interaction(audit_regressor_data& dat, const VW980::audit_strings* f)
 {
   // same as audit_interaction in gd.cc
   if (f == nullptr)
@@ -94,9 +94,9 @@ inline void audit_regressor_feature(audit_regressor_data& dat, const float, cons
   weights[ft_idx] = 0.;  // mark value audited
 }
 
-void audit_regressor_lda(audit_regressor_data& rd, VW::LEARNER::learner& /* base */, VW::example& ec)
+void audit_regressor_lda(audit_regressor_data& rd, VW980::LEARNER::learner& /* base */, VW980::example& ec)
 {
-  VW::workspace& all = *rd.all;
+  VW980::workspace& all = *rd.all;
 
   std::ostringstream tempstream;
   auto& weights = rd.all->weights;
@@ -109,7 +109,7 @@ void audit_regressor_lda(audit_regressor_data& rd, VW::LEARNER::learner& /* base
                  << ((fs.indices[j] >> weights.stride_shift()) & all.parse_mask);
       for (size_t k = 0; k < all.lda; k++)
       {
-        VW::weight& w = weights[(fs.indices[j] + k)];
+        VW980::weight& w = weights[(fs.indices[j] + k)];
         tempstream << ':' << w;
         w = 0.;
       }
@@ -121,11 +121,11 @@ void audit_regressor_lda(audit_regressor_data& rd, VW::LEARNER::learner& /* base
 }
 
 // This is a learner which does nothing with examples.
-// void learn(audit_regressor_data&, VW::LEARNER::learner&, example&) {}
+// void learn(audit_regressor_data&, VW980::LEARNER::learner&, example&) {}
 
-void audit_regressor(audit_regressor_data& rd, VW::LEARNER::learner& base, VW::example& ec)
+void audit_regressor(audit_regressor_data& rd, VW980::LEARNER::learner& base, VW980::example& ec)
 {
-  VW::workspace& all = *rd.all;
+  VW980::workspace& all = *rd.all;
 
   if (all.lda > 0) { audit_regressor_lda(rd, base, ec); }
   else
@@ -159,15 +159,15 @@ void audit_regressor(audit_regressor_data& rd, VW::LEARNER::learner& base, VW::e
       size_t num_interacted_features = 0;
       if (rd.all->weights.sparse)
       {
-        VW::generate_interactions<audit_regressor_data, const uint64_t, audit_regressor_feature, true,
-            audit_regressor_interaction, VW::sparse_parameters>(rd.all->interactions, rd.all->extent_interactions,
+        VW980::generate_interactions<audit_regressor_data, const uint64_t, audit_regressor_feature, true,
+            audit_regressor_interaction, VW980::sparse_parameters>(rd.all->interactions, rd.all->extent_interactions,
             rd.all->permutations, ec, rd, rd.all->weights.sparse_weights, num_interacted_features,
             rd.all->generate_interactions_object_cache_state);
       }
       else
       {
-        VW::generate_interactions<audit_regressor_data, const uint64_t, audit_regressor_feature, true,
-            audit_regressor_interaction, VW::dense_parameters>(rd.all->interactions, rd.all->extent_interactions,
+        VW980::generate_interactions<audit_regressor_data, const uint64_t, audit_regressor_feature, true,
+            audit_regressor_interaction, VW980::dense_parameters>(rd.all->interactions, rd.all->extent_interactions,
             rd.all->permutations, ec, rd, rd.all->weights.dense_weights, num_interacted_features,
             rd.all->generate_interactions_object_cache_state);
       }
@@ -182,13 +182,13 @@ void audit_regressor(audit_regressor_data& rd, VW::LEARNER::learner& base, VW::e
 
 void print_row(std::ostream& output, size_t ex_processed, size_t vals_found, size_t progress)
 {
-  VW::format_row({std::to_string(ex_processed), std::to_string(vals_found), std::to_string(progress) + "%"},
+  VW980::format_row({std::to_string(ex_processed), std::to_string(vals_found), std::to_string(progress) + "%"},
       AUDIT_REGRESSOR_COLUMNS, 1, output);
   output << "\n";
 }
 
-void print_update_audit_regressor(VW::workspace& all, VW::shared_data& /* sd */, const audit_regressor_data& rd,
-    const VW::example& ec, VW::io::logger& /* unused */)
+void print_update_audit_regressor(VW980::workspace& all, VW980::shared_data& /* sd */, const audit_regressor_data& rd,
+    const VW980::example& ec, VW980::io::logger& /* unused */)
 {
   bool printed = false;
   if (static_cast<float>(ec.example_counter + std::size_t{1}) >= all.sd->dump_interval && !all.quiet)
@@ -204,7 +204,7 @@ void print_update_audit_regressor(VW::workspace& all, VW::shared_data& /* sd */,
   {
     // all regressor values were audited
     if (!printed) { print_row(*all.trace_message, ec.example_counter + 1, rd.values_audited, 100); }
-    VW::details::set_done(all);
+    VW980::details::set_done(all);
   }
 }
 
@@ -261,16 +261,16 @@ void init_driver(audit_regressor_data& dat)
   if (!dat.all->quiet)
   {
     *dat.all->trace_message << "Regressor contains " << dat.loaded_regressor_values << " values\n";
-    VW::format_row(AUDIT_REGRESSOR_HEADER, AUDIT_REGRESSOR_COLUMNS, 1, *dat.all->trace_message);
+    VW980::format_row(AUDIT_REGRESSOR_HEADER, AUDIT_REGRESSOR_COLUMNS, 1, *dat.all->trace_message);
     (*dat.all->trace_message) << "\n";
   }
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::audit_regressor_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::audit_regressor_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
 
   std::string out_file;
   option_group_definition new_options("[Reduction] Audit Regressor");
@@ -291,8 +291,8 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::audit_regressor_setup(VW::
   // TODO: work out how to handle the fact that this reduction produces no
   // predictions but also needs to inherit the type from the loaded base so that
   // the rest of the stack loads.
-  auto dat = VW::make_unique<audit_regressor_data>(&all, VW::io::open_file_writer(out_file));
-  auto ret = VW::LEARNER::make_reduction_learner(std::move(dat), require_singleline(stack_builder.setup_base_learner()),
+  auto dat = VW980::make_unique<audit_regressor_data>(&all, VW980::io::open_file_writer(out_file));
+  auto ret = VW980::LEARNER::make_reduction_learner(std::move(dat), require_singleline(stack_builder.setup_base_learner()),
       audit_regressor, audit_regressor, stack_builder.get_setupfn_name(audit_regressor_setup))
                  // learn does not predict or learn. nothing to be gained by calling predict() before learn()
                  .set_learn_returns_prediction(true)

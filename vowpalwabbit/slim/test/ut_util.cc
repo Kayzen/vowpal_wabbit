@@ -109,12 +109,12 @@ void run_predict_in_memory(
   float score;
   if (!strcmp(data_filename, "regression_data_1.txt"))
   {
-    VW::example_predict ex[2];
+    VW980::example_predict ex[2];
     // 1 |0 0:1
-    example_predict_builder b0(&ex[0], (VW::namespace_index)0);
+    example_predict_builder b0(&ex[0], (VW980::namespace_index)0);
     b0.push_feature(0, 1.f);
     // 1 |0 0:5
-    example_predict_builder b1(&ex[1], (VW::namespace_index)0);
+    example_predict_builder b1(&ex[1], (VW980::namespace_index)0);
     b1.push_feature(0, 5.f);
 
     for (auto& e : ex)
@@ -125,9 +125,9 @@ void run_predict_in_memory(
   }
   else if (!strcmp(data_filename, "regression_data_2.txt"))
   {
-    VW::example_predict ex[2];
+    VW980::example_predict ex[2];
     // 1 |0 0:1 |a 0:2
-    example_predict_builder b00(&ex[0], (VW::namespace_index)0);
+    example_predict_builder b00(&ex[0], (VW980::namespace_index)0);
     b00.push_feature(0, 1.f);
     example_predict_builder b0a(&ex[0], "a");
     b0a.push_feature(0, 2.f);
@@ -143,7 +143,7 @@ void run_predict_in_memory(
   }
   else if (!strcmp(data_filename, "regression_data_3.txt"))
   {
-    VW::example_predict ex[2];
+    VW980::example_predict ex[2];
     // 1 |a 0:1 |b 2:2
     example_predict_builder b0a(&ex[0], "a");
     b0a.push_feature(0, 1.f);
@@ -163,7 +163,7 @@ void run_predict_in_memory(
   }
   else if (!strcmp(data_filename, "regression_data_4.txt"))
   {
-    VW::example_predict ex[2];
+    VW980::example_predict ex[2];
     // 1 |a 0:1 |b 2:2 |c 3:3 |d 4:4
     example_predict_builder b0a(&ex[0], "a");
     b0a.push_feature(0, 1.f);
@@ -191,7 +191,7 @@ void run_predict_in_memory(
   }
   else if (!strcmp(data_filename, "regression_data_7.txt"))
   {
-    VW::example_predict ex[2];
+    VW980::example_predict ex[2];
     // 1 |a x:1 |b y:2
     example_predict_builder b0a(&ex[0], "a");
     b0a.push_feature_string("x", 1.f);
@@ -248,12 +248,12 @@ TEST_P(predict_test, Run)
 {
   if (GetParam().weight_type == predict_param_weight_type::SPARSE)
   {
-    run_predict_in_memory<VW::sparse_parameters>(
+    run_predict_in_memory<VW980::sparse_parameters>(
         GetParam().model_filename, GetParam().data_filename, GetParam().prediction_reference_filename);
   }
   else
   {
-    run_predict_in_memory<VW::dense_parameters>(
+    run_predict_in_memory<VW980::dense_parameters>(
         GetParam().model_filename, GetParam().data_filename, GetParam().prediction_reference_filename);
   }
 }
@@ -329,13 +329,13 @@ TEST_P(invalid_model_test, Run)
     // https://stackoverflow.com/questions/8507385/google-test-is-there-a-way-to-combine-a-test-which-is-both-type-parameterized-a
     if (GetParam().weight_type == predict_param_weight_type::SPARSE)
     {
-      vw_predict<VW::sparse_parameters> vw_pred;
+      vw_predict<VW980::sparse_parameters> vw_pred;
       EXPECT_NE(S_VW_PREDICT_OK, vw_pred.load(&model_file[0], end))
           << "partial model read until " << end << " didn't throw";
     }
     else
     {
-      vw_predict<VW::dense_parameters> vw_pred;
+      vw_predict<VW980::dense_parameters> vw_pred;
       EXPECT_NE(S_VW_PREDICT_OK, vw_pred.load(&model_file[0], end))
           << "partial model read until " << end << " didn't throw";
     }
@@ -355,19 +355,19 @@ INSTANTIATE_TEST_SUITE_P(VowpalWabbitSlim, invalid_model_test, ::testing::Values
 
 TEST(VowpalWabbitSlim, MulticlassData4)
 {
-  vw_predict<VW::sparse_parameters> vw;
+  vw_predict<VW980::sparse_parameters> vw;
   test_data td = get_test_data("multiclass_data_4");
   ASSERT_EQ(0, vw.load((const char*)td.model, td.model_len));
 
   std::vector<float> out_scores;
 
-  VW::example_predict shared;
+  VW980::example_predict shared;
   // shared |a 0:1 5:12
   example_predict_builder bs(&shared, (char*)"a");
   bs.push_feature(0, 1.f);
   bs.push_feature(5, 12.f);
 
-  VW::example_predict ex[3];
+  VW980::example_predict ex[3];
   // 1:1.0 |b 0:1
   example_predict_builder b0(&ex[0], (char*)"b");
   b0.push_feature(0, 1.f);
@@ -389,19 +389,19 @@ TEST(VowpalWabbitSlim, MulticlassData4)
 
 TEST(VowpalWabbitSlim, MulticlassData5)
 {
-  vw_predict<VW::sparse_parameters> vw;
+  vw_predict<VW980::sparse_parameters> vw;
   test_data td = get_test_data("multiclass_data_5");
   ASSERT_EQ(0, vw.load((const char*)td.model, td.model_len));
 
   std::vector<float> out_scores;
 
-  VW::example_predict shared;
+  VW980::example_predict shared;
   // shared |aa 0:1 5:12
   example_predict_builder bs(&shared, "aa");
   bs.push_feature(0, 1.f);
   bs.push_feature(5, 12.f);
 
-  VW::example_predict ex[8];
+  VW980::example_predict ex[8];
   // 1:1.0 |ab 0:1
   example_predict_builder b0(&ex[0], "ab");
   b0.push_feature(0, 1.f);
@@ -441,12 +441,12 @@ void cb_data_epsilon_0_skype_jb_test_runner(int call_type, int modality, int net
     const std::vector<int>& ranking_expected, const std::vector<float>& pdf_expected)
 {
   // load model.
-  vw_predict<VW::sparse_parameters> vw;
+  vw_predict<VW980::sparse_parameters> vw;
   test_data td = get_test_data("cb_data_epsilon_0_skype_jb");
   ASSERT_EQ(0, vw.load((const char*)td.model, td.model_len));
 
   // we have loaded the model and can push the features
-  VW::example_predict features;
+  VW980::example_predict features;
   vw_slim::example_predict_builder bOa(&features, "64");  // NOLINT
   bOa.push_feature(static_cast<int>(call_type), 1.f);
   vw_slim::example_predict_builder bOb(&features, "16");  // NOLINT
@@ -458,7 +458,7 @@ void cb_data_epsilon_0_skype_jb_test_runner(int call_type, int modality, int net
 
   // push actions
   const int min_delay_actions = 10;
-  VW::example_predict actions[min_delay_actions];
+  VW980::example_predict actions[min_delay_actions];
   for (int i = 0; i < min_delay_actions; i++)
   {
     vw_slim::example_predict_builder bOe(&actions[i], "80");  // NOLINT
@@ -487,13 +487,13 @@ TEST(VowpalWabbitSlim, InteractionNumBitsBug)
   input.read(buffer_ptr.get(),
       length);  // Extract how many bytes need to be decoded and resize the payload based on those bytes.
 
-  vw_slim::vw_predict<VW::sparse_parameters> vw;
+  vw_slim::vw_predict<VW980::sparse_parameters> vw;
 
   int result = vw.load(buffer_ptr.get(), length);
   EXPECT_EQ(result, 0);
 
   // we have loaded the model and can push the features
-  VW::example_predict features;
+  VW980::example_predict features;
 
   // Test with the single namespace.
   vw_slim::example_predict_builder bOa(&features, "Features", vw.feature_index_num_bits());  // NOLINT
@@ -504,7 +504,7 @@ TEST(VowpalWabbitSlim, InteractionNumBitsBug)
 
   static constexpr const int MINDELAYACTIONS = 10;
   // push actions
-  VW::example_predict actions[MINDELAYACTIONS];
+  VW980::example_predict actions[MINDELAYACTIONS];
   for (int i = 0; i < MINDELAYACTIONS; i++)
   {
     vw_slim::example_predict_builder bOe(&actions[i], "80");  // NOLINT
@@ -568,13 +568,13 @@ TEST(VowpalWabbitSlim, CbDataEpsilon0SkypeJb)
   cb_data_epsilon_0_skype_jb_test_runner(999, 0, 2, 0, ranking_expected, pdf_expected);
 }
 
-void clear(VW::example_predict& ex)
+void clear(VW980::example_predict& ex)
 {
   for (auto ns : ex.indices) { ex.feature_space[ns].clear(); }
   ex.indices.clear();
 }
 
-void generate_cb_data_5(VW::example_predict& shared, VW::example_predict* ex)
+void generate_cb_data_5(VW980::example_predict& shared, VW980::example_predict* ex)
 {
   // clean features
   clear(shared);
@@ -629,7 +629,7 @@ struct cb_predict_test : public ::testing::TestWithParam<cb_predict_param>
 
 TEST_P(cb_predict_test, CBRunPredict)
 {
-  vw_predict<VW::sparse_parameters> vw;
+  vw_predict<VW980::sparse_parameters> vw;
   test_data td = get_test_data(GetParam().model_filename);
   ASSERT_EQ(S_VW_PREDICT_OK, vw.load((const char*)td.model, td.model_len));
 
@@ -638,8 +638,8 @@ TEST_P(cb_predict_test, CBRunPredict)
   std::vector<float> pdf_expected = GetParam().pdf_expected;
   std::vector<float> histogram(pdf_expected.size() * pdf_expected.size());
 
-  VW::example_predict shared;
-  VW::example_predict ex[3];
+  VW980::example_predict shared;
+  VW980::example_predict ex[3];
 
   std::vector<int> ranking;
 
@@ -715,13 +715,13 @@ struct vw_slim_tests : public ::testing::Test
 
 TYPED_TEST_SUITE_P(vw_slim_tests);
 
-using WeightParameters = ::testing::Types<VW::sparse_parameters, VW::dense_parameters>;
+using WeightParameters = ::testing::Types<VW980::sparse_parameters, VW980::dense_parameters>;
 
 TYPED_TEST_P(vw_slim_tests, model_not_loaded)
 {
   vw_predict<TypeParam> vw;
-  VW::example_predict ex;
-  VW::example_predict* actions = nullptr;
+  VW980::example_predict ex;
+  VW980::example_predict* actions = nullptr;
   std::vector<float> scores;
   std::vector<int> ranking;
   float score;
@@ -735,8 +735,8 @@ TYPED_TEST_P(vw_slim_tests, model_not_loaded)
 TYPED_TEST_P(vw_slim_tests, model_reduction_mismatch)
 {
   vw_predict<TypeParam> vw;
-  VW::example_predict ex;
-  VW::example_predict* actions = nullptr;
+  VW980::example_predict ex;
+  VW980::example_predict* actions = nullptr;
   std::vector<float> scores;
   std::vector<int> ranking;
 
@@ -760,10 +760,10 @@ TYPED_TEST_P(vw_slim_tests, model_corrupted)
     std::vector<char> model_copy(td.model, td.model + td.model_len);
     for (size_t j = 0; j < num_bytes_to_corrupt; j++)
     {
-      rand = VW::details::merand48_noadvance((uint64_t)rand);
+      rand = VW980::details::merand48_noadvance((uint64_t)rand);
       size_t random_idx = (size_t)(rand * model_copy.size());
 
-      rand = VW::details::merand48_noadvance((uint64_t)rand);
+      rand = VW980::details::merand48_noadvance((uint64_t)rand);
 
       model_copy[random_idx] = (char)rand;
 
@@ -784,18 +784,18 @@ TEST(ColdStartModelSlim, ActionSetNotReordered)
   std::unique_ptr<char[]> buffer_ptr(new char[length]);
   input.read(buffer_ptr.get(), length);
 
-  vw_slim::vw_predict<VW::sparse_parameters> vw;
+  vw_slim::vw_predict<VW980::sparse_parameters> vw;
 
   int result = vw.load(buffer_ptr.get(), length);
   EXPECT_EQ(result, 0);
 
-  VW::example_predict features;
+  VW980::example_predict features;
 
   vw_slim::example_predict_builder bOa(&features, "Features", vw.feature_index_num_bits());  // NOLINT
   bOa.push_feature_string("f1", 1.f);
 
   static const int NUM_ACTIONS = 5;
-  std::array<VW::example_predict, NUM_ACTIONS> actions;
+  std::array<VW980::example_predict, NUM_ACTIONS> actions;
   for (size_t i = 0; i < actions.size(); i++)
   {
     vw_slim::example_predict_builder bOe(&actions[i], "ActionFeatures");  // NOLINT

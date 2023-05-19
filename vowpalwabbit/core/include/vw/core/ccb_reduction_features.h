@@ -9,7 +9,7 @@
 
 #include <cstdint>
 
-namespace VW
+namespace VW980
 {
 enum class ccb_example_type : uint8_t
 {
@@ -23,22 +23,22 @@ class ccb_reduction_features
 {
 public:
   ccb_example_type type;
-  VW::v_array<uint32_t> explicit_included_actions;
+  VW980::v_array<uint32_t> explicit_included_actions;
   void clear() { explicit_included_actions.clear(); }
 };
-}  // namespace VW
+}  // namespace VW980
 
-namespace VW
+namespace VW980
 {
 const char* to_string(ccb_example_type type);
-}  // namespace VW
+}  // namespace VW980
 
 namespace CCB  // NOLINT
 {
 using example_type VW_DEPRECATED(
-    "VW::ccb_example_type renamed to VW::ccb_example_type. VW::ccb_example_type will be removed in VW 10.") =
-    VW::ccb_example_type;
+    "VW980::ccb_example_type renamed to VW980::ccb_example_type. VW980::ccb_example_type will be removed in VW 10.") =
+    VW980::ccb_example_type;
 using reduction_features VW_DEPRECATED(
-    "CCB::reduction_features renamed to VW::ccb_reduction_features. CCB::reduction_features will be removed in VW "
-    "10.") = VW::ccb_reduction_features;
+    "CCB::reduction_features renamed to VW980::ccb_reduction_features. CCB::reduction_features will be removed in VW "
+    "10.") = VW980::ccb_reduction_features;
 }  // namespace CCB

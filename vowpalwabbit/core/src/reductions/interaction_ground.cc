@@ -15,8 +15,8 @@
 #include "vw/core/shared_data.h"
 #include "vw/core/vw.h"
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
@@ -31,7 +31,7 @@ public:
   double total_uniform_cost = 0.;
 };
 
-void negate_cost(VW::multi_ex& ec_seq)
+void negate_cost(VW980::multi_ex& ec_seq)
 {
   for (auto* example_ptr : ec_seq)
   {
@@ -42,10 +42,10 @@ void negate_cost(VW::multi_ex& ec_seq)
   }
 }
 
-void learn(interaction_ground& ig, learner& base, VW::multi_ex& ec_seq)
+void learn(interaction_ground& ig, learner& base, VW980::multi_ex& ec_seq)
 {
   // find reward of sequence
-  VW::cb_class label = VW::get_observed_cost_or_default_cb_adf(ec_seq);
+  VW980::cb_class label = VW980::get_observed_cost_or_default_cb_adf(ec_seq);
   ig.total_uniform_cost += label.cost / label.probability / ec_seq.size();  //=p(uniform) * IPS estimate
   ig.total_uniform_reward += -label.cost / label.probability / ec_seq.size();
 
@@ -65,7 +65,7 @@ void learn(interaction_ground& ig, learner& base, VW::multi_ex& ec_seq)
   negate_cost(ec_seq);
 }
 
-void predict(interaction_ground& ig, learner& base, VW::multi_ex& ec_seq)
+void predict(interaction_ground& ig, learner& base, VW980::multi_ex& ec_seq)
 {
   // figure out which is better by our current estimate.
   if (ig.total_uniform_cost - ig.total_importance_weighted_cost >
@@ -77,7 +77,7 @@ void predict(interaction_ground& ig, learner& base, VW::multi_ex& ec_seq)
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::interaction_ground_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::interaction_ground_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
   bool igl_option = false;
@@ -93,7 +93,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::interaction_ground_setup(V
 
   // number of weight vectors needed
   size_t feature_width = 2;  // One for reward and one for loss
-  auto ld = VW::make_unique<interaction_ground>();
+  auto ld = VW980::make_unique<interaction_ground>();
 
   // Ensure cb_adf so we are reducing to something useful.
   if (!options.was_supplied("cb_adf")) { options.insert("cb_adf", ""); }

@@ -12,7 +12,7 @@
 #include <sstream>
 #include <string>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 // Returns the one of values as a comma separated string or empty if there are none.
 std::string one_of_string(base_option& opt)
@@ -172,7 +172,7 @@ std::string cli_help_formatter::format_help(const std::vector<option_group_defin
       if (option->m_experimental) { ss_description << ", experimental"; }
       ss_description << ")";
 
-      auto help_lines = split_string_by_newline(VW::wrap_text(ss_description.str(), RIGHT_COL_WIDTH));
+      auto help_lines = split_string_by_newline(VW980::wrap_text(ss_description.str(), RIGHT_COL_WIDTH));
 
       size_t help_line_to_start_at = 0;
       if (option_name_str.size() > LEFT_COL_WIDTH) { overall_ss << INDENT << option_name_str << "\n"; }

@@ -32,7 +32,7 @@
  *     auto& data = fd.get<data_type>();
  */
 
-namespace VW
+namespace VW980
 {
 class reduction_features
 {
@@ -54,91 +54,91 @@ public:
   }
 
 private:
-  VW::ccb_reduction_features _ccb_reduction_features;
-  VW::continuous_actions::reduction_features _contact_reduction_features;
+  VW980::ccb_reduction_features _ccb_reduction_features;
+  VW980::continuous_actions::reduction_features _contact_reduction_features;
   simple_label_reduction_features _simple_label_reduction_features;
-  VW::cb_explore_adf::greedy::reduction_features _epsilon_reduction_features;
-  VW::large_action_space::las_reduction_features _large_action_space_reduction_features;
-  VW::cb_graph_feedback::reduction_features _cb_graph_feedback_reduction_features;
+  VW980::cb_explore_adf::greedy::reduction_features _epsilon_reduction_features;
+  VW980::large_action_space::las_reduction_features _large_action_space_reduction_features;
+  VW980::cb_graph_feedback::reduction_features _cb_graph_feedback_reduction_features;
 };
 
 template <>
-inline VW::ccb_reduction_features& reduction_features::get<VW::ccb_reduction_features>()
+inline VW980::ccb_reduction_features& reduction_features::get<VW980::ccb_reduction_features>()
 {
   return _ccb_reduction_features;
 }
 
 template <>
-inline const VW::ccb_reduction_features& reduction_features::get<VW::ccb_reduction_features>() const
+inline const VW980::ccb_reduction_features& reduction_features::get<VW980::ccb_reduction_features>() const
 {
   return _ccb_reduction_features;
 }
 
 template <>
-inline VW::continuous_actions::reduction_features& reduction_features::get<VW::continuous_actions::reduction_features>()
+inline VW980::continuous_actions::reduction_features& reduction_features::get<VW980::continuous_actions::reduction_features>()
 {
   return _contact_reduction_features;
 }
 
 template <>
-inline const VW::continuous_actions::reduction_features&
-reduction_features::get<VW::continuous_actions::reduction_features>() const
+inline const VW980::continuous_actions::reduction_features&
+reduction_features::get<VW980::continuous_actions::reduction_features>() const
 {
   return _contact_reduction_features;
 }
 
 template <>
-inline simple_label_reduction_features& reduction_features::get<VW::simple_label_reduction_features>()
+inline simple_label_reduction_features& reduction_features::get<VW980::simple_label_reduction_features>()
 {
   return _simple_label_reduction_features;
 }
 
 template <>
-inline const simple_label_reduction_features& reduction_features::get<VW::simple_label_reduction_features>() const
+inline const simple_label_reduction_features& reduction_features::get<VW980::simple_label_reduction_features>() const
 {
   return _simple_label_reduction_features;
 }
 
 template <>
-inline VW::cb_explore_adf::greedy::reduction_features&
-reduction_features::get<VW::cb_explore_adf::greedy::reduction_features>()
+inline VW980::cb_explore_adf::greedy::reduction_features&
+reduction_features::get<VW980::cb_explore_adf::greedy::reduction_features>()
 {
   return _epsilon_reduction_features;
 }
 
 template <>
-inline const VW::cb_explore_adf::greedy::reduction_features&
-reduction_features::get<VW::cb_explore_adf::greedy::reduction_features>() const
+inline const VW980::cb_explore_adf::greedy::reduction_features&
+reduction_features::get<VW980::cb_explore_adf::greedy::reduction_features>() const
 {
   return _epsilon_reduction_features;
 }
 
 template <>
-inline VW::large_action_space::las_reduction_features&
-reduction_features::get<VW::large_action_space::las_reduction_features>()
+inline VW980::large_action_space::las_reduction_features&
+reduction_features::get<VW980::large_action_space::las_reduction_features>()
 {
   return _large_action_space_reduction_features;
 }
 
 template <>
-inline const VW::large_action_space::las_reduction_features&
-reduction_features::get<VW::large_action_space::las_reduction_features>() const
+inline const VW980::large_action_space::las_reduction_features&
+reduction_features::get<VW980::large_action_space::las_reduction_features>() const
 {
   return _large_action_space_reduction_features;
 }
 
 template <>
-inline VW::cb_graph_feedback::reduction_features& reduction_features::get<VW::cb_graph_feedback::reduction_features>()
+inline VW980::cb_graph_feedback::reduction_features& reduction_features::get<VW980::cb_graph_feedback::reduction_features>()
 {
   return _cb_graph_feedback_reduction_features;
 }
 
 template <>
-inline const VW::cb_graph_feedback::reduction_features&
-reduction_features::get<VW::cb_graph_feedback::reduction_features>() const
+inline const VW980::cb_graph_feedback::reduction_features&
+reduction_features::get<VW980::cb_graph_feedback::reduction_features>() const
 {
   return _cb_graph_feedback_reduction_features;
 }
-}  // namespace VW
+}  // namespace VW980
 
-using reduction_features VW_DEPRECATED("reduction_features moved into VW namespace") = VW::reduction_features;
+using reduction_features VW_DEPRECATED("reduction_features moved into VW namespace") = VW980::reduction_features;

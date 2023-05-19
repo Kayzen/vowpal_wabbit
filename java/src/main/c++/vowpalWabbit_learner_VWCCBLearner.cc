@@ -14,18 +14,18 @@ jobject decision_scores_prediction(example* vec, JNIEnv* env)
   jmethodID decision_scores_constructor =
       env->GetMethodID(decision_scores_class, "<init>", "([LvowpalWabbit/responses/ActionScores;)V");
 
-  VW::decision_scores_t decision_scores = vec->pred.decision_scores;
+  VW980::decision_scores_t decision_scores = vec->pred.decision_scores;
   size_t num_slots = decision_scores.size();
 
   jobjectArray j_action_scores_array = env->NewObjectArray(num_slots, action_scores_class, 0);
   for (uint32_t i = 0; i < num_slots; ++i)
   {
-    VW::action_scores a_s = decision_scores[i];
+    VW980::action_scores a_s = decision_scores[i];
     size_t num_values = a_s.size();
     jobjectArray j_action_score_array = env->NewObjectArray(num_values, action_score_class, 0);
     for (uint32_t j = 0; j < num_values; ++j)
     {
-      VW::action_score a = a_s[j];
+      VW980::action_score a = a_s[j];
       jobject j_action_score = env->NewObject(action_score_class, action_score_constructor, a.action, a.score);
       env->SetObjectArrayElement(j_action_score_array, j, j_action_score);
     }

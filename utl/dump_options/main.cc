@@ -17,7 +17,7 @@
 
 #include <memory>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 template <typename T>
 void add_default_value(rapidjson::Value& obj, const T& value, rapidjson::Document::AllocatorType& allocator)
@@ -122,7 +122,7 @@ struct type_info_injector : typed_option_visitor
   }
 };
 
-struct json_help_formatter : VW::config::help_formatter
+struct json_help_formatter : VW980::config::help_formatter
 {
   rapidjson::Document document;
 
@@ -183,7 +183,7 @@ struct json_help_formatter : VW::config::help_formatter
 int main(int argc, char* argv[])
 {
   std::vector<std::string> args{"--quiet"};
-  auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(args));
+  auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args));
 
   rapidjson::Document doc;
   auto& allocator = doc.GetAllocator();
@@ -193,10 +193,10 @@ int main(int argc, char* argv[])
 
   rapidjson::Value version_object(rapidjson::kObjectType);
   rapidjson::Value version_text;
-  version_text.SetString(VW::VERSION.to_string(), allocator);
+  version_text.SetString(VW980::VERSION.to_string(), allocator);
   version_object.AddMember("version", version_text, allocator);
   rapidjson::Value git_commit_text;
-  git_commit_text.SetString(VW::GIT_COMMIT, allocator);
+  git_commit_text.SetString(VW980::GIT_COMMIT, allocator);
   version_object.AddMember("git_commit", git_commit_text, allocator);
   doc.AddMember("version_info", version_object, allocator);
 

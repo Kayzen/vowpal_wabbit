@@ -17,16 +17,16 @@
 
 namespace test_helpers
 {
-void make_example(VW::multi_ex& examples, VW::workspace& vw, int arm, float* costs, float* probs)
+void make_example(VW980::multi_ex& examples, VW980::workspace& vw, int arm, float* costs, float* probs)
 {
-  examples.push_back(VW::read_example(vw, "shared | shared_f"));
+  examples.push_back(VW980::read_example(vw, "shared | shared_f"));
   for (int i = 0; i < 4; ++i)
   {
     std::stringstream str;
     if (i == arm) { str << "0:" << std::fixed << costs[i] << ":" << probs[i] << " "; }
     str << "| "
         << "arm_" << i;
-    examples.push_back(VW::read_example(vw, str.str().c_str()));
+    examples.push_back(VW980::read_example(vw, str.str().c_str()));
   }
 }
 
@@ -45,7 +45,7 @@ int sample(int size, const float* probs, float s)
 TEST(BaselineCB, BaselinePerformsBadly)
 {
   using namespace test_helpers;
-  auto vw = VW::initialize(vwtest::make_args("--cb_explore_adf", "--baseline_challenger_cb", "--quiet",
+  auto vw = VW980::initialize(vwtest::make_args("--cb_explore_adf", "--baseline_challenger_cb", "--quiet",
       "--extra_metrics", "ut_metrics.json", "--random_seed", "5"));
   float costs_p0[] = {-0.1f, -0.3f, -0.3f, -1.0f};
   float probs_p0[] = {0.05f, 0.05f, 0.05f, 0.85f};
@@ -53,8 +53,8 @@ TEST(BaselineCB, BaselinePerformsBadly)
   uint64_t state = 37;
   for (int i = 0; i < 50; ++i)
   {
-    float s = VW::details::merand48(state);
-    VW::multi_ex ex;
+    float s = VW980::details::merand48(state);
+    VW980::multi_ex ex;
 
     make_example(ex, *vw, sample(4, probs_p0, s), costs_p0, probs_p0);
     vw->learn(ex);
@@ -67,7 +67,7 @@ TEST(BaselineCB, BaselinePerformsBadly)
   // if baseline is not in use, it means the CI lower bound is smaller than the policy expectation
   EXPECT_LE(metrics.get_float("baseline_cb_baseline_lowerbound"), metrics.get_float("baseline_cb_policy_expectation"));
 
-  VW::multi_ex tst;
+  VW980::multi_ex tst;
   make_example(tst, *vw, -1, costs_p0, probs_p0);
   vw->predict(tst);
   EXPECT_EQ(tst[0]->pred.a_s.size(), 4);
@@ -80,7 +80,7 @@ TEST(BaselineCB, BaselinePerformsBadly)
 TEST(BaselineCB, BaselineTakesOverPolicy)
 {
   using namespace test_helpers;
-  auto vw = VW::initialize(vwtest::make_args("--cb_explore_adf", "--baseline_challenger_cb", "--cb_c_tau", "0.995",
+  auto vw = VW980::initialize(vwtest::make_args("--cb_explore_adf", "--baseline_challenger_cb", "--cb_c_tau", "0.995",
       "--quiet", "--power_t", "0", "-l", "0.001", "--extra_metrics", "ut_metrics.json", "--random_seed", "5"));
   float costs_p0[] = {-0.1f, -0.3f, -0.3f, -1.0f};
   float probs_p0[] = {0.05f, 0.05f, 0.05f, 0.85f};
@@ -91,8 +91,8 @@ TEST(BaselineCB, BaselineTakesOverPolicy)
   uint64_t state = 37;
   for (int i = 0; i < 500; ++i)
   {
-    float s = VW::details::merand48(state);
-    VW::multi_ex ex;
+    float s = VW980::details::merand48(state);
+    VW980::multi_ex ex;
 
     make_example(ex, *vw, sample(4, probs_p0, s), costs_p0, probs_p0);
     vw->learn(ex);
@@ -101,8 +101,8 @@ TEST(BaselineCB, BaselineTakesOverPolicy)
 
   for (int i = 0; i < 400; ++i)
   {
-    float s = VW::details::merand48(state);
-    VW::multi_ex ex;
+    float s = VW980::details::merand48(state);
+    VW980::multi_ex ex;
 
     make_example(ex, *vw, sample(4, probs_p1, s), costs_p1, probs_p1);
     vw->learn(ex);
@@ -117,7 +117,7 @@ TEST(BaselineCB, BaselineTakesOverPolicy)
   // if baseline is not in use, it means the CI lower bound is smaller than the policy expectation
   EXPECT_GT(metrics.get_float("baseline_cb_baseline_lowerbound"), metrics.get_float("baseline_cb_policy_expectation"));
 
-  VW::multi_ex tst;
+  VW980::multi_ex tst;
   make_example(tst, *vw, -1, costs_p1, probs_p1);
   vw->predict(tst);
 
@@ -128,10 +128,10 @@ TEST(BaselineCB, BaselineTakesOverPolicy)
   vw->finish_example(tst);
 }
 
-VW::metric_sink run_simulation(int steps, int switch_step)
+VW980::metric_sink run_simulation(int steps, int switch_step)
 {
   using namespace test_helpers;
-  auto vw = VW::initialize(vwtest::make_args("--cb_explore_adf", "--baseline_challenger_cb", "--quiet",
+  auto vw = VW980::initialize(vwtest::make_args("--cb_explore_adf", "--baseline_challenger_cb", "--quiet",
       "--extra_metrics", "ut_metrics.json", "--random_seed", "5"));
   float costs_p0[] = {-0.1f, -0.3f, -0.3f, -1.0f};
   float probs_p0[] = {0.05f, 0.05f, 0.05f, 0.85f};
@@ -140,16 +140,16 @@ VW::metric_sink run_simulation(int steps, int switch_step)
 
   for (int i = 0; i < steps; ++i)
   {
-    float s = VW::details::merand48(state);
-    VW::multi_ex ex;
+    float s = VW980::details::merand48(state);
+    VW980::multi_ex ex;
 
     make_example(ex, *vw, sample(4, probs_p0, s), costs_p0, probs_p0);
     vw->learn(ex);
     vw->finish_example(ex);
     if (i == switch_step)
     {
-      VW::save_predictor(*vw, "model_file.vw");
-      vw = VW::initialize(vwtest::make_args("--quiet", "--extra_metrics", "ut_metrics.json", "-i", "model_file.vw"));
+      VW980::save_predictor(*vw, "model_file.vw");
+      vw = VW980::initialize(vwtest::make_args("--quiet", "--extra_metrics", "ut_metrics.json", "-i", "model_file.vw"));
     }
   }
   auto metrics = vw->global_metrics.collect_metrics(vw->l.get());

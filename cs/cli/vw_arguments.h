@@ -16,7 +16,7 @@ using namespace System;
 using namespace System::Text;
 using namespace System::Collections::Generic;
 
-namespace VW
+namespace VW980
 {
 /// <summary>
 /// command line arguments extracted from native C++.
@@ -35,7 +35,7 @@ private:
   float m_learning_rate;
   float m_power_t;
 
-  internal : VowpalWabbitArguments(VW::workspace* vw)
+  internal : VowpalWabbitArguments(VW980::workspace* vw)
       : m_data(gcnew String(vw->data_filename.c_str()))
       , m_finalRegressor(gcnew String(vw->final_regressor_name.c_str()))
       , m_testonly(!vw->training)
@@ -50,7 +50,7 @@ private:
         m_regressors->Add(gcnew String(r.c_str()));
     }
 
-    VW::config::cli_options_serializer serializer;
+    VW980::config::cli_options_serializer serializer;
     for (auto const& option : options->get_all_options())
     {
       if (options->was_supplied(option->m_name))

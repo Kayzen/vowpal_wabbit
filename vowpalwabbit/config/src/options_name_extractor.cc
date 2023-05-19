@@ -6,7 +6,7 @@
 
 #include "vw/common/vw_exception.h"
 
-using namespace VW::config;
+using namespace VW980::config;
 
 void options_name_extractor::internal_add_and_parse(const option_group_definition& group)
 {

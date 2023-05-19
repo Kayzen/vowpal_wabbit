@@ -32,7 +32,7 @@ class search;
 class BaseTask
 {
 public:
-  BaseTask(search* _sch, VW::multi_ex& _ec) : sch(_sch), ec(_ec)
+  BaseTask(search* _sch, VW980::multi_ex& _ec) : sch(_sch), ec(_ec)
   {
     _foreach_action = nullptr;
     _post_prediction = nullptr;
@@ -70,7 +70,7 @@ public:
 
   // data
   search* sch;
-  VW::multi_ex& ec;
+  VW980::multi_ex& ec;
   bool _final_run;
   void (*_foreach_action)(search&, size_t, float, action, bool, float);
   void (*_post_prediction)(search&, size_t, action, float);
@@ -111,7 +111,7 @@ public:  // INTERFACE
 
   // change the default label parser, but you _must_ tell me how
   // to detect test examples!
-  void set_label_parser(VW::label_parser& lp, bool (*is_test)(const VW::polylabel&));
+  void set_label_parser(VW980::label_parser& lp, bool (*is_test)(const VW980::polylabel&));
 
   // for explicitly declaring a loss incrementally
   void loss(float incr_loss);
@@ -153,7 +153,7 @@ public:  // INTERFACE
   //                           it should be of length allowed_actions_cnt. only valid
   //                           if ACTION_COSTS is specified as an option.
   //   learner_id            the id for the underlying learner to use (via set_feature_width)
-  action predict(VW::example& ec, ptag my_tag, const action* oracle_actions, size_t oracle_actions_cnt = 1,
+  action predict(VW980::example& ec, ptag my_tag, const action* oracle_actions, size_t oracle_actions_cnt = 1,
       const ptag* condition_on = nullptr,
       const char* condition_on_names = nullptr  // strlen(condition_on_names) should == |condition_on|
       ,
@@ -167,7 +167,7 @@ public:  // INTERFACE
   //   * there are no more "allowed_actions" because that is implicit in the LDF
   //     example structure. additionally, allowed_actions_cost should be stored
   //     in the label structure for ecs (if ACTION_COSTS is set as an option)
-  action predictLDF(VW::example* ecs, size_t ec_cnt, ptag my_tag, const action* oracle_actions,
+  action predictLDF(VW980::example* ecs, size_t ec_cnt, ptag my_tag, const action* oracle_actions,
       size_t oracle_actions_cnt = 1, const ptag* condition_on = nullptr, const char* condition_on_names = nullptr,
       size_t learner_id = 0, float weight = 0.);
 
@@ -212,7 +212,7 @@ public:  // INTERFACE
   std::string pretty_label(action a);
 
   // for meta-tasks:
-  BaseTask base_task(VW::multi_ex& ec) { return BaseTask(this, ec); }
+  BaseTask base_task(VW980::multi_ex& ec) { return BaseTask(this, ec); }
 
   // internal data that you don't get to see!
   search_private* priv = nullptr;
@@ -221,7 +221,7 @@ public:  // INTERFACE
   const char* task_name = nullptr;
   const char* metatask_name = nullptr;
 
-  VW::workspace& get_vw_pointer_unsafe();  // although you should rarely need this, some times you need a pointer to the
+  VW980::workspace& get_vw_pointer_unsafe();  // although you should rarely need this, some times you need a pointer to the
                                            // vw data structure :(
   void set_force_oracle(bool force);       // if the library wants to force search to use the oracle, set this to true
   search();
@@ -233,26 +233,26 @@ class search_task
 {
 public:  // required
   const char* task_name;
-  void (*run)(search&, VW::multi_ex&);
+  void (*run)(search&, VW980::multi_ex&);
 
   // optional
-  void (*initialize)(search&, size_t&, VW::config::options_i&);
+  void (*initialize)(search&, size_t&, VW980::config::options_i&);
   void (*finish)(search&);
-  void (*run_setup)(search&, VW::multi_ex&);
-  void (*run_takedown)(search&, VW::multi_ex&);
+  void (*run_setup)(search&, VW980::multi_ex&);
+  void (*run_takedown)(search&, VW980::multi_ex&);
 };
 
 class search_metatask
 {
 public:  // required
   const char* metatask_name;
-  void (*run)(search&, VW::multi_ex&);
+  void (*run)(search&, VW980::multi_ex&);
 
   // optional
-  void (*initialize)(search&, size_t&, VW::config::options_i&);
+  void (*initialize)(search&, size_t&, VW980::config::options_i&);
   void (*finish)(search&);
-  void (*run_setup)(search&, VW::multi_ex&);
-  void (*run_takedown)(search&, VW::multi_ex&);
+  void (*run_setup)(search&, VW980::multi_ex&);
+  void (*run_takedown)(search&, VW980::multi_ex&);
 };
 
 // to make calls to "predict" (and "predictLDF") cleaner when you
@@ -264,13 +264,13 @@ public:
 
   // tell the predictor what to use as input. a single example input
   // means non-LDF mode; an array of inputs means LDF mode
-  predictor& set_input(VW::example& input_example);
+  predictor& set_input(VW980::example& input_example);
   predictor& set_input(
-      VW::example* input_example, size_t input_length);  // if you're lucky and have an array of examples
+      VW980::example* input_example, size_t input_length);  // if you're lucky and have an array of examples
 
   // the following is mostly to make life manageable for the Python interface
   void set_input_length(size_t input_length);                  // declare that we have an input_length-long LDF example
-  void set_input_at(size_t posn, VW::example& input_example);  // set the corresponding input (*after* set_input_length)
+  void set_input_at(size_t posn, VW980::example& input_example);  // set the corresponding input (*after* set_input_length)
 
   // different ways of adding to the list of oracle actions. you can
   // either add_ or set_; setting erases previous actions. these
@@ -285,11 +285,11 @@ public:
 
   predictor& add_oracle(action a);
   predictor& add_oracle(action* a, size_t action_count);
-  predictor& add_oracle(VW::v_array<action>& a);
+  predictor& add_oracle(VW980::v_array<action>& a);
 
   predictor& set_oracle(action a);
   predictor& set_oracle(action* a, size_t action_count);
-  predictor& set_oracle(VW::v_array<action>& a);
+  predictor& set_oracle(VW980::v_array<action>& a);
 
   predictor& set_weight(float w);
 
@@ -298,11 +298,11 @@ public:
 
   predictor& add_allowed(action a);
   predictor& add_allowed(action* a, size_t action_count);
-  predictor& add_allowed(VW::v_array<action>& a);
+  predictor& add_allowed(VW980::v_array<action>& a);
 
   predictor& set_allowed(action a);
   predictor& set_allowed(action* a, size_t action_count);
-  predictor& set_allowed(VW::v_array<action>& a);
+  predictor& set_allowed(VW980::v_array<action>& a);
 
   // set/add allowed but with per-actions costs specified
   predictor& add_allowed(action a, float cost);
@@ -334,15 +334,15 @@ public:
 private:
   bool is_ldf;
   ptag my_tag;
-  VW::example* ec;
+  VW980::example* ec;
   size_t ec_cnt;
-  std::vector<VW::example> allocated_examples;
+  std::vector<VW980::example> allocated_examples;
   float weight;
-  VW::v_array<action> oracle_actions;
-  VW::v_array<ptag> condition_on_tags;
-  VW::v_array<char> condition_on_names;
-  VW::v_array<action> allowed_actions;
-  VW::v_array<float> allowed_actions_cost;
+  VW980::v_array<action> oracle_actions;
+  VW980::v_array<ptag> condition_on_tags;
+  VW980::v_array<char> condition_on_names;
+  VW980::v_array<action> allowed_actions;
+  VW980::v_array<float> allowed_actions_cost;
   size_t learner_id;
   search& sch;
 
@@ -352,7 +352,7 @@ private:
 };
 
 // some helper functions you might find helpful
-/*template<class T> void check_option(T& ret, VW::workspace&all, po::variables_map& vm, const char* opt_name, bool
+/*template<class T> void check_option(T& ret, VW980::workspace&all, po::variables_map& vm, const char* opt_name, bool
 default_to_cmdline, bool(*equal)(T,T), const char* mismatch_error_string, const char* required_error_string) { if
 (vm.count(opt_name)) { ret = vm[opt_name].as<T>(); *all.args_n_opts.file_options << " --" << opt_name << " " << ret;
   }
@@ -363,14 +363,14 @@ default_to_cmdline, bool(*equal)(T,T), const char* mismatch_error_string, const 
   }
   }*/
 
-// void check_option(bool& ret, VW::workspace&all, po::variables_map& vm, const char* opt_name, bool default_to_cmdline,
+// void check_option(bool& ret, VW980::workspace&all, po::variables_map& vm, const char* opt_name, bool default_to_cmdline,
 // const char* mismatch_error_string);
 }  // namespace Search
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> search_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> search_setup(VW980::setup_base_i& stack_builder);
 }
-}  // namespace VW
+}  // namespace VW980

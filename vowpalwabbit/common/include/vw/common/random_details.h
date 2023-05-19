@@ -6,7 +6,7 @@
 #include <cmath>
 #include <cstdint>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -51,4 +51,4 @@ inline float merand48_boxmuller(uint64_t& index)
   return x1 * temp;
 }
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980

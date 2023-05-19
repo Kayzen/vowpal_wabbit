@@ -10,7 +10,7 @@
 #include <set>
 #include <string>
 
-namespace VW
+namespace VW980
 {
 class metric_sink;
 class metric_sink_visitor
@@ -35,7 +35,7 @@ public:
 
   uint64_t get_uint(const std::string& key) const;
   float get_float(const std::string& key) const;
-  VW::string_view get_string(const std::string& key) const;
+  VW980::string_view get_string(const std::string& key) const;
   bool get_bool(const std::string& key) const;
   metric_sink get_metric_sink(const std::string& key) const;
 
@@ -50,4 +50,4 @@ private:
   std::map<std::string, bool> _bool_metrics;
   std::map<std::string, metric_sink> _metric_sink_metrics;
 };
-}  // namespace VW
+}  // namespace VW980

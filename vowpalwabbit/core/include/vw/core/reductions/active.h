@@ -9,23 +9,23 @@
 
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
 class active
 {
 public:
-  active(float active_c0, VW::workspace* all) : active_c0(active_c0), _all(all) {}
+  active(float active_c0, VW980::workspace* all) : active_c0(active_c0), _all(all) {}
 
   float active_c0;
-  VW::workspace* _all = nullptr;
+  VW980::workspace* _all = nullptr;
 
   float _min_seen_label = 0.f;
   float _max_seen_label = 1.f;
-  VW::version_struct _model_version;
+  VW980::version_struct _model_version;
 };
 
-std::shared_ptr<VW::LEARNER::learner> active_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> active_setup(VW980::setup_base_i& stack_builder);
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

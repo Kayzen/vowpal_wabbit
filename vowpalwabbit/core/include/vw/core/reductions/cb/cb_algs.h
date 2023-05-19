@@ -14,30 +14,30 @@
 
 #include <cfloat>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
 // TODO: extend to handle CSOAA_LDF and WAP_LDF
-std::shared_ptr<VW::LEARNER::learner> cb_algs_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> cb_algs_setup(VW980::setup_base_i& stack_builder);
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980
 
-// TODO: Move these functions either into a CB-related lib in VW:: or under VW::reductions::
-namespace VW
+// TODO: Move these functions either into a CB-related lib in VW980:: or under VW980::reductions::
+namespace VW980
 {
 template <bool is_learn>
 float get_cost_pred(
-    VW::LEARNER::learner* scorer, const VW::cb_class& known_cost, VW::example& ec, uint32_t index, uint32_t base)
+    VW980::LEARNER::learner* scorer, const VW980::cb_class& known_cost, VW980::example& ec, uint32_t index, uint32_t base)
 {
   VW_DBG(ec) << "get_cost_pred:" << is_learn << std::endl;
 
-  VW::simple_label simple_temp;
+  VW980::simple_label simple_temp;
   if (index == known_cost.action) { simple_temp.label = known_cost.cost; }
   else { simple_temp.label = FLT_MAX; }
 
-  const bool baseline_enabled_old = VW::reductions::baseline::baseline_enabled(&ec);
-  VW::reductions::baseline::set_baseline_enabled(&ec);
+  const bool baseline_enabled_old = VW980::reductions::baseline::baseline_enabled(&ec);
+  VW980::reductions::baseline::set_baseline_enabled(&ec);
   ec.l.simple = simple_temp;
   bool learn = is_learn && index == known_cost.action;
 
@@ -50,20 +50,20 @@ float get_cost_pred(
   }
   else { scorer->predict(ec, index - 1 + base); }
 
-  if (!baseline_enabled_old) { VW::reductions::baseline::reset_baseline_disabled(&ec); }
+  if (!baseline_enabled_old) { VW980::reductions::baseline::reset_baseline_disabled(&ec); }
   float pred = ec.pred.scalar;
   return pred;
 }
 
 // IPS estimate
-inline float get_cost_estimate(const VW::cb_class& observation, uint32_t action, float offset = 0.)
+inline float get_cost_estimate(const VW980::cb_class& observation, uint32_t action, float offset = 0.)
 {
   if (action == observation.action) { return (observation.cost - offset) / observation.probability; }
   return 0.;
 }
 
 // doubly robust estimate
-inline float get_cost_estimate(const VW::cb_class& observation, const VW::cs_label& scores, uint32_t action)
+inline float get_cost_estimate(const VW980::cb_class& observation, const VW980::cs_label& scores, uint32_t action)
 {
   for (auto& cl : scores.costs)
   {
@@ -74,7 +74,7 @@ inline float get_cost_estimate(const VW::cb_class& observation, const VW::cs_lab
 }
 
 // IPS
-inline float get_cost_estimate(const VW::cb_label& ld, uint32_t action)
+inline float get_cost_estimate(const VW980::cb_label& ld, uint32_t action)
 {
   for (auto& cl : ld.costs)
   {
@@ -84,57 +84,57 @@ inline float get_cost_estimate(const VW::cb_label& ld, uint32_t action)
 }
 
 // doubly robust estimate
-inline float get_cost_estimate(const VW::action_score& a_s, float cost, uint32_t action, float offset = 0.)
+inline float get_cost_estimate(const VW980::action_score& a_s, float cost, uint32_t action, float offset = 0.)
 {
   if (action == a_s.action) { return (cost - offset) / a_s.score; }
   return 0.;
 }
 
-inline bool example_is_newline_not_header_cb(VW::example const& ec)
+inline bool example_is_newline_not_header_cb(VW980::example const& ec)
 {
-  return (VW::example_is_newline(ec) && !VW::ec_is_example_header_cb(ec));
+  return (VW980::example_is_newline(ec) && !VW980::ec_is_example_header_cb(ec));
 }
-}  // namespace VW
+}  // namespace VW980
 
 namespace CB_ALGS  // NOLINT
 {
 template <bool is_learn>
 VW_DEPRECATED("Moved into VW namespace.")
 float get_cost_pred(
-    VW::LEARNER::learner* scorer, const VW::cb_class& known_cost, VW::example& ec, uint32_t index, uint32_t base)
+    VW980::LEARNER::learner* scorer, const VW980::cb_class& known_cost, VW980::example& ec, uint32_t index, uint32_t base)
 {
-  return VW::get_cost_pred<is_learn>(scorer, known_cost, ec, index, base);
+  return VW980::get_cost_pred<is_learn>(scorer, known_cost, ec, index, base);
 }
 
 // IPS estimate
 VW_DEPRECATED("Moved into VW namespace.")
-inline float get_cost_estimate(const VW::cb_class& observation, uint32_t action, float offset = 0.)
+inline float get_cost_estimate(const VW980::cb_class& observation, uint32_t action, float offset = 0.)
 {
-  return VW::get_cost_estimate(observation, action, offset);
+  return VW980::get_cost_estimate(observation, action, offset);
 }
 
 // doubly robust estimate
 VW_DEPRECATED("Moved into VW namespace.")
-inline float get_cost_estimate(const VW::cb_class& observation, const VW::cs_label& scores, uint32_t action)
+inline float get_cost_estimate(const VW980::cb_class& observation, const VW980::cs_label& scores, uint32_t action)
 {
-  return VW::get_cost_estimate(observation, scores, action);
+  return VW980::get_cost_estimate(observation, scores, action);
 }
 
 // IPS
-VW_DEPRECATED("Moved into VW namespace.") inline float get_cost_estimate(const VW::cb_label& ld, uint32_t action)
+VW_DEPRECATED("Moved into VW namespace.") inline float get_cost_estimate(const VW980::cb_label& ld, uint32_t action)
 {
-  return VW::get_cost_estimate(ld, action);
+  return VW980::get_cost_estimate(ld, action);
 }
 
 // doubly robust estimate
 VW_DEPRECATED("Moved into VW namespace.")
-inline float get_cost_estimate(const VW::action_score& a_s, float cost, uint32_t action, float offset = 0.)
+inline float get_cost_estimate(const VW980::action_score& a_s, float cost, uint32_t action, float offset = 0.)
 {
-  return VW::get_cost_estimate(a_s, cost, action, offset);
+  return VW980::get_cost_estimate(a_s, cost, action, offset);
 }
 
-VW_DEPRECATED("Moved into VW namespace.") inline bool example_is_newline_not_header(VW::example const& ec)
+VW_DEPRECATED("Moved into VW namespace.") inline bool example_is_newline_not_header(VW980::example const& ec)
 {
-  return VW::example_is_newline_not_header_cb(ec);
+  return VW980::example_is_newline_not_header_cb(ec);
 }
 }  // namespace CB_ALGS

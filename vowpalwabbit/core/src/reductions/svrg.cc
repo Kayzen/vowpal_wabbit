@@ -19,8 +19,8 @@
 #include <cassert>
 #include <iostream>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
@@ -38,12 +38,12 @@ public:
   // calculation.
 
   // The VW process' global state.
-  VW::workspace* all = nullptr;
+  VW980::workspace* all = nullptr;
 
-  svrg(VW::workspace* all) : all(all) {}
+  svrg(VW980::workspace* all) : all(all) {}
 };
 
-// Mimic VW::inline_predict but with offset for predicting with either
+// Mimic VW980::inline_predict but with offset for predicting with either
 // stable versus inner weights.
 
 template <int offset>
@@ -54,28 +54,28 @@ inline void vec_add(float& p, const float x, float& w)
 }
 
 template <int offset>
-inline float inline_predict(VW::workspace& all, VW::example& ec)
+inline float inline_predict(VW980::workspace& all, VW980::example& ec)
 {
-  const auto& simple_red_features = ec.ex_reduction_features.template get<VW::simple_label_reduction_features>();
+  const auto& simple_red_features = ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>();
   float acc = simple_red_features.initial;
-  VW::foreach_feature<float, vec_add<offset> >(all, ec, acc);
+  VW980::foreach_feature<float, vec_add<offset> >(all, ec, acc);
   return acc;
 }
 
 // -- Prediction, using inner vs. stable weights --
 
-float predict_stable(const svrg& s, VW::example& ec)
+float predict_stable(const svrg& s, VW980::example& ec)
 {
-  return VW::details::finalize_prediction(*s.all->sd, s.all->logger, inline_predict<W_STABLE>(*s.all, ec));
+  return VW980::details::finalize_prediction(*s.all->sd, s.all->logger, inline_predict<W_STABLE>(*s.all, ec));
 }
 
-void predict(svrg& s, VW::example& ec)
+void predict(svrg& s, VW980::example& ec)
 {
   ec.partial_prediction = inline_predict<W_INNER>(*s.all, ec);
-  ec.pred.scalar = VW::details::finalize_prediction(*s.all->sd, s.all->logger, ec.partial_prediction);
+  ec.pred.scalar = VW980::details::finalize_prediction(*s.all->sd, s.all->logger, ec.partial_prediction);
 }
 
-float gradient_scalar(const svrg& s, const VW::example& ec, float pred)
+float gradient_scalar(const svrg& s, const VW980::example& ec, float pred)
 {
   return s.all->loss->first_derivative(s.all->sd.get(), pred, ec.l.simple.label) * ec.weight;
 }
@@ -103,7 +103,7 @@ inline void update_stable_feature(float& g_scalar, float x, float& w)
   ws[W_STABLEGRAD] += g_scalar * x;
 }
 
-void update_inner(const svrg& s, VW::example& ec)
+void update_inner(const svrg& s, VW980::example& ec)
 {
   update u;
   // |ec| already has prediction according to inner weights.
@@ -111,16 +111,16 @@ void update_inner(const svrg& s, VW::example& ec)
   u.g_scalar_stable = gradient_scalar(s, ec, predict_stable(s, ec));
   u.eta = s.all->eta;
   u.norm = static_cast<float>(s.stable_grad_count);
-  VW::foreach_feature<update, update_inner_feature>(*s.all, ec, u);
+  VW980::foreach_feature<update, update_inner_feature>(*s.all, ec, u);
 }
 
-void update_stable(const svrg& s, VW::example& ec)
+void update_stable(const svrg& s, VW980::example& ec)
 {
   float g = gradient_scalar(s, ec, predict_stable(s, ec));
-  VW::foreach_feature<float, update_stable_feature>(*s.all, ec, g);
+  VW980::foreach_feature<float, update_stable_feature>(*s.all, ec, g);
 }
 
-void learn(svrg& s, VW::example& ec)
+void learn(svrg& s, VW980::example& ec)
 {
   predict(s, ec);
 
@@ -131,11 +131,11 @@ void learn(svrg& s, VW::example& ec)
     if (s.prev_pass != pass && !s.all->quiet)
     {
       *(s.all->trace_message) << "svrg pass " << pass << ": committing stable point" << std::endl;
-      for (uint32_t j = 0; j < VW::num_weights(*s.all); j++)
+      for (uint32_t j = 0; j < VW980::num_weights(*s.all); j++)
       {
-        float w = VW::get_weight(*s.all, j, W_INNER);
-        VW::set_weight(*s.all, j, W_STABLE, w);
-        VW::set_weight(*s.all, j, W_STABLEGRAD, 0.f);
+        float w = VW980::get_weight(*s.all, j, W_INNER);
+        VW980::set_weight(*s.all, j, W_STABLE, w);
+        VW980::set_weight(*s.all, j, W_STABLEGRAD, 0.f);
       }
       s.stable_grad_count = 0;
       *(s.all->trace_message) << "svrg pass " << pass << ": computing exact gradient" << std::endl;
@@ -155,30 +155,30 @@ void learn(svrg& s, VW::example& ec)
   s.prev_pass = pass;
 }
 
-void save_load(svrg& s, VW::io_buf& model_file, bool read, bool text)
+void save_load(svrg& s, VW980::io_buf& model_file, bool read, bool text)
 {
-  if (read) { VW::details::initialize_regressor(*s.all); }
+  if (read) { VW980::details::initialize_regressor(*s.all); }
 
   if (model_file.num_files() != 0)
   {
     bool resume = s.all->save_resume;
     std::stringstream msg;
     msg << ":" << resume << "\n";
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&resume), sizeof(resume), read, msg, text);
 
-    std::vector<VW::reductions::details::gd_per_model_state> temp_pms = {VW::reductions::details::gd_per_model_state()};
-    if (resume) { VW::details::save_load_online_state_gd(*s.all, model_file, read, text, temp_pms); }
-    else { VW::details::save_load_regressor_gd(*s.all, model_file, read, text); }
+    std::vector<VW980::reductions::details::gd_per_model_state> temp_pms = {VW980::reductions::details::gd_per_model_state()};
+    if (resume) { VW980::details::save_load_online_state_gd(*s.all, model_file, read, text, temp_pms); }
+    else { VW980::details::save_load_regressor_gd(*s.all, model_file, read, text); }
   }
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::svrg_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::svrg_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto s = VW::make_unique<svrg>(&all);
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto s = VW980::make_unique<svrg>(&all);
 
   bool svrg_option = false;
   option_group_definition new_options("[Reduction] Stochastic Variance Reduced Gradient");
@@ -191,10 +191,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::svrg_setup(VW::setup_base_
   // Request more parameter storage (4 floats per feature)
   all.weights.stride_shift(2);
   auto l = make_bottom_learner(std::move(s), learn, predict, stack_builder.get_setupfn_name(svrg_setup),
-      VW::prediction_type_t::SCALAR, VW::label_type_t::SIMPLE)
-               .set_output_example_prediction(VW::details::output_example_prediction_simple_label<svrg>)
-               .set_update_stats(VW::details::update_stats_simple_label<svrg>)
-               .set_print_update(VW::details::print_update_simple_label<svrg>)
+      VW980::prediction_type_t::SCALAR, VW980::label_type_t::SIMPLE)
+               .set_output_example_prediction(VW980::details::output_example_prediction_simple_label<svrg>)
+               .set_update_stats(VW980::details::update_stats_simple_label<svrg>)
+               .set_print_update(VW980::details::print_update_simple_label<svrg>)
                .set_save_load(save_load)
                .build();
   return l;

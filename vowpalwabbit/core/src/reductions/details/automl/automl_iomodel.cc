@@ -6,7 +6,7 @@
 #include "vw/core/estimators/confidence_sequence_robust.h"
 #include "vw/core/model_utils.h"
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
@@ -19,11 +19,11 @@ void aml_estimator<estimator_impl>::persist(metric_sink& metrics, const std::str
   metrics.set_uint("conf_idx" + suffix, config_index);
   if (verbose)
   {
-    metrics.set_string("interactions" + suffix, VW::reductions::util::interaction_vec_t_to_string(live_interactions));
+    metrics.set_string("interactions" + suffix, VW980::reductions::util::interaction_vec_t_to_string(live_interactions));
   }
 }
 
-template class aml_estimator<VW::estimators::confidence_sequence_robust>;
+template class aml_estimator<VW980::estimators::confidence_sequence_robust>;
 
 template <typename config_oracle_impl, typename estimator_impl>
 void interaction_config_manager<config_oracle_impl, estimator_impl>::persist(metric_sink& metrics, bool verbose)
@@ -33,15 +33,15 @@ void interaction_config_manager<config_oracle_impl, estimator_impl>::persist(met
   for (uint64_t live_slot = 0; live_slot < estimators.size(); ++live_slot)
   {
     auto live_slot_key = "estimator_" + std::to_string(live_slot);
-    VW::metric_sink nested_metrics;
+    VW980::metric_sink nested_metrics;
 
-    VW::metric_sink self_metrics;
+    VW980::metric_sink self_metrics;
     estimators[live_slot].first.persist(self_metrics, "", verbose);
     nested_metrics.set_metric_sink("self", std::move(self_metrics));
 
     if (live_slot != 0)  // champ config technically does not have a champ to compare to
     {
-      VW::metric_sink respective_champ_metrics;
+      VW980::metric_sink respective_champ_metrics;
       estimators[live_slot].second.persist(respective_champ_metrics, "");
       nested_metrics.set_metric_sink("sync_champ", std::move(respective_champ_metrics));
     }
@@ -49,7 +49,7 @@ void interaction_config_manager<config_oracle_impl, estimator_impl>::persist(met
     if (verbose)
     {
       auto& elements = _config_oracle.configs[estimators[live_slot].first.config_index].elements;
-      nested_metrics.set_string("elements", VW::reductions::util::elements_to_string(elements));
+      nested_metrics.set_string("elements", VW980::reductions::util::elements_to_string(elements));
     }
     if (_config_oracle.configs[estimators[live_slot].first.config_index].conf_type == config_type::Exclusion)
     {
@@ -65,18 +65,18 @@ void interaction_config_manager<config_oracle_impl, estimator_impl>::persist(met
   metrics.set_uint("total_champ_switches", total_champ_switches);
 }
 
-template class interaction_config_manager<config_oracle<oracle_rand_impl>, VW::estimators::confidence_sequence_robust>;
-template class interaction_config_manager<config_oracle<one_diff_impl>, VW::estimators::confidence_sequence_robust>;
-template class interaction_config_manager<config_oracle<champdupe_impl>, VW::estimators::confidence_sequence_robust>;
+template class interaction_config_manager<config_oracle<oracle_rand_impl>, VW980::estimators::confidence_sequence_robust>;
+template class interaction_config_manager<config_oracle<one_diff_impl>, VW980::estimators::confidence_sequence_robust>;
+template class interaction_config_manager<config_oracle<champdupe_impl>, VW980::estimators::confidence_sequence_robust>;
 template class interaction_config_manager<config_oracle<one_diff_inclusion_impl>,
-    VW::estimators::confidence_sequence_robust>;
-template class interaction_config_manager<config_oracle<qbase_cubic>, VW::estimators::confidence_sequence_robust>;
+    VW980::estimators::confidence_sequence_robust>;
+template class interaction_config_manager<config_oracle<qbase_cubic>, VW980::estimators::confidence_sequence_robust>;
 }  // namespace automl
 }  // namespace reductions
 
 namespace model_utils
 {
-size_t read_model_field(io_buf& io, VW::reductions::automl::ns_based_config& ec)
+size_t read_model_field(io_buf& io, VW980::reductions::automl::ns_based_config& ec)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, ec.elements);
@@ -87,7 +87,7 @@ size_t read_model_field(io_buf& io, VW::reductions::automl::ns_based_config& ec)
 }
 
 size_t write_model_field(
-    io_buf& io, const VW::reductions::automl::ns_based_config& config, const std::string& upstream_name, bool text)
+    io_buf& io, const VW980::reductions::automl::ns_based_config& config, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, config.elements, upstream_name + "_exclusions", text);
@@ -98,7 +98,7 @@ size_t write_model_field(
 }
 
 template <typename estimator_impl>
-size_t read_model_field(io_buf& io, VW::reductions::automl::aml_estimator<estimator_impl>& amls)
+size_t read_model_field(io_buf& io, VW980::reductions::automl::aml_estimator<estimator_impl>& amls)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, reinterpret_cast<estimator_impl&>(amls));
@@ -108,7 +108,7 @@ size_t read_model_field(io_buf& io, VW::reductions::automl::aml_estimator<estima
 }
 
 template <typename estimator_impl>
-size_t write_model_field(io_buf& io, const VW::reductions::automl::aml_estimator<estimator_impl>& amls,
+size_t write_model_field(io_buf& io, const VW980::reductions::automl::aml_estimator<estimator_impl>& amls,
     const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
@@ -120,7 +120,7 @@ size_t write_model_field(io_buf& io, const VW::reductions::automl::aml_estimator
 
 template <typename config_oracle_impl, typename estimator_impl>
 size_t read_model_field(
-    io_buf& io, VW::reductions::automl::interaction_config_manager<config_oracle_impl, estimator_impl>& cm)
+    io_buf& io, VW980::reductions::automl::interaction_config_manager<config_oracle_impl, estimator_impl>& cm)
 {
   cm.estimators.clear();
   cm._config_oracle.configs.clear();
@@ -145,7 +145,7 @@ size_t read_model_field(
 
 template <typename config_oracle_impl, typename estimator_impl>
 size_t write_model_field(io_buf& io,
-    const VW::reductions::automl::interaction_config_manager<config_oracle_impl, estimator_impl>& cm,
+    const VW980::reductions::automl::interaction_config_manager<config_oracle_impl, estimator_impl>& cm,
     const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
@@ -161,7 +161,7 @@ size_t write_model_field(io_buf& io,
 }
 
 template <typename CMType>
-size_t read_model_field(io_buf& io, VW::reductions::automl::automl<CMType>& aml)
+size_t read_model_field(io_buf& io, VW980::reductions::automl::automl<CMType>& aml)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, aml.current_state);
@@ -170,29 +170,29 @@ size_t read_model_field(io_buf& io, VW::reductions::automl::automl<CMType>& aml)
 }
 
 template size_t read_model_field(io_buf&,
-    VW::reductions::automl::automl<VW::reductions::automl::interaction_config_manager<
-        VW::reductions::automl::config_oracle<VW::reductions::automl::oracle_rand_impl>,
-        VW::estimators::confidence_sequence_robust>>&);
+    VW980::reductions::automl::automl<VW980::reductions::automl::interaction_config_manager<
+        VW980::reductions::automl::config_oracle<VW980::reductions::automl::oracle_rand_impl>,
+        VW980::estimators::confidence_sequence_robust>>&);
 template size_t read_model_field(io_buf&,
-    VW::reductions::automl::automl<VW::reductions::automl::interaction_config_manager<
-        VW::reductions::automl::config_oracle<VW::reductions::automl::one_diff_impl>,
-        VW::estimators::confidence_sequence_robust>>&);
+    VW980::reductions::automl::automl<VW980::reductions::automl::interaction_config_manager<
+        VW980::reductions::automl::config_oracle<VW980::reductions::automl::one_diff_impl>,
+        VW980::estimators::confidence_sequence_robust>>&);
 template size_t read_model_field(io_buf&,
-    VW::reductions::automl::automl<VW::reductions::automl::interaction_config_manager<
-        VW::reductions::automl::config_oracle<VW::reductions::automl::champdupe_impl>,
-        VW::estimators::confidence_sequence_robust>>&);
+    VW980::reductions::automl::automl<VW980::reductions::automl::interaction_config_manager<
+        VW980::reductions::automl::config_oracle<VW980::reductions::automl::champdupe_impl>,
+        VW980::estimators::confidence_sequence_robust>>&);
 template size_t read_model_field(io_buf&,
-    VW::reductions::automl::automl<VW::reductions::automl::interaction_config_manager<
-        VW::reductions::automl::config_oracle<VW::reductions::automl::one_diff_inclusion_impl>,
-        VW::estimators::confidence_sequence_robust>>&);
+    VW980::reductions::automl::automl<VW980::reductions::automl::interaction_config_manager<
+        VW980::reductions::automl::config_oracle<VW980::reductions::automl::one_diff_inclusion_impl>,
+        VW980::estimators::confidence_sequence_robust>>&);
 template size_t read_model_field(io_buf&,
-    VW::reductions::automl::automl<VW::reductions::automl::interaction_config_manager<
-        VW::reductions::automl::config_oracle<VW::reductions::automl::qbase_cubic>,
-        VW::estimators::confidence_sequence_robust>>&);
+    VW980::reductions::automl::automl<VW980::reductions::automl::interaction_config_manager<
+        VW980::reductions::automl::config_oracle<VW980::reductions::automl::qbase_cubic>,
+        VW980::estimators::confidence_sequence_robust>>&);
 
 template <typename CMType>
 size_t write_model_field(
-    io_buf& io, const VW::reductions::automl::automl<CMType>& aml, const std::string& upstream_name, bool text)
+    io_buf& io, const VW980::reductions::automl::automl<CMType>& aml, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, aml.current_state, upstream_name + "_state", text);
@@ -201,34 +201,34 @@ size_t write_model_field(
 }
 
 template size_t write_model_field(io_buf&,
-    const VW::reductions::automl::automl<VW::reductions::automl::interaction_config_manager<
-        VW::reductions::automl::config_oracle<VW::reductions::automl::oracle_rand_impl>,
-        VW::estimators::confidence_sequence_robust>>&,
+    const VW980::reductions::automl::automl<VW980::reductions::automl::interaction_config_manager<
+        VW980::reductions::automl::config_oracle<VW980::reductions::automl::oracle_rand_impl>,
+        VW980::estimators::confidence_sequence_robust>>&,
     const std::string&, bool);
 template size_t write_model_field(io_buf&,
-    const VW::reductions::automl::automl<VW::reductions::automl::interaction_config_manager<
-        VW::reductions::automl::config_oracle<VW::reductions::automl::one_diff_impl>,
-        VW::estimators::confidence_sequence_robust>>&,
+    const VW980::reductions::automl::automl<VW980::reductions::automl::interaction_config_manager<
+        VW980::reductions::automl::config_oracle<VW980::reductions::automl::one_diff_impl>,
+        VW980::estimators::confidence_sequence_robust>>&,
     const std::string&, bool);
 template size_t write_model_field(io_buf&,
-    const VW::reductions::automl::automl<VW::reductions::automl::interaction_config_manager<
-        VW::reductions::automl::config_oracle<VW::reductions::automl::champdupe_impl>,
-        VW::estimators::confidence_sequence_robust>>&,
+    const VW980::reductions::automl::automl<VW980::reductions::automl::interaction_config_manager<
+        VW980::reductions::automl::config_oracle<VW980::reductions::automl::champdupe_impl>,
+        VW980::estimators::confidence_sequence_robust>>&,
     const std::string&, bool);
 template size_t write_model_field(io_buf&,
-    const VW::reductions::automl::automl<VW::reductions::automl::interaction_config_manager<
-        VW::reductions::automl::config_oracle<VW::reductions::automl::one_diff_inclusion_impl>,
-        VW::estimators::confidence_sequence_robust>>&,
+    const VW980::reductions::automl::automl<VW980::reductions::automl::interaction_config_manager<
+        VW980::reductions::automl::config_oracle<VW980::reductions::automl::one_diff_inclusion_impl>,
+        VW980::estimators::confidence_sequence_robust>>&,
     const std::string&, bool);
 template size_t write_model_field(io_buf&,
-    const VW::reductions::automl::automl<VW::reductions::automl::interaction_config_manager<
-        VW::reductions::automl::config_oracle<VW::reductions::automl::qbase_cubic>,
-        VW::estimators::confidence_sequence_robust>>&,
+    const VW980::reductions::automl::automl<VW980::reductions::automl::interaction_config_manager<
+        VW980::reductions::automl::config_oracle<VW980::reductions::automl::qbase_cubic>,
+        VW980::estimators::confidence_sequence_robust>>&,
     const std::string&, bool);
 
 }  // namespace model_utils
 
-VW::string_view to_string(reductions::automl::automl_state state)
+VW980::string_view to_string(reductions::automl::automl_state state)
 {
   switch (state)
   {
@@ -240,7 +240,7 @@ VW::string_view to_string(reductions::automl::automl_state state)
   return "unknown";
 }
 
-VW::string_view to_string(reductions::automl::config_type conf_type)
+VW980::string_view to_string(reductions::automl::config_type conf_type)
 {
   switch (conf_type)
   {
@@ -254,7 +254,7 @@ VW::string_view to_string(reductions::automl::config_type conf_type)
   return "unknown";
 }
 
-VW::string_view to_string(reductions::automl::config_state state)
+VW980::string_view to_string(reductions::automl::config_state state)
 {
   switch (state)
   {
@@ -271,4 +271,4 @@ VW::string_view to_string(reductions::automl::config_state state)
   assert(false);
   return "unknown";
 }
-}  // namespace VW
+}  // namespace VW980

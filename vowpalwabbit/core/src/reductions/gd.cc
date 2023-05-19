@@ -42,8 +42,8 @@
 #define VW_DEBUG_LOG vw_dbg::GD
 #include "vw/io/logger.h"
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
@@ -65,8 +65,8 @@ void merge_weights_simple(size_t length, const std::vector<std::reference_wrappe
 }
 
 void merge_weights_with_save_resume(size_t length,
-    const std::vector<std::reference_wrapper<const VW::dense_parameters>>& source,
-    const std::vector<float>& /*per_model_weighting*/, VW::workspace& output_workspace, VW::dense_parameters& weights)
+    const std::vector<std::reference_wrapper<const VW980::dense_parameters>>& source,
+    const std::vector<float>& /*per_model_weighting*/, VW980::workspace& output_workspace, VW980::dense_parameters& weights)
 {
   // Adaptive totals
   std::vector<float> adaptive_totals(length, 0.f);
@@ -76,13 +76,13 @@ void merge_weights_with_save_resume(size_t length,
     for (size_t i = 0; i < length; i++) { adaptive_totals[i] += (&(this_model[i << weights.stride_shift()]))[1]; }
   }
 
-  std::vector<VW::dense_parameters> weight_copies;
+  std::vector<VW980::dense_parameters> weight_copies;
   weight_copies.reserve(source.size());
   for (auto i : source)
   {
     // There is no copy constructor for weights, so we have to copy manually.
-    weight_copies.emplace_back(VW::dense_parameters::deep_copy(i));
-    VW::details::do_weighting(output_workspace.normalized_idx, length, adaptive_totals.data(), weight_copies.back());
+    weight_copies.emplace_back(VW980::dense_parameters::deep_copy(i));
+    VW980::details::do_weighting(output_workspace.normalized_idx, length, adaptive_totals.data(), weight_copies.back());
   }
 
   // Weights have already been reweighted, so just accumulate.
@@ -108,7 +108,7 @@ void subtract_weights(WeightsT& dest, const WeightsT& lhs, const WeightsT& rhs, 
   for (size_t i = 0; i < full_weights_size; i++) { dest[i] = lhs[i] - rhs[i]; }
 }
 
-void sync_weights(VW::workspace& all)
+void sync_weights(VW980::workspace& all)
 {
   // todo, fix length dependence
   if (all.sd->gravity == 0. && all.sd->contraction == 1.)
@@ -118,16 +118,16 @@ void sync_weights(VW::workspace& all)
 
   if (all.weights.sparse)
   {
-    for (VW::weight& w : all.weights.sparse_weights)
+    for (VW980::weight& w : all.weights.sparse_weights)
     {
-      w = VW::trunc_weight(w, static_cast<float>(all.sd->gravity)) * static_cast<float>(all.sd->contraction);
+      w = VW980::trunc_weight(w, static_cast<float>(all.sd->gravity)) * static_cast<float>(all.sd->contraction);
     }
   }
   else
   {
-    for (VW::weight& w : all.weights.dense_weights)
+    for (VW980::weight& w : all.weights.dense_weights)
     {
-      w = VW::trunc_weight(w, static_cast<float>(all.sd->gravity)) * static_cast<float>(all.sd->contraction);
+      w = VW980::trunc_weight(w, static_cast<float>(all.sd->gravity)) * static_cast<float>(all.sd->contraction);
     }
   }
 
@@ -183,7 +183,7 @@ VW_WARNING_DISABLE_COND_CONST_EXPR
 template <bool sqrt_rate, bool feature_mask_off, size_t adaptive, size_t normalized, size_t spare>
 inline void update_feature(float& update, float x, float& fw)
 {
-  VW::weight* w = &fw;
+  VW980::weight* w = &fw;
   bool modify = x < FLT_MAX && x > -FLT_MAX && (feature_mask_off || fw != 0.);
   if (modify)
   {
@@ -210,52 +210,52 @@ float average_update(float total_weight, float normalized_sum_norm_x, float neg_
 }
 
 template <bool sqrt_rate, bool feature_mask_off, size_t adaptive, size_t normalized, size_t spare>
-void train(VW::reductions::gd& g, VW::example& ec, float update)
+void train(VW980::reductions::gd& g, VW980::example& ec, float update)
 {
   if VW_STD17_CONSTEXPR (normalized != 0) { update *= g.update_multiplier; }
   VW_DBG(ec) << "gd: train() spare=" << spare << std::endl;
-  VW::foreach_feature<float, update_feature<sqrt_rate, feature_mask_off, adaptive, normalized, spare>>(
+  VW980::foreach_feature<float, update_feature<sqrt_rate, feature_mask_off, adaptive, normalized, spare>>(
       *g.all, ec, update);
 }
 
-void end_pass(VW::reductions::gd& g)
+void end_pass(VW980::reductions::gd& g)
 {
-  VW::workspace& all = *g.all;
+  VW980::workspace& all = *g.all;
 
   if (!all.save_resume) { sync_weights(all); }
 
   if (all.all_reduce != nullptr)
   {
-    if (all.weights.adaptive) { VW::details::accumulate_weighted_avg(all, all.weights); }
-    else { VW::details::accumulate_avg(all, all.weights, 0); }
+    if (all.weights.adaptive) { VW980::details::accumulate_weighted_avg(all, all.weights); }
+    else { VW980::details::accumulate_avg(all, all.weights, 0); }
   }
   all.eta *= all.eta_decay_rate;
-  if (all.save_per_pass) { VW::details::save_predictor(all, all.final_regressor_name, all.current_pass); }
+  if (all.save_per_pass) { VW980::details::save_predictor(all, all.final_regressor_name, all.current_pass); }
 
   if (!all.holdout_set_off)
   {
-    if (VW::details::summarize_holdout_set(all, g.no_win_counter))
+    if (VW980::details::summarize_holdout_set(all, g.no_win_counter))
     {
-      VW::details::finalize_regressor(all, all.final_regressor_name);
+      VW980::details::finalize_regressor(all, all.final_regressor_name);
     }
     if ((g.early_stop_thres == g.no_win_counter) &&
         ((all.check_holdout_every_n_passes <= 1) || ((all.current_pass % all.check_holdout_every_n_passes) == 0)))
     {
-      VW::details::set_done(all);
+      VW980::details::set_done(all);
     }
   }
 }
 
-void merge(const std::vector<float>& per_model_weighting, const std::vector<const VW::workspace*>& all_workspaces,
-    const std::vector<const VW::reductions::gd*>& all_data, VW::workspace& output_workspace,
-    VW::reductions::gd& output_data)
+void merge(const std::vector<float>& per_model_weighting, const std::vector<const VW980::workspace*>& all_workspaces,
+    const std::vector<const VW980::reductions::gd*>& all_data, VW980::workspace& output_workspace,
+    VW980::reductions::gd& output_data)
 {
   const size_t length = static_cast<size_t>(1) << output_workspace.num_bits;
 
   // Weight aggregation is based on same method as allreduce.
   if (output_workspace.weights.sparse)
   {
-    std::vector<std::reference_wrapper<const VW::sparse_parameters>> source;
+    std::vector<std::reference_wrapper<const VW980::sparse_parameters>> source;
     source.reserve(all_workspaces.size());
     for (const auto* workspace : all_workspaces) { source.emplace_back(workspace->weights.sparse_weights); }
     if (output_workspace.weights.adaptive) { THROW("Sparse parameters not supported for merging with save_resume"); }
@@ -263,7 +263,7 @@ void merge(const std::vector<float>& per_model_weighting, const std::vector<cons
   }
   else
   {
-    std::vector<std::reference_wrapper<const VW::dense_parameters>> source;
+    std::vector<std::reference_wrapper<const VW980::dense_parameters>> source;
     source.reserve(all_workspaces.size());
     for (const auto* workspace : all_workspaces) { source.emplace_back(workspace->weights.dense_weights); }
     if (output_workspace.weights.adaptive)
@@ -287,8 +287,8 @@ void merge(const std::vector<float>& per_model_weighting, const std::vector<cons
   }
 }
 
-void add(const VW::workspace& ws1, const VW::reductions::gd& data1, const VW::workspace& ws2,
-    const VW::reductions::gd& data2, VW::workspace& ws_out, VW::reductions::gd& data_out)
+void add(const VW980::workspace& ws1, const VW980::reductions::gd& data1, const VW980::workspace& ws2,
+    const VW980::reductions::gd& data2, VW980::workspace& ws_out, VW980::reductions::gd& data_out)
 {
   const size_t length = static_cast<size_t>(1) << ws_out.num_bits;
   if (ws_out.weights.sparse)
@@ -308,8 +308,8 @@ void add(const VW::workspace& ws1, const VW::reductions::gd& data1, const VW::wo
   }
 }
 
-void subtract(const VW::workspace& ws1, const VW::reductions::gd& data1, const VW::workspace& ws2,
-    const VW::reductions::gd& data2, VW::workspace& ws_out, VW::reductions::gd& data_out)
+void subtract(const VW980::workspace& ws1, const VW980::reductions::gd& data1, const VW980::workspace& ws2,
+    const VW980::reductions::gd& data2, VW980::workspace& ws_out, VW980::reductions::gd& data_out)
 {
   const size_t length = static_cast<size_t>(1) << ws_out.num_bits;
   if (ws_out.weights.sparse)
@@ -342,14 +342,14 @@ bool operator<(const string_value& first, const string_value& second) { return f
 class audit_results
 {
 public:
-  VW::workspace& all;
+  VW980::workspace& all;
   const uint64_t offset;
-  std::vector<VW::audit_strings> components;
+  std::vector<VW980::audit_strings> components;
   std::vector<string_value> results;
-  audit_results(VW::workspace& p_all, const size_t p_offset) : all(p_all), offset(p_offset) {}
+  audit_results(VW980::workspace& p_all, const size_t p_offset) : all(p_all), offset(p_offset) {}
 };
 
-inline void audit_interaction(audit_results& dat, const VW::audit_strings* f)
+inline void audit_interaction(audit_results& dat, const VW980::audit_strings* f)
 {
   if (f == nullptr)
   {
@@ -370,13 +370,13 @@ inline void audit_feature(audit_results& dat, const float ft_weight, const uint6
   for (size_t i = 0; i < dat.components.size(); i++)
   {
     if (i > 0) { tempstream << "*"; }
-    tempstream << VW::to_string(dat.components[i]);
+    tempstream << VW980::to_string(dat.components[i]);
   }
 
   if (dat.all.audit)
   {
     tempstream << ':' << (index >> stride_shift) << ':' << ft_weight << ':'
-               << VW::trunc_weight(weights[index], static_cast<float>(dat.all.sd->gravity)) *
+               << VW980::trunc_weight(weights[index], static_cast<float>(dat.all.sd->gravity)) *
             static_cast<float>(dat.all.sd->contraction);
 
     if (weights.adaptive)
@@ -393,7 +393,7 @@ inline void audit_feature(audit_results& dat, const float ft_weight, const uint6
     const auto strided_index = index >> stride_shift;
     if (dat.all.index_name_map.count(strided_index) == 0)
     {
-      VW::details::invert_hash_info info;
+      VW980::details::invert_hash_info info;
       info.weight_components = dat.components;
       info.offset = dat.offset;
       info.stride_shift = stride_shift;
@@ -401,18 +401,18 @@ inline void audit_feature(audit_results& dat, const float ft_weight, const uint6
     }
   }
 }
-void print_lda_features(VW::workspace& all, VW::example& ec)
+void print_lda_features(VW980::workspace& all, VW980::example& ec)
 {
-  VW::parameters& weights = all.weights;
+  VW980::parameters& weights = all.weights;
   uint32_t stride_shift = weights.stride_shift();
   size_t count = 0;
-  for (VW::features& fs : ec) { count += fs.size(); }
+  for (VW980::features& fs : ec) { count += fs.size(); }
   // TODO: Where should audit stuff output to?
-  for (VW::features& fs : ec)
+  for (VW980::features& fs : ec)
   {
     for (const auto& f : fs.audit_range())
     {
-      std::cout << '\t' << VW::to_string(*f.audit()) << ':' << ((f.index() >> stride_shift) & all.parse_mask) << ':'
+      std::cout << '\t' << VW980::to_string(*f.audit()) << ':' << ((f.index() >> stride_shift) & all.parse_mask) << ':'
                 << f.value();
       for (size_t k = 0; k < all.lda; k++) { std::cout << ':' << (&weights[f.index()])[k]; }
     }
@@ -421,14 +421,14 @@ void print_lda_features(VW::workspace& all, VW::example& ec)
 }
 }  // namespace
 
-void VW::details::print_features(VW::workspace& all, VW::example& ec)
+void VW980::details::print_features(VW980::workspace& all, VW980::example& ec)
 {
   if (all.lda > 0) { print_lda_features(all, ec); }
   else
   {
     audit_results dat(all, ec.ft_offset);
 
-    for (VW::features& fs : ec)
+    for (VW980::features& fs : ec)
     {
       if (fs.space_names.size() > 0)
       {
@@ -445,7 +445,7 @@ void VW::details::print_features(VW::workspace& all, VW::example& ec)
       }
     }
     size_t num_interacted_features = 0;
-    VW::generate_interactions<audit_results, const uint64_t, audit_feature, true, audit_interaction>(
+    VW980::generate_interactions<audit_results, const uint64_t, audit_feature, true, audit_interaction>(
         all, ec, dat, num_interacted_features);
 
     stable_sort(dat.results.begin(), dat.results.end());
@@ -461,14 +461,14 @@ void VW::details::print_features(VW::workspace& all, VW::example& ec)
   }
 }
 
-void VW::details::print_audit_features(VW::workspace& all, VW::example& ec)
+void VW980::details::print_audit_features(VW980::workspace& all, VW980::example& ec)
 {
-  if (all.audit) { VW::details::print_result_by_ref(all.audit_writer.get(), ec.pred.scalar, -1, ec.tag, all.logger); }
+  if (all.audit) { VW980::details::print_result_by_ref(all.audit_writer.get(), ec.pred.scalar, -1, ec.tag, all.logger); }
   fflush(stdout);
   print_features(all, ec);
 }
 
-float VW::details::finalize_prediction(VW::shared_data& sd, VW::io::logger& logger, float ret)
+float VW980::details::finalize_prediction(VW980::shared_data& sd, VW980::io::logger& logger, float ret)
 {
   if (std::isnan(ret))
   {
@@ -492,87 +492,87 @@ public:
 
 inline void vec_add_trunc(trunc_data& p, const float fx, float& fw)
 {
-  p.prediction += VW::trunc_weight(fw, p.gravity) * fx;
+  p.prediction += VW980::trunc_weight(fw, p.gravity) * fx;
 }
 
-inline float trunc_predict(VW::workspace& all, VW::example& ec, double gravity, size_t& num_interacted_features)
+inline float trunc_predict(VW980::workspace& all, VW980::example& ec, double gravity, size_t& num_interacted_features)
 {
-  const auto& simple_red_features = ec.ex_reduction_features.template get<VW::simple_label_reduction_features>();
+  const auto& simple_red_features = ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>();
   trunc_data temp = {simple_red_features.initial, static_cast<float>(gravity)};
-  VW::foreach_feature<trunc_data, vec_add_trunc>(all, ec, temp, num_interacted_features);
+  VW980::foreach_feature<trunc_data, vec_add_trunc>(all, ec, temp, num_interacted_features);
   return temp.prediction;
 }
 
 template <bool l1, bool audit>
-void predict(VW::reductions::gd& g, VW::example& ec)
+void predict(VW980::reductions::gd& g, VW980::example& ec)
 {
   VW_DBG(ec) << "gd.predict(): ex#=" << ec.example_counter << ", offset=" << ec.ft_offset << std::endl;
 
-  VW::workspace& all = *g.all;
+  VW980::workspace& all = *g.all;
   size_t num_interacted_features = 0;
   if (l1) { ec.partial_prediction = trunc_predict(all, ec, all.sd->gravity, num_interacted_features); }
   else { ec.partial_prediction = inline_predict(all, ec, num_interacted_features); }
 
   ec.num_features_from_interactions = num_interacted_features;
   ec.partial_prediction *= static_cast<float>(all.sd->contraction);
-  ec.pred.scalar = VW::details::finalize_prediction(*all.sd, all.logger, ec.partial_prediction);
+  ec.pred.scalar = VW980::details::finalize_prediction(*all.sd, all.logger, ec.partial_prediction);
 
-  VW_DBG(ec) << "gd: predict() " << VW::debug::scalar_pred_to_string(ec) << VW::debug::features_to_string(ec)
+  VW_DBG(ec) << "gd: predict() " << VW980::debug::scalar_pred_to_string(ec) << VW980::debug::features_to_string(ec)
              << std::endl;
 
-  if (audit) { VW::details::print_audit_features(all, ec); }
+  if (audit) { VW980::details::print_audit_features(all, ec); }
 }
 
 template <class T>
-inline void vec_add_trunc_multipredict(VW::details::multipredict_info<T>& mp, const float fx, uint64_t fi)
+inline void vec_add_trunc_multipredict(VW980::details::multipredict_info<T>& mp, const float fx, uint64_t fi)
 {
   size_t index = fi;
   for (size_t c = 0; c < mp.count; c++, index += mp.step)
   {
-    mp.pred[c].scalar += fx * VW::trunc_weight(mp.weights[index], mp.gravity);
+    mp.pred[c].scalar += fx * VW980::trunc_weight(mp.weights[index], mp.gravity);
   }
 }
 
 template <bool l1, bool audit>
-void multipredict(VW::reductions::gd& g, VW::example& ec, size_t count, size_t step, VW::polyprediction* pred,
+void multipredict(VW980::reductions::gd& g, VW980::example& ec, size_t count, size_t step, VW980::polyprediction* pred,
     bool finalize_predictions)
 {
-  VW::workspace& all = *g.all;
+  VW980::workspace& all = *g.all;
   for (size_t c = 0; c < count; c++)
   {
-    const auto& simple_red_features = ec.ex_reduction_features.template get<VW::simple_label_reduction_features>();
+    const auto& simple_red_features = ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>();
     pred[c].scalar = simple_red_features.initial;
   }
 
   size_t num_features_from_interactions = 0;
   if (g.all->weights.sparse)
   {
-    VW::details::multipredict_info<VW::sparse_parameters> mp = {
+    VW980::details::multipredict_info<VW980::sparse_parameters> mp = {
         count, step, pred, g.all->weights.sparse_weights, static_cast<float>(all.sd->gravity)};
     if (l1)
     {
-      VW::foreach_feature<VW::details::multipredict_info<VW::sparse_parameters>, uint64_t, vec_add_trunc_multipredict>(
+      VW980::foreach_feature<VW980::details::multipredict_info<VW980::sparse_parameters>, uint64_t, vec_add_trunc_multipredict>(
           all, ec, mp, num_features_from_interactions);
     }
     else
     {
-      VW::foreach_feature<VW::details::multipredict_info<VW::sparse_parameters>, uint64_t,
-          VW::details::vec_add_multipredict>(all, ec, mp, num_features_from_interactions);
+      VW980::foreach_feature<VW980::details::multipredict_info<VW980::sparse_parameters>, uint64_t,
+          VW980::details::vec_add_multipredict>(all, ec, mp, num_features_from_interactions);
     }
   }
   else
   {
-    VW::details::multipredict_info<VW::dense_parameters> mp = {
+    VW980::details::multipredict_info<VW980::dense_parameters> mp = {
         count, step, pred, g.all->weights.dense_weights, static_cast<float>(all.sd->gravity)};
     if (l1)
     {
-      VW::foreach_feature<VW::details::multipredict_info<VW::dense_parameters>, uint64_t, vec_add_trunc_multipredict>(
+      VW980::foreach_feature<VW980::details::multipredict_info<VW980::dense_parameters>, uint64_t, vec_add_trunc_multipredict>(
           all, ec, mp, num_features_from_interactions);
     }
     else
     {
-      VW::foreach_feature<VW::details::multipredict_info<VW::dense_parameters>, uint64_t,
-          VW::details::vec_add_multipredict>(all, ec, mp, num_features_from_interactions);
+      VW980::foreach_feature<VW980::details::multipredict_info<VW980::dense_parameters>, uint64_t,
+          VW980::details::vec_add_multipredict>(all, ec, mp, num_features_from_interactions);
     }
   }
   ec.num_features_from_interactions = num_features_from_interactions;
@@ -585,7 +585,7 @@ void multipredict(VW::reductions::gd& g, VW::example& ec, size_t count, size_t s
   {
     for (size_t c = 0; c < count; c++)
     {
-      pred[c].scalar = VW::details::finalize_prediction(*all.sd, all.logger, pred[c].scalar);
+      pred[c].scalar = VW980::details::finalize_prediction(*all.sd, all.logger, pred[c].scalar);
     }
   }
   if (audit)
@@ -593,7 +593,7 @@ void multipredict(VW::reductions::gd& g, VW::example& ec, size_t count, size_t s
     for (size_t c = 0; c < count; c++)
     {
       ec.pred.scalar = pred[c].scalar;
-      VW::details::print_audit_features(all, ec);
+      VW980::details::print_audit_features(all, ec);
       ec.ft_offset += static_cast<uint64_t>(step);
     }
     ec.ft_offset -= static_cast<uint64_t>(step * count);
@@ -610,7 +610,7 @@ public:
 template <bool sqrt_rate, size_t adaptive, size_t normalized>
 inline float compute_rate_decay(power_data& s, float& fw)
 {
-  VW::weight* w = &fw;
+  VW980::weight* w = &fw;
   float rate_decay = 1.f;
   if (adaptive)
   {
@@ -638,7 +638,7 @@ public:
   float norm_x;
   power_data pd;
   float extra_state[4];
-  VW::io::logger* logger;
+  VW980::io::logger* logger;
 };
 
 constexpr float X_MIN = 1.084202e-19f;
@@ -651,7 +651,7 @@ inline void pred_per_update_feature(norm_data& nd, float x, float& fw)
   bool modify = feature_mask_off || fw != 0.;
   if (modify)
   {
-    VW::weight* w = &fw;
+    VW980::weight* w = &fw;
     float x2 = x * x;
     if (x2 < X2_MIN)
     {
@@ -703,11 +703,11 @@ inline void pred_per_update_feature(norm_data& nd, float x, float& fw)
 
 template <bool sqrt_rate, bool feature_mask_off, bool adax, size_t adaptive, size_t normalized, size_t spare,
     bool stateless>
-float get_pred_per_update(VW::reductions::gd& g, VW::example& ec)
+float get_pred_per_update(VW980::reductions::gd& g, VW980::example& ec)
 {
   // We must traverse the features in _precisely_ the same order as during training.
   auto& ld = ec.l.simple;
-  VW::workspace& all = *g.all;
+  VW980::workspace& all = *g.all;
 
   float grad_squared = ec.weight;
   if (!adax) { grad_squared *= all.loss->get_square_grad(ec.pred.scalar, ld.label); }
@@ -715,7 +715,7 @@ float get_pred_per_update(VW::reductions::gd& g, VW::example& ec)
   if (grad_squared == 0 && !stateless) { return 1.; }
 
   norm_data nd = {grad_squared, 0., 0., {g.neg_power_t, g.neg_norm_power}, {0}, &g.all->logger};
-  VW::foreach_feature<norm_data,
+  VW980::foreach_feature<norm_data,
       pred_per_update_feature<sqrt_rate, feature_mask_off, adaptive, normalized, spare, stateless>>(all, ec, nd);
   if VW_STD17_CONSTEXPR (normalized != 0)
   {
@@ -740,7 +740,7 @@ float get_pred_per_update(VW::reductions::gd& g, VW::example& ec)
 
 template <bool sqrt_rate, bool feature_mask_off, bool adax, size_t adaptive, size_t normalized, size_t spare,
     bool stateless>
-float sensitivity(VW::reductions::gd& g, VW::example& ec)
+float sensitivity(VW980::reductions::gd& g, VW980::example& ec)
 {
   if VW_STD17_CONSTEXPR (adaptive || normalized)
   {
@@ -755,7 +755,7 @@ float sensitivity(VW::reductions::gd& g, VW::example& ec)
 VW_WARNING_STATE_POP
 
 template <size_t adaptive>
-float get_scale(VW::reductions::gd& g, VW::example& /* ec */, float weight)
+float get_scale(VW980::reductions::gd& g, VW980::example& /* ec */, float weight)
 {
   float update_scale = g.all->eta * weight;
   if (!adaptive)
@@ -768,7 +768,7 @@ float get_scale(VW::reductions::gd& g, VW::example& /* ec */, float weight)
 }
 
 template <bool sqrt_rate, bool feature_mask_off, bool adax, size_t adaptive, size_t normalized, size_t spare>
-float sensitivity(VW::reductions::gd& g, VW::example& ec)
+float sensitivity(VW980::reductions::gd& g, VW980::example& ec)
 {
   if (g.current_model_state == nullptr)
   {
@@ -781,11 +781,11 @@ float sensitivity(VW::reductions::gd& g, VW::example& ec)
 
 template <bool sparse_l2, bool invariant, bool sqrt_rate, bool feature_mask_off, bool adax, size_t adaptive,
     size_t normalized, size_t spare>
-float compute_update(VW::reductions::gd& g, VW::example& ec)
+float compute_update(VW980::reductions::gd& g, VW980::example& ec)
 {
   // invariant: not a test label, importance weight > 0
   const auto& ld = ec.l.simple;
-  VW::workspace& all = *g.all;
+  VW980::workspace& all = *g.all;
 
   float update = 0.;
   ec.updated_prediction = ec.pred.scalar;
@@ -821,7 +821,7 @@ float compute_update(VW::reductions::gd& g, VW::example& ec)
 
 template <bool sparse_l2, bool invariant, bool sqrt_rate, bool feature_mask_off, bool adax, size_t adaptive,
     size_t normalized, size_t spare>
-void update(VW::reductions::gd& g, VW::example& ec)
+void update(VW980::reductions::gd& g, VW980::example& ec)
 {
   if (g.current_model_state == nullptr)
   {
@@ -844,7 +844,7 @@ void update(VW::reductions::gd& g, VW::example& ec)
 
 template <bool sparse_l2, bool invariant, bool sqrt_rate, bool feature_mask_off, bool adax, size_t adaptive,
     size_t normalized, size_t spare>
-void learn(VW::reductions::gd& g, VW::example& ec)
+void learn(VW980::reductions::gd& g, VW980::example& ec)
 {
   // invariant: not a test label, importance weight > 0
   assert(ec.l.simple.label != FLT_MAX);
@@ -856,10 +856,10 @@ void learn(VW::reductions::gd& g, VW::example& ec)
   // this state should only matter on learn and not predict
   // assert(g.current_model_state == nullptr);
   // Guard example state restore against throws
-  auto restore_guard = VW::scope_exit([&g] { g.current_model_state = nullptr; });
+  auto restore_guard = VW980::scope_exit([&g] { g.current_model_state = nullptr; });
 }
 
-size_t write_index(VW::io_buf& model_file, std::stringstream& msg, bool text, uint32_t num_bits, uint64_t i)
+size_t write_index(VW980::io_buf& model_file, std::stringstream& msg, bool text, uint32_t num_bits, uint64_t i)
 {
   size_t brw;
   uint32_t old_i = 0;
@@ -869,20 +869,20 @@ size_t write_index(VW::io_buf& model_file, std::stringstream& msg, bool text, ui
   if (num_bits < 31)
   {
     old_i = static_cast<uint32_t>(i);
-    brw = VW::details::bin_text_write_fixed(model_file, reinterpret_cast<char*>(&old_i), sizeof(old_i), msg, text);
+    brw = VW980::details::bin_text_write_fixed(model_file, reinterpret_cast<char*>(&old_i), sizeof(old_i), msg, text);
   }
-  else { brw = VW::details::bin_text_write_fixed(model_file, reinterpret_cast<char*>(&i), sizeof(i), msg, text); }
+  else { brw = VW980::details::bin_text_write_fixed(model_file, reinterpret_cast<char*>(&i), sizeof(i), msg, text); }
 
   return brw;
 }
 
-std::string to_string(const VW::details::invert_hash_info& info)
+std::string to_string(const VW980::details::invert_hash_info& info)
 {
   std::ostringstream ss;
   for (size_t i = 0; i < info.weight_components.size(); i++)
   {
     if (i > 0) { ss << "*"; }
-    ss << VW::to_string(info.weight_components[i]);
+    ss << VW980::to_string(info.weight_components[i]);
   }
   if (info.offset != 0)
   {
@@ -893,7 +893,7 @@ std::string to_string(const VW::details::invert_hash_info& info)
 }
 
 template <class T>
-void save_load_regressor(VW::workspace& all, VW::io_buf& model_file, bool read, bool text, T& weights)
+void save_load_regressor(VW980::workspace& all, VW980::io_buf& model_file, bool read, bool text, T& weights)
 {
   size_t brw = 1;
 
@@ -912,11 +912,11 @@ void save_load_regressor(VW::workspace& all, VW::io_buf& model_file, bool read, 
         if (map_it != all.index_name_map.end())
         {
           msg << to_string(map_it->second);
-          VW::details::bin_text_write_fixed(model_file, nullptr /*unused*/, 0 /*unused*/, msg, true);
+          VW980::details::bin_text_write_fixed(model_file, nullptr /*unused*/, 0 /*unused*/, msg, true);
         }
 
         msg << ":" << weight_index << ":" << weight_value << "\n";
-        VW::details::bin_text_write_fixed(model_file, nullptr /*unused*/, 0 /*unused*/, msg, true);
+        VW980::details::bin_text_write_fixed(model_file, nullptr /*unused*/, 0 /*unused*/, msg, true);
       }
     }
     return;
@@ -940,7 +940,7 @@ void save_load_regressor(VW::workspace& all, VW::io_buf& model_file, bool read, 
         if (i >= length)
           THROW("Model content is corrupted, weight vector index " << i << " must be less than total vector length "
                                                                    << length);
-        VW::weight* v = &weights.strided_index(i);
+        VW980::weight* v = &weights.strided_index(i);
         brw += model_file.bin_read_fixed(reinterpret_cast<char*>(&(*v)), sizeof(*v));
       }
     } while (brw > 0);
@@ -955,14 +955,14 @@ void save_load_regressor(VW::workspace& all, VW::io_buf& model_file, bool read, 
         std::stringstream msg;
         brw = write_index(model_file, msg, text, all.num_bits, i);
         msg << ":" << *v << "\n";
-        brw += VW::details::bin_text_write_fixed(model_file, (char*)&(*v), sizeof(*v), msg, text);
+        brw += VW980::details::bin_text_write_fixed(model_file, (char*)&(*v), sizeof(*v), msg, text);
       }
     }
   }
 }
 }  // namespace
 
-void VW::details::save_load_regressor_gd(VW::workspace& all, VW::io_buf& model_file, bool read, bool text)
+void VW980::details::save_load_regressor_gd(VW980::workspace& all, VW980::io_buf& model_file, bool read, bool text)
 {
   if (all.weights.sparse) { ::save_load_regressor(all, model_file, read, text, all.weights.sparse_weights); }
   else { ::save_load_regressor(all, model_file, read, text, all.weights.dense_weights); }
@@ -971,8 +971,8 @@ void VW::details::save_load_regressor_gd(VW::workspace& all, VW::io_buf& model_f
 namespace
 {
 template <class T>
-void save_load_online_state_weights(VW::workspace& all, VW::io_buf& model_file, bool read, bool text,
-    VW::reductions::gd* g, std::stringstream& msg, uint32_t ftrl_size, T& weights)
+void save_load_online_state_weights(VW980::workspace& all, VW980::io_buf& model_file, bool read, bool text,
+    VW980::reductions::gd* g, std::stringstream& msg, uint32_t ftrl_size, T& weights)
 {
   uint64_t length = static_cast<uint64_t>(1) << all.num_bits;
 
@@ -995,7 +995,7 @@ void save_load_online_state_weights(VW::workspace& all, VW::io_buf& model_file, 
         if (i >= length)
           THROW("Model content is corrupted, weight vector index " << i << " must be less than total vector length "
                                                                    << length);
-        VW::weight buff[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        VW980::weight buff[8] = {0, 0, 0, 0, 0, 0, 0, 0};
         if (ftrl_size > 0)
         {
           brw += model_file.bin_read_fixed(reinterpret_cast<char*>(buff), sizeof(buff[0]) * ftrl_size);
@@ -1013,7 +1013,7 @@ void save_load_online_state_weights(VW::workspace& all, VW::io_buf& model_file, 
           brw += model_file.bin_read_fixed(reinterpret_cast<char*>(buff), sizeof(buff[0]) * 3);
         }
         uint32_t stride = 1 << weights.stride_shift();
-        VW::weight* v = &weights.strided_index(i);
+        VW980::weight* v = &weights.strided_index(i);
         for (size_t j = 0; j < stride; j++) { v[j] = buff[j]; }
       }
     } while (brw > 0);
@@ -1044,20 +1044,20 @@ void save_load_online_state_weights(VW::workspace& all, VW::io_buf& model_file, 
       {
         brw = write_index(model_file, msg, text, all.num_bits, i);
         msg << ":" << *v << " " << (&(*v))[1] << " " << (&(*v))[2] << "\n";
-        brw += VW::details::bin_text_write_fixed(model_file, (char*)&(*v), 3 * sizeof(*v), msg, text);
+        brw += VW980::details::bin_text_write_fixed(model_file, (char*)&(*v), 3 * sizeof(*v), msg, text);
       }
       else if (ftrl4_write)
       {
         brw = write_index(model_file, msg, text, all.num_bits, i);
         msg << ":" << *v << " " << (&(*v))[1] << " " << (&(*v))[2] << " " << (&(*v))[3] << "\n";
-        brw += VW::details::bin_text_write_fixed(model_file, (char*)&(*v), 4 * sizeof(*v), msg, text);
+        brw += VW980::details::bin_text_write_fixed(model_file, (char*)&(*v), 4 * sizeof(*v), msg, text);
       }
       else if (ftrl6_write)
       {
         brw = write_index(model_file, msg, text, all.num_bits, i);
         msg << ":" << *v << " " << (&(*v))[1] << " " << (&(*v))[2] << " " << (&(*v))[3] << " " << (&(*v))[4] << " "
             << (&(*v))[5] << "\n";
-        brw += VW::details::bin_text_write_fixed(model_file, (char*)&(*v), 6 * sizeof(*v), msg, text);
+        brw += VW980::details::bin_text_write_fixed(model_file, (char*)&(*v), 6 * sizeof(*v), msg, text);
       }
       else if (g == nullptr || (!all.weights.adaptive && !all.weights.normalized))
       {
@@ -1065,7 +1065,7 @@ void save_load_online_state_weights(VW::workspace& all, VW::io_buf& model_file, 
         {
           brw = write_index(model_file, msg, text, all.num_bits, i);
           msg << ":" << *v << "\n";
-          brw += VW::details::bin_text_write_fixed(model_file, (char*)&(*v), sizeof(*v), msg, text);
+          brw += VW980::details::bin_text_write_fixed(model_file, (char*)&(*v), sizeof(*v), msg, text);
         }
       }
       else if ((all.weights.adaptive && !all.weights.normalized) || (!all.weights.adaptive && all.weights.normalized))
@@ -1075,7 +1075,7 @@ void save_load_online_state_weights(VW::workspace& all, VW::io_buf& model_file, 
         {
           brw = write_index(model_file, msg, text, all.num_bits, i);
           msg << ":" << *v << " " << (&(*v))[1] << "\n";
-          brw += VW::details::bin_text_write_fixed(model_file, (char*)&(*v), 2 * sizeof(*v), msg, text);
+          brw += VW980::details::bin_text_write_fixed(model_file, (char*)&(*v), 2 * sizeof(*v), msg, text);
         }
       }
       else
@@ -1085,7 +1085,7 @@ void save_load_online_state_weights(VW::workspace& all, VW::io_buf& model_file, 
         {
           brw = write_index(model_file, msg, text, all.num_bits, i);
           msg << ":" << *v << " " << (&(*v))[1] << " " << (&(*v))[2] << "\n";
-          brw += VW::details::bin_text_write_fixed(model_file, (char*)&(*v), 3 * sizeof(*v), msg, text);
+          brw += VW980::details::bin_text_write_fixed(model_file, (char*)&(*v), 3 * sizeof(*v), msg, text);
         }
       }
     }
@@ -1093,35 +1093,35 @@ void save_load_online_state_weights(VW::workspace& all, VW::io_buf& model_file, 
 }
 }  // namespace
 
-void VW::details::save_load_online_state_gd(VW::workspace& all, VW::io_buf& model_file, bool read, bool text,
-    std::vector<VW::reductions::details::gd_per_model_state>& pms, VW::reductions::gd* g, uint32_t ftrl_size)
+void VW980::details::save_load_online_state_gd(VW980::workspace& all, VW980::io_buf& model_file, bool read, bool text,
+    std::vector<VW980::reductions::details::gd_per_model_state>& pms, VW980::reductions::gd* g, uint32_t ftrl_size)
 {
   std::stringstream msg;
 
   msg << "initial_t " << all.initial_t << "\n";
-  VW::details::bin_text_read_write_fixed(
+  VW980::details::bin_text_read_write_fixed(
       model_file, reinterpret_cast<char*>(&all.initial_t), sizeof(all.initial_t), read, msg, text);
 
   assert(pms.size() >= 1);
   msg << "norm normalizer " << pms[0].normalized_sum_norm_x << "\n";
-  VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&pms[0].normalized_sum_norm_x),
+  VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&pms[0].normalized_sum_norm_x),
       sizeof(pms[0].normalized_sum_norm_x), read, msg, text);
 
   msg << "t " << all.sd->t << "\n";
-  VW::details::bin_text_read_write_fixed(
+  VW980::details::bin_text_read_write_fixed(
       model_file, reinterpret_cast<char*>(&all.sd->t), sizeof(all.sd->t), read, msg, text);
 
   msg << "sum_loss " << all.sd->sum_loss << "\n";
-  VW::details::bin_text_read_write_fixed(
+  VW980::details::bin_text_read_write_fixed(
       model_file, reinterpret_cast<char*>(&all.sd->sum_loss), sizeof(all.sd->sum_loss), read, msg, text);
 
   msg << "sum_loss_since_last_dump " << all.sd->sum_loss_since_last_dump << "\n";
-  VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&all.sd->sum_loss_since_last_dump),
+  VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&all.sd->sum_loss_since_last_dump),
       sizeof(all.sd->sum_loss_since_last_dump), read, msg, text);
 
   float dump_interval = all.sd->dump_interval;
   msg << "dump_interval " << dump_interval << "\n";
-  VW::details::bin_text_read_write_fixed(
+  VW980::details::bin_text_read_write_fixed(
       model_file, reinterpret_cast<char*>(&dump_interval), sizeof(dump_interval), read, msg, text);
   if (!read || (all.training && all.preserve_performance_counters))
   {  // update dump_interval from input model
@@ -1129,69 +1129,69 @@ void VW::details::save_load_online_state_gd(VW::workspace& all, VW::io_buf& mode
   }
 
   msg << "min_label " << all.sd->min_label << "\n";
-  VW::details::bin_text_read_write_fixed(
+  VW980::details::bin_text_read_write_fixed(
       model_file, reinterpret_cast<char*>(&all.sd->min_label), sizeof(all.sd->min_label), read, msg, text);
 
   msg << "max_label " << all.sd->max_label << "\n";
-  VW::details::bin_text_read_write_fixed(
+  VW980::details::bin_text_read_write_fixed(
       model_file, reinterpret_cast<char*>(&all.sd->max_label), sizeof(all.sd->max_label), read, msg, text);
 
   msg << "weighted_labeled_examples " << all.sd->weighted_labeled_examples << "\n";
-  VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&all.sd->weighted_labeled_examples),
+  VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&all.sd->weighted_labeled_examples),
       sizeof(all.sd->weighted_labeled_examples), read, msg, text);
 
   msg << "weighted_labels " << all.sd->weighted_labels << "\n";
-  VW::details::bin_text_read_write_fixed(
+  VW980::details::bin_text_read_write_fixed(
       model_file, reinterpret_cast<char*>(&all.sd->weighted_labels), sizeof(all.sd->weighted_labels), read, msg, text);
 
   msg << "weighted_unlabeled_examples " << all.sd->weighted_unlabeled_examples << "\n";
-  VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&all.sd->weighted_unlabeled_examples),
+  VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&all.sd->weighted_unlabeled_examples),
       sizeof(all.sd->weighted_unlabeled_examples), read, msg, text);
 
   msg << "example_number " << all.sd->example_number << "\n";
-  VW::details::bin_text_read_write_fixed(
+  VW980::details::bin_text_read_write_fixed(
       model_file, reinterpret_cast<char*>(&all.sd->example_number), sizeof(all.sd->example_number), read, msg, text);
 
   msg << "total_features " << all.sd->total_features << "\n";
-  VW::details::bin_text_read_write_fixed(
+  VW980::details::bin_text_read_write_fixed(
       model_file, reinterpret_cast<char*>(&all.sd->total_features), sizeof(all.sd->total_features), read, msg, text);
 
-  if (!read || all.model_file_ver >= VW::version_definitions::VERSION_SAVE_RESUME_FIX)
+  if (!read || all.model_file_ver >= VW980::version_definitions::VERSION_SAVE_RESUME_FIX)
   {
     assert(pms.size() >= 1);
     // restore some data to allow save_resume work more accurate
 
     // fix average loss
     msg << "total_weight " << pms[0].total_weight << "\n";
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&pms[0].total_weight), sizeof(pms[0].total_weight), read, msg, text);
 
     // fix "loss since last" for first printed out example details
     msg << "sd::oec.weighted_labeled_examples " << all.sd->old_weighted_labeled_examples << "\n";
-    VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&all.sd->old_weighted_labeled_examples),
+    VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&all.sd->old_weighted_labeled_examples),
         sizeof(all.sd->old_weighted_labeled_examples), read, msg, text);
 
     // fix "number of examples per pass"
     msg << "current_pass " << all.current_pass << "\n";
-    if (all.model_file_ver >= VW::version_definitions::VERSION_PASS_UINT64)
+    if (all.model_file_ver >= VW980::version_definitions::VERSION_PASS_UINT64)
     {
-      VW::details::bin_text_read_write_fixed(
+      VW980::details::bin_text_read_write_fixed(
           model_file, reinterpret_cast<char*>(&all.current_pass), sizeof(all.current_pass), read, msg, text);
     }
     else  // backwards compatiblity.
     {
       size_t temp_pass = static_cast<size_t>(all.current_pass);
-      VW::details::bin_text_read_write_fixed(
+      VW980::details::bin_text_read_write_fixed(
           model_file, reinterpret_cast<char*>(&temp_pass), sizeof(temp_pass), read, msg, text);
       all.current_pass = temp_pass;
     }
   }
 
-  if (!read || all.model_file_ver >= VW::version_definitions::VERSION_FILE_WITH_L1_AND_L2_STATE_IN_MODEL_DATA)
+  if (!read || all.model_file_ver >= VW980::version_definitions::VERSION_FILE_WITH_L1_AND_L2_STATE_IN_MODEL_DATA)
   {
     msg << "l1_state " << all.sd->gravity << "\n";
     auto local_gravity = all.sd->gravity;
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&local_gravity), sizeof(local_gravity), read, msg, text);
 
     // all.sd->gravity - command line value
@@ -1206,7 +1206,7 @@ void VW::details::save_load_online_state_gd(VW::workspace& all, VW::io_buf& mode
 
     msg << "l2_state " << all.sd->contraction << "\n";
     auto local_contraction = all.sd->contraction;
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&local_contraction), sizeof(local_contraction), read, msg, text);
 
     // all.sd->contraction - command line value
@@ -1243,18 +1243,18 @@ void VW::details::save_load_online_state_gd(VW::workspace& all, VW::io_buf& mode
 
 namespace
 {
-void save_load(VW::reductions::gd& g, VW::io_buf& model_file, bool read, bool text)
+void save_load(VW980::reductions::gd& g, VW980::io_buf& model_file, bool read, bool text)
 {
-  VW::workspace& all = *g.all;
+  VW980::workspace& all = *g.all;
   if (read)
   {
-    VW::details::initialize_regressor(all);
+    VW980::details::initialize_regressor(all);
 
     if (all.weights.adaptive && all.initial_t > 0)
     {
       float init_weight = all.initial_weight;
       float init_t = all.initial_t;
-      auto initial_gd_weight_initializer = [init_weight, init_t](VW::weight* weights, uint64_t /*index*/)
+      auto initial_gd_weight_initializer = [init_weight, init_t](VW980::weight* weights, uint64_t /*index*/)
       {
         weights[0] = init_weight;
         weights[1] = init_t;
@@ -1269,7 +1269,7 @@ void save_load(VW::reductions::gd& g, VW::io_buf& model_file, bool read, bool te
       // stored in memory at each update, and always start sum of gradients to 0, at the price of additional additions
       // and multiplications during the update...
     }
-    if (g.initial_constant != 0.0) { VW::set_weight(all, VW::details::CONSTANT, 0, g.initial_constant); }
+    if (g.initial_constant != 0.0) { VW980::set_weight(all, VW980::details::CONSTANT, 0, g.initial_constant); }
   }
 
   if (model_file.num_files() > 0)
@@ -1277,22 +1277,22 @@ void save_load(VW::reductions::gd& g, VW::io_buf& model_file, bool read, bool te
     bool resume = all.save_resume;
     std::stringstream msg;
     msg << ":" << resume << "\n";
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&resume), sizeof(resume), read, msg, text);
     if (resume)
     {
-      if (read && all.model_file_ver < VW::version_definitions::VERSION_SAVE_RESUME_FIX)
+      if (read && all.model_file_ver < VW980::version_definitions::VERSION_SAVE_RESUME_FIX)
       {
         g.all->logger.err_warn(
             "save_resume functionality is known to have inaccuracy in model files version less than '{}'",
-            VW::version_definitions::VERSION_SAVE_RESUME_FIX.to_string());
+            VW980::version_definitions::VERSION_SAVE_RESUME_FIX.to_string());
       }
-      VW::details::save_load_online_state_gd(all, model_file, read, text, g.gd_per_model_states, &g);
+      VW980::details::save_load_online_state_gd(all, model_file, read, text, g.gd_per_model_states, &g);
     }
     else
     {
       if (!all.weights.not_null()) { THROW("Model weights not initialized."); }
-      VW::details::save_load_regressor_gd(all, model_file, read, text);
+      VW980::details::save_load_regressor_gd(all, model_file, read, text);
     }
   }
   if (!all.training)
@@ -1304,7 +1304,7 @@ void save_load(VW::reductions::gd& g, VW::io_buf& model_file, bool read, bool te
 
 template <bool sparse_l2, bool invariant, bool sqrt_rate, bool feature_mask_off, uint64_t adaptive, uint64_t normalized,
     uint64_t spare, uint64_t next>
-uint64_t set_learn(VW::workspace& all, VW::reductions::gd& g)
+uint64_t set_learn(VW980::workspace& all, VW980::reductions::gd& g)
 {
   all.normalized_idx = normalized;
   if (g.adax)
@@ -1325,7 +1325,7 @@ uint64_t set_learn(VW::workspace& all, VW::reductions::gd& g)
 
 template <bool sparse_l2, bool invariant, bool sqrt_rate, uint64_t adaptive, uint64_t normalized, uint64_t spare,
     uint64_t next>
-uint64_t set_learn(VW::workspace& all, bool feature_mask_off, VW::reductions::gd& g)
+uint64_t set_learn(VW980::workspace& all, bool feature_mask_off, VW980::reductions::gd& g)
 {
   all.normalized_idx = normalized;
   if (feature_mask_off)
@@ -1336,7 +1336,7 @@ uint64_t set_learn(VW::workspace& all, bool feature_mask_off, VW::reductions::gd
 }
 
 template <bool invariant, bool sqrt_rate, uint64_t adaptive, uint64_t normalized, uint64_t spare, uint64_t next>
-uint64_t set_learn(VW::workspace& all, bool feature_mask_off, VW::reductions::gd& g)
+uint64_t set_learn(VW980::workspace& all, bool feature_mask_off, VW980::reductions::gd& g)
 {
   if (g.sparse_l2 > 0.f)
   {
@@ -1346,7 +1346,7 @@ uint64_t set_learn(VW::workspace& all, bool feature_mask_off, VW::reductions::gd
 }
 
 template <bool sqrt_rate, uint64_t adaptive, uint64_t normalized, uint64_t spare, uint64_t next>
-uint64_t set_learn(VW::workspace& all, bool feature_mask_off, VW::reductions::gd& g)
+uint64_t set_learn(VW980::workspace& all, bool feature_mask_off, VW980::reductions::gd& g)
 {
   if (all.invariant_updates)
   {
@@ -1356,7 +1356,7 @@ uint64_t set_learn(VW::workspace& all, bool feature_mask_off, VW::reductions::gd
 }
 
 template <bool sqrt_rate, uint64_t adaptive, uint64_t spare>
-uint64_t set_learn(VW::workspace& all, bool feature_mask_off, VW::reductions::gd& g)
+uint64_t set_learn(VW980::workspace& all, bool feature_mask_off, VW980::reductions::gd& g)
 {
   // select the appropriate learn function based on adaptive, normalization, and feature mask
   if (all.weights.normalized)
@@ -1367,7 +1367,7 @@ uint64_t set_learn(VW::workspace& all, bool feature_mask_off, VW::reductions::gd
 }
 
 template <bool sqrt_rate>
-uint64_t set_learn(VW::workspace& all, bool feature_mask_off, VW::reductions::gd& g)
+uint64_t set_learn(VW980::workspace& all, bool feature_mask_off, VW980::reductions::gd& g)
 {
   if (all.weights.adaptive) { return set_learn<sqrt_rate, 1, 2>(all, feature_mask_off, g); }
   else { return set_learn<sqrt_rate, 0, 0>(all, feature_mask_off, g); }
@@ -1381,11 +1381,11 @@ uint64_t ceil_log_2(uint64_t v)
 
 }  // namespace
 
-namespace VW
+namespace VW980
 {
 namespace model_utils
 {
-size_t read_model_field(io_buf& model, VW::reductions::details::gd_per_model_state& pms)
+size_t read_model_field(io_buf& model, VW980::reductions::details::gd_per_model_state& pms)
 {
   size_t bytes = 0;
   bytes += read_model_field(model, pms.normalized_sum_norm_x);
@@ -1394,7 +1394,7 @@ size_t read_model_field(io_buf& model, VW::reductions::details::gd_per_model_sta
 }
 
 size_t write_model_field(
-    io_buf& model, const VW::reductions::details::gd_per_model_state& pms, const std::string& name, bool text)
+    io_buf& model, const VW980::reductions::details::gd_per_model_state& pms, const std::string& name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(model, pms.normalized_sum_norm_x, name + "_normalized_sum_norm_x", text);
@@ -1402,12 +1402,12 @@ size_t write_model_field(
   return bytes;
 }
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::gd_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::gd_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   size_t feature_width_above = stack_builder.get_feature_width_above();
 
   bool sgd = false;
@@ -1446,7 +1446,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::gd_setup(VW::setup_base_i&
   all.weights.adaptive = true;
   all.weights.normalized = true;
 
-  auto g = VW::make_unique<VW::reductions::gd>(feature_width_above);
+  auto g = VW980::make_unique<VW980::reductions::gd>(feature_width_above);
   g->all = &all;
   g->no_win_counter = 0;
   g->neg_norm_power = (all.weights.adaptive ? (all.power_t - 1.f) : -1.f);
@@ -1545,7 +1545,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::gd_setup(VW::setup_base_i&
 
   auto* bare = g.get();
   auto l = make_bottom_learner(std::move(g), g->learn, bare->predict, stack_builder.get_setupfn_name(gd_setup),
-      VW::prediction_type_t::SCALAR, VW::label_type_t::SIMPLE)
+      VW980::prediction_type_t::SCALAR, VW980::label_type_t::SIMPLE)
                .set_learn_returns_prediction(true)
                .set_sensitivity(bare->sensitivity)
                .set_multipredict(bare->multipredict)
@@ -1555,9 +1555,9 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::gd_setup(VW::setup_base_i&
                .set_merge_with_all(::merge)
                .set_add_with_all(::add)
                .set_subtract_with_all(::subtract)
-               .set_output_example_prediction(VW::details::output_example_prediction_simple_label<VW::reductions::gd>)
-               .set_update_stats(VW::details::update_stats_simple_label<VW::reductions::gd>)
-               .set_print_update(VW::details::print_update_simple_label<VW::reductions::gd>)
+               .set_output_example_prediction(VW980::details::output_example_prediction_simple_label<VW980::reductions::gd>)
+               .set_update_stats(VW980::details::update_stats_simple_label<VW980::reductions::gd>)
+               .set_print_update(VW980::details::print_update_simple_label<VW980::reductions::gd>)
                .build();
   return l;
 }

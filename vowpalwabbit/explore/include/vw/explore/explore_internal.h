@@ -18,7 +18,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace explore
 {
@@ -217,7 +217,7 @@ int sample_after_normalizing(
     return S_EXPLORATION_OK;
   }
 
-  float draw = total * VW::details::merand48_noadvance(seed);
+  float draw = total * VW980::details::merand48_noadvance(seed);
   if (draw > total)
   {  // make very sure that draw can not be greater than total.
     draw = total;
@@ -249,7 +249,7 @@ template <typename It>
 int sample_after_normalizing(
     const char* seed, It pmf_first, It pmf_last, uint32_t& chosen_index, std::random_access_iterator_tag pmf_category)
 {
-  uint64_t seed_hash = VW::uniform_hash(seed, strlen(seed), 0);
+  uint64_t seed_hash = VW980::uniform_hash(seed, strlen(seed), 0);
   return sample_after_normalizing(seed_hash, pmf_first, pmf_last, chosen_index, pmf_category);
 }
 
@@ -299,7 +299,7 @@ int sample_scores(
     return S_EXPLORATION_OK;
   }
 
-  float draw = total * VW::details::merand48(*p_seed);
+  float draw = total * VW980::details::merand48(*p_seed);
   if (draw > total)
   {  // make very sure that draw can not be greater than total.
     draw = total;
@@ -337,7 +337,7 @@ int sample_pdf(
   constexpr float edge_avoid_factor = 1.0001f;
   float draw = 0.f;
   do {
-    draw = edge_avoid_factor * total_pdf_mass * VW::details::merand48(*p_seed);
+    draw = edge_avoid_factor * total_pdf_mass * VW980::details::merand48(*p_seed);
   } while (draw >= total_pdf_mass);
 
   float acc_mass = 0.f;
@@ -439,4 +439,4 @@ int sample_pdf(uint64_t* p_seed, It pdf_first, It pdf_last, float& chosen_value,
   return details::sample_pdf(p_seed, pdf_first, pdf_last, chosen_value, pdf_value, pdf_category());
 }
 }  // namespace explore
-}  // namespace VW
+}  // namespace VW980

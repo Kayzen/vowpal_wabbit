@@ -14,11 +14,11 @@
 
 #include <fstream>
 
-using namespace VW::config;
+using namespace VW980::config;
 
-std::unique_ptr<VW::workspace> setup(std::unique_ptr<options_i> options)
+std::unique_ptr<VW980::workspace> setup(std::unique_ptr<options_i> options)
 {
-  auto all = VW::initialize(std::move(options));
+  auto all = VW980::initialize(std::move(options));
   all->vw_is_main = true;
   return all;
 }
@@ -43,11 +43,11 @@ int main(int argc, char* argv[])
                               "logging messages wasn't consistent. Supplying compat will maintain that old behavior. "
                               "Compat is now deprecated so it is recommended that stdout or stderr is chosen"));
 
-  auto main_logger = VW::io::create_default_logger();
+  auto main_logger = VW980::io::create_default_logger();
   try
   {
     // support multiple vw instances for training of the same datafile for the same instance
-    std::vector<std::unique_ptr<VW::workspace>> alls;
+    std::vector<std::unique_ptr<VW980::workspace>> alls;
     if (argc == 3 && !std::strcmp(argv[1], "--args"))
     {
       std::fstream arg_file(argv[2]);
@@ -64,27 +64,27 @@ int main(int argc, char* argv[])
         const std::string new_args = sstr.str();
         std::cout << new_args << std::endl;
 
-        auto ptr = VW::make_unique<options_cli>(VW::split_command_line(new_args));
+        auto ptr = VW980::make_unique<options_cli>(VW980::split_command_line(new_args));
         ptr->add_and_parse(driver_config);
-        auto level = VW::io::get_log_level(log_level);
+        auto level = VW980::io::get_log_level(log_level);
         main_logger.set_level(level);
-        auto location = VW::io::get_output_location(log_output_stream);
+        auto location = VW980::io::get_output_location(log_output_stream);
         main_logger.set_location(location);
         alls.push_back(setup(std::move(ptr)));
       }
     }
     else
     {
-      auto ptr = VW::make_unique<options_cli>(std::vector<std::string>(argv + 1, argv + argc));
+      auto ptr = VW980::make_unique<options_cli>(std::vector<std::string>(argv + 1, argv + argc));
       ptr->add_and_parse(driver_config);
-      auto level = VW::io::get_log_level(log_level);
+      auto level = VW980::io::get_log_level(log_level);
       main_logger.set_level(level);
-      auto location = VW::io::get_output_location(log_output_stream);
+      auto location = VW980::io::get_output_location(log_output_stream);
       main_logger.set_location(location);
       alls.push_back(setup(std::move(ptr)));
     }
 
-    VW::workspace& all = *alls[0];
+    VW980::workspace& all = *alls[0];
 
     auto skip_driver = all.options->get_typed_option<bool>("dry_run").value();
 
@@ -97,34 +97,34 @@ int main(int argc, char* argv[])
 
     if (should_use_onethread)
     {
-      if (alls.size() == 1) { VW::LEARNER::generic_driver_onethread(all); }
+      if (alls.size() == 1) { VW980::LEARNER::generic_driver_onethread(all); }
       else
         THROW("--onethread doesn't make sense with multiple learners");
     }
     else
     {
-      VW::start_parser(all);
-      if (alls.size() == 1) { VW::LEARNER::generic_driver(all); }
+      VW980::start_parser(all);
+      if (alls.size() == 1) { VW980::LEARNER::generic_driver(all); }
       else
       {
-        std::vector<VW::workspace*> alls_ptrs;
+        std::vector<VW980::workspace*> alls_ptrs;
         alls_ptrs.reserve(alls.size());
         for (auto& v : alls) { alls_ptrs.push_back(v.get()); }
-        VW::LEARNER::generic_driver(alls_ptrs);
+        VW980::LEARNER::generic_driver(alls_ptrs);
       }
-      VW::end_parser(all);
+      VW980::end_parser(all);
     }
 
     for (auto& v : alls)
     {
       if (v->example_parser->exc_ptr) { std::rethrow_exception(v->example_parser->exc_ptr); }
 
-      VW::sync_stats(*v);
+      VW980::sync_stats(*v);
       // Leave deletion up to the unique_ptr
       v->finish();
     }
   }
-  catch (VW::vw_exception& e)
+  catch (VW980::vw_exception& e)
   {
     main_logger.err_critical("vw ({}:{}): {}", e.filename(), e.line_number(), e.what());
     return 1;

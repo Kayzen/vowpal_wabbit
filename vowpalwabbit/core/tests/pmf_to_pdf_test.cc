@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-using namespace VW::LEARNER;
+using namespace VW980::LEARNER;
 using std::pair;
 using std::vector;
 
@@ -24,22 +24,22 @@ class reduction_test_harness
 public:
   void set_predict_response(const vector<pair<uint32_t, float>>& predictions) { _predictions = predictions; }
 
-  void test_predict(VW::example& ec)
+  void test_predict(VW980::example& ec)
   {
     ec.pred.a_s.clear();
     for (const auto& prediction : _predictions)
     {
-      ec.pred.a_s.push_back(VW::action_score{prediction.first, prediction.second});
+      ec.pred.a_s.push_back(VW980::action_score{prediction.first, prediction.second});
     }
   }
 
-  void test_learn(VW::example& /* ec */)
+  void test_learn(VW980::example& /* ec */)
   { /*noop*/
   }
 
-  static void predict(reduction_test_harness& test_reduction, VW::example& ec) { test_reduction.test_predict(ec); }
+  static void predict(reduction_test_harness& test_reduction, VW980::example& ec) { test_reduction.test_predict(ec); }
 
-  static void learn(reduction_test_harness& test_reduction, VW::example& ec) { test_reduction.test_learn(ec); };
+  static void learn(reduction_test_harness& test_reduction, VW980::example& ec) { test_reduction.test_learn(ec); };
 
 private:
   vector<pair<uint32_t, float>> _predictions;
@@ -50,23 +50,23 @@ using predictions_t = vector<pair<uint32_t, float>>;
 std::shared_ptr<learner> get_test_harness(const predictions_t& bottom_learner_predictions)
 {
   // Setup a test harness bottom learner
-  auto test_harness = VW::make_unique<reduction_test_harness>();
+  auto test_harness = VW980::make_unique<reduction_test_harness>();
   test_harness->set_predict_response(bottom_learner_predictions);
-  auto test_learner = VW::LEARNER::make_bottom_learner(
+  auto test_learner = VW980::LEARNER::make_bottom_learner(
       std::move(test_harness),          // Data structure passed by vw_framework into test_harness predict/learn calls
       reduction_test_harness::learn,    // test_harness learn
       reduction_test_harness::predict,  // test_harness predict
-      "test_learner", VW::prediction_type_t::ACTION_SCORES, VW::label_type_t::CONTINUOUS)
-                          // Set it to something so that the compat VW::finish_example shim is put in place.
-                          .set_output_example_prediction([](VW::workspace& /* all */, const reduction_test_harness&,
-                                                             const VW::example&, VW::io::logger&) {})
+      "test_learner", VW980::prediction_type_t::ACTION_SCORES, VW980::label_type_t::CONTINUOUS)
+                          // Set it to something so that the compat VW980::finish_example shim is put in place.
+                          .set_output_example_prediction([](VW980::workspace& /* all */, const reduction_test_harness&,
+                                                             const VW980::example&, VW980::io::logger&) {})
 
                           .build();  // Create a learner using the bottom learner.
   return test_learner;
 }
 }  // namespace
 
-void check_pdf_sums_to_one(VW::continuous_actions::probability_density_function& pdf)
+void check_pdf_sums_to_one(VW980::continuous_actions::probability_density_function& pdf)
 {
   float sum = 0;
   for (uint32_t i = 0; i < pdf.size(); i++) { sum += pdf[i].pdf_value * (pdf[i].right - pdf[i].left); }
@@ -74,7 +74,7 @@ void check_pdf_sums_to_one(VW::continuous_actions::probability_density_function&
   EXPECT_NEAR(1.0f, sum, .0001f);
 }
 
-void check_pdf_limits_are_valid(VW::continuous_actions::probability_density_function& pdf, float min_value,
+void check_pdf_limits_are_valid(VW980::continuous_actions::probability_density_function& pdf, float min_value,
     float max_value, float bandwidth, uint32_t num_actions, uint32_t action)
 {
   // check that left <= right for all pdf
@@ -121,9 +121,9 @@ TEST(PmfToPdf, Basic)
 
   const auto test_harness = ::get_test_harness(prediction_scores);
 
-  VW::example ec;
+  VW980::example ec;
 
-  auto data = VW::make_unique<VW::reductions::pmf_to_pdf_reduction>();
+  auto data = VW980::make_unique<VW980::reductions::pmf_to_pdf_reduction>();
   data->num_actions = k;
   data->bandwidth = h;
   data->min_value = min_val;
@@ -138,7 +138,7 @@ TEST(PmfToPdf, Basic)
   ec.l.cb_cont.costs.clear();
   ec.l.cb_cont.costs.push_back({1010.17f, .5f, .05f});  // action, cost, prob
 
-  // VW::cb_continuous::continuous_label_elm exp_val{1010.17f, 0.5f, 0.05f};
+  // VW980::cb_continuous::continuous_label_elm exp_val{1010.17f, 0.5f, 0.05f};
 
   EXPECT_EQ(1010.17f, ec.l.cb_cont.costs[0].action);
   EXPECT_EQ(0.5f, ec.l.cb_cont.costs[0].cost);
@@ -151,8 +151,8 @@ TEST(PmfToPdf, Basic)
 
 TEST(PmfToPdf, WLargeBandwidth)
 {
-  VW::example ec;
-  auto data = VW::make_unique<VW::reductions::pmf_to_pdf_reduction>();
+  VW980::example ec;
+  auto data = VW980::make_unique<VW980::reductions::pmf_to_pdf_reduction>();
   uint32_t k = 4;   // num_actions
   float h = 300.f;  // // h (bandwidth) property of continuous range (max_val - min_val)
   float min_val = 1000;
@@ -184,8 +184,8 @@ TEST(PmfToPdf, WLargeBandwidth)
 
 TEST(PmfToPdf, WLargeDiscretization)
 {
-  VW::example ec;
-  auto data = VW::make_unique<VW::reductions::pmf_to_pdf_reduction>();
+  VW980::example ec;
+  auto data = VW980::make_unique<VW980::reductions::pmf_to_pdf_reduction>();
 
   uint32_t k = 16;  // num_actions
   float h = 10.f;   // h (bandwidth) property of continuous range (max_val - min_val)

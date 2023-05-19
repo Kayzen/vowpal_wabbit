@@ -7,10 +7,10 @@
 #include "vw/core/multi_ex.h"
 #include "vw/core/vw_fwd.h"
 
-namespace VW
+namespace VW980
 {
 namespace LEARNER
 {
 class learner;
 }  // namespace LEARNER
-}  // namespace VW
+}  // namespace VW980

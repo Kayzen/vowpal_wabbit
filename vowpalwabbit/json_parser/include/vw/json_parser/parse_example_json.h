@@ -17,7 +17,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace VW
+namespace VW980
 {
 namespace parsers
 {
@@ -26,68 +26,68 @@ namespace json
 namespace details
 {
 template <bool audit>
-bool parse_line_json(VW::workspace* all, char* line, size_t num_chars, VW::multi_ex& examples);
+bool parse_line_json(VW980::workspace* all, char* line, size_t num_chars, VW980::multi_ex& examples);
 }
 
 template <bool audit>
-void read_line_json(const VW::label_parser& lbl_parser, hash_func_t hash_func, uint64_t hash_seed, uint64_t parse_mask,
-    bool chain_hash, VW::label_parser_reuse_mem* reuse_mem, const VW::named_labels* ldict, VW::multi_ex& examples,
-    char* line, size_t length, example_factory_t example_factory, VW::io::logger& logger,
+void read_line_json(const VW980::label_parser& lbl_parser, hash_func_t hash_func, uint64_t hash_seed, uint64_t parse_mask,
+    bool chain_hash, VW980::label_parser_reuse_mem* reuse_mem, const VW980::named_labels* ldict, VW980::multi_ex& examples,
+    char* line, size_t length, example_factory_t example_factory, VW980::io::logger& logger,
     std::unordered_map<std::string, std::set<std::string>>* ignore_features,
-    const std::unordered_map<uint64_t, VW::example*>* dedup_examples = nullptr);
+    const std::unordered_map<uint64_t, VW980::example*>* dedup_examples = nullptr);
 
 template <bool audit>
-void read_line_json(VW::workspace& all, VW::multi_ex& examples, char* line, size_t length,
-    example_factory_t example_factory, const std::unordered_map<uint64_t, VW::example*>* dedup_examples = nullptr);
+void read_line_json(VW980::workspace& all, VW980::multi_ex& examples, char* line, size_t length,
+    example_factory_t example_factory, const std::unordered_map<uint64_t, VW980::example*>* dedup_examples = nullptr);
 
 // returns true if succesfully parsed, returns false if not and logs warning
 template <bool audit>
-bool read_line_decision_service_json(VW::workspace& all, VW::multi_ex& examples, char* line, size_t length,
-    bool copy_line, example_factory_t example_factory, VW::parsers::json::decision_service_interaction* data);
+bool read_line_decision_service_json(VW980::workspace& all, VW980::multi_ex& examples, char* line, size_t length,
+    bool copy_line, example_factory_t example_factory, VW980::parsers::json::decision_service_interaction* data);
 
 // This is used by the python parser
 template <bool audit>
-void line_to_examples_json(VW::workspace* all, VW::string_view sv, VW::multi_ex& examples);
+void line_to_examples_json(VW980::workspace* all, VW980::string_view sv, VW980::multi_ex& examples);
 
 template <bool audit>
-int read_features_json(VW::workspace* all, io_buf& buf, VW::multi_ex& examples);
+int read_features_json(VW980::workspace* all, io_buf& buf, VW980::multi_ex& examples);
 
 // Define extern template specializations so they don't get initialized when this file is included
-extern template void read_line_json<true>(const VW::label_parser& lbl_parser, hash_func_t hash_func, uint64_t hash_seed,
-    uint64_t parse_mask, bool chain_hash, VW::label_parser_reuse_mem* reuse_mem, const VW::named_labels* ldict,
-    VW::multi_ex& examples, char* line, size_t length, example_factory_t example_factory, VW::io::logger& logger,
+extern template void read_line_json<true>(const VW980::label_parser& lbl_parser, hash_func_t hash_func, uint64_t hash_seed,
+    uint64_t parse_mask, bool chain_hash, VW980::label_parser_reuse_mem* reuse_mem, const VW980::named_labels* ldict,
+    VW980::multi_ex& examples, char* line, size_t length, example_factory_t example_factory, VW980::io::logger& logger,
     std::unordered_map<std::string, std::set<std::string>>* ignore_features,
-    const std::unordered_map<uint64_t, VW::example*>* dedup_examples);
-extern template void read_line_json<false>(const VW::label_parser& lbl_parser, hash_func_t hash_func,
-    uint64_t hash_seed, uint64_t parse_mask, bool chain_hash, VW::label_parser_reuse_mem* reuse_mem,
-    const VW::named_labels* ldict, VW::multi_ex& examples, char* line, size_t length, example_factory_t example_factory,
-    VW::io::logger& logger, std::unordered_map<std::string, std::set<std::string>>* ignore_features,
-    const std::unordered_map<uint64_t, VW::example*>* dedup_examples);
+    const std::unordered_map<uint64_t, VW980::example*>* dedup_examples);
+extern template void read_line_json<false>(const VW980::label_parser& lbl_parser, hash_func_t hash_func,
+    uint64_t hash_seed, uint64_t parse_mask, bool chain_hash, VW980::label_parser_reuse_mem* reuse_mem,
+    const VW980::named_labels* ldict, VW980::multi_ex& examples, char* line, size_t length, example_factory_t example_factory,
+    VW980::io::logger& logger, std::unordered_map<std::string, std::set<std::string>>* ignore_features,
+    const std::unordered_map<uint64_t, VW980::example*>* dedup_examples);
 
-extern template void read_line_json<true>(VW::workspace& all, VW::multi_ex& examples, char* line, size_t length,
-    example_factory_t example_factory, const std::unordered_map<uint64_t, VW::example*>* dedup_examples);
-extern template void read_line_json<false>(VW::workspace& all, VW::multi_ex& examples, char* line, size_t length,
-    example_factory_t example_factory, const std::unordered_map<uint64_t, VW::example*>* dedup_examples);
+extern template void read_line_json<true>(VW980::workspace& all, VW980::multi_ex& examples, char* line, size_t length,
+    example_factory_t example_factory, const std::unordered_map<uint64_t, VW980::example*>* dedup_examples);
+extern template void read_line_json<false>(VW980::workspace& all, VW980::multi_ex& examples, char* line, size_t length,
+    example_factory_t example_factory, const std::unordered_map<uint64_t, VW980::example*>* dedup_examples);
 
-extern template bool read_line_decision_service_json<true>(VW::workspace& all, VW::multi_ex& examples, char* line,
+extern template bool read_line_decision_service_json<true>(VW980::workspace& all, VW980::multi_ex& examples, char* line,
     size_t length, bool copy_line, example_factory_t example_factory,
-    VW::parsers::json::decision_service_interaction* data);
-extern template bool read_line_decision_service_json<false>(VW::workspace& all, VW::multi_ex& examples, char* line,
+    VW980::parsers::json::decision_service_interaction* data);
+extern template bool read_line_decision_service_json<false>(VW980::workspace& all, VW980::multi_ex& examples, char* line,
     size_t length, bool copy_line, example_factory_t example_factory,
-    VW::parsers::json::decision_service_interaction* data);
+    VW980::parsers::json::decision_service_interaction* data);
 
 namespace details
 {
-extern template bool parse_line_json<true>(VW::workspace* all, char* line, size_t num_chars, VW::multi_ex& examples);
-extern template bool parse_line_json<false>(VW::workspace* all, char* line, size_t num_chars, VW::multi_ex& examples);
+extern template bool parse_line_json<true>(VW980::workspace* all, char* line, size_t num_chars, VW980::multi_ex& examples);
+extern template bool parse_line_json<false>(VW980::workspace* all, char* line, size_t num_chars, VW980::multi_ex& examples);
 }  // namespace details
 
-extern template void line_to_examples_json<true>(VW::workspace* all, VW::string_view, VW::multi_ex& examples);
-extern template void line_to_examples_json<false>(VW::workspace* all, VW::string_view, VW::multi_ex& examples);
+extern template void line_to_examples_json<true>(VW980::workspace* all, VW980::string_view, VW980::multi_ex& examples);
+extern template void line_to_examples_json<false>(VW980::workspace* all, VW980::string_view, VW980::multi_ex& examples);
 
-extern template int read_features_json<true>(VW::workspace* all, io_buf& buf, VW::multi_ex& examples);
-extern template int read_features_json<false>(VW::workspace* all, io_buf& buf, VW::multi_ex& examples);
+extern template int read_features_json<true>(VW980::workspace* all, io_buf& buf, VW980::multi_ex& examples);
+extern template int read_features_json<false>(VW980::workspace* all, io_buf& buf, VW980::multi_ex& examples);
 
 }  // namespace json
 }  // namespace parsers
-}  // namespace VW
+}  // namespace VW980

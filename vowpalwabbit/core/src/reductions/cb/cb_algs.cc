@@ -15,28 +15,28 @@
 #include <cfloat>
 #include <sstream>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
 class cb
 {
 public:
-  VW::details::cb_to_cs cbcs;
-  VW::io::logger logger;
+  VW980::details::cb_to_cs cbcs;
+  VW980::io::logger logger;
 
-  cb(VW::io::logger logger) : logger(std::move(logger)) {}
+  cb(VW980::io::logger logger) : logger(std::move(logger)) {}
 };
 
 template <bool is_learn>
-void predict_or_learn(cb& data, learner& base, VW::example& ec)
+void predict_or_learn(cb& data, learner& base, VW980::example& ec)
 {
-  VW::details::cb_to_cs& c = data.cbcs;
+  VW980::details::cb_to_cs& c = data.cbcs;
   auto optional_cost = get_observed_cost_cb(ec.l.cb);
   // cost observed, not default
   if (optional_cost.first) { c.known_cost = optional_cost.second; }
-  else { c.known_cost = VW::cb_class{}; }
+  else { c.known_cost = VW980::cb_class{}; }
 
   // cost observed, not default
   if (optional_cost.first && (c.known_cost.action < 1 || c.known_cost.action > c.num_actions))
@@ -45,9 +45,9 @@ void predict_or_learn(cb& data, learner& base, VW::example& ec)
   }
 
   // generate a cost-sensitive example to update classifiers
-  VW::details::gen_cs_example<is_learn>(c, ec, ec.l.cb, ec.l.cs, data.logger);
+  VW980::details::gen_cs_example<is_learn>(c, ec, ec.l.cb, ec.l.cs, data.logger);
 
-  if (c.cb_type != VW::cb_type_t::DM)
+  if (c.cb_type != VW980::cb_type_t::DM)
   {
     if (is_learn) { base.learn(ec); }
     else { base.predict(ec); }
@@ -59,16 +59,16 @@ void predict_or_learn(cb& data, learner& base, VW::example& ec)
   }
 }
 
-void predict_eval(cb&, learner&, VW::example&) { THROW("can not use a test label for evaluation"); }
+void predict_eval(cb&, learner&, VW980::example&) { THROW("can not use a test label for evaluation"); }
 
-void learn_eval(cb& data, learner&, VW::example& ec)
+void learn_eval(cb& data, learner&, VW980::example& ec)
 {
-  VW::details::cb_to_cs& c = data.cbcs;
+  VW980::details::cb_to_cs& c = data.cbcs;
   auto optional_cost = get_observed_cost_cb(ec.l.cb_eval.event);
   // cost observed, not default
   if (optional_cost.first) { c.known_cost = optional_cost.second; }
-  else { c.known_cost = VW::cb_class{}; }
-  VW::details::gen_cs_example<true>(c, ec, ec.l.cb_eval.event, ec.l.cs, data.logger);
+  else { c.known_cost = VW980::cb_class{}; }
+  VW980::details::gen_cs_example<true>(c, ec, ec.l.cb_eval.event, ec.l.cs, data.logger);
 
   for (size_t i = 0; i < ec.l.cb_eval.event.costs.size(); i++)
   {
@@ -79,21 +79,21 @@ void learn_eval(cb& data, learner&, VW::example& ec)
 }
 
 template <bool uses_eval>
-void update_stats_cb_algs(const VW::workspace& /* all */, VW::shared_data& sd, const cb& data, const VW::example& ec,
-    VW::io::logger& /* unused */)
+void update_stats_cb_algs(const VW980::workspace& /* all */, VW980::shared_data& sd, const cb& data, const VW980::example& ec,
+    VW980::io::logger& /* unused */)
 {
   const auto& ld = uses_eval ? ec.l.cb_eval.event : ec.l.cb;
   const auto& c = data.cbcs;
   float loss = 0.;
 
-  if (!ld.is_test_label()) { loss = VW::get_cost_estimate(c.known_cost, c.pred_scores, ec.pred.multiclass); }
+  if (!ld.is_test_label()) { loss = VW980::get_cost_estimate(c.known_cost, c.pred_scores, ec.pred.multiclass); }
 
   sd.update(ec.test_only, !ld.is_test_label(), loss, 1.f, ec.get_num_features());
 }
 
 template <bool uses_eval>
 void output_example_prediction_cb_algs(
-    VW::workspace& all, const cb& /* data */, const VW::example& ec, VW::io::logger& logger)
+    VW980::workspace& all, const cb& /* data */, const VW980::example& ec, VW980::io::logger& logger)
 {
   const auto& ld = uses_eval ? ec.l.cb_eval.event : ec.l.cb;
 
@@ -107,7 +107,7 @@ void output_example_prediction_cb_algs(
     std::stringstream output_string_stream;
     for (unsigned int i = 0; i < ld.costs.size(); i++)
     {
-      VW::cb_class cl = ld.costs[i];
+      VW980::cb_class cl = ld.costs[i];
       if (i > 0) { output_string_stream << ' '; }
       output_string_stream << cl.action << ':' << cl.partial_prediction;
     }
@@ -117,22 +117,22 @@ void output_example_prediction_cb_algs(
 
 template <bool uses_eval>
 void print_update_cb_algs(
-    VW::workspace& all, VW::shared_data& /* sd */, const cb& data, const VW::example& ec, VW::io::logger& /* unused */)
+    VW980::workspace& all, VW980::shared_data& /* sd */, const cb& data, const VW980::example& ec, VW980::io::logger& /* unused */)
 {
   const auto& ld = uses_eval ? ec.l.cb_eval.event : ec.l.cb;
   const auto& c = data.cbcs;
 
   bool is_ld_test_label = ld.is_test_label();
-  if (!is_ld_test_label) { VW::details::print_update_cb(all, is_ld_test_label, ec, nullptr, false, &c.known_cost); }
-  else { VW::details::print_update_cb(all, is_ld_test_label, ec, nullptr, false, nullptr); }
+  if (!is_ld_test_label) { VW980::details::print_update_cb(all, is_ld_test_label, ec, nullptr, false, &c.known_cost); }
+  else { VW980::details::print_update_cb(all, is_ld_test_label, ec, nullptr, false, nullptr); }
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_algs_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_algs_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto data = VW::make_unique<cb>(all.logger);
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto data = VW980::make_unique<cb>(all.logger);
   std::string type_string = "dr";
   bool eval = false;
   bool force_legacy = true;
@@ -164,26 +164,26 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_algs_setup(VW::setup_ba
     options.add_and_parse(new_options);
   }
 
-  VW::details::cb_to_cs& c = data->cbcs;
+  VW980::details::cb_to_cs& c = data->cbcs;
 
   size_t feature_width = 2;  // default for DR
-  c.cb_type = VW::cb_type_from_string(type_string);
+  c.cb_type = VW980::cb_type_from_string(type_string);
   switch (c.cb_type)
   {
-    case VW::cb_type_t::DR:
+    case VW980::cb_type_t::DR:
       break;
-    case VW::cb_type_t::DM:
+    case VW980::cb_type_t::DM:
       if (eval) THROW("direct method can not be used for evaluation --- it is biased.");
       feature_width = 1;
       break;
-    case VW::cb_type_t::IPS:
+    case VW980::cb_type_t::IPS:
       feature_width = 1;
       break;
-    case VW::cb_type_t::MTR:
-    case VW::cb_type_t::SM:
+    case VW980::cb_type_t::MTR:
+    case VW980::cb_type_t::SM:
       data->logger.err_warn(
-          "cb_type must be in {{'ips','dm','dr'}}; resetting to dr. Input received: {}", VW::to_string(c.cb_type));
-      c.cb_type = VW::cb_type_t::DR;
+          "cb_type must be in {{'ips','dm','dr'}}; resetting to dr. Input received: {}", VW980::to_string(c.cb_type));
+      c.cb_type = VW980::cb_type_t::DR;
       break;
   }
 
@@ -195,25 +195,25 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_algs_setup(VW::setup_ba
   }
 
   auto base = require_singleline(stack_builder.setup_base_learner(feature_width));
-  c.scorer = VW::LEARNER::require_singleline(base->get_learner_by_name_prefix("scorer"));
+  c.scorer = VW980::LEARNER::require_singleline(base->get_learner_by_name_prefix("scorer"));
 
   std::string name_addition = eval ? "-eval" : "";
   auto learn_ptr = eval ? learn_eval : predict_or_learn<true>;
   auto predict_ptr = eval ? predict_eval : predict_or_learn<false>;
-  auto label_type = eval ? VW::label_type_t::CB_EVAL : VW::label_type_t::CB;
-  VW::learner_update_stats_func<cb, VW::example>* update_stats_func =
+  auto label_type = eval ? VW980::label_type_t::CB_EVAL : VW980::label_type_t::CB;
+  VW980::learner_update_stats_func<cb, VW980::example>* update_stats_func =
       eval ? update_stats_cb_algs<true> : update_stats_cb_algs<false>;
-  VW::learner_output_example_prediction_func<cb, VW::example>* output_example_prediction_func =
+  VW980::learner_output_example_prediction_func<cb, VW980::example>* output_example_prediction_func =
       eval ? output_example_prediction_cb_algs<true> : output_example_prediction_cb_algs<false>;
-  VW::learner_print_update_func<cb, VW::example>* print_update_func =
+  VW980::learner_print_update_func<cb, VW980::example>* print_update_func =
       eval ? print_update_cb_algs<true> : print_update_cb_algs<false>;
 
   auto l = make_reduction_learner(
       std::move(data), base, learn_ptr, predict_ptr, stack_builder.get_setupfn_name(cb_algs_setup) + name_addition)
                .set_input_label_type(label_type)
-               .set_output_label_type(VW::label_type_t::CS)
-               .set_input_prediction_type(VW::prediction_type_t::MULTICLASS)
-               .set_output_prediction_type(VW::prediction_type_t::MULTICLASS)
+               .set_output_label_type(VW980::label_type_t::CS)
+               .set_input_prediction_type(VW980::prediction_type_t::MULTICLASS)
+               .set_output_prediction_type(VW980::prediction_type_t::MULTICLASS)
                .set_feature_width(feature_width)
                .set_learn_returns_prediction(eval)
                .set_update_stats(update_stats_func)

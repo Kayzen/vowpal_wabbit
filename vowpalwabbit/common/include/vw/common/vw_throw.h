@@ -34,7 +34,7 @@
     {                                                            \
       std::ostringstream __msg;                                  \
       __msg << args;                                             \
-      throw VW::vw_exception(VW_FILENAME, VW_LINE, __msg.str()); \
+      throw VW980::vw_exception(VW_FILENAME, VW_LINE, __msg.str()); \
     }
 
 #  define THROW_EX(ex, args)                       \
@@ -51,14 +51,14 @@
     do {                                                          \
       std::ostringstream __msgA;                                  \
       __msgA << args;                                             \
-      throw VW::vw_exception(VW_FILENAME, VW_LINE, __msgA.str()); \
+      throw VW980::vw_exception(VW_FILENAME, VW_LINE, __msgA.str()); \
     } while (0)
 
 #  define THROW_OR_RETURN_VOID(args)                              \
     do {                                                          \
       std::ostringstream __msgB;                                  \
       __msgB << args;                                             \
-      throw VW::vw_exception(VW_FILENAME, VW_LINE, __msgB.str()); \
+      throw VW980::vw_exception(VW_FILENAME, VW_LINE, __msgB.str()); \
     } while (0)
 
 #endif

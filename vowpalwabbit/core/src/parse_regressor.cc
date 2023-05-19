@@ -38,13 +38,13 @@
 #include <numeric>
 #include <utility>
 
-void initialize_weights_as_polar_normal(VW::weight* weights, uint64_t index)
+void initialize_weights_as_polar_normal(VW980::weight* weights, uint64_t index)
 {
-  weights[0] = VW::details::merand48_boxmuller(index);
+  weights[0] = VW980::details::merand48_boxmuller(index);
 }
 
 template <class T>
-double calculate_sd(VW::workspace& /* all */, T& weights)
+double calculate_sd(VW980::workspace& /* all */, T& weights)
 {
   static int my_size = 0;
   std::for_each(weights.begin(), weights.end(), [](float /* v */) { my_size += 1; });
@@ -59,7 +59,7 @@ double calculate_sd(VW::workspace& /* all */, T& weights)
 // re-scaling to re-picking values outside the truncating boundary.
 // note:- boundary is twice the standard deviation.
 template <class T>
-void truncate(VW::workspace& all, T& weights)
+void truncate(VW980::workspace& all, T& weights)
 {
   static double sd = calculate_sd(all, weights);
   std::for_each(weights.begin(), weights.end(),
@@ -70,7 +70,7 @@ void truncate(VW::workspace& all, T& weights)
 }
 
 template <class T>
-void initialize_regressor(VW::workspace& all, T& weights)
+void initialize_regressor(VW980::workspace& all, T& weights)
 {
   // Regressor is already initialized.
   if (weights.not_null()) { return; }
@@ -82,7 +82,7 @@ void initialize_regressor(VW::workspace& all, T& weights)
     weights.~T();  // dealloc so that we can realloc, now with a known size
     new (&weights) T(length, ss);
   }
-  catch (const VW::vw_exception&)
+  catch (const VW980::vw_exception&)
   {
     THROW(" Failed to allocate weight array with " << all.num_bits << " bits: try decreasing -b <bits>");
   }
@@ -93,21 +93,21 @@ void initialize_regressor(VW::workspace& all, T& weights)
   else if (all.initial_weight != 0.)
   {
     auto initial_weight = all.initial_weight;
-    auto initial_value_weight_initializer = [initial_weight](VW::weight* weights, uint64_t /*index*/)
+    auto initial_value_weight_initializer = [initial_weight](VW980::weight* weights, uint64_t /*index*/)
     { weights[0] = initial_weight; };
     weights.set_default(initial_value_weight_initializer);
   }
   else if (all.random_positive_weights)
   {
     auto rand_state = *all.get_random_state();
-    auto random_positive = [&rand_state](VW::weight* weights, uint64_t)
+    auto random_positive = [&rand_state](VW980::weight* weights, uint64_t)
     { weights[0] = 0.1f * rand_state.get_and_update_random(); };
     weights.set_default(random_positive);
   }
   else if (all.random_weights)
   {
     auto rand_state = *all.get_random_state();
-    auto random_neg_pos = [&rand_state](VW::weight* weights, uint64_t)
+    auto random_neg_pos = [&rand_state](VW980::weight* weights, uint64_t)
     { weights[0] = rand_state.get_and_update_random() - 0.5f; };
     weights.set_default(random_neg_pos);
   }
@@ -119,7 +119,7 @@ void initialize_regressor(VW::workspace& all, T& weights)
   }
 }
 
-void VW::details::initialize_regressor(VW::workspace& all)
+void VW980::details::initialize_regressor(VW980::workspace& all)
 {
   if (all.weights.sparse) { ::initialize_regressor(all, all.weights.sparse_weights); }
   else { ::initialize_regressor(all, all.weights.dense_weights); }
@@ -131,40 +131,40 @@ constexpr size_t DEFAULT_BUF_SIZE = 512;
 }
 
 // file_options will be written to when reading
-void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, bool read, bool text,
-    std::string& file_options, VW::config::options_i& options)
+void VW980::details::save_load_header(VW980::workspace& all, VW980::io_buf& model_file, bool read, bool text,
+    std::string& file_options, VW980::config::options_i& options)
 {
   if (model_file.num_files() > 0)
   {
     std::vector<char> buff2(DEFAULT_BUF_SIZE);
     size_t bytes_read_write = 0;
 
-    size_t v_length = static_cast<uint32_t>(VW::VERSION.to_string().length()) + 1;
+    size_t v_length = static_cast<uint32_t>(VW980::VERSION.to_string().length()) + 1;
     std::stringstream msg;
-    msg << "Version " << VW::VERSION.to_string() << "\n";
-    memcpy(buff2.data(), VW::VERSION.to_string().c_str(), std::min(v_length, buff2.size()));
+    msg << "Version " << VW980::VERSION.to_string() << "\n";
+    memcpy(buff2.data(), VW980::VERSION.to_string().c_str(), std::min(v_length, buff2.size()));
     if (read)
     {
       v_length = buff2.size();
       buff2[std::min(v_length, DEFAULT_BUF_SIZE) - 1] = '\0';
     }
-    bytes_read_write += VW::details::bin_text_read_write(model_file, buff2.data(), v_length, read, msg, text);
-    all.model_file_ver = VW::version_struct{buff2.data()};  // stored in all to check save_resume fix in gd
-    VW::validate_version(all);
+    bytes_read_write += VW980::details::bin_text_read_write(model_file, buff2.data(), v_length, read, msg, text);
+    all.model_file_ver = VW980::version_struct{buff2.data()};  // stored in all to check save_resume fix in gd
+    VW980::validate_version(all);
 
-    if (all.model_file_ver >= VW::version_definitions::VERSION_FILE_WITH_HEADER_CHAINED_HASH)
+    if (all.model_file_ver >= VW980::version_definitions::VERSION_FILE_WITH_HEADER_CHAINED_HASH)
     {
       model_file.verify_hash(true);
     }
 
-    if (all.model_file_ver >= VW::version_definitions::VERSION_FILE_WITH_HEADER_ID)
+    if (all.model_file_ver >= VW980::version_definitions::VERSION_FILE_WITH_HEADER_ID)
     {
       v_length = all.id.length() + 1;
 
       msg << "Id " << all.id << "\n";
       memcpy(buff2.data(), all.id.c_str(), std::min(v_length, DEFAULT_BUF_SIZE));
       if (read) { v_length = DEFAULT_BUF_SIZE; }
-      bytes_read_write += VW::details::bin_text_read_write(model_file, buff2.data(), v_length, read, msg, text);
+      bytes_read_write += VW980::details::bin_text_read_write(model_file, buff2.data(), v_length, read, msg, text);
       all.id = buff2.data();
 
       if (read && !options.was_supplied("id") && !all.id.empty())
@@ -175,20 +175,20 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
     }
 
     char model = 'm';
-    bytes_read_write += VW::details::bin_text_read_write_fixed_validated(model_file, &model, 1, read, msg, text);
+    bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(model_file, &model, 1, read, msg, text);
     if (model != 'm') { THROW("file is not a model file") }
 
     msg << "Min label:" << all.sd->min_label << "\n";
-    bytes_read_write += VW::details::bin_text_read_write_fixed_validated(
+    bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(
         model_file, reinterpret_cast<char*>(&all.sd->min_label), sizeof(all.sd->min_label), read, msg, text);
 
     msg << "Max label:" << all.sd->max_label << "\n";
-    bytes_read_write += VW::details::bin_text_read_write_fixed_validated(
+    bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(
         model_file, reinterpret_cast<char*>(&all.sd->max_label), sizeof(all.sd->max_label), read, msg, text);
 
     msg << "bits:" << all.num_bits << "\n";
     uint32_t local_num_bits = all.num_bits;
-    bytes_read_write += VW::details::bin_text_read_write_fixed_validated(
+    bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(
         model_file, reinterpret_cast<char*>(&local_num_bits), sizeof(local_num_bits), read, msg, text);
 
     if (read && !options.was_supplied("bit_precision"))
@@ -199,21 +199,21 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
       file_options += " " + temp.str();
     }
 
-    VW::validate_default_bits(all, local_num_bits);
+    VW980::validate_default_bits(all, local_num_bits);
 
     all.default_bits = false;
     all.num_bits = local_num_bits;
 
-    VW::validate_num_bits(all);
+    VW980::validate_num_bits(all);
 
-    if (all.model_file_ver < VW::version_definitions::VERSION_FILE_WITH_INTERACTIONS_IN_FO)
+    if (all.model_file_ver < VW980::version_definitions::VERSION_FILE_WITH_INTERACTIONS_IN_FO)
     {
       if (!read) THROW("cannot write legacy format");
 
       // -q, --cubic and --interactions are not saved in vw::file_options
       uint32_t pair_len = 0;
       msg << pair_len << " pairs: ";
-      bytes_read_write += VW::details::bin_text_read_write_fixed_validated(
+      bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(
           model_file, reinterpret_cast<char*>(&pair_len), sizeof(pair_len), read, msg, text);
 
       // TODO: validate pairs?
@@ -222,8 +222,8 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
         char pair[3] = {0, 0, 0};
 
         // Only the read path is implemented since this is for old version read support.
-        bytes_read_write += VW::details::bin_text_read_write_fixed_validated(model_file, pair, 2, read, msg, text);
-        std::vector<VW::namespace_index> temp(pair, *(&pair + 1));
+        bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(model_file, pair, 2, read, msg, text);
+        std::vector<VW980::namespace_index> temp(pair, *(&pair + 1));
         if (std::count(all.interactions.begin(), all.interactions.end(), temp) == 0)
         {
           all.interactions.emplace_back(temp.begin(), temp.end());
@@ -231,12 +231,12 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
       }
 
       msg << "\n";
-      bytes_read_write += VW::details::bin_text_read_write_fixed_validated(model_file, nullptr, 0, read, msg, text);
+      bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(model_file, nullptr, 0, read, msg, text);
 
       uint32_t triple_len = 0;
 
       msg << triple_len << " triples: ";
-      bytes_read_write += VW::details::bin_text_read_write_fixed_validated(
+      bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(
           model_file, reinterpret_cast<char*>(&triple_len), sizeof(triple_len), read, msg, text);
 
       // TODO: validate triples?
@@ -245,9 +245,9 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
         char triple[4] = {0, 0, 0, 0};
 
         // Only the read path is implemented since this is for old version read support.
-        bytes_read_write += VW::details::bin_text_read_write_fixed_validated(model_file, triple, 3, read, msg, text);
+        bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(model_file, triple, 3, read, msg, text);
 
-        std::vector<VW::namespace_index> temp(triple, *(&triple + 1));
+        std::vector<VW980::namespace_index> temp(triple, *(&triple + 1));
         if (count(all.interactions.begin(), all.interactions.end(), temp) == 0)
         {
           all.interactions.emplace_back(temp.begin(), temp.end());
@@ -255,10 +255,10 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
       }
 
       msg << "\n";
-      bytes_read_write += VW::details::bin_text_read_write_fixed_validated(model_file, nullptr, 0, read, msg, text);
+      bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(model_file, nullptr, 0, read, msg, text);
 
       if (all.model_file_ver >=
-          VW::version_definitions::VERSION_FILE_WITH_INTERACTIONS)  // && < VERSION_FILE_WITH_INTERACTIONS_IN_FO
+          VW980::version_definitions::VERSION_FILE_WITH_INTERACTIONS)  // && < VERSION_FILE_WITH_INTERACTIONS_IN_FO
                                                                     // (previous if)
       {
         if (!read) THROW("cannot write legacy format");
@@ -267,22 +267,22 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
         uint32_t len = 0;
 
         msg << len << " interactions: ";
-        bytes_read_write += VW::details::bin_text_read_write_fixed_validated(
+        bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(
             model_file, reinterpret_cast<char*>(&len), sizeof(len), read, msg, text);
 
         for (size_t i = 0; i < len; i++)
         {
           // Only the read path is implemented since this is for old version read support.
           uint32_t inter_len = 0;
-          bytes_read_write += VW::details::bin_text_read_write_fixed_validated(
+          bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(
               model_file, reinterpret_cast<char*>(&inter_len), sizeof(inter_len), read, msg, text);
 
           auto size =
-              VW::details::bin_text_read_write_fixed_validated(model_file, buff2.data(), inter_len, read, msg, text);
+              VW980::details::bin_text_read_write_fixed_validated(model_file, buff2.data(), inter_len, read, msg, text);
           bytes_read_write += size;
           if (size != inter_len) { THROW("Failed to read interaction from model file."); }
 
-          std::vector<VW::namespace_index> temp(buff2.data(), buff2.data() + size);
+          std::vector<VW980::namespace_index> temp(buff2.data(), buff2.data() + size);
           if (count(all.interactions.begin(), all.interactions.end(), temp) == 0)
           {
             all.interactions.emplace_back(buff2.data(), buff2.data() + inter_len);
@@ -290,16 +290,16 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
         }
 
         msg << "\n";
-        bytes_read_write += VW::details::bin_text_read_write_fixed_validated(model_file, nullptr, 0, read, msg, text);
+        bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(model_file, nullptr, 0, read, msg, text);
       }
     }
 
-    if (all.model_file_ver <= VW::version_definitions::VERSION_FILE_WITH_RANK_IN_HEADER)
+    if (all.model_file_ver <= VW980::version_definitions::VERSION_FILE_WITH_RANK_IN_HEADER)
     {
       // to fix compatibility that was broken in 7.9
       uint32_t rank = 0;
       msg << "rank:" << rank << "\n";
-      bytes_read_write += VW::details::bin_text_read_write_fixed_validated(
+      bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(
           model_file, reinterpret_cast<char*>(&rank), sizeof(rank), read, msg, text);
       if (rank != 0)
       {
@@ -321,7 +321,7 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
     }
 
     msg << "lda:" << all.lda << "\n";
-    bytes_read_write += VW::details::bin_text_read_write_fixed_validated(
+    bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(
         model_file, reinterpret_cast<char*>(&all.lda), sizeof(all.lda), read, msg, text);
 
     // TODO: validate ngram_len?
@@ -329,7 +329,7 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
     uint32_t ngram_len =
         (g_transformer != nullptr) ? static_cast<uint32_t>(g_transformer->get_initial_ngram_definitions().size()) : 0;
     msg << ngram_len << " ngram:";
-    bytes_read_write += VW::details::bin_text_read_write_fixed_validated(
+    bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(
         model_file, reinterpret_cast<char*>(&ngram_len), sizeof(ngram_len), read, msg, text);
 
     std::vector<std::string> temp_vec;
@@ -343,7 +343,7 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
         msg << ngram_strings[i] << " ";
         memcpy(ngram, ngram_strings[i].c_str(), std::min(static_cast<size_t>(3), ngram_strings[i].size()));
       }
-      bytes_read_write += VW::details::bin_text_read_write_fixed_validated(model_file, ngram, 3, read, msg, text);
+      bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(model_file, ngram, 3, read, msg, text);
       if (read)
       {
         std::string temp(ngram);
@@ -353,13 +353,13 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
     }
 
     msg << "\n";
-    bytes_read_write += VW::details::bin_text_read_write_fixed_validated(model_file, nullptr, 0, read, msg, text);
+    bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(model_file, nullptr, 0, read, msg, text);
 
     // TODO: validate skips?
     uint32_t skip_len =
         (g_transformer != nullptr) ? static_cast<uint32_t>(g_transformer->get_initial_skip_definitions().size()) : 0;
     msg << skip_len << " skip:";
-    bytes_read_write += VW::details::bin_text_read_write_fixed_validated(
+    bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(
         model_file, reinterpret_cast<char*>(&skip_len), sizeof(skip_len), read, msg, text);
 
     const auto& skip_strings = g_transformer != nullptr ? g_transformer->get_initial_skip_definitions() : temp_vec;
@@ -372,7 +372,7 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
         memcpy(skip, skip_strings[i].c_str(), std::min(static_cast<size_t>(3), skip_strings[i].size()));
       }
 
-      bytes_read_write += VW::details::bin_text_read_write_fixed_validated(model_file, skip, 3, read, msg, text);
+      bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(model_file, skip, 3, read, msg, text);
       if (read)
       {
         std::string temp(skip);
@@ -382,7 +382,7 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
     }
 
     msg << "\n";
-    bytes_read_write += VW::details::bin_text_read_write_fixed_validated(model_file, nullptr, 0, read, msg, text);
+    bytes_read_write += VW980::details::bin_text_read_write_fixed_validated(model_file, nullptr, 0, read, msg, text);
 
     if (read)
     {
@@ -408,7 +408,7 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
     }
     else
     {
-      VW::config::cli_options_serializer serializer;
+      VW980::config::cli_options_serializer serializer;
 
       std::map<std::string, std::set<char>> merged_values = {{"ignore", {}}, {"ignore_linear", {}}, {"keep", {}}};
 
@@ -419,7 +419,7 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
           if (merged_values.find(option->m_name) != merged_values.end())
           {
             // Merge and deduplicate the namespaces before serializing into the model file.
-            const auto& typed = dynamic_cast<const VW::config::typed_option<std::vector<std::string>>&>(*option);
+            const auto& typed = dynamic_cast<const VW980::config::typed_option<std::vector<std::string>>&>(*option);
             for (const auto& v : typed.value()) { merged_values[option->m_name].insert(v.begin(), v.end()); }
             continue;
           }
@@ -449,62 +449,62 @@ void VW::details::save_load_header(VW::workspace& all, VW::io_buf& model_file, b
       if (len > buff2.size()) { buff2.resize(len + 1); }
       memcpy(buff2.data(), serialized_keep_options.c_str(), len + 1);
       *(buff2.data() + len) = 0;
-      bytes_read_write += VW::details::bin_text_read_write(model_file, buff2.data(), len + 1,  // len+1 to write a \0
+      bytes_read_write += VW980::details::bin_text_read_write(model_file, buff2.data(), len + 1,  // len+1 to write a \0
           read, msg, text);
     }
 
     // Read/write checksum if required by version
-    if (all.model_file_ver >= VW::version_definitions::VERSION_FILE_WITH_HEADER_HASH)
+    if (all.model_file_ver >= VW980::version_definitions::VERSION_FILE_WITH_HEADER_HASH)
     {
-      uint32_t check_sum = (all.model_file_ver >= VW::version_definitions::VERSION_FILE_WITH_HEADER_CHAINED_HASH)
+      uint32_t check_sum = (all.model_file_ver >= VW980::version_definitions::VERSION_FILE_WITH_HEADER_CHAINED_HASH)
           ? model_file.hash()
-          : static_cast<uint32_t>(VW::uniform_hash(model_file.buffer_start(), bytes_read_write, 0));
+          : static_cast<uint32_t>(VW980::uniform_hash(model_file.buffer_start(), bytes_read_write, 0));
 
       uint32_t check_sum_saved = check_sum;
 
       msg << "Checksum: " << check_sum << "\n";
-      VW::details::bin_text_read_write(
+      VW980::details::bin_text_read_write(
           model_file, reinterpret_cast<char*>(&check_sum), sizeof(check_sum), read, msg, text);
 
       if (check_sum_saved != check_sum) { THROW("Checksum is inconsistent, file is possibly corrupted."); }
     }
 
-    if (all.model_file_ver >= VW::version_definitions::VERSION_FILE_WITH_HEADER_CHAINED_HASH)
+    if (all.model_file_ver >= VW980::version_definitions::VERSION_FILE_WITH_HEADER_CHAINED_HASH)
     {
       model_file.verify_hash(false);
     }
   }
 }
 
-void VW::details::dump_regressor(VW::workspace& all, VW::io_buf& buf, bool as_text)
+void VW980::details::dump_regressor(VW980::workspace& all, VW980::io_buf& buf, bool as_text)
 {
   if (buf.num_output_files() == 0) { THROW("Cannot dump regressor with an io buffer that has no output files."); }
   std::string unused;
   if (all.l != nullptr) { all.l->pre_save_load(all); }
-  VW::details::save_load_header(all, buf, false, as_text, unused, *all.options);
+  VW980::details::save_load_header(all, buf, false, as_text, unused, *all.options);
   if (all.l != nullptr) { all.l->save_load(buf, false, as_text); }
 
   buf.flush();  // close_file() should do this for me ...
   buf.close_file();
 }
 
-void VW::details::dump_regressor(VW::workspace& all, const std::string& reg_name, bool as_text)
+void VW980::details::dump_regressor(VW980::workspace& all, const std::string& reg_name, bool as_text)
 {
   if (reg_name == std::string("")) { return; }
   std::string start_name = reg_name + std::string(".writing");
-  VW::io_buf io_temp;
-  io_temp.add_file(VW::io::open_file_writer(start_name));
+  VW980::io_buf io_temp;
+  io_temp.add_file(VW980::io::open_file_writer(start_name));
 
   dump_regressor(all, io_temp, as_text);
 
   remove(reg_name.c_str());
 
   if (0 != rename(start_name.c_str(), reg_name.c_str()))
-    THROW("WARN: dump_regressor(VW::workspace& all, std::string reg_name, bool as_text): cannot rename: "
+    THROW("WARN: dump_regressor(VW980::workspace& all, std::string reg_name, bool as_text): cannot rename: "
         << start_name.c_str() << " to " << reg_name.c_str());
 }
 
-void VW::details::save_predictor(VW::workspace& all, const std::string& reg_name, size_t current_pass)
+void VW980::details::save_predictor(VW980::workspace& all, const std::string& reg_name, size_t current_pass)
 {
   std::stringstream filename;
   filename << reg_name;
@@ -512,7 +512,7 @@ void VW::details::save_predictor(VW::workspace& all, const std::string& reg_name
   dump_regressor(all, filename.str(), false);
 }
 
-void VW::details::finalize_regressor(VW::workspace& all, const std::string& reg_name)
+void VW980::details::finalize_regressor(VW980::workspace& all, const std::string& reg_name)
 {
   if (!all.early_terminate)
   {
@@ -532,12 +532,12 @@ void VW::details::finalize_regressor(VW::workspace& all, const std::string& reg_
   }
 }
 
-void VW::details::read_regressor_file(
-    VW::workspace& all, const std::vector<std::string>& all_intial, VW::io_buf& io_temp)
+void VW980::details::read_regressor_file(
+    VW980::workspace& all, const std::vector<std::string>& all_intial, VW980::io_buf& io_temp)
 {
   if (all_intial.size() > 0)
   {
-    io_temp.add_file(VW::io::open_file_reader(all_intial[0]));
+    io_temp.add_file(VW980::io::open_file_reader(all_intial[0]));
 
     if (!all.quiet)
     {
@@ -550,8 +550,8 @@ void VW::details::read_regressor_file(
   }
 }
 
-void VW::details::parse_mask_regressor_args(
-    VW::workspace& all, const std::string& feature_mask, std::vector<std::string> initial_regressors)
+void VW980::details::parse_mask_regressor_args(
+    VW980::workspace& all, const std::string& feature_mask, std::vector<std::string> initial_regressors)
 {
   // TODO does this extra check need to be used? I think it is duplicated but there may be some logic I am missing.
   std::string file_options;
@@ -566,8 +566,8 @@ void VW::details::parse_mask_regressor_args(
     }
 
     // all other cases, including from different file, or -i does not exist, need to read in the mask file
-    VW::io_buf io_temp_mask;
-    io_temp_mask.add_file(VW::io::open_file_reader(feature_mask));
+    VW980::io_buf io_temp_mask;
+    io_temp_mask.add_file(VW980::io::open_file_reader(feature_mask));
 
     save_load_header(all, io_temp_mask, true, false, file_options, *all.options);
     all.l->save_load(io_temp_mask, true, false);
@@ -577,8 +577,8 @@ void VW::details::parse_mask_regressor_args(
     if (initial_regressors.size() > 0)
     {
       // Load original header again.
-      VW::io_buf io_temp;
-      io_temp.add_file(VW::io::open_file_reader(initial_regressors[0]));
+      VW980::io_buf io_temp;
+      io_temp.add_file(VW980::io::open_file_reader(initial_regressors[0]));
 
       save_load_header(all, io_temp, true, false, file_options, *all.options);
       io_temp.close_file();

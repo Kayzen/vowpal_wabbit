@@ -15,25 +15,25 @@
 
 TEST(Merge, AddSubtractModelDelta)
 {
-  auto vw_base = VW::initialize(vwtest::make_args("--quiet"));
-  auto vw_new = VW::initialize(vwtest::make_args("--quiet"));
+  auto vw_base = VW980::initialize(vwtest::make_args("--quiet"));
+  auto vw_new = VW980::initialize(vwtest::make_args("--quiet"));
 
   // Create a base workspace and another workspace trained on additional example
   {
-    auto* ex = VW::read_example(*vw_base, "1 | a b");
-    VW::setup_example(*vw_base, ex);
+    auto* ex = VW980::read_example(*vw_base, "1 | a b");
+    VW980::setup_example(*vw_base, ex);
     vw_base->learn(*ex);
     vw_base->finish_example(*ex);
   }
   {
-    auto* ex = VW::read_example(*vw_new, "1 | a b");
-    VW::setup_example(*vw_new, ex);
+    auto* ex = VW980::read_example(*vw_new, "1 | a b");
+    VW980::setup_example(*vw_new, ex);
     vw_new->learn(*ex);
     vw_new->finish_example(*ex);
   }
   {
-    auto* ex = VW::read_example(*vw_new, "1 | c");
-    VW::setup_example(*vw_new, ex);
+    auto* ex = VW980::read_example(*vw_new, "1 | c");
+    VW980::setup_example(*vw_new, ex);
     vw_new->learn(*ex);
     vw_new->finish_example(*ex);
   }
@@ -53,21 +53,21 @@ TEST(Merge, AddSubtractModelDelta)
 
 TEST(Merge, MergeSimpleModel)
 {
-  auto vw1 = VW::initialize(vwtest::make_args("--quiet", "--sgd"));
-  auto vw2 = VW::initialize(vwtest::make_args("--quiet", "--sgd"));
+  auto vw1 = VW980::initialize(vwtest::make_args("--quiet", "--sgd"));
+  auto vw2 = VW980::initialize(vwtest::make_args("--quiet", "--sgd"));
 
-  auto* ex1 = VW::read_example(*vw1, "1 | a b");
-  VW::setup_example(*vw1, ex1);
+  auto* ex1 = VW980::read_example(*vw1, "1 | a b");
+  VW980::setup_example(*vw1, ex1);
   vw1->learn(*ex1);
   vw1->finish_example(*ex1);
 
-  auto* ex2 = VW::read_example(*vw2, "1 | c d");
-  VW::setup_example(*vw2, ex2);
+  auto* ex2 = VW980::read_example(*vw2, "1 | c d");
+  VW980::setup_example(*vw2, ex2);
   vw2->learn(*ex2);
   vw2->finish_example(*ex2);
 
-  std::vector<const VW::workspace*> workspaces = {vw1.get(), vw2.get()};
-  auto result = VW::merge_models(nullptr, workspaces);
+  std::vector<const VW980::workspace*> workspaces = {vw1.get(), vw2.get()};
+  auto result = VW980::merge_models(nullptr, workspaces);
 
   // check that shared data got merged
   EXPECT_FLOAT_EQ(vw1->sd->weighted_labeled_examples, 1.f);
@@ -91,38 +91,38 @@ TEST(Merge, MergeSimpleModel)
 
 TEST(Merge, MergeSimpleModelDelta)
 {
-  auto vw_base = VW::initialize(vwtest::make_args("--quiet"));
-  auto vw1 = VW::initialize(vwtest::make_args("--quiet"));
-  auto vw2 = VW::initialize(vwtest::make_args("--quiet"));
+  auto vw_base = VW980::initialize(vwtest::make_args("--quiet"));
+  auto vw1 = VW980::initialize(vwtest::make_args("--quiet"));
+  auto vw2 = VW980::initialize(vwtest::make_args("--quiet"));
 
   // instead of copying base model, we train all models on the same base example
   {
-    auto* ex = VW::read_example(*vw_base, "1 | x y z");
-    VW::setup_example(*vw_base, ex);
+    auto* ex = VW980::read_example(*vw_base, "1 | x y z");
+    VW980::setup_example(*vw_base, ex);
     vw_base->learn(*ex);
     vw_base->finish_example(*ex);
   }
   {
-    auto* ex = VW::read_example(*vw1, "1 | x y z");
-    VW::setup_example(*vw1, ex);
+    auto* ex = VW980::read_example(*vw1, "1 | x y z");
+    VW980::setup_example(*vw1, ex);
     vw1->learn(*ex);
     vw1->finish_example(*ex);
   }
   {
-    auto* ex = VW::read_example(*vw2, "1 | x y z");
-    VW::setup_example(*vw2, ex);
+    auto* ex = VW980::read_example(*vw2, "1 | x y z");
+    VW980::setup_example(*vw2, ex);
     vw2->learn(*ex);
     vw2->finish_example(*ex);
   }
 
   // train models 1 and 2 on different examples
-  auto* ex1 = VW::read_example(*vw1, "1 | a b");
-  VW::setup_example(*vw1, ex1);
+  auto* ex1 = VW980::read_example(*vw1, "1 | a b");
+  VW980::setup_example(*vw1, ex1);
   vw1->learn(*ex1);
   vw1->finish_example(*ex1);
 
-  auto* ex2 = VW::read_example(*vw2, "1 | c d");
-  VW::setup_example(*vw2, ex2);
+  auto* ex2 = VW980::read_example(*vw2, "1 | c d");
+  VW980::setup_example(*vw2, ex2);
   vw2->learn(*ex2);
   vw2->finish_example(*ex2);
 
@@ -133,7 +133,7 @@ TEST(Merge, MergeSimpleModelDelta)
   // Take model deltas and merge them
   auto delta1 = *vw1 - *vw_base;
   auto delta2 = *vw2 - *vw_base;
-  auto deltas_merged = VW::merge_deltas(std::vector<const VW::model_delta*>{&delta1, &delta2});
+  auto deltas_merged = VW980::merge_deltas(std::vector<const VW980::model_delta*>{&delta1, &delta2});
   auto result_delta_merge = *vw_base + deltas_merged;
 
   EXPECT_FLOAT_EQ(delta1.unsafe_get_workspace_ptr()->sd->weighted_labeled_examples, 1.f);
@@ -142,56 +142,56 @@ TEST(Merge, MergeSimpleModelDelta)
   EXPECT_FLOAT_EQ(result_delta_merge->sd->weighted_labeled_examples, 3.f);
 
   // Merge workspaces directly, this should produce same results
-  std::vector<const VW::workspace*> workspaces{vw1.get(), vw2.get()};
-  auto result_model_merge = VW::merge_models(vw_base.get(), workspaces);
+  std::vector<const VW980::workspace*> workspaces{vw1.get(), vw2.get()};
+  auto result_model_merge = VW980::merge_models(vw_base.get(), workspaces);
 
   EXPECT_FLOAT_EQ(result_model_merge->sd->weighted_labeled_examples, 3.f);
 }
 
 TEST(Merge, MergeCbModel)
 {
-  auto vw1 = VW::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
-  auto vw2 = VW::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
+  auto vw1 = VW980::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
+  auto vw2 = VW980::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
 
-  VW::multi_ex examples1;
-  examples1.push_back(VW::read_example(*vw1, "shared |User user=Tom time_of_day=morning"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=politics"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=sports"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=music"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=food"));
-  examples1.push_back(VW::read_example(*vw1, "0:0.0:0.14285714498588012 |Action article=finance"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=health"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=camping"));
-  VW::setup_examples(*vw1, examples1);
+  VW980::multi_ex examples1;
+  examples1.push_back(VW980::read_example(*vw1, "shared |User user=Tom time_of_day=morning"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=politics"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=sports"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=music"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=food"));
+  examples1.push_back(VW980::read_example(*vw1, "0:0.0:0.14285714498588012 |Action article=finance"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=health"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=camping"));
+  VW980::setup_examples(*vw1, examples1);
   vw1->learn(examples1);
   vw1->finish_example(examples1);
 
-  VW::multi_ex examples2;
-  examples2.push_back(VW::read_example(*vw2, "shared |User user=Anna time_of_day=morning"));
-  examples2.push_back(VW::read_example(*vw2, "0:0.0:0.14285713008471937 |Action article=politics"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=sports"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=music"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=food"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=finance"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=health"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=camping"));
+  VW980::multi_ex examples2;
+  examples2.push_back(VW980::read_example(*vw2, "shared |User user=Anna time_of_day=morning"));
+  examples2.push_back(VW980::read_example(*vw2, "0:0.0:0.14285713008471937 |Action article=politics"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=sports"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=music"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=food"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=finance"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=health"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=camping"));
 
-  VW::setup_examples(*vw2, examples2);
+  VW980::setup_examples(*vw2, examples2);
   vw2->learn(examples2);
   vw2->finish_example(examples2);
 
-  std::vector<const VW::workspace*> workspaces{vw1.get(), vw2.get()};
-  auto result = VW::merge_models(nullptr, workspaces);
+  std::vector<const VW980::workspace*> workspaces{vw1.get(), vw2.get()};
+  auto result = VW980::merge_models(nullptr, workspaces);
 
   EXPECT_FLOAT_EQ(vw1->sd->weighted_labeled_examples, 1.f);
   EXPECT_FLOAT_EQ(vw2->sd->weighted_labeled_examples, 1.f);
   EXPECT_FLOAT_EQ(result->sd->weighted_labeled_examples, 2.f);
 
-  auto* vw1_cb_adf = reinterpret_cast<VW::reductions::cb_adf*>(
+  auto* vw1_cb_adf = reinterpret_cast<VW980::reductions::cb_adf*>(
       vw1->l->get_learner_by_name_prefix("cb_adf")->get_internal_type_erased_data_pointer_test_use_only());
-  auto* vw2_cb_adf = reinterpret_cast<VW::reductions::cb_adf*>(
+  auto* vw2_cb_adf = reinterpret_cast<VW980::reductions::cb_adf*>(
       vw2->l->get_learner_by_name_prefix("cb_adf")->get_internal_type_erased_data_pointer_test_use_only());
-  auto* vw_merged_cb_adf = reinterpret_cast<VW::reductions::cb_adf*>(
+  auto* vw_merged_cb_adf = reinterpret_cast<VW980::reductions::cb_adf*>(
       result->l->get_learner_by_name_prefix("cb_adf")->get_internal_type_erased_data_pointer_test_use_only());
 
   for (size_t i = 0; i < vw1_cb_adf->get_gen_cs().per_model_state.size(); i++)
@@ -207,89 +207,89 @@ TEST(Merge, MergeCbModel)
 TEST(Merge, MergeCbModelDelta)
 {
   auto options_strings = std::vector<std::string>{"--quiet", "--cb_explore_adf"};
-  auto vw_base = VW::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
-  auto vw1 = VW::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
-  auto vw2 = VW::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
+  auto vw_base = VW980::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
+  auto vw1 = VW980::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
+  auto vw2 = VW980::initialize(vwtest::make_args("--quiet", "--cb_explore_adf"));
 
   {
-    VW::multi_ex examples;
-    examples.push_back(VW::read_example(*vw_base, "shared |User user=Tom time_of_day=morning"));
-    examples.push_back(VW::read_example(*vw_base, "|Action article=politics"));
-    examples.push_back(VW::read_example(*vw_base, "|Action article=sports"));
-    examples.push_back(VW::read_example(*vw_base, "|Action article=music"));
-    examples.push_back(VW::read_example(*vw_base, "|Action article=food"));
-    examples.push_back(VW::read_example(*vw_base, "0:0.0:0.14285714498588012 |Action article=finance"));
-    examples.push_back(VW::read_example(*vw_base, "|Action article=health"));
-    examples.push_back(VW::read_example(*vw_base, "|Action article=camping"));
-    VW::setup_examples(*vw_base, examples);
+    VW980::multi_ex examples;
+    examples.push_back(VW980::read_example(*vw_base, "shared |User user=Tom time_of_day=morning"));
+    examples.push_back(VW980::read_example(*vw_base, "|Action article=politics"));
+    examples.push_back(VW980::read_example(*vw_base, "|Action article=sports"));
+    examples.push_back(VW980::read_example(*vw_base, "|Action article=music"));
+    examples.push_back(VW980::read_example(*vw_base, "|Action article=food"));
+    examples.push_back(VW980::read_example(*vw_base, "0:0.0:0.14285714498588012 |Action article=finance"));
+    examples.push_back(VW980::read_example(*vw_base, "|Action article=health"));
+    examples.push_back(VW980::read_example(*vw_base, "|Action article=camping"));
+    VW980::setup_examples(*vw_base, examples);
     vw_base->learn(examples);
     vw_base->finish_example(examples);
   }
   {
-    VW::multi_ex examples;
-    examples.push_back(VW::read_example(*vw1, "shared |User user=Tom time_of_day=morning"));
-    examples.push_back(VW::read_example(*vw1, "|Action article=politics"));
-    examples.push_back(VW::read_example(*vw1, "|Action article=sports"));
-    examples.push_back(VW::read_example(*vw1, "|Action article=music"));
-    examples.push_back(VW::read_example(*vw1, "|Action article=food"));
-    examples.push_back(VW::read_example(*vw1, "0:0.0:0.14285714498588012 |Action article=finance"));
-    examples.push_back(VW::read_example(*vw1, "|Action article=health"));
-    examples.push_back(VW::read_example(*vw1, "|Action article=camping"));
-    VW::setup_examples(*vw1, examples);
+    VW980::multi_ex examples;
+    examples.push_back(VW980::read_example(*vw1, "shared |User user=Tom time_of_day=morning"));
+    examples.push_back(VW980::read_example(*vw1, "|Action article=politics"));
+    examples.push_back(VW980::read_example(*vw1, "|Action article=sports"));
+    examples.push_back(VW980::read_example(*vw1, "|Action article=music"));
+    examples.push_back(VW980::read_example(*vw1, "|Action article=food"));
+    examples.push_back(VW980::read_example(*vw1, "0:0.0:0.14285714498588012 |Action article=finance"));
+    examples.push_back(VW980::read_example(*vw1, "|Action article=health"));
+    examples.push_back(VW980::read_example(*vw1, "|Action article=camping"));
+    VW980::setup_examples(*vw1, examples);
     vw1->learn(examples);
     vw1->finish_example(examples);
   }
   {
-    VW::multi_ex examples;
-    examples.push_back(VW::read_example(*vw2, "shared |User user=Tom time_of_day=morning"));
-    examples.push_back(VW::read_example(*vw2, "|Action article=politics"));
-    examples.push_back(VW::read_example(*vw2, "|Action article=sports"));
-    examples.push_back(VW::read_example(*vw2, "|Action article=music"));
-    examples.push_back(VW::read_example(*vw2, "|Action article=food"));
-    examples.push_back(VW::read_example(*vw2, "0:0.0:0.14285714498588012 |Action article=finance"));
-    examples.push_back(VW::read_example(*vw2, "|Action article=health"));
-    examples.push_back(VW::read_example(*vw2, "|Action article=camping"));
-    VW::setup_examples(*vw2, examples);
+    VW980::multi_ex examples;
+    examples.push_back(VW980::read_example(*vw2, "shared |User user=Tom time_of_day=morning"));
+    examples.push_back(VW980::read_example(*vw2, "|Action article=politics"));
+    examples.push_back(VW980::read_example(*vw2, "|Action article=sports"));
+    examples.push_back(VW980::read_example(*vw2, "|Action article=music"));
+    examples.push_back(VW980::read_example(*vw2, "|Action article=food"));
+    examples.push_back(VW980::read_example(*vw2, "0:0.0:0.14285714498588012 |Action article=finance"));
+    examples.push_back(VW980::read_example(*vw2, "|Action article=health"));
+    examples.push_back(VW980::read_example(*vw2, "|Action article=camping"));
+    VW980::setup_examples(*vw2, examples);
     vw2->learn(examples);
     vw2->finish_example(examples);
   }
 
-  VW::multi_ex examples1;
-  examples1.push_back(VW::read_example(*vw1, "shared |User user=Tom time_of_day=afternoon"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=politics"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=sports"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=music"));
-  examples1.push_back(VW::read_example(*vw1, "0:0.0:0.14285714498588012 |Action article=food"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=finance"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=health"));
-  examples1.push_back(VW::read_example(*vw1, "|Action article=camping"));
-  VW::setup_examples(*vw1, examples1);
+  VW980::multi_ex examples1;
+  examples1.push_back(VW980::read_example(*vw1, "shared |User user=Tom time_of_day=afternoon"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=politics"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=sports"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=music"));
+  examples1.push_back(VW980::read_example(*vw1, "0:0.0:0.14285714498588012 |Action article=food"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=finance"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=health"));
+  examples1.push_back(VW980::read_example(*vw1, "|Action article=camping"));
+  VW980::setup_examples(*vw1, examples1);
   vw1->learn(examples1);
   vw1->finish_example(examples1);
 
-  VW::multi_ex examples2;
-  examples2.push_back(VW::read_example(*vw2, "shared |User user=Anna time_of_day=morning"));
-  examples2.push_back(VW::read_example(*vw2, "0:0.0:0.14285713008471937 |Action article=politics"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=sports"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=music"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=food"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=finance"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=health"));
-  examples2.push_back(VW::read_example(*vw2, "|Action article=camping"));
-  VW::setup_examples(*vw2, examples2);
+  VW980::multi_ex examples2;
+  examples2.push_back(VW980::read_example(*vw2, "shared |User user=Anna time_of_day=morning"));
+  examples2.push_back(VW980::read_example(*vw2, "0:0.0:0.14285713008471937 |Action article=politics"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=sports"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=music"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=food"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=finance"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=health"));
+  examples2.push_back(VW980::read_example(*vw2, "|Action article=camping"));
+  VW980::setup_examples(*vw2, examples2);
   vw2->learn(examples2);
   vw2->finish_example(examples2);
 
-  VW::multi_ex examples3;
-  examples3.push_back(VW::read_example(*vw2, "shared |User user=Anna time_of_day=afternoon"));
-  examples3.push_back(VW::read_example(*vw2, "|Action article=politics"));
-  examples3.push_back(VW::read_example(*vw2, "0:0.0:0.14285713008471937 |Action article=sports"));
-  examples3.push_back(VW::read_example(*vw2, "|Action article=music"));
-  examples3.push_back(VW::read_example(*vw2, "|Action article=food"));
-  examples3.push_back(VW::read_example(*vw2, "|Action article=finance"));
-  examples3.push_back(VW::read_example(*vw2, "|Action article=health"));
-  examples3.push_back(VW::read_example(*vw2, "|Action article=camping"));
-  VW::setup_examples(*vw2, examples3);
+  VW980::multi_ex examples3;
+  examples3.push_back(VW980::read_example(*vw2, "shared |User user=Anna time_of_day=afternoon"));
+  examples3.push_back(VW980::read_example(*vw2, "|Action article=politics"));
+  examples3.push_back(VW980::read_example(*vw2, "0:0.0:0.14285713008471937 |Action article=sports"));
+  examples3.push_back(VW980::read_example(*vw2, "|Action article=music"));
+  examples3.push_back(VW980::read_example(*vw2, "|Action article=food"));
+  examples3.push_back(VW980::read_example(*vw2, "|Action article=finance"));
+  examples3.push_back(VW980::read_example(*vw2, "|Action article=health"));
+  examples3.push_back(VW980::read_example(*vw2, "|Action article=camping"));
+  VW980::setup_examples(*vw2, examples3);
   vw2->learn(examples3);
   vw2->finish_example(examples3);
 
@@ -300,17 +300,17 @@ TEST(Merge, MergeCbModelDelta)
   // compute model deltas and merge them
   auto delta1 = *vw1 - *vw_base;
   auto delta2 = *vw2 - *vw_base;
-  auto merged = VW::merge_deltas(std::vector<const VW::model_delta*>{&delta1, &delta2});
+  auto merged = VW980::merge_deltas(std::vector<const VW980::model_delta*>{&delta1, &delta2});
   auto result_delta_merge = *vw_base + merged;
 
-  auto* vw_base_cb_adf = reinterpret_cast<VW::reductions::cb_adf*>(
+  auto* vw_base_cb_adf = reinterpret_cast<VW980::reductions::cb_adf*>(
       vw_base->l->get_learner_by_name_prefix("cb_adf")->get_internal_type_erased_data_pointer_test_use_only());
-  auto* vw1_cb_adf = reinterpret_cast<VW::reductions::cb_adf*>(
+  auto* vw1_cb_adf = reinterpret_cast<VW980::reductions::cb_adf*>(
       vw1->l->get_learner_by_name_prefix("cb_adf")->get_internal_type_erased_data_pointer_test_use_only());
-  auto* vw2_cb_adf = reinterpret_cast<VW::reductions::cb_adf*>(
+  auto* vw2_cb_adf = reinterpret_cast<VW980::reductions::cb_adf*>(
       vw2->l->get_learner_by_name_prefix("cb_adf")->get_internal_type_erased_data_pointer_test_use_only());
   auto* delta_merged_cb_adf =
-      reinterpret_cast<VW::reductions::cb_adf*>(result_delta_merge->l->get_learner_by_name_prefix("cb_adf")
+      reinterpret_cast<VW980::reductions::cb_adf*>(result_delta_merge->l->get_learner_by_name_prefix("cb_adf")
                                                     ->get_internal_type_erased_data_pointer_test_use_only());
   EXPECT_FLOAT_EQ(result_delta_merge->sd->weighted_labeled_examples, 4.f);
   for (size_t i = 0; i < vw_base_cb_adf->get_gen_cs().per_model_state.size(); i++)
@@ -325,11 +325,11 @@ TEST(Merge, MergeCbModelDelta)
   }
 
   // merge workspaces directly without deltas
-  std::vector<const VW::workspace*> workspaces{vw1.get(), vw2.get()};
-  auto result_model_merge = VW::merge_models(vw_base.get(), workspaces);
+  std::vector<const VW980::workspace*> workspaces{vw1.get(), vw2.get()};
+  auto result_model_merge = VW980::merge_models(vw_base.get(), workspaces);
 
   auto* model_merged_cb_adf =
-      reinterpret_cast<VW::reductions::cb_adf*>(result_model_merge->l->get_learner_by_name_prefix("cb_adf")
+      reinterpret_cast<VW980::reductions::cb_adf*>(result_model_merge->l->get_learner_by_name_prefix("cb_adf")
                                                     ->get_internal_type_erased_data_pointer_test_use_only());
   EXPECT_FLOAT_EQ(result_delta_merge->sd->weighted_labeled_examples, result_model_merge->sd->weighted_labeled_examples);
   for (size_t i = 0; i < vw_base_cb_adf->get_gen_cs().per_model_state.size(); i++)
@@ -343,25 +343,25 @@ TEST(Merge, MergeCbModelDelta)
 
 TEST(Merge, SerializeDeserializeDelta)
 {
-  auto vw_base = VW::initialize(vwtest::make_args("--quiet"));
-  auto vw_new = VW::initialize(vwtest::make_args("--quiet"));
+  auto vw_base = VW980::initialize(vwtest::make_args("--quiet"));
+  auto vw_new = VW980::initialize(vwtest::make_args("--quiet"));
 
   // Create a base workspace and another workspace trained on additional example
   {
-    auto* ex = VW::read_example(*vw_base, "1 | a b");
-    VW::setup_example(*vw_base, ex);
+    auto* ex = VW980::read_example(*vw_base, "1 | a b");
+    VW980::setup_example(*vw_base, ex);
     vw_base->learn(*ex);
     vw_base->finish_example(*ex);
   }
   {
-    auto* ex = VW::read_example(*vw_new, "1 | a b");
-    VW::setup_example(*vw_new, ex);
+    auto* ex = VW980::read_example(*vw_new, "1 | a b");
+    VW980::setup_example(*vw_new, ex);
     vw_new->learn(*ex);
     vw_new->finish_example(*ex);
   }
   {
-    auto* ex = VW::read_example(*vw_new, "1 | c");
-    VW::setup_example(*vw_new, ex);
+    auto* ex = VW980::read_example(*vw_new, "1 | c");
+    VW980::setup_example(*vw_new, ex);
     vw_new->learn(*ex);
     vw_new->finish_example(*ex);
   }
@@ -379,12 +379,12 @@ TEST(Merge, SerializeDeserializeDelta)
   EXPECT_FLOAT_EQ(sd1->total_features, sd2->total_features);
 
   auto backing_buffer = std::make_shared<std::vector<char>>();
-  auto writer = VW::io::create_vector_writer(backing_buffer);
+  auto writer = VW980::io::create_vector_writer(backing_buffer);
   delta.serialize(*writer);
 
   writer->flush();
-  auto reader = VW::io::create_buffer_view(backing_buffer->data(), backing_buffer->size());
-  auto deserialized_delta = VW::model_delta::deserialize(*reader);
+  auto reader = VW980::io::create_buffer_view(backing_buffer->data(), backing_buffer->size());
+  auto deserialized_delta = VW980::model_delta::deserialize(*reader);
 
   EXPECT_FLOAT_EQ(delta.unsafe_get_workspace_ptr()->sd->weighted_labeled_examples,
       deserialized_delta->unsafe_get_workspace_ptr()->sd->weighted_labeled_examples);

@@ -11,7 +11,7 @@
 
 #include <sstream>
 
-std::string VW::decode_inline_hex(VW::string_view arg, VW::io::logger& logger)
+std::string VW980::decode_inline_hex(VW980::string_view arg, VW980::io::logger& logger)
 {
   static constexpr size_t NUMBER_OF_HEX_CHARS = 2;
   // "\x" + hex chars
@@ -51,7 +51,7 @@ std::string VW::decode_inline_hex(VW::string_view arg, VW::io::logger& logger)
 }
 
 // max_decimal_places < 0 means use as many decimal places as necessary
-std::string VW::fmt_float(float f, int max_decimal_places)
+std::string VW980::fmt_float(float f, int max_decimal_places)
 {
   if (max_decimal_places >= 0)
   {

@@ -6,7 +6,7 @@
 #include "compute_dot_prod_scalar.h"
 #include "compute_dot_prod_simd.h"
 
-namespace VW
+namespace VW980
 {
 namespace cb_explore_adf
 {
@@ -54,7 +54,7 @@ void one_pass_svd_impl::generate_AOmega(const multi_ex& examples, const std::vec
   auto p = std::min(num_actions, static_cast<size_t>(_d + sampling_slack));
 
   auto& red_features =
-      examples[0]->ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+      examples[0]->ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
   auto* shared_example = red_features.shared_example;
 
   if (static_cast<Eigen::Index>(p) != AOmega.cols() ||
@@ -71,7 +71,7 @@ void one_pass_svd_impl::generate_AOmega(const multi_ex& examples, const std::vec
   {
     if (shared_example != nullptr)
     {
-      VW::details::truncate_example_namespaces_from_example(*examples[i], *shared_example);
+      VW980::details::truncate_example_namespaces_from_example(*examples[i], *shared_example);
     }
     if (cached_example_hashes.find(examples[i]->get_or_calculate_order_independent_feature_space_hash()) ==
         cached_example_hashes.end())
@@ -100,13 +100,13 @@ void one_pass_svd_impl::generate_AOmega(const multi_ex& examples, const std::vec
 #endif
 
   auto calculate_aomega_row =
-      [compute_dot_prod](uint64_t row_index_begin, uint64_t row_index_end, uint64_t p, VW::workspace* _all,
+      [compute_dot_prod](uint64_t row_index_begin, uint64_t row_index_end, uint64_t p, VW980::workspace* _all,
           uint64_t _seed, const multi_ex& examples, Eigen::MatrixXf& AOmega, const std::vector<float>& shrink_factors,
           float scaling_factor, std::unordered_map<uint64_t, Eigen::VectorXf>& cached_example_hashes) -> void
   {
     for (auto row_index = row_index_begin; row_index < row_index_end; ++row_index)
     {
-      VW::example* ex = examples[row_index];
+      VW980::example* ex = examples[row_index];
       if (cached_example_hashes.find(ex->get_or_calculate_order_independent_feature_space_hash()) ==
           cached_example_hashes.end())
       {
@@ -154,7 +154,7 @@ void one_pass_svd_impl::generate_AOmega(const multi_ex& examples, const std::vec
     {
       cached_example_hashes.emplace(ex->feature_space_hash, AOmega.row(i) / shrink_factors[i]);
     }
-    if (shared_example != nullptr) { VW::details::append_example_namespaces_from_example(*ex, *shared_example); }
+    if (shared_example != nullptr) { VW980::details::append_example_namespaces_from_example(*ex, *shared_example); }
   }
 }
 
@@ -171,7 +171,7 @@ void one_pass_svd_impl::run(const multi_ex& examples, const std::vector<float>& 
   if (_set_testing_components) { _V = _svd.matrixV(); }
 }
 
-one_pass_svd_impl::one_pass_svd_impl(VW::workspace* all, uint64_t d, uint64_t seed, size_t, size_t thread_pool_size,
+one_pass_svd_impl::one_pass_svd_impl(VW980::workspace* all, uint64_t d, uint64_t seed, size_t, size_t thread_pool_size,
     size_t block_size, size_t action_cache_slack, bool use_explicit_simd)
     : _all(all)
     , _d(d)
@@ -194,4 +194,4 @@ one_pass_svd_impl::one_pass_svd_impl(VW::workspace* all, uint64_t d, uint64_t se
 }
 
 }  // namespace cb_explore_adf
-}  // namespace VW
+}  // namespace VW980

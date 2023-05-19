@@ -20,42 +20,42 @@
 #include <cfloat>
 #include <iomanip>
 
-using namespace VW::config;
-using namespace VW::LEARNER;
-using namespace VW::reductions::automl;
+using namespace VW980::config;
+using namespace VW980::LEARNER;
+using namespace VW980::reductions::automl;
 
 namespace
 {
 template <typename CMType, bool is_explore>
-void predict_automl(automl<CMType>& data, learner& base, VW::multi_ex& ec)
+void predict_automl(automl<CMType>& data, learner& base, VW980::multi_ex& ec)
 {
   data.cm->process_example(ec);
 
   interaction_vec_t* incoming_interactions = ec[0]->interactions;
-  for (VW::example* ex : ec)
+  for (VW980::example* ex : ec)
   {
     _UNUSED(ex);
     assert(ex->interactions == incoming_interactions);
   }
 
-  auto restore_guard = VW::scope_exit(
+  auto restore_guard = VW980::scope_exit(
       [&ec, &incoming_interactions]
       {
-        for (VW::example* ex : ec) { ex->interactions = incoming_interactions; }
+        for (VW980::example* ex : ec) { ex->interactions = incoming_interactions; }
       });
 
-  for (VW::example* ex : ec) { apply_config(ex, &data.cm->estimators[data.cm->current_champ].first.live_interactions); }
+  for (VW980::example* ex : ec) { apply_config(ex, &data.cm->estimators[data.cm->current_champ].first.live_interactions); }
   base.predict(ec, data.cm->current_champ);
 }
 
 // this is the registered learn function for this reduction
 // mostly uses config_manager and actual_learn(..)
 template <typename CMType, bool is_explore>
-void learn_automl(automl<CMType>& data, learner& base, VW::multi_ex& ec)
+void learn_automl(automl<CMType>& data, learner& base, VW980::multi_ex& ec)
 {
-  VW::cb_class logged{};
+  VW980::cb_class logged{};
   uint64_t labelled_action = 0;
-  const auto it = std::find_if(ec.begin(), ec.end(), [](VW::example* item) { return !item->l.cb.costs.empty(); });
+  const auto it = std::find_if(ec.begin(), ec.end(), [](VW980::example* item) { return !item->l.cb.costs.empty(); });
 
   if (it != ec.end())
   {
@@ -68,20 +68,20 @@ void learn_automl(automl<CMType>& data, learner& base, VW::multi_ex& ec)
 }
 
 template <typename CMType, bool verbose>
-void persist(automl<CMType>& data, VW::metric_sink& metrics)
+void persist(automl<CMType>& data, VW980::metric_sink& metrics)
 {
   if (verbose) { data.cm->persist(metrics, true); }
   else { data.cm->persist(metrics, false); }
 }
 
 template <typename CMType>
-void pre_save_load_automl(VW::workspace& all, automl<CMType>& data)
+void pre_save_load_automl(VW980::workspace& all, automl<CMType>& data)
 {
   options_i& options = *all.options;
   if (!data.should_save_predict_only_model) { return; }
 
   // Adjust champ weights to new single-model space
-  VW::reductions::multi_model::reduce_innermost_model_weights(
+  VW980::reductions::multi_model::reduce_innermost_model_weights(
       data.cm->weights, 0, data.cm->feature_width, data.cm->max_live_configs);
 
   for (auto& group : options.get_all_option_group_definitions())
@@ -111,11 +111,11 @@ void pre_save_load_automl(VW::workspace& all, automl<CMType>& data)
 }
 
 template <typename CMType>
-void save_load_automl(automl<CMType>& aml, VW::io_buf& io, bool read, bool text)
+void save_load_automl(automl<CMType>& aml, VW980::io_buf& io, bool read, bool text)
 {
   if (io.num_files() == 0) { return; }
-  if (read) { VW::model_utils::read_model_field(io, aml); }
-  else if (!aml.should_save_predict_only_model) { VW::model_utils::write_model_field(io, aml, "_automl", text); }
+  if (read) { VW980::model_utils::read_model_field(io, aml); }
+  else if (!aml.should_save_predict_only_model) { VW980::model_utils::write_model_field(io, aml, "_automl", text); }
 }
 
 // Basic implementation of scheduler to pick new configs when one runs out of lease.
@@ -123,7 +123,7 @@ void save_load_automl(automl<CMType>& aml, VW::io_buf& io, bool read, bool text)
 // be the config with the least exclusion. Note that all configs will run to lease
 // before priorities and lease are reset.
 float calc_priority_favor_popular_namespaces(
-    const ns_based_config& config, const std::map<VW::namespace_index, uint64_t>& ns_counter)
+    const ns_based_config& config, const std::map<VW980::namespace_index, uint64_t>& ns_counter)
 {
   float priority = 0.f;
   for (const auto& ns_pair : config.elements) { priority -= ns_counter.at(*ns_pair.begin()); }
@@ -131,13 +131,13 @@ float calc_priority_favor_popular_namespaces(
 }
 
 // Same as above, returns 0 (includes rest to remove unused variable warning)
-float calc_priority_empty(const ns_based_config&, const std::map<VW::namespace_index, uint64_t>&) { return 0.f; }
+float calc_priority_empty(const ns_based_config&, const std::map<VW980::namespace_index, uint64_t>&) { return 0.f; }
 }  // namespace
 
 template <typename T, typename E>
-std::shared_ptr<VW::LEARNER::learner> make_automl_with_impl(VW::setup_base_i& stack_builder,
-    std::shared_ptr<VW::LEARNER::learner> base_learner, uint64_t max_live_configs, bool verbose_metrics,
-    std::string& oracle_type, uint64_t default_lease, VW::workspace& all, int32_t priority_challengers,
+std::shared_ptr<VW980::LEARNER::learner> make_automl_with_impl(VW980::setup_base_i& stack_builder,
+    std::shared_ptr<VW980::LEARNER::learner> base_learner, uint64_t max_live_configs, bool verbose_metrics,
+    std::string& oracle_type, uint64_t default_lease, VW980::workspace& all, int32_t priority_challengers,
     std::string& interaction_type, std::string& priority_type, float automl_significance_level, bool ccb_on,
     bool predict_only_model, bool reversed_learning_order, config_type conf_type, bool trace_logging,
     bool reward_as_cost, double tol_x, bool is_brentq)
@@ -165,11 +165,11 @@ std::shared_ptr<VW::LEARNER::learner> make_automl_with_impl(VW::setup_base_i& st
     trace_file_name_prefix = oss.str();
   }
 
-  auto cm = VW::make_unique<config_manager_type>(default_lease, max_live_configs, all.get_random_state(),
+  auto cm = VW980::make_unique<config_manager_type>(default_lease, max_live_configs, all.get_random_state(),
       static_cast<uint64_t>(priority_challengers), interaction_type, oracle_type, all.weights.dense_weights,
       calc_priority, automl_significance_level, &all.logger, all.total_feature_width, ccb_on, conf_type,
       trace_file_name_prefix, reward_as_cost, tol_x, is_brentq);
-  auto data = VW::make_unique<automl<config_manager_type>>(
+  auto data = VW980::make_unique<automl<config_manager_type>>(
       std::move(cm), &all.logger, predict_only_model, trace_file_name_prefix);
   data->debug_reverse_learning_order = reversed_learning_order;
 
@@ -178,12 +178,12 @@ std::shared_ptr<VW::LEARNER::learner> make_automl_with_impl(VW::setup_base_i& st
 
   auto l =
       make_reduction_learner(std::move(data), require_multiline(base_learner), learn_automl<config_manager_type, true>,
-          predict_automl<config_manager_type, true>, stack_builder.get_setupfn_name(VW::reductions::automl_setup))
+          predict_automl<config_manager_type, true>, stack_builder.get_setupfn_name(VW980::reductions::automl_setup))
           .set_feature_width(feature_width)
-          .set_input_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-          .set_output_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-          .set_input_label_type(VW::label_type_t::CB)
-          .set_output_label_type(VW::label_type_t::CB)
+          .set_input_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+          .set_output_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+          .set_input_label_type(VW980::label_type_t::CB)
+          .set_output_label_type(VW980::label_type_t::CB)
           .set_save_load(save_load_automl)
           .set_persist_metrics(persist_ptr)
           .set_learn_returns_prediction(true)
@@ -192,10 +192,10 @@ std::shared_ptr<VW::LEARNER::learner> make_automl_with_impl(VW::setup_base_i& st
   return l;
 }
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::automl_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::automl_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
 
   uint64_t default_lease = 4000;
   uint64_t max_live_configs = 4;
@@ -204,7 +204,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::automl_setup(VW::setup_bas
   bool verbose_metrics = false;
   std::string interaction_type = "quadratic";
   std::string oracle_type = "one_diff";
-  float automl_significance_level = VW::details::CS_ROBUST_DEFAULT_ALPHA;
+  float automl_significance_level = VW980::details::CS_ROBUST_DEFAULT_ALPHA;
   bool reversed_learning_order = false;
   bool fixed_significance_level = false;
   bool trace_logging = false;
@@ -260,7 +260,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::automl_setup(VW::setup_bas
                .experimental())
       .add(make_option("automl_significance_level", automl_significance_level)
                .keep()
-               .default_value(VW::details::CS_ROBUST_DEFAULT_ALPHA)
+               .default_value(VW980::details::CS_ROBUST_DEFAULT_ALPHA)
                .allow_override()
                .help("Set significance level for champion change")
                .experimental())
@@ -315,7 +315,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::automl_setup(VW::setup_bas
   assert(all.weights.sparse == false);
   if (all.weights.sparse) THROW("--automl does not work with sparse weights");
 
-  VW::reductions::util::fail_if_enabled(all,
+  VW980::reductions::util::fail_if_enabled(all,
       {"ccb_explore_adf", "audit_regressor", "baseline", "cb_explore_adf_rnd", "cb_to_cb_adf", "cbify", "replay_c",
           "replay_b", "replay_m", "memory_tree", "new_mf", "nn", "stage_poly"});
 
@@ -331,28 +331,28 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::automl_setup(VW::setup_bas
   {
     if (oracle_type == "one_diff")
     {
-      return make_automl_with_impl<config_oracle<one_diff_impl>, VW::estimators::confidence_sequence_robust>(
+      return make_automl_with_impl<config_oracle<one_diff_impl>, VW980::estimators::confidence_sequence_robust>(
           stack_builder, learner, max_live_configs, verbose_metrics, oracle_type, default_lease, all,
           priority_challengers, interaction_type, priority_type, automl_significance_level, ccb_on, predict_only_model,
           reversed_learning_order, conf_type, trace_logging, reward_as_cost, tol_x, is_brentq);
     }
     else if (oracle_type == "rand")
     {
-      return make_automl_with_impl<config_oracle<oracle_rand_impl>, VW::estimators::confidence_sequence_robust>(
+      return make_automl_with_impl<config_oracle<oracle_rand_impl>, VW980::estimators::confidence_sequence_robust>(
           stack_builder, learner, max_live_configs, verbose_metrics, oracle_type, default_lease, all,
           priority_challengers, interaction_type, priority_type, automl_significance_level, ccb_on, predict_only_model,
           reversed_learning_order, conf_type, trace_logging, reward_as_cost, tol_x, is_brentq);
     }
     else if (oracle_type == "champdupe")
     {
-      return make_automl_with_impl<config_oracle<champdupe_impl>, VW::estimators::confidence_sequence_robust>(
+      return make_automl_with_impl<config_oracle<champdupe_impl>, VW980::estimators::confidence_sequence_robust>(
           stack_builder, learner, max_live_configs, verbose_metrics, oracle_type, default_lease, all,
           priority_challengers, interaction_type, priority_type, automl_significance_level, ccb_on, predict_only_model,
           reversed_learning_order, conf_type, trace_logging, reward_as_cost, tol_x, is_brentq);
     }
     else if (oracle_type == "one_diff_inclusion")
     {
-      return make_automl_with_impl<config_oracle<one_diff_inclusion_impl>, VW::estimators::confidence_sequence_robust>(
+      return make_automl_with_impl<config_oracle<one_diff_inclusion_impl>, VW980::estimators::confidence_sequence_robust>(
           stack_builder, learner, max_live_configs, verbose_metrics, oracle_type, default_lease, all,
           priority_challengers, interaction_type, priority_type, automl_significance_level, ccb_on, predict_only_model,
           reversed_learning_order, conf_type, trace_logging, reward_as_cost, tol_x, is_brentq);
@@ -361,7 +361,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::automl_setup(VW::setup_bas
     {
       interaction_type = "both";
       conf_type = config_type::Interaction;
-      return make_automl_with_impl<config_oracle<qbase_cubic>, VW::estimators::confidence_sequence_robust>(
+      return make_automl_with_impl<config_oracle<qbase_cubic>, VW980::estimators::confidence_sequence_robust>(
           stack_builder, learner, max_live_configs, verbose_metrics, oracle_type, default_lease, all,
           priority_challengers, interaction_type, priority_type, automl_significance_level, ccb_on, predict_only_model,
           reversed_learning_order, conf_type, trace_logging, reward_as_cost, tol_x, is_brentq);

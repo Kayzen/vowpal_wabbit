@@ -19,18 +19,18 @@
 
 // Aliases
 using std::endl;
-using VW::cb_continuous::continuous_label;
-using VW::cb_continuous::continuous_label_elm;
-using VW::config::make_option;
-using VW::config::option_group_definition;
-using VW::config::options_i;
-using VW::LEARNER::learner;
+using VW980::cb_continuous::continuous_label;
+using VW980::cb_continuous::continuous_label_elm;
+using VW980::config::make_option;
+using VW980::config::option_group_definition;
+using VW980::config::options_i;
+using VW980::LEARNER::learner;
 
 // Enable/Disable indented debug statements
 #undef VW_DEBUG_LOG
 #define VW_DEBUG_LOG vw_dbg::CATS
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
@@ -41,9 +41,9 @@ namespace cats
 // Pass through
 int cats::predict(example& ec, experimental::api_status*)
 {
-  VW_DBG(ec) << "cats::predict(), " << VW::debug::features_to_string(ec) << endl;
+  VW_DBG(ec) << "cats::predict(), " << VW980::debug::features_to_string(ec) << endl;
   _base->predict(ec);
-  return VW::experimental::error_code::success;
+  return VW980::experimental::error_code::success;
 }
 
 // Pass through
@@ -51,12 +51,12 @@ int cats::learn(example& ec, experimental::api_status* status = nullptr)
 {
   assert(!ec.test_only);
   predict(ec, status);
-  VW_DBG(ec) << "cats::learn(), " << to_string(ec.l.cb_cont) << VW::debug::features_to_string(ec) << endl;
+  VW_DBG(ec) << "cats::learn(), " << to_string(ec.l.cb_cont) << VW980::debug::features_to_string(ec) << endl;
   _base->learn(ec);
-  return VW::experimental::error_code::success;
+  return VW980::experimental::error_code::success;
 }
 
-float cats::get_loss(const VW::cb_continuous::continuous_label& cb_cont_costs, float predicted_action) const
+float cats::get_loss(const VW980::cb_continuous::continuous_label& cb_cont_costs, float predicted_action) const
 {
   float loss = 0.f;
   if (!cb_cont_costs.costs.empty())
@@ -85,19 +85,19 @@ float cats::get_loss(const VW::cb_continuous::continuous_label& cb_cont_costs, f
 cats::cats(learner* p_base) : _base(p_base) {}
 }  // namespace cats
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980
 
 namespace
 {
 // Free function to tie function pointers to reduction class methods
 template <bool is_learn>
-void predict_or_learn(VW::reductions::cats::cats& reduction, learner&, VW::example& ec)
+void predict_or_learn(VW980::reductions::cats::cats& reduction, learner&, VW980::example& ec)
 {
-  VW::experimental::api_status status;
+  VW980::experimental::api_status status;
   if (is_learn) { reduction.learn(ec, &status); }
   else { reduction.predict(ec, &status); }
 
-  if (status.get_error_code() != VW::experimental::error_code::success)
+  if (status.get_error_code() != VW980::experimental::error_code::success)
   {
     VW_DBG(ec) << status.get_error_msg() << endl;
   }
@@ -109,11 +109,11 @@ void predict_or_learn(VW::reductions::cats::cats& reduction, learner&, VW::examp
 ///////////////////////////////////////////////////
 // BEGIN: functions to output progress
 
-void output_example_prediction_cats(VW::workspace& all, const VW::reductions::cats::cats& /* data */,
-    const VW::example& ec, VW::io::logger& /* unused */)
+void output_example_prediction_cats(VW980::workspace& all, const VW980::reductions::cats::cats& /* data */,
+    const VW980::example& ec, VW980::io::logger& /* unused */)
 {
   // output to the prediction to all files
-  const auto str = VW::to_string(ec.pred.pdf_value, VW::details::AS_MANY_AS_NEEDED_FLOAT_FORMATTING_DECIMAL_PRECISION);
+  const auto str = VW980::to_string(ec.pred.pdf_value, VW980::details::AS_MANY_AS_NEEDED_FLOAT_FORMATTING_DECIMAL_PRECISION);
   for (auto& f : all.final_prediction_sink)
   {
     f->write(str.c_str(), str.size());
@@ -121,16 +121,16 @@ void output_example_prediction_cats(VW::workspace& all, const VW::reductions::ca
   }
 }
 
-void update_stats_cats(const VW::workspace& /* all */, VW::shared_data& sd, const VW::reductions::cats::cats& data,
-    const VW::example& ec, VW::io::logger& /* logger */)
+void update_stats_cats(const VW980::workspace& /* all */, VW980::shared_data& sd, const VW980::reductions::cats::cats& data,
+    const VW980::example& ec, VW980::io::logger& /* logger */)
 {
   const auto loss = data.get_loss(ec.l.cb_cont, ec.pred.pdf_value.action);
   sd.update(ec.test_only, ec.l.cb_cont.is_labeled(), loss, ec.weight, ec.get_num_features());
   sd.weighted_labels += ec.weight;
 }
 
-void print_update_cats(VW::workspace& all, VW::shared_data& sd, const VW::reductions::cats::cats& /* data */,
-    const VW::example& ec, VW::io::logger& /* unused */)
+void print_update_cats(VW980::workspace& all, VW980::shared_data& sd, const VW980::reductions::cats::cats& /* data */,
+    const VW980::example& ec, VW980::io::logger& /* unused */)
 {
   const auto should_print_driver_update =
       all.sd->weighted_examples() >= all.sd->dump_interval && !all.quiet && !all.bfgs;
@@ -139,8 +139,8 @@ void print_update_cats(VW::workspace& all, VW::shared_data& sd, const VW::reduct
     sd.print_update(*all.trace_message, all.holdout_set_off, all.current_pass,
         ec.test_only
             ? "unknown"
-            : VW::to_string(ec.l.cb_cont.costs[0], VW::details::DEFAULT_FLOAT_FORMATTING_DECIMAL_PRECISION),  // Label
-        VW::to_string(ec.pred.pdf_value, VW::details::DEFAULT_FLOAT_FORMATTING_DECIMAL_PRECISION),  // Prediction
+            : VW980::to_string(ec.l.cb_cont.costs[0], VW980::details::DEFAULT_FLOAT_FORMATTING_DECIMAL_PRECISION),  // Label
+        VW980::to_string(ec.pred.pdf_value, VW980::details::DEFAULT_FLOAT_FORMATTING_DECIMAL_PRECISION),  // Prediction
         ec.get_num_features());
   }
 }
@@ -150,10 +150,10 @@ void print_update_cats(VW::workspace& all, VW::shared_data& sd, const VW::reduct
 ////////////////////////////////////////////////////
 
 // Setup reduction in stack
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cats_setup(setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cats_setup(setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
 
   option_group_definition new_options("[Reduction] Continuous Actions Tree with Smoothing");
   uint32_t num_actions = 0;
@@ -174,7 +174,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cats_setup(setup_base_i& s
   // to the reduction stack;
   if (!options.add_parse_and_check_necessary(new_options)) { return nullptr; }
 
-  if (num_actions <= 0) THROW(VW::experimental::error_code::num_actions_gt_zero_s);
+  if (num_actions <= 0) THROW(VW980::experimental::error_code::num_actions_gt_zero_s);
 
   // cats stack = [cats -> sample_pdf -> cats_pdf ... rest specified by cats_pdf]
   if (!options.was_supplied("sample_pdf")) { options.insert("sample_pdf", ""); }
@@ -190,7 +190,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cats_setup(setup_base_i& s
   }
 
   auto p_base = require_singleline(stack_builder.setup_base_learner());
-  auto p_reduction = VW::make_unique<VW::reductions::cats::cats>(p_base.get());
+  auto p_reduction = VW980::make_unique<VW980::reductions::cats::cats>(p_base.get());
   p_reduction->num_actions = num_actions;
   p_reduction->bandwidth = bandwidth;
   p_reduction->max_value = max_value;
@@ -198,10 +198,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cats_setup(setup_base_i& s
 
   auto l = make_reduction_learner(std::move(p_reduction), p_base, predict_or_learn<true>, predict_or_learn<false>,
       stack_builder.get_setupfn_name(cats_setup))
-               .set_input_label_type(VW::label_type_t::CONTINUOUS)
-               .set_output_label_type(VW::label_type_t::CONTINUOUS)
-               .set_input_prediction_type(VW::prediction_type_t::ACTION_PDF_VALUE)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_PDF_VALUE)
+               .set_input_label_type(VW980::label_type_t::CONTINUOUS)
+               .set_output_label_type(VW980::label_type_t::CONTINUOUS)
+               .set_input_prediction_type(VW980::prediction_type_t::ACTION_PDF_VALUE)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_PDF_VALUE)
                .set_output_example_prediction(output_example_prediction_cats)
                .set_print_update(print_update_cats)
                .set_update_stats(update_stats_cats)

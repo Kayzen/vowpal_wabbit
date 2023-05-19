@@ -18,19 +18,19 @@
 #undef VW_DEBUG_LOG
 #define VW_DEBUG_LOG vw_dbg::BINARY
 
-using namespace VW::config;
-using namespace VW::reductions;
+using namespace VW980::config;
+using namespace VW980::reductions;
 using std::endl;
 
 class binary_data
 {
 public:
-  VW::io::logger logger;
-  explicit binary_data(VW::io::logger logger) : logger(std::move(logger)) {}
+  VW980::io::logger logger;
+  explicit binary_data(VW980::io::logger logger) : logger(std::move(logger)) {}
 };
 
 template <bool is_learn>
-void predict_or_learn(binary_data& data, VW::LEARNER::learner& base, VW::example& ec)
+void predict_or_learn(binary_data& data, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   if (is_learn) { base.learn(ec); }
   else { base.predict(ec); }
@@ -38,7 +38,7 @@ void predict_or_learn(binary_data& data, VW::LEARNER::learner& base, VW::example
   if (ec.pred.scalar > 0) { ec.pred.scalar = 1; }
   else { ec.pred.scalar = -1; }
 
-  VW_DBG(ec) << "binary: final-pred " << VW::debug::scalar_pred_to_string(ec) << VW::debug::features_to_string(ec)
+  VW_DBG(ec) << "binary: final-pred " << VW980::debug::scalar_pred_to_string(ec) << VW980::debug::features_to_string(ec)
              << endl;
 
   if (ec.l.simple.label != FLT_MAX)
@@ -52,7 +52,7 @@ void predict_or_learn(binary_data& data, VW::LEARNER::learner& base, VW::example
   }
 }
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::binary_setup(setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::binary_setup(setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
 
@@ -63,9 +63,9 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::binary_setup(setup_base_i&
 
   if (!options.add_parse_and_check_necessary(new_options)) { return nullptr; }
 
-  auto bin_data = VW::make_unique<binary_data>(stack_builder.get_all_pointer()->logger);
+  auto bin_data = VW980::make_unique<binary_data>(stack_builder.get_all_pointer()->logger);
   auto ret =
-      VW::LEARNER::make_reduction_learner(std::move(bin_data), require_singleline(stack_builder.setup_base_learner()),
+      VW980::LEARNER::make_reduction_learner(std::move(bin_data), require_singleline(stack_builder.setup_base_learner()),
           predict_or_learn<true>, predict_or_learn<false>, stack_builder.get_setupfn_name(binary_setup))
           .set_input_label_type(label_type_t::SIMPLE)
           .set_output_label_type(label_type_t::SIMPLE)

@@ -4,13 +4,13 @@
 
 #include "vw/core/ccb_reduction_features.h"
 
-const char* VW::to_string(VW::ccb_example_type ex_type)
+const char* VW980::to_string(VW980::ccb_example_type ex_type)
 {
 #define CASE(type) \
   case type:       \
     return #type;
 
-  using namespace VW;
+  using namespace VW980;
   switch (ex_type)
   {
     CASE(ccb_example_type::UNSET)

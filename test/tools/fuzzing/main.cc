@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 {
   try
   {
-    auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(std::vector<std::string>(argv + 1, argv + argc)));
+    auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(std::vector<std::string>(argv + 1, argv + argc)));
   }
   catch (...)
   {

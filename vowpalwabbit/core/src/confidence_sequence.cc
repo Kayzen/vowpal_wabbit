@@ -16,7 +16,7 @@
 #include <cassert>
 #include <cmath>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -221,7 +221,7 @@ double confidence_sequence::lblogwealth(double sumXt, double v, double eta, doub
 
 namespace model_utils
 {
-size_t read_model_field(io_buf& io, VW::details::incremental_f_sum& ifs)
+size_t read_model_field(io_buf& io, VW980::details::incremental_f_sum& ifs)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, ifs.partials);
@@ -229,14 +229,14 @@ size_t read_model_field(io_buf& io, VW::details::incremental_f_sum& ifs)
 }
 
 size_t write_model_field(
-    io_buf& io, const VW::details::incremental_f_sum& ifs, const std::string& upstream_name, bool text)
+    io_buf& io, const VW980::details::incremental_f_sum& ifs, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, ifs.partials, upstream_name + "_partials", text);
   return bytes;
 }
 
-size_t read_model_field(io_buf& io, VW::estimators::confidence_sequence& im)
+size_t read_model_field(io_buf& io, VW980::estimators::confidence_sequence& im)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, im.alpha);
@@ -266,7 +266,7 @@ size_t read_model_field(io_buf& io, VW::estimators::confidence_sequence& im)
 }
 
 size_t write_model_field(
-    io_buf& io, const VW::estimators::confidence_sequence& im, const std::string& upstream_name, bool text)
+    io_buf& io, const VW980::estimators::confidence_sequence& im, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, im.alpha, upstream_name + "_alpha", text);
@@ -295,4 +295,4 @@ size_t write_model_field(
   return bytes;
 }
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980

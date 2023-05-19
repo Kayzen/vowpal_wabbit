@@ -19,7 +19,7 @@
 
 using simulator::callback_map;
 using simulator::cb_sim;
-using namespace VW::reductions::automl;
+using namespace VW980::reductions::automl;
 
 namespace std
 {
@@ -37,8 +37,8 @@ namespace aml_test
 {
 template <typename T>
 void check_interactions_match_exclusions(
-    VW::reductions::automl::automl<interaction_config_manager<VW::reductions::automl::config_oracle<T>,
-        VW::estimators::confidence_sequence_robust>>* aml)
+    VW980::reductions::automl::automl<interaction_config_manager<VW980::reductions::automl::config_oracle<T>,
+        VW980::estimators::confidence_sequence_robust>>* aml)
 {
   for (const auto& estimator : aml->cm->estimators)
   {
@@ -51,17 +51,17 @@ void check_interactions_match_exclusions(
     {
       if (interaction_type == "quadratic")
       {
-        VW::namespace_index ns1 = interaction[0];
-        VW::namespace_index ns2 = interaction[1];
-        std::vector<VW::namespace_index> ns{ns1, ns2};
+        VW980::namespace_index ns1 = interaction[0];
+        VW980::namespace_index ns2 = interaction[1];
+        std::vector<VW980::namespace_index> ns{ns1, ns2};
         EXPECT_EQ(exclusions.find(ns), exclusions.end());
       }
       else
       {
-        VW::namespace_index ns1 = interaction[0];
-        VW::namespace_index ns2 = interaction[1];
-        VW::namespace_index ns3 = interaction[2];
-        std::vector<VW::namespace_index> ns{ns1, ns2, ns3};
+        VW980::namespace_index ns1 = interaction[0];
+        VW980::namespace_index ns2 = interaction[1];
+        VW980::namespace_index ns3 = interaction[2];
+        std::vector<VW980::namespace_index> ns{ns1, ns2, ns3};
         EXPECT_EQ(exclusions.find(ns), exclusions.end());
       }
     }
@@ -74,8 +74,8 @@ void check_interactions_match_exclusions(
 
 template <typename T>
 void check_config_states(
-    VW::reductions::automl::automl<interaction_config_manager<VW::reductions::automl::config_oracle<T>,
-        VW::estimators::confidence_sequence_robust>>* aml)
+    VW980::reductions::automl::automl<interaction_config_manager<VW980::reductions::automl::config_oracle<T>,
+        VW980::estimators::confidence_sequence_robust>>* aml)
 {
   // No configs in the index queue should be live
   auto index_queue = aml->cm->_config_oracle.index_queue;
@@ -83,65 +83,65 @@ void check_config_states(
   {
     auto config_index = index_queue.top().second;
     index_queue.pop();
-    EXPECT_NE(aml->cm->_config_oracle.configs[config_index].state, VW::reductions::automl::config_state::Live);
+    EXPECT_NE(aml->cm->_config_oracle.configs[config_index].state, VW980::reductions::automl::config_state::Live);
   }
 
   // All configs in the estimators should be live
   for (const auto& score : aml->cm->estimators)
   {
     EXPECT_EQ(
-        aml->cm->_config_oracle.configs[score.first.config_index].state, VW::reductions::automl::config_state::Live);
+        aml->cm->_config_oracle.configs[score.first.config_index].state, VW980::reductions::automl::config_state::Live);
   }
 }
 
 template <typename T>
-VW::reductions::automl::automl<
-    interaction_config_manager<VW::reductions::automl::config_oracle<T>, VW::estimators::confidence_sequence_robust>>*
-get_automl_data(VW::workspace& all)
+VW980::reductions::automl::automl<
+    interaction_config_manager<VW980::reductions::automl::config_oracle<T>, VW980::estimators::confidence_sequence_robust>>*
+get_automl_data(VW980::workspace& all)
 {
   std::vector<std::string> e_r;
   all.l->get_enabled_learners(e_r);
   if (std::find(e_r.begin(), e_r.end(), "automl") == e_r.end()) { THROW("automl not found in enabled learners"); }
 
-  VW::LEARNER::learner* automl_learner = require_multiline(all.l->get_learner_by_name_prefix("automl"));
+  VW980::LEARNER::learner* automl_learner = require_multiline(all.l->get_learner_by_name_prefix("automl"));
 
-  return (VW::reductions::automl::automl<interaction_config_manager<VW::reductions::automl::config_oracle<T>,
-          VW::estimators::confidence_sequence_robust>>*)
+  return (VW980::reductions::automl::automl<interaction_config_manager<VW980::reductions::automl::config_oracle<T>,
+          VW980::estimators::confidence_sequence_robust>>*)
       automl_learner->get_internal_type_erased_data_pointer_test_use_only();
 }
-template VW::reductions::automl::automl<
-    interaction_config_manager<VW::reductions::automl::config_oracle<VW::reductions::automl::oracle_rand_impl>,
-        VW::estimators::confidence_sequence_robust>>*
-get_automl_data(VW::workspace& all);
-template VW::reductions::automl::automl<
-    interaction_config_manager<VW::reductions::automl::config_oracle<VW::reductions::automl::one_diff_impl>,
-        VW::estimators::confidence_sequence_robust>>*
-get_automl_data(VW::workspace& all);
-template VW::reductions::automl::automl<
-    interaction_config_manager<VW::reductions::automl::config_oracle<VW::reductions::automl::champdupe_impl>,
-        VW::estimators::confidence_sequence_robust>>*
-get_automl_data(VW::workspace& all);
-template VW::reductions::automl::automl<
-    interaction_config_manager<VW::reductions::automl::config_oracle<VW::reductions::automl::one_diff_inclusion_impl>,
-        VW::estimators::confidence_sequence_robust>>*
-get_automl_data(VW::workspace& all);
-template VW::reductions::automl::automl<
-    interaction_config_manager<VW::reductions::automl::config_oracle<VW::reductions::automl::qbase_cubic>,
-        VW::estimators::confidence_sequence_robust>>*
-get_automl_data(VW::workspace& all);
+template VW980::reductions::automl::automl<
+    interaction_config_manager<VW980::reductions::automl::config_oracle<VW980::reductions::automl::oracle_rand_impl>,
+        VW980::estimators::confidence_sequence_robust>>*
+get_automl_data(VW980::workspace& all);
+template VW980::reductions::automl::automl<
+    interaction_config_manager<VW980::reductions::automl::config_oracle<VW980::reductions::automl::one_diff_impl>,
+        VW980::estimators::confidence_sequence_robust>>*
+get_automl_data(VW980::workspace& all);
+template VW980::reductions::automl::automl<
+    interaction_config_manager<VW980::reductions::automl::config_oracle<VW980::reductions::automl::champdupe_impl>,
+        VW980::estimators::confidence_sequence_robust>>*
+get_automl_data(VW980::workspace& all);
+template VW980::reductions::automl::automl<
+    interaction_config_manager<VW980::reductions::automl::config_oracle<VW980::reductions::automl::one_diff_inclusion_impl>,
+        VW980::estimators::confidence_sequence_robust>>*
+get_automl_data(VW980::workspace& all);
+template VW980::reductions::automl::automl<
+    interaction_config_manager<VW980::reductions::automl::config_oracle<VW980::reductions::automl::qbase_cubic>,
+        VW980::estimators::confidence_sequence_robust>>*
+get_automl_data(VW980::workspace& all);
 
-using aml_rand = VW::reductions::automl::automl<
-    interaction_config_manager<VW::reductions::automl::config_oracle<VW::reductions::automl::oracle_rand_impl>,
-        VW::estimators::confidence_sequence_robust>>;
-using aml_onediff = VW::reductions::automl::automl<
-    interaction_config_manager<VW::reductions::automl::config_oracle<VW::reductions::automl::one_diff_impl>,
-        VW::estimators::confidence_sequence_robust>>;
-using aml_onediff_inclusion = VW::reductions::automl::automl<
-    interaction_config_manager<VW::reductions::automl::config_oracle<VW::reductions::automl::one_diff_inclusion_impl>,
-        VW::estimators::confidence_sequence_robust>>;
-using aml_qbase_cubic = VW::reductions::automl::automl<
-    interaction_config_manager<VW::reductions::automl::config_oracle<VW::reductions::automl::qbase_cubic>,
-        VW::estimators::confidence_sequence_robust>>;
+using aml_rand = VW980::reductions::automl::automl<
+    interaction_config_manager<VW980::reductions::automl::config_oracle<VW980::reductions::automl::oracle_rand_impl>,
+        VW980::estimators::confidence_sequence_robust>>;
+using aml_onediff = VW980::reductions::automl::automl<
+    interaction_config_manager<VW980::reductions::automl::config_oracle<VW980::reductions::automl::one_diff_impl>,
+        VW980::estimators::confidence_sequence_robust>>;
+using aml_onediff_inclusion = VW980::reductions::automl::automl<
+    interaction_config_manager<VW980::reductions::automl::config_oracle<VW980::reductions::automl::one_diff_inclusion_impl>,
+        VW980::estimators::confidence_sequence_robust>>;
+using aml_qbase_cubic = VW980::reductions::automl::automl<
+    interaction_config_manager<VW980::reductions::automl::config_oracle<VW980::reductions::automl::qbase_cubic>,
+        VW980::estimators::confidence_sequence_robust>>;
 }  // namespace aml_test
 
 // Need to add save_load functionality to multiple structs in automl reduction including
@@ -176,21 +176,21 @@ TEST(Automl, Assert0thEventAutomlWIterations)
 
   // technically runs after the 0th example is learned
   test_hooks.emplace(zero,
-      [&zero](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&zero](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        aml_test::aml_rand* aml = aml_test::get_automl_data<VW::reductions::automl::oracle_rand_impl>(all);
+        aml_test::aml_rand* aml = aml_test::get_automl_data<VW980::reductions::automl::oracle_rand_impl>(all);
         EXPECT_EQ(aml->cm->total_learn_count, zero);
-        EXPECT_EQ(aml->current_state, VW::reductions::automl::automl_state::Experimenting);
+        EXPECT_EQ(aml->current_state, VW980::reductions::automl::automl_state::Experimenting);
         return true;
       });
 
   // test executes right after learn call of the 10th example
   test_hooks.emplace(num_iterations,
-      [&num_iterations](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&num_iterations](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        aml_test::aml_rand* aml = aml_test::get_automl_data<VW::reductions::automl::oracle_rand_impl>(all);
+        aml_test::aml_rand* aml = aml_test::get_automl_data<VW980::reductions::automl::oracle_rand_impl>(all);
         EXPECT_EQ(aml->cm->total_learn_count, num_iterations);
-        EXPECT_EQ(aml->current_state, VW::reductions::automl::automl_state::Experimenting);
+        EXPECT_EQ(aml->current_state, VW980::reductions::automl::automl_state::Experimenting);
         return true;
       });
 
@@ -211,7 +211,7 @@ TEST(Automl, Assert0thEventMetricsWIterations)
 
   // technically runs after the 0th example is learned
   test_hooks.emplace(zero,
-      [&metric_name, &zero](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&metric_name, &zero](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
         auto metrics = all.global_metrics.collect_metrics(all.l.get());
 
@@ -221,7 +221,7 @@ TEST(Automl, Assert0thEventMetricsWIterations)
 
   // test executes right after learn call of the 10th example
   test_hooks.emplace(num_iterations,
-      [&metric_name, &num_iterations](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&metric_name, &num_iterations](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
         auto metrics = all.global_metrics.collect_metrics(all.l.get());
 
@@ -245,12 +245,12 @@ TEST(Automl, AssertLiveConfigsAndLeaseWIterations)
 
   // Note this is after learning 14 examples (first iteration is Collecting)
   test_hooks.emplace(fifteen,
-      [](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        aml_test::aml_rand* aml = aml_test::get_automl_data<VW::reductions::automl::oracle_rand_impl>(all);
+        aml_test::aml_rand* aml = aml_test::get_automl_data<VW980::reductions::automl::oracle_rand_impl>(all);
         aml_test::check_interactions_match_exclusions(aml);
         aml_test::check_config_states(aml);
-        EXPECT_EQ(aml->current_state, VW::reductions::automl::automl_state::Experimenting);
+        EXPECT_EQ(aml->current_state, VW980::reductions::automl::automl_state::Experimenting);
         EXPECT_EQ(aml->cm->total_learn_count, 15);
         EXPECT_EQ(aml->cm->current_champ, 0);
         EXPECT_FLOAT_EQ(aml->cm->automl_significance_level, 0.05);
@@ -298,9 +298,9 @@ TEST(Automl, NamespaceSwitchWIterations)
   const size_t seed = 88;
 
   test_hooks.emplace(100,
-      [&](cb_sim& sim, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim& sim, VW980::workspace& all, VW980::multi_ex&)
       {
-        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_impl>(all);
+        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_impl>(all);
         auto count_ns_T = aml->cm->ns_counter.count('T');
         EXPECT_EQ(count_ns_T, 0);
 
@@ -310,9 +310,9 @@ TEST(Automl, NamespaceSwitchWIterations)
       });
 
   test_hooks.emplace(101,
-      [&](cb_sim& sim, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim& sim, VW980::workspace& all, VW980::multi_ex&)
       {
-        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_impl>(all);
+        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_impl>(all);
         size_t tser_count = aml->cm->ns_counter.at('T');
         EXPECT_GT(tser_count, 1);
 
@@ -323,9 +323,9 @@ TEST(Automl, NamespaceSwitchWIterations)
 
   // TODO: Find champ change
   test_hooks.emplace(num_iterations,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_impl>(all);
+        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_impl>(all);
 
         auto champ_exclusions =
             aml->cm->_config_oracle.configs[aml->cm->estimators[aml->cm->current_champ].first.config_index].elements;
@@ -352,10 +352,10 @@ TEST(Automl, ClearConfigsWIterations)
   callback_map test_hooks;
 
   test_hooks.emplace(clear_champ_switch - 1,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        aml_test::aml_rand* aml = aml_test::get_automl_data<VW::reductions::automl::oracle_rand_impl>(all);
-        aml_test::check_interactions_match_exclusions<VW::reductions::automl::oracle_rand_impl>(aml);
+        aml_test::aml_rand* aml = aml_test::get_automl_data<VW980::reductions::automl::oracle_rand_impl>(all);
+        aml_test::check_interactions_match_exclusions<VW980::reductions::automl::oracle_rand_impl>(aml);
         aml_test::check_config_states(aml);
         EXPECT_EQ(aml->cm->current_champ, 0);
         EXPECT_EQ(aml->cm->_config_oracle.valid_config_size, 4);
@@ -363,14 +363,14 @@ TEST(Automl, ClearConfigsWIterations)
         EXPECT_EQ(aml->cm->estimators[0].first.live_interactions.size(), 3);
         EXPECT_EQ(aml->cm->estimators[1].first.live_interactions.size(), 2);
         EXPECT_EQ(aml->cm->estimators[2].first.live_interactions.size(), 2);
-        EXPECT_EQ(aml->current_state, VW::reductions::automl::automl_state::Experimenting);
+        EXPECT_EQ(aml->current_state, VW980::reductions::automl::automl_state::Experimenting);
         return true;
       });
 
   test_hooks.emplace(clear_champ_switch,
-      [](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        aml_test::aml_rand* aml = aml_test::get_automl_data<VW::reductions::automl::oracle_rand_impl>(all);
+        aml_test::aml_rand* aml = aml_test::get_automl_data<VW980::reductions::automl::oracle_rand_impl>(all);
         aml_test::check_interactions_match_exclusions(aml);
         aml_test::check_config_states(aml);
         EXPECT_EQ(aml->cm->current_champ, 0);
@@ -379,7 +379,7 @@ TEST(Automl, ClearConfigsWIterations)
         // EXPECT_EQ(aml->cm->estimators.size(), 2);
         // EXPECT_EQ(aml->cm->_config_oracle.valid_config_size, 4);
         // EXPECT_EQ(aml->cm->estimators[0].first.live_interactions.size(), 2);
-        EXPECT_EQ(aml->current_state, VW::reductions::automl::automl_state::Experimenting);
+        EXPECT_EQ(aml->current_state, VW980::reductions::automl::automl_state::Experimenting);
         return true;
       });
 
@@ -402,36 +402,36 @@ TEST(Automl, ClearConfigsOneDiffWIterations)
   callback_map test_hooks;
 
   test_hooks.emplace(clear_champ_switch - 1,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_impl>(all);
+        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_impl>(all);
         aml_test::check_interactions_match_exclusions(aml);
         aml_test::check_config_states(aml);
         EXPECT_EQ(aml->cm->current_champ, 0);
         EXPECT_EQ(aml->cm->_config_oracle.valid_config_size, 4);
         EXPECT_EQ(clear_champ_switch - 1, aml->cm->total_learn_count);
-        EXPECT_EQ(aml->current_state, VW::reductions::automl::automl_state::Experimenting);
+        EXPECT_EQ(aml->current_state, VW980::reductions::automl::automl_state::Experimenting);
         return true;
       });
 
   test_hooks.emplace(clear_champ_switch,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_impl>(all);
+        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_impl>(all);
         aml_test::check_interactions_match_exclusions(aml);
         aml_test::check_config_states(aml);
         EXPECT_EQ(aml->cm->current_champ, 0);
         EXPECT_EQ(clear_champ_switch, aml->cm->total_learn_count);
         EXPECT_EQ(aml->cm->estimators.size(), 3);
         EXPECT_EQ(aml->cm->_config_oracle.valid_config_size, 4);
-        EXPECT_EQ(aml->current_state, VW::reductions::automl::automl_state::Experimenting);
+        EXPECT_EQ(aml->current_state, VW980::reductions::automl::automl_state::Experimenting);
         return true;
       });
 
   test_hooks.emplace(clear_champ_switch + 1,
-      [](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_impl>(all);
+        aml_test::aml_onediff* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_impl>(all);
         EXPECT_EQ(aml->cm->estimators.size(), 3);
         EXPECT_EQ(aml->cm->estimators[0].first.live_interactions.size(), 3);
         EXPECT_EQ(aml->cm->estimators[1].first.live_interactions.size(), 2);
@@ -466,7 +466,7 @@ TEST(Automl, QColConsistencyWIterations)
 
 TEST(Automl, OneDiffImplUnittestWIterations)
 {
-  using namespace VW::reductions::automl;
+  using namespace VW980::reductions::automl;
 
   const size_t num_iterations = 2;
   callback_map test_hooks;
@@ -474,7 +474,7 @@ TEST(Automl, OneDiffImplUnittestWIterations)
   const size_t seed = 88;
 
   test_hooks.emplace(1,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
         const size_t CHAMP = 0;
         auto* aml = aml_test::get_automl_data<one_diff_impl>(all);
@@ -482,9 +482,9 @@ TEST(Automl, OneDiffImplUnittestWIterations)
         config_oracle<one_diff_impl>& co = aml->cm->_config_oracle;
         auto rand_state = all.get_random_state();
 
-        std::map<VW::namespace_index, uint64_t> ns_counter;
-        std::vector<std::pair<aml_estimator<VW::estimators::confidence_sequence_robust>,
-            VW::estimators::confidence_sequence_robust>>
+        std::map<VW980::namespace_index, uint64_t> ns_counter;
+        std::vector<std::pair<aml_estimator<VW980::estimators::confidence_sequence_robust>,
+            VW980::estimators::confidence_sequence_robust>>
             estimators;
 
         config_oracle<one_diff_impl> oracle(aml->cm->default_lease, co.calc_priority, co._interaction_type,
@@ -500,7 +500,7 @@ TEST(Automl, OneDiffImplUnittestWIterations)
         EXPECT_EQ(estimators.size(), 0);
         EXPECT_EQ(prio_queue.size(), 0);
         interaction_config_manager<config_oracle<one_diff_impl>,
-            VW::estimators::confidence_sequence_robust>::insert_starting_configuration(estimators, oracle,
+            VW980::estimators::confidence_sequence_robust>::insert_starting_configuration(estimators, oracle,
             aml->cm->automl_significance_level, 1e-6, false);
         EXPECT_EQ(configs.size(), 1);
         EXPECT_EQ(estimators.size(), 1);
@@ -540,7 +540,7 @@ TEST(Automl, OneDiffImplUnittestWIterations)
         for (size_t i = 1; i < configs.size(); ++i)
         {
           interaction_config_manager<config_oracle<one_diff_impl>,
-              VW::estimators::confidence_sequence_robust>::apply_config_at_slot(estimators, oracle.configs, i,
+              VW980::estimators::confidence_sequence_robust>::apply_config_at_slot(estimators, oracle.configs, i,
               config_oracle<one_diff_impl>::choose(oracle.index_queue), aml->cm->automl_significance_level,
               aml->cm->tol_x, aml->cm->is_brentq, 1);
           auto& temp_exclusions = oracle.configs[estimators[i].first.config_index];
@@ -553,7 +553,7 @@ TEST(Automl, OneDiffImplUnittestWIterations)
 
         // excl_2 is now champ
         interaction_config_manager<config_oracle<one_diff_impl>,
-            VW::estimators::confidence_sequence_robust>::apply_new_champ(oracle, 2, estimators, 0, ns_counter);
+            VW980::estimators::confidence_sequence_robust>::apply_new_champ(oracle, 2, estimators, 0, ns_counter);
 
         EXPECT_EQ(configs[0].elements, excl_2);
         EXPECT_EQ(configs[1].elements, excl_0);
@@ -573,7 +573,7 @@ TEST(Automl, OneDiffImplUnittestWIterations)
         for (size_t i = 2; i < 4; ++i)
         {
           interaction_config_manager<config_oracle<one_diff_impl>,
-              VW::estimators::confidence_sequence_robust>::apply_config_at_slot(estimators, oracle.configs, i,
+              VW980::estimators::confidence_sequence_robust>::apply_config_at_slot(estimators, oracle.configs, i,
               config_oracle<one_diff_impl>::choose(oracle.index_queue), aml->cm->automl_significance_level,
               aml->cm->tol_x, aml->cm->is_brentq, 1);
           auto& temp_config = oracle.configs[estimators[i].first.config_index];
@@ -585,7 +585,7 @@ TEST(Automl, OneDiffImplUnittestWIterations)
 
         // excl_4 is now champ
         interaction_config_manager<config_oracle<one_diff_impl>,
-            VW::estimators::confidence_sequence_robust>::apply_new_champ(oracle, 3, estimators, 0, ns_counter);
+            VW980::estimators::confidence_sequence_robust>::apply_new_champ(oracle, 3, estimators, 0, ns_counter);
 
         EXPECT_EQ(configs[0].elements, excl_4);
         EXPECT_EQ(configs[1].elements, excl_2);
@@ -607,7 +607,7 @@ TEST(Automl, OneDiffImplUnittestWIterations)
 
 TEST(Automl, QbaseUnittestWIterations)
 {
-  using namespace VW::reductions::automl;
+  using namespace VW980::reductions::automl;
 
   const size_t num_iterations = 2;
   callback_map test_hooks;
@@ -615,7 +615,7 @@ TEST(Automl, QbaseUnittestWIterations)
   const size_t seed = 88;
 
   test_hooks.emplace(1,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
         const size_t CHAMP = 0;
         auto* aml = aml_test::get_automl_data<qbase_cubic>(all);
@@ -623,9 +623,9 @@ TEST(Automl, QbaseUnittestWIterations)
         config_oracle<qbase_cubic>& co = aml->cm->_config_oracle;
         auto rand_state = all.get_random_state();
 
-        std::map<VW::namespace_index, uint64_t> ns_counter;
-        std::vector<std::pair<aml_estimator<VW::estimators::confidence_sequence_robust>,
-            VW::estimators::confidence_sequence_robust>>
+        std::map<VW980::namespace_index, uint64_t> ns_counter;
+        std::vector<std::pair<aml_estimator<VW980::estimators::confidence_sequence_robust>,
+            VW980::estimators::confidence_sequence_robust>>
             estimators;
 
         config_oracle<qbase_cubic> oracle(aml->cm->default_lease, co.calc_priority, co._interaction_type,
@@ -642,7 +642,7 @@ TEST(Automl, QbaseUnittestWIterations)
         EXPECT_EQ(estimators.size(), 0);
         EXPECT_EQ(prio_queue.size(), 0);
         interaction_config_manager<config_oracle<qbase_cubic>,
-            VW::estimators::confidence_sequence_robust>::insert_starting_configuration(estimators, oracle,
+            VW980::estimators::confidence_sequence_robust>::insert_starting_configuration(estimators, oracle,
             aml->cm->automl_significance_level, 1e-6, false);
         EXPECT_EQ(configs.size(), 1);
         EXPECT_EQ(estimators.size(), 1);
@@ -687,7 +687,7 @@ TEST(Automl, QbaseUnittestWIterations)
         for (size_t i = 1; i < configs.size(); ++i)
         {
           interaction_config_manager<config_oracle<qbase_cubic>,
-              VW::estimators::confidence_sequence_robust>::apply_config_at_slot(estimators, oracle.configs, i,
+              VW980::estimators::confidence_sequence_robust>::apply_config_at_slot(estimators, oracle.configs, i,
               config_oracle<qbase_cubic>::choose(oracle.index_queue), aml->cm->automl_significance_level,
               aml->cm->tol_x, aml->cm->is_brentq, 1);
           auto& temp_exclusions = oracle.configs[estimators[i].first.config_index];
@@ -706,13 +706,13 @@ TEST(Automl, QbaseUnittestWIterations)
             {'B', 'C'},
             {'C', 'C'},
         };
-        std::sort(expected2.begin(), expected2.end(), VW::details::sort_interactions_comparator);
+        std::sort(expected2.begin(), expected2.end(), VW980::details::sort_interactions_comparator);
         EXPECT_EQ(estimators[2].first.config_index, 9);
         EXPECT_EQ(estimators[2].first.live_interactions, expected2);
 
         // excl_9 - config 2 is now champ
         interaction_config_manager<config_oracle<qbase_cubic>,
-            VW::estimators::confidence_sequence_robust>::apply_new_champ(oracle, 2, estimators, 0, ns_counter);
+            VW980::estimators::confidence_sequence_robust>::apply_new_champ(oracle, 2, estimators, 0, ns_counter);
 
         EXPECT_EQ(configs[0].elements, excl_9);
         EXPECT_EQ(configs[1].elements, excl_0);
@@ -732,7 +732,7 @@ TEST(Automl, QbaseUnittestWIterations)
         for (size_t i = 2; i < 4; ++i)
         {
           interaction_config_manager<config_oracle<qbase_cubic>,
-              VW::estimators::confidence_sequence_robust>::apply_config_at_slot(estimators, oracle.configs, i,
+              VW980::estimators::confidence_sequence_robust>::apply_config_at_slot(estimators, oracle.configs, i,
               config_oracle<qbase_cubic>::choose(oracle.index_queue), aml->cm->automl_significance_level,
               aml->cm->tol_x, aml->cm->is_brentq, 1);
           auto& temp_config = oracle.configs[estimators[i].first.config_index];
@@ -745,7 +745,7 @@ TEST(Automl, QbaseUnittestWIterations)
         // excl_7 is now champ
         const set_ns_list_t excl_7{{'A', 'B', 'C'}, {'B', 'C', 'C'}};
         interaction_config_manager<config_oracle<qbase_cubic>,
-            VW::estimators::confidence_sequence_robust>::apply_new_champ(oracle, 3, estimators, 0, ns_counter);
+            VW980::estimators::confidence_sequence_robust>::apply_new_champ(oracle, 3, estimators, 0, ns_counter);
 
         EXPECT_EQ(configs[0].elements, excl_7);
         EXPECT_EQ(configs[1].elements, excl_9);
@@ -766,9 +766,9 @@ TEST(Automl, QbaseUnittestWIterations)
 
 TEST(Automl, ExcInclUnitTest)
 {
-  using namespace VW::reductions::automl;
+  using namespace VW980::reductions::automl;
 
-  std::map<VW::namespace_index, uint64_t> ns_counter{{'A', 5}, {'B', 4}, {'C', 3}};
+  std::map<VW980::namespace_index, uint64_t> ns_counter{{'A', 5}, {'B', 4}, {'C', 3}};
 
   interaction_vec_t interactions;
 
@@ -789,9 +789,9 @@ TEST(Automl, ExcInclUnitTest)
 
 TEST(Automl, QuadcubicUnitTest)
 {
-  using namespace VW::reductions::automl;
+  using namespace VW980::reductions::automl;
 
-  std::map<VW::namespace_index, uint64_t> ns_counter{{'A', 5}, {'B', 4}, {'C', 3}};
+  std::map<VW980::namespace_index, uint64_t> ns_counter{{'A', 5}, {'B', 4}, {'C', 3}};
 
   interaction_vec_t interactions;
 
@@ -801,7 +801,7 @@ TEST(Automl, QuadcubicUnitTest)
 
   interaction_vec_t expected2{{'A', 'A', 'A'}, {'B', 'B', 'B'}, {'C', 'C', 'C'}, {'A', 'A'}, {'A', 'B'}, {'A', 'C'},
       {'B', 'B'}, {'B', 'C'}, {'C', 'C'}};
-  std::sort(expected2.begin(), expected2.end(), VW::details::sort_interactions_comparator);
+  std::sort(expected2.begin(), expected2.end(), VW980::details::sort_interactions_comparator);
 
   EXPECT_EQ(interactions, expected2);
 }
@@ -815,9 +815,9 @@ TEST(Automl, InsertionChampChangeWIterations)
   callback_map test_hooks;
 
   test_hooks.emplace(clear_champ_switch - 1,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        auto* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_inclusion_impl>(all);
+        auto* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_inclusion_impl>(all);
         aml_test::check_config_states(aml);
         EXPECT_EQ(aml->cm->current_champ, 0);
         EXPECT_EQ(aml->cm->_config_oracle.valid_config_size, 4);
@@ -831,14 +831,14 @@ TEST(Automl, InsertionChampChangeWIterations)
         EXPECT_EQ(aml->cm->_config_oracle.configs[2].elements.size(), 2);
         EXPECT_EQ(aml->cm->_config_oracle.configs[3].elements.size(), 2);
         EXPECT_EQ(aml->cm->total_champ_switches, 1);
-        EXPECT_EQ(aml->current_state, VW::reductions::automl::automl_state::Experimenting);
+        EXPECT_EQ(aml->current_state, VW980::reductions::automl::automl_state::Experimenting);
         return true;
       });
 
   test_hooks.emplace(clear_champ_switch,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        auto* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_inclusion_impl>(all);
+        auto* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_inclusion_impl>(all);
         aml_test::check_config_states(aml);
         EXPECT_EQ(aml->cm->current_champ, 0);
         EXPECT_EQ(clear_champ_switch, aml->cm->total_learn_count);
@@ -852,14 +852,14 @@ TEST(Automl, InsertionChampChangeWIterations)
         EXPECT_EQ(aml->cm->_config_oracle.configs[2].elements.size(), 2);
         EXPECT_EQ(aml->cm->_config_oracle.configs[3].elements.size(), 2);
         EXPECT_EQ(aml->cm->total_champ_switches, 1);
-        EXPECT_EQ(aml->current_state, VW::reductions::automl::automl_state::Experimenting);
+        EXPECT_EQ(aml->current_state, VW980::reductions::automl::automl_state::Experimenting);
         return true;
       });
 
   test_hooks.emplace(clear_champ_switch + 1,
-      [](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        auto* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_inclusion_impl>(all);
+        auto* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_inclusion_impl>(all);
         aml_test::check_config_states(aml);
         EXPECT_EQ(aml->cm->estimators.size(), 3);
         EXPECT_EQ(aml->cm->estimators[0].first.live_interactions.size(), 1);
@@ -887,9 +887,9 @@ TEST(Automl, InsertionChampChangeBagWIterations)
   callback_map test_hooks;
 
   test_hooks.emplace(clear_champ_switch - 1,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        auto* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_inclusion_impl>(all);
+        auto* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_inclusion_impl>(all);
         aml_test::check_config_states(aml);
         EXPECT_EQ(aml->cm->current_champ, 0);
         EXPECT_EQ(aml->cm->_config_oracle.valid_config_size, 4);
@@ -903,14 +903,14 @@ TEST(Automl, InsertionChampChangeBagWIterations)
         EXPECT_EQ(aml->cm->_config_oracle.configs[2].elements.size(), 2);
         EXPECT_EQ(aml->cm->_config_oracle.configs[3].elements.size(), 2);
         EXPECT_EQ(aml->cm->total_champ_switches, 1);
-        EXPECT_EQ(aml->current_state, VW::reductions::automl::automl_state::Experimenting);
+        EXPECT_EQ(aml->current_state, VW980::reductions::automl::automl_state::Experimenting);
         return true;
       });
 
   test_hooks.emplace(clear_champ_switch,
-      [&](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [&](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        auto* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_inclusion_impl>(all);
+        auto* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_inclusion_impl>(all);
         aml_test::check_config_states(aml);
         EXPECT_EQ(aml->cm->current_champ, 0);
         EXPECT_EQ(aml->cm->estimators.size(), 4);
@@ -923,14 +923,14 @@ TEST(Automl, InsertionChampChangeBagWIterations)
         EXPECT_EQ(aml->cm->_config_oracle.configs[2].elements.size(), 2);
         EXPECT_EQ(aml->cm->_config_oracle.configs[3].elements.size(), 2);
         EXPECT_EQ(aml->cm->total_champ_switches, 1);
-        EXPECT_EQ(aml->current_state, VW::reductions::automl::automl_state::Experimenting);
+        EXPECT_EQ(aml->current_state, VW980::reductions::automl::automl_state::Experimenting);
         return true;
       });
 
   test_hooks.emplace(clear_champ_switch + 1,
-      [](cb_sim&, VW::workspace& all, VW::multi_ex&)
+      [](cb_sim&, VW980::workspace& all, VW980::multi_ex&)
       {
-        auto* aml = aml_test::get_automl_data<VW::reductions::automl::one_diff_inclusion_impl>(all);
+        auto* aml = aml_test::get_automl_data<VW980::reductions::automl::one_diff_inclusion_impl>(all);
         aml_test::check_config_states(aml);
         EXPECT_EQ(aml->cm->estimators.size(), 4);
         EXPECT_EQ(aml->cm->estimators[0].first.live_interactions.size(), 1);

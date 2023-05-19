@@ -25,19 +25,19 @@ TEST(CsvParser, ComplexCsvSimpleLabelExamples)
       // Example 2
       "\f0,4.9,3.0,-1.4,\"2\",0x6E,'te\"\"st,1.0,-2,\v";
 
-  auto vw = VW::initialize(
+  auto vw = VW980::initialize(
       vwtest::make_args("--no_stdin", "--quiet", "-a", "--csv", "--csv_ns_value", "sepal:-2.2,petal:2,sepal1:1"));
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
 
   // Check example 1 label and tag
   EXPECT_FLOAT_EQ(examples[0]->l.simple.label, 1.f);
   const auto& red_features_exp1 =
-      examples[0]->ex_reduction_features.template get<VW::simple_label_reduction_features>();
+      examples[0]->ex_reduction_features.template get<VW980::simple_label_reduction_features>();
   EXPECT_FLOAT_EQ(red_features_exp1.weight, 2.f);
   EXPECT_EQ(examples[0]->tag.size(), 11);
   std::string example1_tag = {examples[0]->tag.data(), examples[0]->tag.size()};
@@ -89,16 +89,16 @@ TEST(CsvParser, ComplexCsvSimpleLabelExamples)
   EXPECT_EQ(examples[0]->feature_space[' '].space_names[0].ns, " ");
   EXPECT_EQ(examples[0]->feature_space[' '].space_names[0].name, "type");
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
   examples.clear();
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
 
   // Check example 2 label and tag
   EXPECT_FLOAT_EQ(examples[0]->l.simple.label, 2.f);
   const auto& red_features_exp2 =
-      examples[0]->ex_reduction_features.template get<VW::simple_label_reduction_features>();
+      examples[0]->ex_reduction_features.template get<VW980::simple_label_reduction_features>();
   EXPECT_FLOAT_EQ(red_features_exp2.weight, 1.f);
   EXPECT_EQ(examples[0]->tag.size(), 6);
   std::string example2_tag = {examples[0]->tag.data(), examples[0]->tag.size()};
@@ -141,7 +141,7 @@ TEST(CsvParser, ComplexCsvSimpleLabelExamples)
   EXPECT_EQ(examples[0]->feature_space[' '].space_names[2].ns, " ");
   EXPECT_EQ(examples[0]->feature_space[' '].space_names[2].name, "");
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, MultipleFileExamples)
@@ -150,10 +150,10 @@ TEST(CsvParser, MultipleFileExamples)
    * Equivalent VW Text format:
    * 4 a| a:1 b:2 c:3
    */
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_separator", "\\t"));
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_separator", "\\t"));
 
-  VW::io_buf buffer;
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  VW980::multi_ex examples;
 
   // Read the first file
   std::string file1_string =
@@ -161,9 +161,9 @@ TEST(CsvParser, MultipleFileExamples)
       "a\tb\tc\t_label\t_tag\n"
       // Example
       "1\t2\t3\t4\ta\n";
-  buffer.add_file(VW::io::create_buffer_view(file1_string.data(), file1_string.size()));
+  buffer.add_file(VW980::io::create_buffer_view(file1_string.data(), file1_string.size()));
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
 
   EXPECT_FLOAT_EQ(examples[0]->l.simple.label, 4);
@@ -176,7 +176,7 @@ TEST(CsvParser, MultipleFileExamples)
   // Empty as not in audit mode
   EXPECT_EQ(examples[0]->feature_space[' '].space_names.size(), 0);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 0);
   examples.clear();
@@ -191,9 +191,9 @@ TEST(CsvParser, MultipleFileExamples)
       "_tag\td\t_label\n"
       // Example
       "bc\t5\t6\n";
-  buffer.add_file(VW::io::create_buffer_view(file2_string.data(), file2_string.size()));
+  buffer.add_file(VW980::io::create_buffer_view(file2_string.data(), file2_string.size()));
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
 
   EXPECT_FLOAT_EQ(examples[0]->l.simple.label, 6);
@@ -202,7 +202,7 @@ TEST(CsvParser, MultipleFileExamples)
   EXPECT_EQ(examples[0]->tag[1], 'c');
   EXPECT_EQ(examples[0]->feature_space[' '].size(), 1);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[0], 5);
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, MulticlassExamples)
@@ -220,14 +220,14 @@ TEST(CsvParser, MulticlassExamples)
       // Example 2
       "2;3.0is;2test;NaN\n";
 
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "-a", "--csv", "--csv_separator", ";",
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "-a", "--csv", "--csv_separator", ";",
       "--chain_hash", "--named_labels", "2test,1test", "--oaa", "2"));
 
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
 
   // Check example 1 label
@@ -252,10 +252,10 @@ TEST(CsvParser, MulticlassExamples)
   EXPECT_EQ(examples[0]->feature_space[' '].space_names[2].ns, " ");
   EXPECT_EQ(examples[0]->feature_space[' '].space_names[2].name, "c");
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
   examples.clear();
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
 
   // Check example 1 label
@@ -281,7 +281,7 @@ TEST(CsvParser, MulticlassExamples)
   EXPECT_EQ(examples[0]->feature_space[' '].space_names[2].ns, " ");
   EXPECT_EQ(examples[0]->feature_space[' '].space_names[2].name, "c");
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, ReplaceHeader)
@@ -296,20 +296,20 @@ TEST(CsvParser, ReplaceHeader)
       // Example 1
       "1$2$3$4\n";
 
-  auto vw = VW::initialize(
+  auto vw = VW980::initialize(
       vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_separator", "$", "--csv_header", ",,_label,"));
 
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
 
   // Check example 1 label
   EXPECT_FLOAT_EQ(examples[0]->l.simple.label, 3.f);
   const auto& red_features_exp1 =
-      examples[0]->ex_reduction_features.template get<VW::simple_label_reduction_features>();
+      examples[0]->ex_reduction_features.template get<VW980::simple_label_reduction_features>();
   EXPECT_FLOAT_EQ(red_features_exp1.weight, 1.f);
 
   // Check example 1 feature numbers
@@ -329,7 +329,7 @@ TEST(CsvParser, ReplaceHeader)
   EXPECT_EQ(examples[0]->feature_space[' '].indices[1], 1);
   EXPECT_EQ(examples[0]->feature_space[' '].indices[2], 2);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, NoHeader)
@@ -341,20 +341,20 @@ TEST(CsvParser, NoHeader)
   std::string example_string =
       // Example 1
       "1&2&3&4\n";
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "-a", "--csv", "--csv_separator", "&",
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "-a", "--csv", "--csv_separator", "&",
       "--csv_no_file_header", "--csv_header", "n1|a,_label,n1|b,a"));
 
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
 
   // Check example 1 label
   EXPECT_FLOAT_EQ(examples[0]->l.simple.label, 2.f);
   const auto& red_features_exp1 =
-      examples[0]->ex_reduction_features.template get<VW::simple_label_reduction_features>();
+      examples[0]->ex_reduction_features.template get<VW980::simple_label_reduction_features>();
   EXPECT_FLOAT_EQ(red_features_exp1.weight, 1.f);
 
   // Check example 1 feature numbers
@@ -380,7 +380,7 @@ TEST(CsvParser, NoHeader)
   // Hash check, different due to different namespaces
   EXPECT_TRUE(examples[0]->feature_space['n'].indices[0] != examples[0]->feature_space[' '].values[0]);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, EmptyHeaderAndExampleLine)
@@ -391,17 +391,17 @@ TEST(CsvParser, EmptyHeaderAndExampleLine)
       // New line
       ",,,\n";
 
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
 
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
   EXPECT_EQ(examples[0]->is_newline, true);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, EmptyLineErrorThrown)
@@ -412,16 +412,16 @@ TEST(CsvParser, EmptyLineErrorThrown)
       // Empty line
       "\n";
 
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
 
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
-  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW::vw_exception);
+  examples.push_back(&VW980::get_unused_example(vw.get()));
+  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW980::vw_exception);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, ForbiddenCsvSeparatorErrorThrown)
@@ -429,74 +429,74 @@ TEST(CsvParser, ForbiddenCsvSeparatorErrorThrown)
   std::vector<std::string> csv_separator_forbid_chars = {"\"", "|", ":"};
   for (const std::string& csv_separator_forbid_char : csv_separator_forbid_chars)
   {
-    EXPECT_THROW(VW::initialize(
+    EXPECT_THROW(VW980::initialize(
                      vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_separator", csv_separator_forbid_char)),
-        VW::vw_exception);
+        VW980::vw_exception);
   }
 }
 
 TEST(CsvParser, MulticharacterCsvSeparatorErrorThrown)
 {
   EXPECT_THROW(
-      VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_separator", "\\a")), VW::vw_exception);
+      VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_separator", "\\a")), VW980::vw_exception);
 }
 
 TEST(CsvParser, NoHeaderWithoutSpecifyingErrorThrown)
 {
   EXPECT_THROW(
-      VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_no_file_header")), VW::vw_exception);
+      VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_no_file_header")), VW980::vw_exception);
 }
 
 TEST(CsvParser, MalformedNamespaceValuePairNoElementErrorThrown)
 {
   std::string example_string = " \n";
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_ns_value", ":5,"));
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
-  examples.push_back(&VW::get_unused_example(vw.get()));
-  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW::vw_exception);
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_ns_value", ":5,"));
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
+  examples.push_back(&VW980::get_unused_example(vw.get()));
+  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW980::vw_exception);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, MalformedNamespaceValuePairOneElementErrorThrown)
 {
   std::string example_string = " \n";
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_ns_value", "a:5,0"));
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
-  examples.push_back(&VW::get_unused_example(vw.get()));
-  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW::vw_exception);
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_ns_value", "a:5,0"));
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
+  examples.push_back(&VW980::get_unused_example(vw.get()));
+  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW980::vw_exception);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, MalformedNamespaceValuePairThreeElementErrorThrown)
 {
   std::string example_string = " \n";
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_ns_value", "c:5,b:a:6"));
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
-  examples.push_back(&VW::get_unused_example(vw.get()));
-  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW::vw_exception);
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_ns_value", "c:5,b:a:6"));
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
+  examples.push_back(&VW980::get_unused_example(vw.get()));
+  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW980::vw_exception);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, NanNamespaceValueErrorThrown)
 {
   std::string example_string = " \n";
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_ns_value", "c:a"));
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
-  examples.push_back(&VW::get_unused_example(vw.get()));
-  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW::vw_exception);
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--csv_ns_value", "c:a"));
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
+  examples.push_back(&VW980::get_unused_example(vw.get()));
+  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW980::vw_exception);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, MalformedHeaderErrorThrown)
@@ -506,16 +506,16 @@ TEST(CsvParser, MalformedHeaderErrorThrown)
       "a,b|c|d,_label\n"
       "1,2,3\n";
 
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
 
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
-  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW::vw_exception);
+  examples.push_back(&VW980::get_unused_example(vw.get()));
+  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW980::vw_exception);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, UnmatchingElementErrorThrown)
@@ -528,17 +528,17 @@ TEST(CsvParser, UnmatchingElementErrorThrown)
       // Example 2 has 4 elements
       "3,4,5,6\n";
 
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
 
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
-  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW::vw_exception);
-  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW::vw_exception);
+  examples.push_back(&VW980::get_unused_example(vw.get()));
+  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW980::vw_exception);
+  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW980::vw_exception);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, UnmatchingQuotesErrorThrown)
@@ -547,16 +547,16 @@ TEST(CsvParser, UnmatchingQuotesErrorThrown)
       // Malformed Header
       "abc,\"bd\"e,_label\n";
 
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
 
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
-  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW::vw_exception);
+  examples.push_back(&VW980::get_unused_example(vw.get()));
+  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW980::vw_exception);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 TEST(CsvParser, QuotesEolErrorThrown)
@@ -564,16 +564,16 @@ TEST(CsvParser, QuotesEolErrorThrown)
   std::string example_string =
       // Malformed Header
       "abc,\"bd\"\"e,_label\n";
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv"));
 
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
-  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW::vw_exception);
+  examples.push_back(&VW980::get_unused_example(vw.get()));
+  EXPECT_THROW(vw->example_parser->reader(vw.get(), buffer, examples), VW980::vw_exception);
 
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
 }
 
 /*
@@ -606,23 +606,23 @@ TEST(CsvParser, MultilineExamples)
       ",0.5,2,1,,,\n"
       ",,,,,,\n";
 
-  auto vw = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--cb_adf"));
+  auto vw = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--csv", "--cb_adf"));
 
-  VW::io_buf buffer;
-  buffer.add_file(VW::io::create_buffer_view(example_string.data(), example_string.size()));
-  VW::multi_ex examples;
+  VW980::io_buf buffer;
+  buffer.add_file(VW980::io::create_buffer_view(example_string.data(), example_string.size()));
+  VW980::multi_ex examples;
 
   // Example 1
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
   EXPECT_EQ(examples[0]->l.cb.costs.size(), 1);
   EXPECT_EQ(examples[0]->feature_space[' '].size(), 2);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[0], 1);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[1], 0.5);
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
   examples.clear();
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
   EXPECT_EQ(examples[0]->l.cb.costs.size(), 1);
   EXPECT_FLOAT_EQ(examples[0]->l.cb.costs[0].probability, 0.75);
@@ -632,35 +632,35 @@ TEST(CsvParser, MultilineExamples)
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[0], 0.5);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[1], 1);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[2], 2);
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
   examples.clear();
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
   EXPECT_EQ(examples[0]->l.cb.costs.size(), 0);
   EXPECT_EQ(examples[0]->feature_space[' '].size(), 2);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[0], 1);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[1], 3);
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
   examples.clear();
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
   EXPECT_EQ(examples[0]->is_newline, true);
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
   examples.clear();
 
   // Example 2
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
   EXPECT_EQ(examples[0]->l.cb.costs.size(), 1);
   EXPECT_EQ(examples[0]->feature_space[' '].size(), 2);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[0], 1);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[1], 1);
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
   examples.clear();
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
   EXPECT_EQ(examples[0]->l.cb.costs.size(), 1);
   EXPECT_FLOAT_EQ(examples[0]->l.cb.costs[0].probability, 0.5);
@@ -670,22 +670,22 @@ TEST(CsvParser, MultilineExamples)
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[0], 1);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[1], 1);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[2], 1);
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
   examples.clear();
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
   EXPECT_EQ(examples[0]->l.cb.costs.size(), 0);
   EXPECT_EQ(examples[0]->feature_space[' '].size(), 3);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[0], 0.5);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[1], 2);
   EXPECT_FLOAT_EQ(examples[0]->feature_space[' '].values[2], 1);
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
   examples.clear();
 
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   EXPECT_EQ(vw->example_parser->reader(vw.get(), buffer, examples), 1);
   EXPECT_EQ(examples[0]->is_newline, true);
-  VW::finish_example(*vw, *examples[0]);
+  VW980::finish_example(*vw, *examples[0]);
   examples.clear();
 }

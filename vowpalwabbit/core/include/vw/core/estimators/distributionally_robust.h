@@ -9,7 +9,7 @@
 #include <limits>
 #include <string>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -26,10 +26,10 @@ class chi_squared;
 
 namespace model_utils
 {
-size_t read_model_field(io_buf&, VW::details::Duals&);
-size_t write_model_field(io_buf&, const VW::details::Duals&, const std::string&, bool);
-size_t read_model_field(io_buf&, VW::estimators::chi_squared&);
-size_t write_model_field(io_buf&, const VW::estimators::chi_squared&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::details::Duals&);
+size_t write_model_field(io_buf&, const VW980::details::Duals&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::estimators::chi_squared&);
+size_t write_model_field(io_buf&, const VW980::estimators::chi_squared&, const std::string&, bool);
 }  // namespace model_utils
 
 namespace details
@@ -62,10 +62,10 @@ public:
     n = 0.0;
   }
 
-  friend size_t VW::model_utils::read_model_field(io_buf&, VW::details::Duals&);
-  friend size_t VW::model_utils::write_model_field(io_buf&, const VW::details::Duals&, const std::string&, bool);
+  friend size_t VW980::model_utils::read_model_field(io_buf&, VW980::details::Duals&);
+  friend size_t VW980::model_utils::write_model_field(io_buf&, const VW980::details::Duals&, const std::string&, bool);
 };
-using ScoredDual = std::pair<double, VW::details::Duals>;
+using ScoredDual = std::pair<double, VW980::details::Duals>;
 }  // namespace details
 
 namespace estimators
@@ -84,16 +84,16 @@ public:
   void reset(double _alpha, double _tau);
   double lower_bound_and_update();
   double get_phi() const;
-  VW::details::ScoredDual cressieread_duals(double r, double sign, double phi) const;
+  VW980::details::ScoredDual cressieread_duals(double r, double sign, double phi) const;
   double cressieread_bound(double r, double sign, double phi) const;
   double cressieread_lower_bound() const;
   double cressieread_upper_bound() const;
-  VW::details::ScoredDual recompute_duals();
+  VW980::details::ScoredDual recompute_duals();
   static double chisq_onedof_isf(double alpha);
   const double& effn() { return _n; }
-  friend size_t VW::model_utils::read_model_field(io_buf&, VW::estimators::chi_squared&);
-  friend size_t VW::model_utils::write_model_field(
-      io_buf&, const VW::estimators::chi_squared&, const std::string&, bool);
+  friend size_t VW980::model_utils::read_model_field(io_buf&, VW980::estimators::chi_squared&);
+  friend size_t VW980::model_utils::write_model_field(
+      io_buf&, const VW980::estimators::chi_squared&, const std::string&, bool);
   void save_load(io_buf& model_file, bool read, bool text, const char* name);
 
   double _alpha;
@@ -113,7 +113,7 @@ public:
   double _delta;
 
   bool _duals_stale;
-  VW::details::ScoredDual _duals;
+  VW980::details::ScoredDual _duals;
 };
 }  // namespace estimators
-}  // namespace VW
+}  // namespace VW980

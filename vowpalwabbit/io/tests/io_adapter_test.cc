@@ -16,7 +16,7 @@ TEST(IoAdapter, IoAdapterVectorWriter)
   auto buffer = std::make_shared<std::vector<char>>();
   EXPECT_EQ(buffer.use_count(), 1);
   {
-    auto vector_writer = VW::io::create_vector_writer(buffer);
+    auto vector_writer = VW980::io::create_vector_writer(buffer);
     EXPECT_EQ(buffer.use_count(), 2);
     EXPECT_EQ(buffer->size(), 0);
     EXPECT_TRUE(*buffer == std::vector<char>{});
@@ -32,7 +32,7 @@ TEST(IoAdapter, IoAdapterVectorWriter)
 TEST(IoAdapter, IoAdapterBufferView)
 {
   constexpr std::array<const char, 13> buffer = {"test another"};
-  auto buffer_reader = VW::io::create_buffer_view(buffer.data(), buffer.size());
+  auto buffer_reader = VW980::io::create_buffer_view(buffer.data(), buffer.size());
 
   {
     char read_buffer[5];

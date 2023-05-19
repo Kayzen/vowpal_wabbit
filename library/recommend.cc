@@ -50,8 +50,8 @@ void progress()
 void get_hashv(char* in, size_t len, unsigned* out)
 {
   assert(NUM_HASHES == 2);
-  out[0] = MASK(VW::uniform_hash(in, len, 1), bits);
-  out[1] = MASK(VW::uniform_hash(in, len, 2), bits);
+  out[0] = MASK(VW980::uniform_hash(in, len, 1), bits);
+  out[1] = MASK(VW980::uniform_hash(in, len, 2), bits);
 }
 
 #define BIT_TEST(c, i) (c[i / 8] & (1 << (i % 8)))
@@ -111,43 +111,43 @@ int main(int argc, char* argv[])
   using std::endl;
 
   bool help;
-  VW::config::options_cli opts(std::vector<std::string>(argv + 1, argv + argc));
-  VW::config::option_group_definition desc("Recommend");
-  desc.add(VW::config::make_option("help", help).short_name("h").help("Produce help message"))
-      .add(VW::config::make_option("topk", topk).default_value(10).help("Number of items to recommend per user"))
-      .add(VW::config::make_option("verbose", verbose).short_name("v").help("Increase verbosity (can be repeated)"))
-      .add(VW::config::make_option("bf_bits", bits)
+  VW980::config::options_cli opts(std::vector<std::string>(argv + 1, argv + argc));
+  VW980::config::option_group_definition desc("Recommend");
+  desc.add(VW980::config::make_option("help", help).short_name("h").help("Produce help message"))
+      .add(VW980::config::make_option("topk", topk).default_value(10).help("Number of items to recommend per user"))
+      .add(VW980::config::make_option("verbose", verbose).short_name("v").help("Increase verbosity (can be repeated)"))
+      .add(VW980::config::make_option("bf_bits", bits)
                .default_value(16)
                .short_name("b")
                .help("Number of items to recommend"))
-      .add(VW::config::make_option("blacklist", blacklistfilename)
+      .add(VW980::config::make_option("blacklist", blacklistfilename)
                .short_name("B")
                .help("User item pairs (in vw format) that we should not recommend (have been seen before)"))
-      .add(VW::config::make_option("users", userfilename)
+      .add(VW980::config::make_option("users", userfilename)
                .short_name("U")
                .help("Users portion in vw format to make recs for"))
       .add(
-          VW::config::make_option("items", itemfilename).short_name("I").help("Items (in vw format) to recommend from"))
-      .add(VW::config::make_option("vwparams", vwparams).help("vw parameters for model instantiation (-i model ...)"));
+          VW980::config::make_option("items", itemfilename).short_name("I").help("Items (in vw format) to recommend from"))
+      .add(VW980::config::make_option("vwparams", vwparams).help("vw parameters for model instantiation (-i model ...)"));
 
   opts.add_and_parse(desc);
   // Return value is ignored as option reachability is not relevant here.
   auto warnings = opts.check_unregistered();
   _UNUSED(warnings);
 
-  VW::config::cli_help_formatter help_formatter;
+  VW980::config::cli_help_formatter help_formatter;
   const auto help_message = help_formatter.format_help(opts.get_all_option_group_definitions());
 
   if (help)
   {
-    VW::config::cli_help_formatter help_formatter;
+    VW980::config::cli_help_formatter help_formatter;
     std::cout << help_message << std::endl;
     return 1;
   }
 
   if (blacklistfilename.empty() || userfilename.empty() || itemfilename.empty() || vwparams.empty())
   {
-    VW::config::cli_help_formatter help_formatter;
+    VW980::config::cli_help_formatter help_formatter;
     std::cout << help_message << std::endl;
     exit(2);
   }
@@ -156,21 +156,21 @@ int main(int argc, char* argv[])
   FILE* fU;  // NOLINT
   FILE* fI;  // NOLINT
 
-  if (VW::file_open(&fB, blacklistfilename.c_str(), "r") != 0)
+  if (VW980::file_open(&fB, blacklistfilename.c_str(), "r") != 0)
   {
-    fprintf(stderr, "can't open %s: %s\n", blacklistfilename.c_str(), VW::io::strerror_to_string(errno).c_str());
+    fprintf(stderr, "can't open %s: %s\n", blacklistfilename.c_str(), VW980::io::strerror_to_string(errno).c_str());
     cerr << help_message << endl;
     exit(2);
   }
-  if (VW::file_open(&fU, userfilename.c_str(), "r") != 0)
+  if (VW980::file_open(&fU, userfilename.c_str(), "r") != 0)
   {
-    fprintf(stderr, "can't open %s: %s\n", userfilename.c_str(), VW::io::strerror_to_string(errno).c_str());
+    fprintf(stderr, "can't open %s: %s\n", userfilename.c_str(), VW980::io::strerror_to_string(errno).c_str());
     cerr << help_message << endl;
     exit(2);
   }
-  if (VW::file_open(&fI, itemfilename.c_str(), "r") != 0)
+  if (VW980::file_open(&fI, itemfilename.c_str(), "r") != 0)
   {
-    fprintf(stderr, "can't open %s: %s\n", itemfilename.c_str(), VW::io::strerror_to_string(errno).c_str());
+    fprintf(stderr, "can't open %s: %s\n", itemfilename.c_str(), VW980::io::strerror_to_string(errno).c_str());
     cerr << help_message << endl;
     exit(2);
   }
@@ -201,7 +201,7 @@ int main(int argc, char* argv[])
 
   // INITIALIZE WITH WHATEVER YOU WOULD PUT ON THE VW COMMAND LINE
   if (verbose > 0) { fprintf(stderr, "initializing vw...\n"); }
-  auto model = VW::initialize(VW::make_unique<VW::config::options_cli>(VW::split_command_line(vwparams)));
+  auto model = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(VW980::split_command_line(vwparams)));
 
   char* estr = NULL;
 
@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 
       if (!bf_hit(bf, estr))
       {
-        VW::example* ex = VW::read_example(*model, estr);
+        VW980::example* ex = VW980::read_example(*model, estr);
         model->learn(*ex);
 
         const std::string str(estr);
@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
           pr_queue.push(std::make_pair(ex->pred.scalar, str));
         }
 
-        VW::finish_example(*model, *ex);
+        VW980::finish_example(*model, *ex);
       }
       else
       {

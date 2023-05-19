@@ -12,7 +12,7 @@
 #include <Eigen/SparseCore>
 #include <set>
 
-namespace VW
+namespace VW980
 {
 constexpr float NORM_THRESHOLD = 0.0001f;
 
@@ -71,4 +71,4 @@ uint64_t gram_schmidt(WeightsT& weights, uint64_t d, const std::set<uint64_t>& r
 
 void gram_schmidt(Eigen::MatrixXf& mat);
 void gram_schmidt(Eigen::SparseMatrix<float>& mat);
-}  // namespace VW
+}  // namespace VW980

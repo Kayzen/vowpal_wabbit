@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-namespace VW
+namespace VW980
 {
 enum class cb_type_t : uint32_t
 {
@@ -21,4 +21,4 @@ enum class cb_type_t : uint32_t
 
 cb_type_t cb_type_from_string(string_view str);
 string_view to_string(cb_type_t type);
-}  // namespace VW
+}  // namespace VW980

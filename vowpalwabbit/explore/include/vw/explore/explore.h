@@ -15,7 +15,7 @@
 #define E_EXPLORATION_BAD_PDF 3
 #define E_EXPLORATION_BAD_EPSILON 4
 
-namespace VW
+namespace VW980
 {
 
 namespace explore
@@ -148,89 +148,89 @@ template <typename It>
 int sample_pdf(uint64_t* p_seed, It pdf_first, It pdf_last, float& chosen_value, float& pdf_value);
 
 }  // namespace explore
-}  // namespace VW
+}  // namespace VW980
 
 namespace exploration
 {
-/// Function moved to VW::explore::generate_epsilon_greedy()
+/// Function moved to VW980::explore::generate_epsilon_greedy()
 template <typename It>
-VW_DEPRECATED("Moved to VW::exploration explorece")
+VW_DEPRECATED("Moved to VW980::exploration explorece")
 int generate_epsilon_greedy(float epsilon, uint32_t top_action, It pmf_first, It pmf_last)
 {
   // call vw version
-  return VW::explore::generate_epsilon_greedy(epsilon, top_action, pmf_first, pmf_last);
+  return VW980::explore::generate_epsilon_greedy(epsilon, top_action, pmf_first, pmf_last);
 }
 
-/// Function moved to VW::explore::generate_softmax()
+/// Function moved to VW980::explore::generate_softmax()
 template <typename InputIt, typename OutputIt>
-VW_DEPRECATED("Moved to VW::exploration explorece")
+VW_DEPRECATED("Moved to VW980::exploration explorece")
 int generate_softmax(float lambda, InputIt scores_first, InputIt scores_last, OutputIt pmf_first, OutputIt pmf_last)
 {
   // call vw version
-  return VW::explore::generate_softmax(lambda, scores_first, scores_last, pmf_first, pmf_last);
+  return VW980::explore::generate_softmax(lambda, scores_first, scores_last, pmf_first, pmf_last);
 }
 
-/// Function moved to VW::explore::generate_bag()
+/// Function moved to VW980::explore::generate_bag()
 template <typename InputIt, typename OutputIt>
-VW_DEPRECATED("Moved to VW::exploration explorece")
+VW_DEPRECATED("Moved to VW980::exploration explorece")
 int generate_bag(InputIt top_actions_first, InputIt top_actions_last, OutputIt pmf_first, OutputIt pmf_last)
 {
   // call vw version
-  return VW::explore::generate_bag(top_actions_first, top_actions_last, pmf_first, pmf_last);
+  return VW980::explore::generate_bag(top_actions_first, top_actions_last, pmf_first, pmf_last);
 }
 
-/// Function moved to VW::explore::enforce_minimum_probability()
+/// Function moved to VW980::explore::enforce_minimum_probability()
 template <typename It>
-VW_DEPRECATED("Moved to VW::exploration explorece")
+VW_DEPRECATED("Moved to VW980::exploration explorece")
 int enforce_minimum_probability(float uniform_epsilon, bool consider_zero_valued_elements, It pmf_first, It pmf_last)
 {
   // call vw version
-  return VW::explore::enforce_minimum_probability(uniform_epsilon, consider_zero_valued_elements, pmf_first, pmf_last);
+  return VW980::explore::enforce_minimum_probability(uniform_epsilon, consider_zero_valued_elements, pmf_first, pmf_last);
 }
 
-/// Function moved to VW::explore::mix_with_uniform()
+/// Function moved to VW980::explore::mix_with_uniform()
 template <typename It>
-VW_DEPRECATED("Moved to VW::exploration explorece")
+VW_DEPRECATED("Moved to VW980::exploration explorece")
 int mix_with_uniform(float uniform_epsilon, It pmf_first, It pmf_last)
 {
   // call vw version
-  return VW::explore::mix_with_uniform(uniform_epsilon, pmf_first, pmf_last);
+  return VW980::explore::mix_with_uniform(uniform_epsilon, pmf_first, pmf_last);
 }
 
-/// Function moved to VW::explore::sample_after_normalizing()
+/// Function moved to VW980::explore::sample_after_normalizing()
 template <typename It>
-VW_DEPRECATED("Moved to VW::exploration explorece")
+VW_DEPRECATED("Moved to VW980::exploration explorece")
 int sample_after_normalizing(uint64_t seed, It pmf_first, It pmf_last, uint32_t& chosen_index)
 {
   // call vw version
-  return VW::explore::sample_after_normalizing(seed, pmf_first, pmf_last, chosen_index);
+  return VW980::explore::sample_after_normalizing(seed, pmf_first, pmf_last, chosen_index);
 }
 
-/// Function moved to VW::explore::sample_after_normalizing()
+/// Function moved to VW980::explore::sample_after_normalizing()
 template <typename It>
-VW_DEPRECATED("Moved to VW::exploration explorece")
+VW_DEPRECATED("Moved to VW980::exploration explorece")
 int sample_after_normalizing(const char* seed, It pmf_first, It pmf_last, uint32_t& chosen_index)
 {
   // call vw version
-  return VW::explore::sample_after_normalizing(seed, pmf_first, pmf_last, chosen_index);
+  return VW980::explore::sample_after_normalizing(seed, pmf_first, pmf_last, chosen_index);
 }
 
-/// Function moved to VW::explore::swap_chosen()
+/// Function moved to VW980::explore::swap_chosen()
 template <typename ActionIt>
-VW_DEPRECATED("Moved to VW::exploration explorece")
+VW_DEPRECATED("Moved to VW980::exploration explorece")
 int swap_chosen(ActionIt action_first, ActionIt action_last, uint32_t chosen_index)
 {
   // call vw version
-  return VW::explore::swap_chosen(action_first, action_last, chosen_index);
+  return VW980::explore::swap_chosen(action_first, action_last, chosen_index);
 }
 
-/// Function moved to VW::explore::sample_pdf()
+/// Function moved to VW980::explore::sample_pdf()
 template <typename It>
-VW_DEPRECATED("Moved to VW::exploration explorece")
+VW_DEPRECATED("Moved to VW980::exploration explorece")
 int sample_pdf(uint64_t* p_seed, It pdf_first, It pdf_last, float& chosen_value, float& pdf_value)
 {
   // call vw version
-  return VW::explore::sample_pdf(p_seed, pdf_first, pdf_last, chosen_value, pdf_value);
+  return VW980::explore::sample_pdf(p_seed, pdf_first, pdf_last, chosen_value, pdf_value);
 }
 }  // namespace exploration
 

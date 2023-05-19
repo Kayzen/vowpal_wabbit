@@ -20,13 +20,13 @@
 #include <fstream>
 #include <vector>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 void print_help(const options_cli& options)
 {
   const auto& option_groups = options.get_all_option_group_definitions();
 
-  VW::config::cli_help_formatter formatter;
+  VW980::config::cli_help_formatter formatter;
   std::cout << R"(Usage: vw-merge [options] <model1> <model2> ... <modelN>
 
     Merges multiple VW models into a single model. Models must be compatible.
@@ -39,11 +39,11 @@ void print_help(const options_cli& options)
 class logger_context
 {
 public:
-  VW::io::logger& logger;
+  VW980::io::logger& logger;
   std::string model_file_name;
 };
 
-void logger_output_func(void* void_context, VW::io::log_level level, const std::string& message)
+void logger_output_func(void* void_context, VW980::io::log_level level, const std::string& message)
 {
   auto* context = static_cast<logger_context*>(void_context);
   auto newline_stripped_message = message;
@@ -51,19 +51,19 @@ void logger_output_func(void* void_context, VW::io::log_level level, const std::
       newline_stripped_message.end());
   switch (level)
   {
-    case VW::io::log_level::INFO_LEVEL:
+    case VW980::io::log_level::INFO_LEVEL:
       context->logger.info("({}): {}", context->model_file_name, newline_stripped_message);
       break;
-    case VW::io::log_level::WARN_LEVEL:
+    case VW980::io::log_level::WARN_LEVEL:
       context->logger.warn("({}): {}", context->model_file_name, newline_stripped_message);
       break;
-    case VW::io::log_level::ERROR_LEVEL:
+    case VW980::io::log_level::ERROR_LEVEL:
       context->logger.error("({}): {}", context->model_file_name, newline_stripped_message);
       break;
-    case VW::io::log_level::CRITICAL_LEVEL:
+    case VW980::io::log_level::CRITICAL_LEVEL:
       context->logger.critical("({}): {}", context->model_file_name, newline_stripped_message);
       break;
-    case VW::io::log_level::OFF_LEVEL:
+    case VW980::io::log_level::OFF_LEVEL:
       break;
     default:
       THROW("Unsupported log level");
@@ -73,14 +73,14 @@ void logger_output_func(void* void_context, VW::io::log_level level, const std::
 class command_line_options
 {
 public:
-  VW::io::log_level log_level{};
-  VW::io::output_location log_output_stream{};
+  VW980::io::log_level log_level{};
+  VW980::io::output_location log_output_stream{};
   std::string output_file;
   std::string base_file;
   std::vector<std::string> input_files;
 };
 
-command_line_options parse_command_line(int argc, char** argv, VW::io::logger& logger)
+command_line_options parse_command_line(int argc, char** argv, VW980::io::logger& logger)
 {
   std::string log_level;
   std::string log_output_stream;
@@ -133,8 +133,8 @@ command_line_options parse_command_line(int argc, char** argv, VW::io::logger& l
   }
 
   command_line_options result;
-  result.log_level = VW::io::get_log_level(log_level);
-  result.log_output_stream = VW::io::get_output_location(log_output_stream);
+  result.log_level = VW980::io::get_log_level(log_level);
+  result.log_output_stream = VW980::io::get_output_location(log_output_stream);
   result.output_file = output_file;
   result.base_file = base_file;
   result.input_files = model_files;
@@ -144,50 +144,50 @@ command_line_options parse_command_line(int argc, char** argv, VW::io::logger& l
 
 int main(int argc, char* argv[])
 {
-  auto logger = VW::io::create_default_logger();
+  auto logger = VW980::io::create_default_logger();
   try
   {
     auto options = parse_command_line(argc, argv, logger);
     logger.set_level(options.log_level);
     logger.set_location(options.log_output_stream);
 
-    std::vector<std::unique_ptr<VW::workspace>> models;
+    std::vector<std::unique_ptr<VW980::workspace>> models;
     std::vector<logger_context> logger_contexts;
     for (const auto& model_file : options.input_files)
     {
       logger.info("Loading model: {}", model_file);
       logger_contexts.push_back(logger_context{logger, model_file});
 
-      auto custom_logger = VW::io::create_custom_sink_logger(&logger_contexts.back(), logger_output_func);
-      auto model = VW::initialize(VW::make_unique<VW::config::options_cli>(std::vector<std::string>{
+      auto custom_logger = VW980::io::create_custom_sink_logger(&logger_contexts.back(), logger_output_func);
+      auto model = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(std::vector<std::string>{
                                       "--driver_output_off", "--preserve_performance_counters"}),
-          VW::io::open_file_reader(model_file), nullptr, nullptr, &custom_logger);
+          VW980::io::open_file_reader(model_file), nullptr, nullptr, &custom_logger);
       models.push_back(std::move(model));
     }
 
     logger_contexts.push_back(logger_context{logger, "dest: " + options.input_files[0]});
-    auto custom_logger = VW::io::create_custom_sink_logger(&logger_contexts.back(), logger_output_func);
-    std::vector<const VW::workspace*> const_workspaces;
+    auto custom_logger = VW980::io::create_custom_sink_logger(&logger_contexts.back(), logger_output_func);
+    std::vector<const VW980::workspace*> const_workspaces;
     const_workspaces.reserve(models.size());
     for (const auto& model : models) { const_workspaces.push_back(model.get()); }
 
-    std::unique_ptr<VW::workspace> base_model = nullptr;
+    std::unique_ptr<VW980::workspace> base_model = nullptr;
     if (!options.base_file.empty())
     {
       logger.info("Loading base model: {}", options.base_file);
       logger_contexts.push_back(logger_context{logger, "base: " + options.base_file});
-      auto custom_logger = VW::io::create_custom_sink_logger(&logger_contexts.back(), logger_output_func);
-      base_model = VW::initialize(VW::make_unique<VW::config::options_cli>(std::vector<std::string>{
+      auto custom_logger = VW980::io::create_custom_sink_logger(&logger_contexts.back(), logger_output_func);
+      base_model = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(std::vector<std::string>{
                                       "--driver_output_off", "--preserve_performance_counters"}),
-          VW::io::open_file_reader(options.base_file), nullptr, nullptr, &custom_logger);
+          VW980::io::open_file_reader(options.base_file), nullptr, nullptr, &custom_logger);
     }
 
-    auto merged = VW::merge_models(base_model.get(), const_workspaces, &custom_logger);
+    auto merged = VW980::merge_models(base_model.get(), const_workspaces, &custom_logger);
 
     logger.info("Saving model: {}", options.output_file);
-    VW::save_predictor(*merged, options.output_file);
+    VW980::save_predictor(*merged, options.output_file);
   }
-  catch (const VW::vw_exception& e)
+  catch (const VW980::vw_exception& e)
   {
     logger.critical("({}:{}): {}", e.filename(), e.line_number(), e.what());
     return 1;

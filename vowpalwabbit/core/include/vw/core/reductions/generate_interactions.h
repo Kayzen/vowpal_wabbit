@@ -10,10 +10,10 @@
 #include <set>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> generate_interactions_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> generate_interactions_setup(VW980::setup_base_i& stack_builder);
 }
-}  // namespace VW
+}  // namespace VW980

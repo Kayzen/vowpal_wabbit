@@ -22,8 +22,8 @@
 //  TODO: This file makes extensive use of #ifdef DEBUG for printing
 //        leave this alone for now
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
@@ -44,7 +44,7 @@ public:
 class stagewise_poly
 {
 public:
-  VW::workspace* all = nullptr;  // many uses, unmodular reduction
+  VW980::workspace* all = nullptr;  // many uses, unmodular reduction
 
   float sched_exponent = 0.f;
   uint32_t batch_sz = 0;
@@ -62,10 +62,10 @@ public:
   uint64_t sum_input_sparsity_sync = 0;
   uint64_t num_examples_sync = 0;
 
-  VW::example synth_ec;
+  VW980::example synth_ec;
   // following is bookkeeping in synth_ec creation (dfs)
-  VW::feature synth_rec_f{0.f, 0};
-  VW::example* original_ec = nullptr;
+  VW980::feature synth_rec_f{0.f, 0};
+  VW980::example* original_ec = nullptr;
   uint32_t cur_depth = 0;
   bool training = false;
   uint64_t last_example_counter = 0;
@@ -129,7 +129,7 @@ inline uint64_t wid_mask_un_shifted(const stagewise_poly& poly, uint64_t wid)
 
 inline uint64_t constant_feat(const stagewise_poly& poly)
 {
-  return stride_shift(poly, VW::details::CONSTANT * poly.all->total_feature_width);
+  return stride_shift(poly, VW980::details::CONSTANT * poly.all->total_feature_width);
 }
 
 inline uint64_t constant_feat_masked(const stagewise_poly& poly) { return wid_mask(poly, constant_feat(poly)); }
@@ -138,7 +138,7 @@ inline size_t depthsbits_sizeof(const stagewise_poly& poly) { return (2 * poly.a
 
 void depthsbits_create(stagewise_poly& poly)
 {
-  poly.depthsbits = VW::details::calloc_or_throw<uint8_t>(2 * poly.all->length());
+  poly.depthsbits = VW980::details::calloc_or_throw<uint8_t>(2 * poly.all->length());
   for (uint64_t i = 0; i < poly.all->length() * 2; i += 2)
   {
     poly.depthsbits[i] = DEFAULT_DEPTH;
@@ -253,7 +253,7 @@ void sort_data_ensure_sz(stagewise_poly& poly, size_t len)
     std::cout << ", new size " << poly.sd_len << std::endl;
 #endif              // DEBUG
     free(poly.sd);  // okay for null.
-    poly.sd = VW::details::calloc_or_throw<sort_data>(poly.sd_len);
+    poly.sd = VW980::details::calloc_or_throw<sort_data>(poly.sd_len);
   }
   assert(len <= poly.sd_len);
 }
@@ -371,7 +371,7 @@ void sort_data_update_support(stagewise_poly& poly)
   poly.synth_ec.ft_offset = pop_ft_offset;
 }
 
-void synthetic_reset(stagewise_poly& poly, VW::example& ec)
+void synthetic_reset(stagewise_poly& poly, VW980::example& ec)
 {
   poly.synth_ec.l = ec.l;
   poly.synth_ec.weight = ec.weight;
@@ -413,7 +413,7 @@ void synthetic_reset(stagewise_poly& poly, VW::example& ec)
 
 void synthetic_decycle(stagewise_poly& poly)
 {
-  VW::features& fs = poly.synth_ec.feature_space[TREE_ATOMICS];
+  VW980::features& fs = poly.synth_ec.feature_space[TREE_ATOMICS];
   for (size_t i = 0; i < fs.size(); ++i)
   {
     assert(cycle_get(poly, fs.indices[i]));
@@ -457,26 +457,26 @@ void synthetic_create_rec(stagewise_poly& poly, float v, uint64_t findex)
     ++poly.depths[poly.cur_depth];
 #endif  // DEBUG
 
-    VW::feature temp = {v * poly.synth_rec_f.x, wid_cur};
+    VW980::feature temp = {v * poly.synth_rec_f.x, wid_cur};
     poly.synth_ec.feature_space[TREE_ATOMICS].push_back(temp.x, temp.weight_index);
     poly.synth_ec.num_features++;
 
     if (parent_get(poly, temp.weight_index))
     {
-      VW::feature parent_f = poly.synth_rec_f;
+      VW980::feature parent_f = poly.synth_rec_f;
       poly.synth_rec_f = temp;
       ++poly.cur_depth;
 #ifdef DEBUG
       poly.max_depth = (poly.max_depth > poly.cur_depth) ? poly.max_depth : poly.cur_depth;
 #endif  // DEBUG
-      VW::foreach_feature<stagewise_poly, uint64_t, synthetic_create_rec>(*(poly.all), *(poly.original_ec), poly);
+      VW980::foreach_feature<stagewise_poly, uint64_t, synthetic_create_rec>(*(poly.all), *(poly.original_ec), poly);
       --poly.cur_depth;
       poly.synth_rec_f = parent_f;
     }
   }
 }
 
-void synthetic_create(stagewise_poly& poly, VW::example& ec, bool training)
+void synthetic_create(stagewise_poly& poly, VW980::example& ec, bool training)
 {
   synthetic_reset(poly, ec);
 
@@ -490,7 +490,7 @@ void synthetic_create(stagewise_poly& poly, VW::example& ec, bool training)
    * parent, and recurse just on that feature (which arguably correctly interprets poly.cur_depth).
    * Problem with this is if there is a collision with the root...
    */
-  VW::foreach_feature<stagewise_poly, uint64_t, synthetic_create_rec>(*poly.all, *poly.original_ec, poly);
+  VW980::foreach_feature<stagewise_poly, uint64_t, synthetic_create_rec>(*poly.all, *poly.original_ec, poly);
   synthetic_decycle(poly);
 
   if (training)
@@ -501,7 +501,7 @@ void synthetic_create(stagewise_poly& poly, VW::example& ec, bool training)
   }
 }
 
-void predict(stagewise_poly& poly, learner& base, VW::example& ec)
+void predict(stagewise_poly& poly, learner& base, VW980::example& ec)
 {
   poly.original_ec = &ec;
   synthetic_create(poly, ec, false);
@@ -511,7 +511,7 @@ void predict(stagewise_poly& poly, learner& base, VW::example& ec)
   ec.pred.scalar = poly.synth_ec.pred.scalar;
 }
 
-void learn(stagewise_poly& poly, learner& base, VW::example& ec)
+void learn(stagewise_poly& poly, learner& base, VW980::example& ec)
 {
   bool training = poly.all->training && ec.l.simple.label != FLT_MAX;
   poly.original_ec = &ec;
@@ -583,7 +583,7 @@ void end_pass(stagewise_poly& poly)
   sanity_check_state(poly);
 #endif  // DEBUG
 
-  VW::workspace& all = *poly.all;
+  VW980::workspace& all = *poly.all;
   if (all.all_reduce != nullptr)
   {
     /*
@@ -592,12 +592,12 @@ void end_pass(stagewise_poly& poly)
      * But it's unclear what the right behavior is in general for either
      * case...
      */
-    VW::details::all_reduce<uint8_t, reduce_min_max>(all, poly.depthsbits, depthsbits_sizeof(poly));
+    VW980::details::all_reduce<uint8_t, reduce_min_max>(all, poly.depthsbits, depthsbits_sizeof(poly));
 
     sum_input_sparsity_inc =
-        static_cast<uint64_t>(VW::details::accumulate_scalar(all, static_cast<float>(sum_input_sparsity_inc)));
-    sum_sparsity_inc = static_cast<uint64_t>(VW::details::accumulate_scalar(all, static_cast<float>(sum_sparsity_inc)));
-    num_examples_inc = static_cast<uint64_t>(VW::details::accumulate_scalar(all, static_cast<float>(num_examples_inc)));
+        static_cast<uint64_t>(VW980::details::accumulate_scalar(all, static_cast<float>(sum_input_sparsity_inc)));
+    sum_sparsity_inc = static_cast<uint64_t>(VW980::details::accumulate_scalar(all, static_cast<float>(sum_sparsity_inc)));
+    num_examples_inc = static_cast<uint64_t>(VW980::details::accumulate_scalar(all, static_cast<float>(num_examples_inc)));
   }
 
   poly.sum_input_sparsity_sync = poly.sum_input_sparsity_sync + sum_input_sparsity_inc;
@@ -619,12 +619,12 @@ void end_pass(stagewise_poly& poly)
   }
 }
 
-void save_load(stagewise_poly& poly, VW::io_buf& model_file, bool read, bool text)
+void save_load(stagewise_poly& poly, VW980::io_buf& model_file, bool read, bool text)
 {
   if (model_file.num_files() > 0)
   {
     std::stringstream msg;
-    VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(poly.depthsbits),
+    VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(poly.depthsbits),
         static_cast<uint32_t>(depthsbits_sizeof(poly)), read, msg, text);
   }
   // unfortunately, following can't go here since save_load called before gd::save_load and thus
@@ -637,11 +637,11 @@ void save_load(stagewise_poly& poly, VW::io_buf& model_file, bool read, bool tex
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::stagewise_poly_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::stagewise_poly_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto poly = VW::make_unique<stagewise_poly>();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto poly = VW980::make_unique<stagewise_poly>();
   bool stage_poly = false;
   option_group_definition new_options("[Reduction] Stagewise Polynomial");
   new_options
@@ -678,17 +678,17 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::stagewise_poly_setup(VW::s
   poly->original_ec = nullptr;
   poly->next_batch_sz = poly->batch_sz;
 
-  auto l = VW::LEARNER::make_reduction_learner(std::move(poly), require_singleline(stack_builder.setup_base_learner()),
+  auto l = VW980::LEARNER::make_reduction_learner(std::move(poly), require_singleline(stack_builder.setup_base_learner()),
       learn, predict, stack_builder.get_setupfn_name(stagewise_poly_setup))
-               .set_input_label_type(VW::label_type_t::SIMPLE)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
-               .set_output_prediction_type(VW::prediction_type_t::SCALAR)
+               .set_input_label_type(VW980::label_type_t::SIMPLE)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
+               .set_output_prediction_type(VW980::prediction_type_t::SCALAR)
                .set_save_load(save_load)
-               .set_output_example_prediction(VW::details::output_example_prediction_simple_label<stagewise_poly>)
+               .set_output_example_prediction(VW980::details::output_example_prediction_simple_label<stagewise_poly>)
                .set_update_stats(
-                   [](const VW::workspace& /* all */, shared_data& sd, const stagewise_poly& data,
-                       const VW::example& ec, VW::io::logger& /* logger */)
+                   [](const VW980::workspace& /* all */, shared_data& sd, const stagewise_poly& data,
+                       const VW980::example& ec, VW980::io::logger& /* logger */)
                    {
                      // This impl is the same as standard simple label reporting apart from the fact the feature count
                      // from synth_ec is used.
@@ -703,8 +703,8 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::stagewise_poly_setup(VW::s
 
                    )
                .set_print_update(
-                   [](VW::workspace& all, shared_data& sd, const stagewise_poly& data, const VW::example& ec,
-                       VW::io::logger& /* logger */)
+                   [](VW980::workspace& all, shared_data& sd, const stagewise_poly& data, const VW980::example& ec,
+                       VW980::io::logger& /* logger */)
                    {
                      // This impl is the same as standard simple label printing apart from the fact the feature count
                      // from synth_ec is used.

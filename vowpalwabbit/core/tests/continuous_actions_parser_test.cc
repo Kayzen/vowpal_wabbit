@@ -16,28 +16,28 @@
 #include <memory>
 #include <vector>
 
-void parse_label(VW::label_parser& lp, VW::string_view label, VW::polylabel& l, VW::reduction_features& red_fts)
+void parse_label(VW980::label_parser& lp, VW980::string_view label, VW980::polylabel& l, VW980::reduction_features& red_fts)
 {
-  std::vector<VW::string_view> words;
-  VW::tokenize(' ', label, words);
+  std::vector<VW980::string_view> words;
+  VW980::tokenize(' ', label, words);
   lp.default_label(l);
-  VW::label_parser_reuse_mem mem;
-  auto null_logger = VW::io::create_null_logger();
+  VW980::label_parser_reuse_mem mem;
+  auto null_logger = VW980::io::create_null_logger();
   lp.parse_label(l, red_fts, mem, nullptr, words, null_logger);
 }
 
 TEST(Cats, ParseLabel)
 {
-  auto lp = VW::cb_continuous::the_label_parser;
+  auto lp = VW980::cb_continuous::the_label_parser;
   {
-    auto plabel = VW::make_unique<VW::polylabel>();
-    VW::reduction_features red_features;
+    auto plabel = VW980::make_unique<VW980::polylabel>();
+    VW980::reduction_features red_features;
     parse_label(lp, "ca 185.121:0.657567:6.20426e-05", *plabel, red_features);
     EXPECT_FLOAT_EQ(plabel->cb_cont.costs[0].pdf_value, 6.20426e-05);
     EXPECT_FLOAT_EQ(plabel->cb_cont.costs[0].cost, 0.657567);
     EXPECT_FLOAT_EQ(plabel->cb_cont.costs[0].action, 185.121);
 
-    const auto& cats_reduction_features = red_features.template get<VW::continuous_actions::reduction_features>();
+    const auto& cats_reduction_features = red_features.template get<VW980::continuous_actions::reduction_features>();
     EXPECT_EQ(cats_reduction_features.is_chosen_action_set(), false);
     EXPECT_EQ(cats_reduction_features.is_pdf_set(), false);
   }
@@ -45,10 +45,10 @@ TEST(Cats, ParseLabel)
 
 TEST(Cats, ParseLabelAndPdf)
 {
-  auto lp = VW::cb_continuous::the_label_parser;
+  auto lp = VW980::cb_continuous::the_label_parser;
   {
-    auto plabel = VW::make_unique<VW::polylabel>();
-    VW::reduction_features red_features;
+    auto plabel = VW980::make_unique<VW980::polylabel>();
+    VW980::reduction_features red_features;
 
     parse_label(lp, "ca 185.121:0.657567:6.20426e-05 pdf 185:8109.67:2.10314e-06 8109.67:23959:6.20426e-05", *plabel,
         red_features);
@@ -58,7 +58,7 @@ TEST(Cats, ParseLabelAndPdf)
     EXPECT_FLOAT_EQ(plabel->cb_cont.costs[0].action, 185.121);
 
     // check pdf
-    const auto& cats_reduction_features = red_features.template get<VW::continuous_actions::reduction_features>();
+    const auto& cats_reduction_features = red_features.template get<VW980::continuous_actions::reduction_features>();
     EXPECT_EQ(cats_reduction_features.pdf.size(), 2);
     EXPECT_EQ(cats_reduction_features.is_chosen_action_set(), false);
     EXPECT_FLOAT_EQ(cats_reduction_features.pdf[0].left, 185.);
@@ -72,14 +72,14 @@ TEST(Cats, ParseLabelAndPdf)
 
 TEST(Cats, ParseOnlyPdfNoLabel)
 {
-  auto lp = VW::cb_continuous::the_label_parser;
+  auto lp = VW980::cb_continuous::the_label_parser;
   {
-    auto plabel = VW::make_unique<VW::polylabel>();
-    VW::reduction_features red_features;
+    auto plabel = VW980::make_unique<VW980::polylabel>();
+    VW980::reduction_features red_features;
     parse_label(lp, "ca pdf 185:8109.67:2.10314e-06 8109.67:23959:6.20426e-05", *plabel, red_features);
     EXPECT_EQ(plabel->cb_cont.costs.size(), 0);
 
-    const auto& cats_reduction_features = red_features.template get<VW::continuous_actions::reduction_features>();
+    const auto& cats_reduction_features = red_features.template get<VW980::continuous_actions::reduction_features>();
     EXPECT_EQ(cats_reduction_features.pdf.size(), 2);
     EXPECT_EQ(cats_reduction_features.is_chosen_action_set(), false);
     EXPECT_FLOAT_EQ(cats_reduction_features.pdf[0].left, 185.);
@@ -93,15 +93,15 @@ TEST(Cats, ParseOnlyPdfNoLabel)
 
 TEST(Cats, ParseMalformedPdf)
 {
-  auto lp = VW::cb_continuous::the_label_parser;
+  auto lp = VW980::cb_continuous::the_label_parser;
   {
-    auto plabel = VW::make_unique<VW::polylabel>();
-    VW::reduction_features red_features;
+    auto plabel = VW980::make_unique<VW980::polylabel>();
+    VW980::reduction_features red_features;
 
     parse_label(lp, "ca pdf 185:8109.67 8109.67:23959:6.20426e-05", *plabel, red_features);
 
     // check pdf
-    const auto& cats_reduction_features = red_features.template get<VW::continuous_actions::reduction_features>();
+    const auto& cats_reduction_features = red_features.template get<VW980::continuous_actions::reduction_features>();
     EXPECT_EQ(cats_reduction_features.pdf.size(), 0);
     EXPECT_EQ(cats_reduction_features.is_chosen_action_set(), false);
     EXPECT_EQ(cats_reduction_features.is_pdf_set(), false);
@@ -110,10 +110,10 @@ TEST(Cats, ParseMalformedPdf)
 
 TEST(Cats, ParseLabelAndChosenAction)
 {
-  auto lp = VW::cb_continuous::the_label_parser;
+  auto lp = VW980::cb_continuous::the_label_parser;
   {
-    auto plabel = VW::make_unique<VW::polylabel>();
-    VW::reduction_features red_features;
+    auto plabel = VW980::make_unique<VW980::polylabel>();
+    VW980::reduction_features red_features;
     parse_label(lp, "ca 185.121:0.657567:6.20426e-05 chosen_action 8110.121", *plabel, red_features);
 
     // check label
@@ -122,7 +122,7 @@ TEST(Cats, ParseLabelAndChosenAction)
     EXPECT_FLOAT_EQ(plabel->cb_cont.costs[0].action, 185.121);
 
     // check chosen action
-    const auto& cats_reduction_features = red_features.template get<VW::continuous_actions::reduction_features>();
+    const auto& cats_reduction_features = red_features.template get<VW980::continuous_actions::reduction_features>();
     EXPECT_EQ(cats_reduction_features.is_pdf_set(), false);
     EXPECT_EQ(cats_reduction_features.is_chosen_action_set(), true);
     EXPECT_FLOAT_EQ(cats_reduction_features.chosen_action, 8110.121);
@@ -131,15 +131,15 @@ TEST(Cats, ParseLabelAndChosenAction)
 
 TEST(Cats, ChosenActionOnlyNoLabel)
 {
-  auto lp = VW::cb_continuous::the_label_parser;
+  auto lp = VW980::cb_continuous::the_label_parser;
   {
-    auto plabel = VW::make_unique<VW::polylabel>();
-    VW::reduction_features red_features;
+    auto plabel = VW980::make_unique<VW980::polylabel>();
+    VW980::reduction_features red_features;
     parse_label(lp, "ca chosen_action 8110.121", *plabel, red_features);
 
     EXPECT_EQ(plabel->cb_cont.costs.size(), 0);
     // check chosen action
-    const auto& cats_reduction_features = red_features.template get<VW::continuous_actions::reduction_features>();
+    const auto& cats_reduction_features = red_features.template get<VW980::continuous_actions::reduction_features>();
     EXPECT_EQ(cats_reduction_features.is_pdf_set(), false);
     EXPECT_EQ(cats_reduction_features.is_chosen_action_set(), true);
     EXPECT_FLOAT_EQ(cats_reduction_features.chosen_action, 8110.121);
@@ -148,10 +148,10 @@ TEST(Cats, ChosenActionOnlyNoLabel)
 
 TEST(Cats, ParseLabelPdfAndChosenAction)
 {
-  auto lp = VW::cb_continuous::the_label_parser;
+  auto lp = VW980::cb_continuous::the_label_parser;
   {
-    auto plabel = VW::make_unique<VW::polylabel>();
-    VW::reduction_features red_features;
+    auto plabel = VW980::make_unique<VW980::polylabel>();
+    VW980::reduction_features red_features;
     parse_label(lp,
         "ca 185.121:0.657567:6.20426e-05 pdf 185:8109.67:2.10314e-06 8109.67:23959:6.20426e-05 chosen_action 8110.121",
         *plabel, red_features);
@@ -161,7 +161,7 @@ TEST(Cats, ParseLabelPdfAndChosenAction)
     EXPECT_FLOAT_EQ(plabel->cb_cont.costs[0].cost, 0.657567);
     EXPECT_FLOAT_EQ(plabel->cb_cont.costs[0].action, 185.121);
 
-    const auto& cats_reduction_features = red_features.template get<VW::continuous_actions::reduction_features>();
+    const auto& cats_reduction_features = red_features.template get<VW980::continuous_actions::reduction_features>();
 
     // check chosen action
     EXPECT_EQ(cats_reduction_features.is_chosen_action_set(), true);
@@ -180,14 +180,14 @@ TEST(Cats, ParseLabelPdfAndChosenAction)
 
 TEST(Cats, ParseNoLabel)
 {
-  auto lp = VW::cb_continuous::the_label_parser;
+  auto lp = VW980::cb_continuous::the_label_parser;
   {
-    auto plabel = VW::make_unique<VW::polylabel>();
-    VW::reduction_features red_features;
+    auto plabel = VW980::make_unique<VW980::polylabel>();
+    VW980::reduction_features red_features;
     parse_label(lp, "", *plabel, red_features);
 
     EXPECT_EQ(plabel->cb_cont.costs.size(), 0);
-    const auto& cats_reduction_features = red_features.template get<VW::continuous_actions::reduction_features>();
+    const auto& cats_reduction_features = red_features.template get<VW980::continuous_actions::reduction_features>();
     EXPECT_EQ(cats_reduction_features.is_pdf_set(), false);
     EXPECT_EQ(cats_reduction_features.is_chosen_action_set(), false);
   }
@@ -195,14 +195,14 @@ TEST(Cats, ParseNoLabel)
 
 TEST(Cats, ParseNoLabelWPrefix)
 {
-  auto lp = VW::cb_continuous::the_label_parser;
+  auto lp = VW980::cb_continuous::the_label_parser;
   {
-    auto plabel = VW::make_unique<VW::polylabel>();
-    VW::reduction_features red_features;
+    auto plabel = VW980::make_unique<VW980::polylabel>();
+    VW980::reduction_features red_features;
     parse_label(lp, "ca", *plabel, red_features);
 
     EXPECT_EQ(plabel->cb_cont.costs.size(), 0);
-    const auto& cats_reduction_features = red_features.template get<VW::continuous_actions::reduction_features>();
+    const auto& cats_reduction_features = red_features.template get<VW980::continuous_actions::reduction_features>();
     EXPECT_EQ(cats_reduction_features.is_pdf_set(), false);
     EXPECT_EQ(cats_reduction_features.is_chosen_action_set(), false);
   }
@@ -210,10 +210,10 @@ TEST(Cats, ParseNoLabelWPrefix)
 
 TEST(Cats, CheckLabelForPrefix)
 {
-  auto lp = VW::cb_continuous::the_label_parser;
+  auto lp = VW980::cb_continuous::the_label_parser;
   {
-    auto plabel = VW::make_unique<VW::polylabel>();
-    VW::reduction_features red_features;
-    EXPECT_THROW(parse_label(lp, "185.121:0.657567:6.20426e-05", *plabel, red_features), VW::vw_exception);
+    auto plabel = VW980::make_unique<VW980::polylabel>();
+    VW980::reduction_features red_features;
+    EXPECT_THROW(parse_label(lp, "185.121:0.657567:6.20426e-05", *plabel, red_features), VW980::vw_exception);
   }
 }

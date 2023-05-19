@@ -10,16 +10,16 @@
 
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace large_action_space
 {
 class las_reduction_features
 {
 public:
-  std::vector<std::vector<VW::namespace_index>>* generated_interactions = nullptr;
+  std::vector<std::vector<VW980::namespace_index>>* generated_interactions = nullptr;
   std::vector<std::vector<extent_term>>* generated_extent_interactions = nullptr;
-  VW::multi_ex::value_type shared_example = nullptr;
+  VW980::multi_ex::value_type shared_example = nullptr;
   float squarecb_gamma = 1.f;
 
   las_reduction_features() = default;
@@ -34,4 +34,4 @@ public:
 };
 
 }  // namespace large_action_space
-}  // namespace VW
+}  // namespace VW980

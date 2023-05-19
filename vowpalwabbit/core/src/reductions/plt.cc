@@ -24,8 +24,8 @@
 #include <unordered_set>
 #include <vector>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
@@ -41,7 +41,7 @@ public:
 class plt
 {
 public:
-  VW::workspace* all = nullptr;
+  VW980::workspace* all = nullptr;
 
   // tree structure
   uint32_t k = 0;     // number of labels
@@ -50,27 +50,27 @@ public:
   uint32_t kary = 0;  // kary tree
 
   // for training
-  VW::v_array<float> nodes_time;                // in case of sgd, this stores individual t for each node
+  VW980::v_array<float> nodes_time;                // in case of sgd, this stores individual t for each node
   std::unordered_set<uint32_t> positive_nodes;  // container for positive nodes
   std::unordered_set<uint32_t> negative_nodes;  // container for negative nodes
 
   // for prediction
   float threshold = 0.f;
   uint32_t top_k = 0;
-  std::vector<VW::polyprediction> node_pred;  // for storing results of base.multipredict
+  std::vector<VW980::polyprediction> node_pred;  // for storing results of base.multipredict
   std::vector<node> node_queue;               // container for queue used for both types of predictions
   bool probabilities = false;
 
   // for measuring predictive performance
   std::unordered_set<uint32_t> true_labels;
-  VW::v_array<float> p_at;  // precision at
-  VW::v_array<float> r_at;  // recall at
+  VW980::v_array<float> p_at;  // precision at
+  VW980::v_array<float> r_at;  // recall at
   uint32_t tp = 0;          // true positives
   uint32_t fp = 0;          // false positives
   uint32_t fn = 0;          // false negatives
   uint32_t ec_count = 0;    // number of examples
 
-  VW::version_struct model_file_version;
+  VW980::version_struct model_file_version;
   bool force_load_legacy_model = false;
 
   plt()
@@ -82,7 +82,7 @@ public:
   }
 };
 
-inline float learn_node(plt& p, uint32_t n, learner& base, VW::example& ec)
+inline float learn_node(plt& p, uint32_t n, learner& base, VW980::example& ec)
 {
   p.all->sd->t = p.nodes_time[n];
   p.nodes_time[n] += ec.weight;
@@ -90,10 +90,10 @@ inline float learn_node(plt& p, uint32_t n, learner& base, VW::example& ec)
   return ec.loss;
 }
 
-void learn(plt& p, learner& base, VW::example& ec)
+void learn(plt& p, learner& base, VW980::example& ec)
 {
   auto multilabels = std::move(ec.l.multilabels);
-  VW::polyprediction pred = std::move(ec.pred);
+  VW980::polyprediction pred = std::move(ec.pred);
 
   double t = p.all->sd->t;
   double weighted_holdout_examples = p.all->sd->weighted_holdout_examples;
@@ -142,7 +142,7 @@ void learn(plt& p, learner& base, VW::example& ec)
 
   float loss = 0;
   ec.l.simple = {1.f};
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
   for (auto& n : p.positive_nodes) { loss += learn_node(p, n, base, ec); }
 
   ec.l.simple.label = -1.f;
@@ -158,19 +158,19 @@ void learn(plt& p, learner& base, VW::example& ec)
 
 inline float sigmoid(float x) { return 1.0f / (1.0f + std::exp(-x)); }
 
-inline float predict_node(uint32_t n, learner& base, VW::example& ec)
+inline float predict_node(uint32_t n, learner& base, VW980::example& ec)
 {
   ec.l.simple = {FLT_MAX};
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
   base.predict(ec, n);
   return sigmoid(ec.partial_prediction);
 }
 
 template <bool threshold>
-void predict(plt& p, learner& base, VW::example& ec)
+void predict(plt& p, learner& base, VW980::example& ec)
 {
   auto multilabels = std::move(ec.l.multilabels);
-  VW::polyprediction pred = std::move(ec.pred);
+  VW980::polyprediction pred = std::move(ec.pred);
 
   if (p.probabilities) { pred.a_s.clear(); }
   pred.multilabels.label_v.clear();
@@ -201,7 +201,7 @@ void predict(plt& p, learner& base, VW::example& ec)
 
       uint32_t n_child = p.kary * node.n + 1;
       ec.l.simple = {FLT_MAX};
-      ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+      ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
       base.multipredict(ec, n_child, p.kary, p.node_pred.data(), false);
 
       for (uint32_t i = 0; i < p.kary; ++i, ++n_child)
@@ -250,7 +250,7 @@ void predict(plt& p, learner& base, VW::example& ec)
       {
         uint32_t n_child = p.kary * node.n + 1;
         ec.l.simple = {FLT_MAX};
-        ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+        ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
 
         base.multipredict(ec, n_child, p.kary, p.node_pred.data(), false);
 
@@ -289,13 +289,13 @@ void predict(plt& p, learner& base, VW::example& ec)
   ec.l.multilabels = std::move(multilabels);
 }
 
-void update_stats_plt(const VW::workspace& all, VW::shared_data&, const plt&, const VW::example& ec, VW::io::logger&)
+void update_stats_plt(const VW980::workspace& all, VW980::shared_data&, const plt&, const VW980::example& ec, VW980::io::logger&)
 {
   const bool is_test = ec.l.multilabels.label_v.empty();
   all.sd->update(ec.test_only, !is_test, ec.loss, 1.f, ec.get_num_features());
 }
 
-void output_example_prediction_plt(VW::workspace& all, const plt& p, const VW::example& ec, VW::io::logger&)
+void output_example_prediction_plt(VW980::workspace& all, const plt& p, const VW980::example& ec, VW980::io::logger&)
 {
   std::ostringstream output_string_stream;
   if (p.probabilities)
@@ -303,19 +303,19 @@ void output_example_prediction_plt(VW::workspace& all, const plt& p, const VW::e
     // print probabilities for predicted labels stored in a_s vector, similar to multilabel_oaa reduction
     for (auto& sink : all.final_prediction_sink)
     {
-      VW::details::print_action_score(sink.get(), ec.pred.a_s, ec.tag, all.logger);
+      VW980::details::print_action_score(sink.get(), ec.pred.a_s, ec.tag, all.logger);
     }
   }
   else
   {
     // print just the list of labels
-    VW::details::output_example_prediction_multilabel(all, ec);
+    VW980::details::output_example_prediction_multilabel(all, ec);
   }
 }
 
-void print_update_plt(VW::workspace& all, VW::shared_data&, const plt&, const VW::example& ec, VW::io::logger&)
+void print_update_plt(VW980::workspace& all, VW980::shared_data&, const plt&, const VW980::example& ec, VW980::io::logger&)
 {
-  VW::details::print_update_multilabel(all, ec);
+  VW980::details::print_update_multilabel(all, ec);
 }
 
 void finish(plt& p)
@@ -343,11 +343,11 @@ void finish(plt& p)
   }
 }
 
-void save_load_tree(plt& p, VW::io_buf& model_file, bool read, bool text)
+void save_load_tree(plt& p, VW980::io_buf& model_file, bool read, bool text)
 {
   if (model_file.num_files() == 0) { return; }
 
-  if (read && p.model_file_version < VW::version_definitions::VERSION_FILE_WITH_PLT_SAVE_LOAD_FIX &&
+  if (read && p.model_file_version < VW980::version_definitions::VERSION_FILE_WITH_PLT_SAVE_LOAD_FIX &&
       p.force_load_legacy_model)
   {
     bool resume = false;
@@ -366,7 +366,7 @@ void save_load_tree(plt& p, VW::io_buf& model_file, bool read, bool text)
     return;
   }
 
-  if (read && p.model_file_version < VW::version_definitions::VERSION_FILE_WITH_PLT_SAVE_LOAD_FIX)
+  if (read && p.model_file_version < VW980::version_definitions::VERSION_FILE_WITH_PLT_SAVE_LOAD_FIX)
   {
     THROW(
         "PLT models before 9.7 had a bug which caused incorrect loading under certain conditions, so by default they "
@@ -381,23 +381,23 @@ void save_load_tree(plt& p, VW::io_buf& model_file, bool read, bool text)
   if (read)
   {
     p.nodes_time.clear();
-    VW::model_utils::read_model_field(model_file, p.nodes_time);
+    VW980::model_utils::read_model_field(model_file, p.nodes_time);
     assert(p.nodes_time.size() == p.t);
   }
   // Write
   else
   {
     assert(p.nodes_time.size() == p.t);
-    VW::model_utils::write_model_field(model_file, p.nodes_time, "nodes_time", text);
+    VW980::model_utils::write_model_field(model_file, p.nodes_time, "nodes_time", text);
   }
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::plt_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::plt_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto tree = VW::make_unique<plt>();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto tree = VW980::make_unique<plt>();
   option_group_definition new_options("[Reduction] Probabilistic Label Tree");
   new_options.add(make_option("plt", tree->k).keep().necessary().help("Probabilistic Label Tree with <k> labels"))
       .add(make_option("kary_tree", tree->kary).keep().default_value(2).help("Use <k>-ary tree"))
@@ -440,7 +440,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::plt_setup(VW::setup_base_i
     }
   }
 
-  // resize VW::v_arrays
+  // resize VW980::v_arrays
   tree->nodes_time.resize(tree->t);
   std::fill(tree->nodes_time.begin(), tree->nodes_time.end(), all.initial_t);
   tree->node_pred.resize(tree->kary);
@@ -454,8 +454,8 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::plt_setup(VW::setup_base_i
 
   size_t feature_width = tree->t;
   std::string name_addition = "";
-  VW::prediction_type_t pred_type;
-  void (*pred_ptr)(plt&, learner&, VW::example&);
+  VW980::prediction_type_t pred_type;
+  void (*pred_ptr)(plt&, learner&, VW980::example&);
 
   if (tree->top_k > 0)
   {
@@ -467,17 +467,17 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::plt_setup(VW::setup_base_i
   if (tree->probabilities)
   {
     name_addition += " -prob";
-    pred_type = VW::prediction_type_t::ACTION_PROBS;
+    pred_type = VW980::prediction_type_t::ACTION_PROBS;
   }
-  else { pred_type = VW::prediction_type_t::MULTILABELS; }
+  else { pred_type = VW980::prediction_type_t::MULTILABELS; }
 
   auto l = make_reduction_learner(std::move(tree), require_singleline(stack_builder.setup_base_learner(feature_width)),
       learn, pred_ptr, stack_builder.get_setupfn_name(plt_setup) + name_addition)
                .set_feature_width(feature_width)
                .set_learn_returns_prediction(false)
-               .set_input_label_type(VW::label_type_t::MULTILABEL)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
+               .set_input_label_type(VW980::label_type_t::MULTILABEL)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
                .set_output_prediction_type(pred_type)
                .set_learn_returns_prediction(false)
                .set_update_stats(update_stats_plt)

@@ -95,7 +95,7 @@ bool got_sigterm;
 
 void handle_sigterm(int) { got_sigterm = true; }
 
-VW::parser::parser(size_t example_queue_limit, bool strict_parse_)
+VW980::parser::parser(size_t example_queue_limit, bool strict_parse_)
     : example_pool{example_queue_limit}
     , ready_parsed_examples{example_queue_limit}
     , example_queue_limit{example_queue_limit}
@@ -104,21 +104,21 @@ VW::parser::parser(size_t example_queue_limit, bool strict_parse_)
     , num_finished_examples(0)
     , strict_parse{strict_parse_}
 {
-  this->lbl_parser = VW::simple_label_parser_global;
+  this->lbl_parser = VW980::simple_label_parser_global;
 }
 
-namespace VW
+namespace VW980
 {
-void parse_example_label(string_view label, const VW::label_parser& lbl_parser, const named_labels* ldict,
-    label_parser_reuse_mem& reuse_mem, VW::example& ec, VW::io::logger& logger)
+void parse_example_label(string_view label, const VW980::label_parser& lbl_parser, const named_labels* ldict,
+    label_parser_reuse_mem& reuse_mem, VW980::example& ec, VW980::io::logger& logger)
 {
   std::vector<string_view> words;
-  VW::tokenize(' ', label, words);
+  VW980::tokenize(' ', label, words);
   lbl_parser.parse_label(ec.l, ec.ex_reduction_features, reuse_mem, ldict, words, logger);
 }
-}  // namespace VW
+}  // namespace VW980
 
-uint32_t cache_numbits(VW::io::reader& cache_reader)
+uint32_t cache_numbits(VW980::io::reader& cache_reader)
 {
   size_t version_buffer_length;
   if (static_cast<size_t>(cache_reader.read(reinterpret_cast<char*>(&version_buffer_length),
@@ -135,13 +135,13 @@ uint32_t cache_numbits(VW::io::reader& cache_reader)
   {
     THROW("failed to read: version buffer");
   }
-  VW::version_struct cache_version(version_buffer.data());
-  if (cache_version != VW::VERSION)
+  VW980::version_struct cache_version(version_buffer.data());
+  if (cache_version != VW980::VERSION)
   {
     auto msg = fmt::format(
         "Cache file version does not match current VW version. Cache files must be produced by the version consuming "
         "them. Cache version: {} VW version: {}",
-        cache_version.to_string(), VW::VERSION.to_string());
+        cache_version.to_string(), VW980::VERSION.to_string());
     THROW(msg);
   }
 
@@ -160,39 +160,39 @@ uint32_t cache_numbits(VW::io::reader& cache_reader)
   return cache_numbits;
 }
 
-void set_cache_reader(VW::workspace& all) { all.example_parser->reader = VW::parsers::cache::read_example_from_cache; }
+void set_cache_reader(VW980::workspace& all) { all.example_parser->reader = VW980::parsers::cache::read_example_from_cache; }
 
-void set_string_reader(VW::workspace& all)
+void set_string_reader(VW980::workspace& all)
 {
-  all.example_parser->reader = VW::parsers::text::read_features_string;
-  all.print_by_ref = VW::details::print_result_by_ref;
+  all.example_parser->reader = VW980::parsers::text::read_features_string;
+  all.print_by_ref = VW980::details::print_result_by_ref;
 }
 
-bool is_currently_json_reader(const VW::workspace& all)
+bool is_currently_json_reader(const VW980::workspace& all)
 {
-  return all.example_parser->reader == &VW::parsers::json::read_features_json<true> ||
-      all.example_parser->reader == &VW::parsers::json::read_features_json<false>;
+  return all.example_parser->reader == &VW980::parsers::json::read_features_json<true> ||
+      all.example_parser->reader == &VW980::parsers::json::read_features_json<false>;
 }
 
-bool is_currently_dsjson_reader(const VW::workspace& all)
+bool is_currently_dsjson_reader(const VW980::workspace& all)
 {
   return is_currently_json_reader(all) && all.example_parser->decision_service_json;
 }
 
-void set_json_reader(VW::workspace& all, bool dsjson = false)
+void set_json_reader(VW980::workspace& all, bool dsjson = false)
 {
   // TODO: change to class with virtual method
   // --invert_hash requires the audit parser version to save the extra information.
   if (all.audit || all.hash_inv)
   {
-    all.example_parser->reader = &VW::parsers::json::read_features_json<true>;
-    all.example_parser->text_reader = &VW::parsers::json::line_to_examples_json<true>;
+    all.example_parser->reader = &VW980::parsers::json::read_features_json<true>;
+    all.example_parser->text_reader = &VW980::parsers::json::line_to_examples_json<true>;
     all.example_parser->audit = true;
   }
   else
   {
-    all.example_parser->reader = &VW::parsers::json::read_features_json<false>;
-    all.example_parser->text_reader = &VW::parsers::json::line_to_examples_json<false>;
+    all.example_parser->reader = &VW980::parsers::json::read_features_json<false>;
+    all.example_parser->text_reader = &VW980::parsers::json::line_to_examples_json<false>;
     all.example_parser->audit = false;
   }
 
@@ -200,22 +200,22 @@ void set_json_reader(VW::workspace& all, bool dsjson = false)
 
   if (dsjson && all.global_metrics.are_metrics_enabled())
   {
-    all.example_parser->metrics = VW::make_unique<VW::details::dsjson_metrics>();
+    all.example_parser->metrics = VW980::make_unique<VW980::details::dsjson_metrics>();
   }
 }
 
-void set_daemon_reader(VW::workspace& all, bool json = false, bool dsjson = false)
+void set_daemon_reader(VW980::workspace& all, bool json = false, bool dsjson = false)
 {
   if (all.example_parser->input.isbinary())
   {
-    all.example_parser->reader = VW::parsers::cache::read_example_from_cache;
-    all.print_by_ref = VW::details::binary_print_result_by_ref;
+    all.example_parser->reader = VW980::parsers::cache::read_example_from_cache;
+    all.print_by_ref = VW980::details::binary_print_result_by_ref;
   }
   else if (json || dsjson) { set_json_reader(all, dsjson); }
   else { set_string_reader(all); }
 }
 
-void VW::details::reset_source(VW::workspace& all, size_t numbits)
+void VW980::details::reset_source(VW980::workspace& all, size_t numbits)
 {
   io_buf& input = all.example_parser->input;
 
@@ -232,11 +232,11 @@ void VW::details::reset_source(VW::workspace& all, size_t numbits)
 
     // Rename the cache file to the final name.
     if (0 != rename(all.example_parser->currentname.c_str(), all.example_parser->finalname.c_str()))
-      THROW("WARN: reset_source(VW::workspace& all, size_t numbits) cannot rename: "
+      THROW("WARN: reset_source(VW980::workspace& all, size_t numbits) cannot rename: "
           << all.example_parser->currentname << " to " << all.example_parser->finalname);
     input.close_files();
     // Now open the written cache as the new input file.
-    input.add_file(VW::io::open_file_reader(all.example_parser->finalname));
+    input.add_file(VW980::io::open_file_reader(all.example_parser->finalname));
     set_cache_reader(all);
   }
 
@@ -262,7 +262,7 @@ void VW::details::reset_source(VW::workspace& all, size_t numbits)
       socklen_t size = sizeof(client_address);
       int f =
           static_cast<int>(accept(all.example_parser->bound_sock, reinterpret_cast<sockaddr*>(&client_address), &size));
-      if (f < 0) THROW("accept: " << VW::io::strerror_to_string(errno));
+      if (f < 0) THROW("accept: " << VW980::io::strerror_to_string(errno));
 
       // Disable Nagle delay algorithm due to daemon mode's interactive workload
       int one = 1;
@@ -270,7 +270,7 @@ void VW::details::reset_source(VW::workspace& all, size_t numbits)
 
       // note: breaking cluster parallel online learning by dropping support for id
 
-      auto socket = VW::io::wrap_socket_descriptor(f);
+      auto socket = VW980::io::wrap_socket_descriptor(f);
       all.final_prediction_sink.push_back(socket->get_writer());
       all.example_parser->input.add_file(socket->get_reader());
 
@@ -295,9 +295,9 @@ void VW::details::reset_source(VW::workspace& all, size_t numbits)
   }
 }
 
-void make_write_cache(VW::workspace& all, std::string& newname, bool quiet)
+void make_write_cache(VW980::workspace& all, std::string& newname, bool quiet)
 {
-  VW::io_buf& output = all.example_parser->output;
+  VW980::io_buf& output = all.example_parser->output;
   if (output.num_files() != 0)
   {
     all.logger.err_warn("There was an attempt tried to make two write caches. Only the first one will be made.");
@@ -307,7 +307,7 @@ void make_write_cache(VW::workspace& all, std::string& newname, bool quiet)
   all.example_parser->currentname = newname + std::string(".writing");
   try
   {
-    output.add_file(VW::io::open_file_writer(all.example_parser->currentname));
+    output.add_file(VW980::io::open_file_writer(all.example_parser->currentname));
   }
   catch (const std::exception&)
   {
@@ -315,10 +315,10 @@ void make_write_cache(VW::workspace& all, std::string& newname, bool quiet)
     return;
   }
 
-  size_t v_length = static_cast<uint64_t>(VW::VERSION.to_string().length()) + 1;
+  size_t v_length = static_cast<uint64_t>(VW980::VERSION.to_string().length()) + 1;
 
   output.bin_write_fixed(reinterpret_cast<const char*>(&v_length), sizeof(v_length));
-  output.bin_write_fixed(VW::VERSION.to_string().c_str(), v_length);
+  output.bin_write_fixed(VW980::VERSION.to_string().c_str(), v_length);
   output.bin_write_fixed("c", 1);
   output.bin_write_fixed(reinterpret_cast<const char*>(&all.num_bits), sizeof(all.num_bits));
   output.flush();
@@ -328,7 +328,7 @@ void make_write_cache(VW::workspace& all, std::string& newname, bool quiet)
   if (!quiet) { *(all.trace_message) << "creating cache_file = " << newname << endl; }
 }
 
-void parse_cache(VW::workspace& all, std::vector<std::string> cache_files, bool kill_cache, bool quiet)
+void parse_cache(VW980::workspace& all, std::vector<std::string> cache_files, bool kill_cache, bool quiet)
 {
   all.example_parser->write_cache = false;
 
@@ -339,7 +339,7 @@ void parse_cache(VW::workspace& all, std::vector<std::string> cache_files, bool 
     {
       try
       {
-        all.example_parser->input.add_file(VW::io::open_file_reader(file));
+        all.example_parser->input.add_file(VW980::io::open_file_reader(file));
         cache_file_opened = true;
       }
       catch (const std::exception&)
@@ -381,13 +381,13 @@ void parse_cache(VW::workspace& all, std::vector<std::string> cache_files, bool 
 #  define MAP_ANONYMOUS MAP_ANON
 #endif
 
-void VW::details::enable_sources(
-    VW::workspace& all, bool quiet, size_t passes, const VW::details::input_options& input_options)
+void VW980::details::enable_sources(
+    VW980::workspace& all, bool quiet, size_t passes, const VW980::details::input_options& input_options)
 {
   parse_cache(all, input_options.cache_files, input_options.kill_cache, quiet);
 
   // default text reader
-  all.example_parser->text_reader = VW::parsers::text::read_lines;
+  all.example_parser->text_reader = VW980::parsers::text::read_lines;
 
   if (!input_options.no_daemon && (all.daemon || all.active))
   {
@@ -397,13 +397,13 @@ void VW::details::enable_sources(
     if (lastError != 0) THROWERRNO("WSAStartup() returned error:" << lastError);
 #endif
     all.example_parser->bound_sock = static_cast<int>(socket(PF_INET, SOCK_STREAM, 0));
-    if (all.example_parser->bound_sock < 0) { THROW(fmt::format("socket: {}", VW::io::strerror_to_string(errno))); }
+    if (all.example_parser->bound_sock < 0) { THROW(fmt::format("socket: {}", VW980::io::strerror_to_string(errno))); }
 
     int on = 1;
     if (setsockopt(all.example_parser->bound_sock, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&on), sizeof(on)) <
         0)
     {
-      *(all.trace_message) << "setsockopt SO_REUSEADDR: " << VW::io::strerror_to_string(errno) << endl;
+      *(all.trace_message) << "setsockopt SO_REUSEADDR: " << VW980::io::strerror_to_string(errno) << endl;
     }
 
     // Enable TCP Keep Alive to prevent socket leaks
@@ -411,7 +411,7 @@ void VW::details::enable_sources(
     if (setsockopt(all.example_parser->bound_sock, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<char*>(&enable_tka),
             sizeof(enable_tka)) < 0)
     {
-      *(all.trace_message) << "setsockopt SO_KEEPALIVE: " << VW::io::strerror_to_string(errno) << endl;
+      *(all.trace_message) << "setsockopt SO_KEEPALIVE: " << VW980::io::strerror_to_string(errno) << endl;
     }
 
     sockaddr_in address;
@@ -436,7 +436,7 @@ void VW::details::enable_sources(
       socklen_t address_size = sizeof(address);
       if (getsockname(all.example_parser->bound_sock, reinterpret_cast<sockaddr*>(&address), &address_size) < 0)
       {
-        *(all.trace_message) << "getsockname: " << VW::io::strerror_to_string(errno) << endl;
+        *(all.trace_message) << "getsockname: " << VW980::io::strerror_to_string(errno) << endl;
       }
       std::ofstream port_file;
       port_file.open(input_options.port_file.c_str());
@@ -462,7 +462,7 @@ void VW::details::enable_sources(
       std::ofstream pid_file;
       pid_file.open(input_options.pid_file.c_str());
       if (!pid_file.is_open()) { THROW("error writing pid file"); }
-      pid_file << VW::get_pid() << endl;
+      pid_file << VW980::get_pid() << endl;
       pid_file.close();
     }
 
@@ -481,16 +481,16 @@ void VW::details::enable_sources(
       all.weights.share(all.length());
 
       // learning state to be shared across children
-      size_t mmap_length = sizeof(VW::shared_data);
-      VW::shared_data* sd = static_cast<VW::shared_data*>(
+      size_t mmap_length = sizeof(VW980::shared_data);
+      VW980::shared_data* sd = static_cast<VW980::shared_data*>(
           mmap(nullptr, mmap_length, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0));
       // copy construct with placement new
-      new (sd) VW::shared_data(*all.sd);
-      all.sd = std::shared_ptr<VW::shared_data>(sd, [sd, mmap_length](void*) { munmap(sd, mmap_length); });
+      new (sd) VW980::shared_data(*all.sd);
+      all.sd = std::shared_ptr<VW980::shared_data>(sd, [sd, mmap_length](void*) { munmap(sd, mmap_length); });
 
       // create children
-      const auto num_children = VW::cast_to_smaller_type<size_t>(input_options.num_children);
-      VW::v_array<int> children;
+      const auto num_children = VW980::cast_to_smaller_type<size_t>(input_options.num_children);
+      VW980::v_array<int> children;
       children.resize(num_children);
       for (size_t i = 0; i < num_children; i++)
       {
@@ -564,7 +564,7 @@ void VW::details::enable_sources(
     int one = 1;
     setsockopt(f_a, SOL_TCP, TCP_NODELAY, reinterpret_cast<char*>(&one), sizeof(one));
 
-    auto socket = VW::io::wrap_socket_descriptor(f_a);
+    auto socket = VW980::io::wrap_socket_descriptor(f_a);
 
     all.final_prediction_sink.push_back(socket->get_writer());
 
@@ -585,22 +585,22 @@ void VW::details::enable_sources(
     {
       std::string filename_to_read = all.data_filename;
       std::string input_name = filename_to_read;
-      auto should_use_compressed = input_options.compressed || VW::ends_with(filename_to_read, ".gz");
+      auto should_use_compressed = input_options.compressed || VW980::ends_with(filename_to_read, ".gz");
 
       try
       {
-        std::unique_ptr<VW::io::reader> adapter;
+        std::unique_ptr<VW980::io::reader> adapter;
         if (!filename_to_read.empty())
         {
-          adapter = should_use_compressed ? VW::io::open_compressed_file_reader(filename_to_read)
-                                          : VW::io::open_file_reader(filename_to_read);
+          adapter = should_use_compressed ? VW980::io::open_compressed_file_reader(filename_to_read)
+                                          : VW980::io::open_file_reader(filename_to_read);
         }
         else if (!input_options.stdin_off)
         {
           input_name = "stdin";
           // Should try and use stdin
-          if (should_use_compressed) { adapter = VW::io::open_compressed_stdin(); }
-          else { adapter = VW::io::open_stdin(); }
+          if (should_use_compressed) { adapter = VW980::io::open_compressed_stdin(); }
+          else { adapter = VW980::io::open_stdin(); }
         }
         else
         {
@@ -621,15 +621,15 @@ void VW::details::enable_sources(
 #ifdef BUILD_FLATBUFFERS
       else if (input_options.flatbuffer)
       {
-        all.flat_converter = VW::make_unique<VW::parsers::flatbuffer::parser>();
-        all.example_parser->reader = VW::parsers::flatbuffer::flatbuffer_to_examples;
+        all.flat_converter = VW980::make_unique<VW980::parsers::flatbuffer::parser>();
+        all.example_parser->reader = VW980::parsers::flatbuffer::flatbuffer_to_examples;
       }
 #endif
 #ifdef VW_BUILD_CSV
       else if (input_options.csv_opts && input_options.csv_opts->enabled)
       {
-        all.custom_parser = VW::make_unique<VW::parsers::csv::csv_parser>(*input_options.csv_opts);
-        all.example_parser->reader = VW::parsers::csv::parse_csv_examples;
+        all.custom_parser = VW980::make_unique<VW980::parsers::csv::csv_parser>(*input_options.csv_opts);
+        all.example_parser->reader = VW980::parsers::csv::parse_csv_examples;
       }
 #endif
       else { set_string_reader(all); }
@@ -648,29 +648,29 @@ void VW::details::enable_sources(
   }
 }
 
-void VW::details::lock_done(parser& p)
+void VW980::details::lock_done(parser& p)
 {
   p.done = true;
   // in case get_example() is waiting for a fresh example, wake so it can realize there are no more.
   p.ready_parsed_examples.set_done();
 }
 
-void VW::details::set_done(VW::workspace& all)
+void VW980::details::set_done(VW980::workspace& all)
 {
   all.early_terminate = true;
   lock_done(*all.example_parser);
 }
 
-void end_pass_example(VW::workspace& all, VW::example* ae)
+void end_pass_example(VW980::workspace& all, VW980::example* ae)
 {
   all.example_parser->lbl_parser.default_label(ae->l);
   ae->end_pass = true;
   all.example_parser->in_pass_counter = 0;
 }
 
-namespace VW
+namespace VW980
 {
-VW::example& get_unused_example(VW::workspace* all)
+VW980::example& get_unused_example(VW980::workspace* all)
 {
   auto& p = *all->example_parser;
   auto* ex = p.example_pool.get_object().release();
@@ -678,20 +678,20 @@ VW::example& get_unused_example(VW::workspace* all)
   return *ex;
 }
 
-}  // namespace VW
+}  // namespace VW980
 
-void VW::details::free_parser(VW::workspace& all)
+void VW980::details::free_parser(VW980::workspace& all)
 {
   // It is possible to exit early when the queue is not yet empty.
 
   while (all.example_parser->ready_parsed_examples.size() > 0)
   {
-    VW::example* current = nullptr;
+    VW980::example* current = nullptr;
     all.example_parser->ready_parsed_examples.try_pop(current);
     if (current != nullptr)
     {
       // this function also handles examples that were not from the pool.
-      VW::finish_example(all, *current);
+      VW980::finish_example(all, *current);
     }
   }
 

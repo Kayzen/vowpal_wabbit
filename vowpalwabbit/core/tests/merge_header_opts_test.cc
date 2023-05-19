@@ -12,15 +12,15 @@
 #include <string>
 #include <vector>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 TEST(MergeOptsFromHeader, StringsNoOptsSkip)
 {
   const std::vector<std::string> strings;
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
 
   int int_opt = -1;
   bool bool_opt;
@@ -43,10 +43,10 @@ TEST(MergeOptsFromHeader, StringsNoOptsSkip)
 TEST(MergeOptsFromHeader, StringsNoOptsNoskip)
 {
   const std::vector<std::string> strings;
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
 
   int int_opt = -1;
   bool bool_opt;
@@ -69,10 +69,10 @@ TEST(MergeOptsFromHeader, StringsNoOptsNoskip)
 TEST(MergeOptsFromHeader, StringsBoolOptSkip)
 {
   const std::vector<std::string> strings{"--bool_opt"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
 
   int int_opt = -1;
   bool bool_opt;
@@ -95,10 +95,10 @@ TEST(MergeOptsFromHeader, StringsBoolOptSkip)
 TEST(MergeOptsFromHeader, StringsBoolOptNoskip)
 {
   const std::vector<std::string> strings{"--bool_opt"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
 
   int int_opt = -1;
   bool bool_opt;
@@ -119,10 +119,10 @@ TEST(MergeOptsFromHeader, StringsBoolOptNoskip)
 TEST(MergeOptsFromHeader, StringsIntOptSkip)
 {
   const std::vector<std::string> strings{"--int_opt", "3"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
 
   int int_opt = -1;
   bool bool_opt;
@@ -143,10 +143,10 @@ TEST(MergeOptsFromHeader, StringsIntOptSkip)
 TEST(MergeOptsFromHeader, StringsIntOptNoskip)
 {
   const std::vector<std::string> strings{"--int_opt", "3"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
 
   int int_opt = -1;
   bool bool_opt;
@@ -167,10 +167,10 @@ TEST(MergeOptsFromHeader, StringsIntOptNoskip)
 TEST(MergeOptsFromHeader, StringsBoolIntOptSkip)
 {
   const std::vector<std::string> strings{"--bool_opt", "--int_opt", "3"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
 
   int int_opt = -1;
   bool bool_opt;
@@ -191,10 +191,10 @@ TEST(MergeOptsFromHeader, StringsBoolIntOptSkip)
 TEST(MergeOptsFromHeader, StringsBoolIntOptNoskip)
 {
   const std::vector<std::string> strings{"--bool_opt", "--int_opt", "3"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
 
   int int_opt = -1;
   bool bool_opt;
@@ -215,10 +215,10 @@ TEST(MergeOptsFromHeader, StringsBoolIntOptNoskip)
 TEST(MergeOptsFromHeader, StringsIntBoolOptSkip)
 {
   const std::vector<std::string> strings{"--int_opt", "3", "--bool_opt"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
 
   int int_opt = -1;
   bool bool_opt;
@@ -239,10 +239,10 @@ TEST(MergeOptsFromHeader, StringsIntBoolOptSkip)
 TEST(MergeOptsFromHeader, StringsIntBoolOptNoskip)
 {
   const std::vector<std::string> strings{"--int_opt", "3", "--bool_opt"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
 
   int int_opt = -1;
   bool bool_opt;
@@ -264,10 +264,10 @@ TEST(MergeOptsFromHeader, StringsBoolIntInteractionBoolIntOptSkip)
 {
   const std::vector<std::string> strings{
       "--bool_opt1", "--int_opt1", "3", "--interactions", "::", "--bool_opt2", "--int_opt2", "4"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
 
   int int_opt1 = -1;
   bool bool_opt1;
@@ -300,10 +300,10 @@ TEST(MergeOptsFromHeader, StringsBoolIntInteractionBoolIntOptNoskip)
 {
   const std::vector<std::string> strings{
       "--bool_opt1", "--int_opt1", "3", "--interactions", "::", "--bool_opt2", "--int_opt2", "4"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
 
   int int_opt1 = -1;
   bool bool_opt1;
@@ -336,10 +336,10 @@ TEST(MergeOptsFromHeader, StringsBoolIntInteractionIntBoolOptSkip)
 {
   const std::vector<std::string> strings{
       "--bool_opt1", "--int_opt1", "3", "--interactions", "::", "--int_opt2", "4", "--bool_opt2"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
 
   int int_opt1 = -1;
   bool bool_opt1;
@@ -372,10 +372,10 @@ TEST(MergeOptsFromHeader, StringsBoolIntInteractionIntBoolOptNoskip)
 {
   const std::vector<std::string> strings{
       "--bool_opt1", "--int_opt1", "3", "--interactions", "::", "--int_opt2", "4", "--bool_opt2"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
 
   int int_opt1 = -1;
   bool bool_opt1;
@@ -408,10 +408,10 @@ TEST(MergeOptsFromHeader, StringsIntBoolInteractionBoolIntOptSkip)
 {
   const std::vector<std::string> strings{
       "--int_opt1", "3", "--bool_opt1", "--interactions", "::", "--bool_opt2", "--int_opt2", "4"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
 
   int int_opt1 = -1;
   bool bool_opt1;
@@ -444,10 +444,10 @@ TEST(MergeOptsFromHeader, StringsIntBoolInteractionBoolIntOptNoskip)
 {
   const std::vector<std::string> strings{
       "--int_opt1", "3", "--bool_opt1", "--interactions", "::", "--bool_opt2", "--int_opt2", "4"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
 
   int int_opt1 = -1;
   bool bool_opt1;
@@ -480,10 +480,10 @@ TEST(MergeOptsFromHeader, StringsIntBoolInteractionIntBoolOptSkip)
 {
   const std::vector<std::string> strings{
       "--int_opt1", "3", "--bool_opt1", "--interactions", "::", "--int_opt2", "4", "--bool_opt2"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, true, *opts, is_ccb_model);
 
   int int_opt1 = -1;
   bool bool_opt1;
@@ -516,10 +516,10 @@ TEST(MergeOptsFromHeader, StringsIntBoolInteractionIntBoolOptNoskip)
 {
   const std::vector<std::string> strings{
       "--int_opt1", "3", "--bool_opt1", "--interactions", "::", "--int_opt2", "4", "--bool_opt2"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
 
   int int_opt1 = -1;
   bool bool_opt1;
@@ -551,10 +551,10 @@ TEST(MergeOptsFromHeader, StringsIntBoolInteractionIntBoolOptNoskip)
 TEST(MergeOptsFromHeader, MergeOptionsFromCcbHeader)
 {
   const std::vector<std::string> strings{"--dsjson", "--epsilon", "0.2", "--ccb_explore_adf"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
 
   EXPECT_EQ(true, is_ccb_model);
 }
@@ -562,10 +562,10 @@ TEST(MergeOptsFromHeader, MergeOptionsFromCcbHeader)
 TEST(MergeOptsFromHeader, MergeOptionFromCbHeader)
 {
   const std::vector<std::string> strings{"--dsjson", "--epsilon", "0.2", "--cb_explore_adf"};
-  auto opts = VW::make_unique<options_cli>(std::vector<std::string>());
+  auto opts = VW980::make_unique<options_cli>(std::vector<std::string>());
 
   bool is_ccb_model = false;
-  VW::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
+  VW980::details::merge_options_from_header_strings(strings, false, *opts, is_ccb_model);
 
   EXPECT_EQ(false, is_ccb_model);
 }

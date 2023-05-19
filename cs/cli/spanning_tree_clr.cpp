@@ -7,7 +7,7 @@
 
 using namespace std;
 
-namespace VW
+namespace VW980
 {
 SpanningTreeClr::SpanningTreeClr()
 { m_spanningTree = new SpanningTree;

@@ -19,7 +19,7 @@
 #include <map>
 #include <unordered_map>
 
-using namespace VW::config;
+using namespace VW980::config;
 namespace
 {
 class expert
@@ -40,7 +40,7 @@ class data
 {
 public:
   data(float initial_numerator, float initial_denominator, float decay, bool update_before_learn,
-      bool unweighted_marginals, bool compete, VW::workspace* all)
+      bool unweighted_marginals, bool compete, VW980::workspace* all)
       : initial_numerator(initial_numerator)
       , initial_denominator(initial_denominator)
       , decay(decay)
@@ -59,7 +59,7 @@ public:
   bool unweighted_marginals;
 
   std::array<bool, 256> id_features;
-  std::array<VW::features, 256> temp;  // temporary storage when reducing.
+  std::array<VW980::features, 256> temp;  // temporary storage when reducing.
   std::map<uint64_t, marginal> marginals;
 
   // bookkeeping variables for experts
@@ -73,18 +73,18 @@ public:
       expert_state;  // pair of weights on marginal and feature based predictors, one per marginal feature
 
   std::unordered_map<uint64_t, std::string> inverse_hashes;
-  VW::workspace* m_all = nullptr;
+  VW980::workspace* m_all = nullptr;
 };
 
 float get_adanormalhedge_weights(float r, float c)
 {
   float r_pos = r > 0.f ? r : 0.f;
   if (c == 0.f || r_pos == 0.f) { return 0.f; }
-  return 2.f * r_pos * VW::details::correctedExp(r_pos * r_pos / (3.f * c)) / (3.f * c);
+  return 2.f * r_pos * VW980::details::correctedExp(r_pos * r_pos / (3.f * c)) / (3.f * c);
 }
 
 template <bool is_learn>
-void make_marginal(data& sm, VW::example& ec)
+void make_marginal(data& sm, VW980::example& ec)
 {
   const uint64_t mask = sm.m_all->weights.mask();
   sm.alg_loss = 0.;
@@ -94,11 +94,11 @@ void make_marginal(data& sm, VW::example& ec)
 
   for (auto i = ec.begin(); i != ec.end(); ++i)
   {
-    const VW::namespace_index n = i.index();
+    const VW980::namespace_index n = i.index();
     if (sm.id_features[n])
     {
       std::swap(sm.temp[n], *i);
-      VW::features& f = *i;
+      VW980::features& f = *i;
       f.clear();
       size_t inv_hash_idx = 0;
       for (auto j = sm.temp[n].begin(); j != sm.temp[n].end(); ++j)
@@ -130,7 +130,7 @@ void make_marginal(data& sm, VW::example& ec)
           if (sm.m_all->hash_inv)
           {
             std::ostringstream ss;
-            std::vector<VW::audit_strings>& sn = sm.temp[n].space_names;
+            std::vector<VW980::audit_strings>& sn = sm.temp[n].space_names;
             ss << sn[inv_hash_idx].ns << "^" << sn[inv_hash_idx].name << "*" << sn[inv_hash_idx + 1].name;
             sm.inverse_hashes.insert(std::make_pair(key, ss.str()));
             inv_hash_idx += 2;
@@ -157,17 +157,17 @@ void make_marginal(data& sm, VW::example& ec)
   }
 }
 
-void undo_marginal(data& sm, VW::example& ec)
+void undo_marginal(data& sm, VW980::example& ec)
 {
   for (auto i = ec.begin(); i != ec.end(); ++i)
   {
-    const VW::namespace_index n = i.index();
+    const VW980::namespace_index n = i.index();
     if (sm.id_features[n]) { std::swap(sm.temp[n], *i); }
   }
 }
 
 template <bool is_learn>
-void compute_expert_loss(data& sm, VW::example& ec)
+void compute_expert_loss(data& sm, VW980::example& ec)
 {
   // add in the feature-based expert and normalize,
   if (sm.net_weight + sm.net_feature_weight > 0.f) { sm.average_pred += sm.net_feature_weight * sm.feature_pred; }
@@ -189,16 +189,16 @@ void compute_expert_loss(data& sm, VW::example& ec)
   }
 }
 
-void update_marginal(data& sm, VW::example& ec)
+void update_marginal(data& sm, VW980::example& ec)
 {
   const uint64_t mask = sm.m_all->weights.mask();
   const float label = ec.l.simple.label;
   float weight = ec.weight;
   if (sm.unweighted_marginals) { weight = 1.; }
 
-  for (VW::example::iterator i = ec.begin(); i != ec.end(); ++i)
+  for (VW980::example::iterator i = ec.begin(); i != ec.end(); ++i)
   {
-    const VW::namespace_index n = i.index();
+    const VW980::namespace_index n = i.index();
     if (sm.id_features[n])
     {
       for (auto j = sm.temp[n].begin(); j != sm.temp[n].end(); ++j)
@@ -232,7 +232,7 @@ void update_marginal(data& sm, VW::example& ec)
 }
 
 template <bool is_learn>
-void predict_or_learn(data& sm, VW::LEARNER::learner& base, VW::example& ec)
+void predict_or_learn(data& sm, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   make_marginal<is_learn>(sm, ec);
   if VW_STD17_CONSTEXPR (is_learn)
@@ -278,7 +278,7 @@ void predict_or_learn(data& sm, VW::LEARNER::learner& base, VW::example& ec)
   undo_marginal(sm, ec);
 }
 
-void save_load(data& sm, VW::io_buf& io, bool read, bool text)
+void save_load(data& sm, VW980::io_buf& io, bool read, bool text)
 {
   const uint64_t stride_shift = sm.m_all->weights.stride_shift();
 
@@ -290,7 +290,7 @@ void save_load(data& sm, VW::io_buf& io, bool read, bool text)
     total_size = static_cast<uint64_t>(sm.marginals.size());
     msg << "marginals size = " << total_size << "\n";
   }
-  VW::details::bin_text_read_write_fixed_validated(
+  VW980::details::bin_text_read_write_fixed_validated(
       io, reinterpret_cast<char*>(&total_size), sizeof(total_size), read, msg, text);
 
   auto iter = sm.marginals.begin();
@@ -304,21 +304,21 @@ void save_load(data& sm, VW::io_buf& io, bool read, bool text)
       else { msg << index; }
       msg << ":";
     }
-    VW::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&index), sizeof(index), read, msg, text);
+    VW980::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&index), sizeof(index), read, msg, text);
     double numerator;
     if (!read)
     {
       numerator = iter->second.first;
       msg << numerator << ":";
     }
-    VW::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&numerator), sizeof(numerator), read, msg, text);
+    VW980::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&numerator), sizeof(numerator), read, msg, text);
     double denominator;
     if (!read)
     {
       denominator = iter->second.second;
       msg << denominator << "\n";
     }
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         io, reinterpret_cast<char*>(&denominator), sizeof(denominator), read, msg, text);
     if (read) { sm.marginals.insert(std::make_pair(index << stride_shift, std::make_pair(numerator, denominator))); }
     else { ++iter; }
@@ -331,7 +331,7 @@ void save_load(data& sm, VW::io_buf& io, bool read, bool text)
       total_size = static_cast<uint64_t>(sm.expert_state.size());
       msg << "expert_state size = " << total_size << "\n";
     }
-    VW::details::bin_text_read_write_fixed_validated(
+    VW980::details::bin_text_read_write_fixed_validated(
         io, reinterpret_cast<char*>(&total_size), sizeof(total_size), read, msg, text);
 
     auto exp_iter = sm.expert_state.begin();
@@ -343,7 +343,7 @@ void save_load(data& sm, VW::io_buf& io, bool read, bool text)
         index = exp_iter->first >> stride_shift;
         msg << index << ":";
       }
-      VW::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&index), sizeof(index), read, msg, text);
+      VW980::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&index), sizeof(index), read, msg, text);
       float r1 = 0;
       float c1 = 0;
       float w1 = 0;
@@ -360,17 +360,17 @@ void save_load(data& sm, VW::io_buf& io, bool read, bool text)
         w2 = exp_iter->second.second.weight;
         msg << r1 << ":";
       }
-      VW::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&r1), sizeof(r1), read, msg, text);
+      VW980::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&r1), sizeof(r1), read, msg, text);
       if (!read) { msg << c1 << ":"; }
-      VW::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&c1), sizeof(c1), read, msg, text);
+      VW980::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&c1), sizeof(c1), read, msg, text);
       if (!read) { msg << w1 << ":"; }
-      VW::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&w1), sizeof(w1), read, msg, text);
+      VW980::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&w1), sizeof(w1), read, msg, text);
       if (!read) { msg << r2 << ":"; }
-      VW::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&r2), sizeof(r2), read, msg, text);
+      VW980::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&r2), sizeof(r2), read, msg, text);
       if (!read) { msg << c2 << ":"; }
-      VW::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&c2), sizeof(c2), read, msg, text);
+      VW980::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&c2), sizeof(c2), read, msg, text);
       if (!read) { msg << w2 << ":"; }
-      VW::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&w2), sizeof(w2), read, msg, text);
+      VW980::details::bin_text_read_write_fixed(io, reinterpret_cast<char*>(&w2), sizeof(w2), read, msg, text);
 
       if (read)
       {
@@ -384,10 +384,10 @@ void save_load(data& sm, VW::io_buf& io, bool read, bool text)
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::marginal_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::marginal_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace* all = stack_builder.get_all_pointer();
+  VW980::workspace* all = stack_builder.get_all_pointer();
 
   std::string marginal;
   float initial_denominator;
@@ -409,19 +409,19 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::marginal_setup(VW::setup_b
 
   if (!options.add_parse_and_check_necessary(marginal_options)) { return nullptr; }
 
-  auto d = VW::make_unique<::data>(
+  auto d = VW980::make_unique<::data>(
       initial_numerator, initial_denominator, decay, update_before_learn, unweighted_marginals, compete, all);
 
-  marginal = VW::decode_inline_hex(marginal, all->logger);
+  marginal = VW980::decode_inline_hex(marginal, all->logger);
   if (marginal.find(':') != std::string::npos) { THROW("Cannot use wildcard with marginal.") }
   for (const auto ns : marginal) { d->id_features[static_cast<unsigned char>(ns)] = true; }
 
   auto l = make_reduction_learner(std::move(d), require_singleline(stack_builder.setup_base_learner()),
       predict_or_learn<true>, predict_or_learn<false>, stack_builder.get_setupfn_name(marginal_setup))
-               .set_input_label_type(VW::label_type_t::SIMPLE)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
-               .set_output_prediction_type(VW::prediction_type_t::SCALAR)
+               .set_input_label_type(VW980::label_type_t::SIMPLE)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
+               .set_output_prediction_type(VW980::prediction_type_t::SCALAR)
                .set_learn_returns_prediction(true)
                .set_save_load(save_load)
                .build();

@@ -19,21 +19,21 @@
 
 namespace
 {
-float weight_multilabel(const VW::multilabel_label&) { return 1.; }
+float weight_multilabel(const VW980::multilabel_label&) { return 1.; }
 
-void parse_label(VW::multilabel_label& ld, VW::label_parser_reuse_mem& reuse_mem,
-    const std::vector<VW::string_view>& words, VW::io::logger& logger)
+void parse_label(VW980::multilabel_label& ld, VW980::label_parser_reuse_mem& reuse_mem,
+    const std::vector<VW980::string_view>& words, VW980::io::logger& logger)
 {
   switch (words.size())
   {
     case 0:
       break;
     case 1:
-      VW::tokenize(',', words[0], reuse_mem.tokens);
+      VW980::tokenize(',', words[0], reuse_mem.tokens);
 
       for (const auto& parse_name : reuse_mem.tokens)
       {
-        uint32_t n = VW::details::int_of_string(parse_name, logger);
+        uint32_t n = VW980::details::int_of_string(parse_name, logger);
         ld.label_v.push_back(n);
       }
       break;
@@ -43,33 +43,33 @@ void parse_label(VW::multilabel_label& ld, VW::label_parser_reuse_mem& reuse_mem
 }
 }  // namespace
 
-void VW::multilabel_label::reset_to_default() { label_v.clear(); }
+void VW980::multilabel_label::reset_to_default() { label_v.clear(); }
 
-bool VW::multilabel_label::is_test() const { return label_v.empty(); }
+bool VW980::multilabel_label::is_test() const { return label_v.empty(); }
 
-VW::label_parser VW::multilabel_label_parser_global = {
+VW980::label_parser VW980::multilabel_label_parser_global = {
     // default_label
-    [](VW::polylabel& label) { label.multilabels.reset_to_default(); },
+    [](VW980::polylabel& label) { label.multilabels.reset_to_default(); },
     // parse_label
-    [](VW::polylabel& label, VW::reduction_features& /* red_features */, VW::label_parser_reuse_mem& reuse_mem,
-        const VW::named_labels* /* ldict */, const std::vector<VW::string_view>& words, VW::io::logger& logger)
+    [](VW980::polylabel& label, VW980::reduction_features& /* red_features */, VW980::label_parser_reuse_mem& reuse_mem,
+        const VW980::named_labels* /* ldict */, const std::vector<VW980::string_view>& words, VW980::io::logger& logger)
     { parse_label(label.multilabels, reuse_mem, words, logger); },
     // cache_label
-    [](const VW::polylabel& label, const VW::reduction_features& /* red_features */, VW::io_buf& cache,
+    [](const VW980::polylabel& label, const VW980::reduction_features& /* red_features */, VW980::io_buf& cache,
         const std::string& upstream_name, bool text)
-    { return VW::model_utils::write_model_field(cache, label.multilabels, upstream_name, text); },
+    { return VW980::model_utils::write_model_field(cache, label.multilabels, upstream_name, text); },
     // read_cached_label
-    [](VW::polylabel& label, VW::reduction_features& /* red_features */, VW::io_buf& cache)
-    { return VW::model_utils::read_model_field(cache, label.multilabels); },
+    [](VW980::polylabel& label, VW980::reduction_features& /* red_features */, VW980::io_buf& cache)
+    { return VW980::model_utils::read_model_field(cache, label.multilabels); },
     // get_weight
-    [](const VW::polylabel& label, const VW::reduction_features& /* red_features */)
+    [](const VW980::polylabel& label, const VW980::reduction_features& /* red_features */)
     { return ::weight_multilabel(label.multilabels); },
     // test_label
-    [](const VW::polylabel& label) { return label.multilabels.is_test(); },
+    [](const VW980::polylabel& label) { return label.multilabels.is_test(); },
     // label type
-    VW::label_type_t::MULTILABEL};
+    VW980::label_type_t::MULTILABEL};
 
-void VW::details::update_stats_multilabel(const VW::workspace& all, const VW::example& ec)
+void VW980::details::update_stats_multilabel(const VW980::workspace& all, const VW980::example& ec)
 {
   const auto& ld = ec.l.multilabels;
 
@@ -108,7 +108,7 @@ void VW::details::update_stats_multilabel(const VW::workspace& all, const VW::ex
   all.sd->update(ec.test_only, !ld.is_test(), loss, 1.f, ec.get_num_features());
 }
 
-void VW::details::output_example_prediction_multilabel(VW::workspace& all, const VW::example& ec)
+void VW980::details::output_example_prediction_multilabel(VW980::workspace& all, const VW980::example& ec)
 {
   for (auto& sink : all.final_prediction_sink)
   {
@@ -127,7 +127,7 @@ void VW::details::output_example_prediction_multilabel(VW::workspace& all, const
   }
 }
 
-void VW::details::print_update_multilabel(VW::workspace& all, const VW::example& ec)
+void VW980::details::print_update_multilabel(VW980::workspace& all, const VW980::example& ec)
 {
   const auto& ld = ec.l.multilabels;
   const bool is_test = ld.is_test();
@@ -135,16 +135,16 @@ void VW::details::print_update_multilabel(VW::workspace& all, const VW::example&
   {
     std::stringstream label_string;
     if (is_test) { label_string << "unknown"; }
-    else { label_string << VW::to_string(ec.l.multilabels); }
+    else { label_string << VW980::to_string(ec.l.multilabels); }
 
     all.sd->print_update(*all.trace_message, all.holdout_set_off, all.current_pass, label_string.str(),
-        VW::to_string(ec.pred.multilabels), ec.get_num_features());
+        VW980::to_string(ec.pred.multilabels), ec.get_num_features());
   }
 }
 
-namespace VW
+namespace VW980
 {
-std::string to_string(const VW::multilabel_label& multilabels)
+std::string to_string(const VW980::multilabel_label& multilabels)
 {
   std::ostringstream ss;
 
@@ -157,7 +157,7 @@ std::string to_string(const VW::multilabel_label& multilabels)
   return ss.str();
 }
 
-std::string to_string(const VW::multilabel_prediction& multilabels)
+std::string to_string(const VW980::multilabel_prediction& multilabels)
 {
   std::ostringstream ss;
 
@@ -172,18 +172,18 @@ std::string to_string(const VW::multilabel_prediction& multilabels)
 
 namespace model_utils
 {
-size_t read_model_field(io_buf& io, VW::multilabel_label& multi)
+size_t read_model_field(io_buf& io, VW980::multilabel_label& multi)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, multi.label_v);
   return bytes;
 }
 
-size_t write_model_field(io_buf& io, const VW::multilabel_label& multi, const std::string& upstream_name, bool text)
+size_t write_model_field(io_buf& io, const VW980::multilabel_label& multi, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, multi.label_v, upstream_name + "_label_v", text);
   return bytes;
 }
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980

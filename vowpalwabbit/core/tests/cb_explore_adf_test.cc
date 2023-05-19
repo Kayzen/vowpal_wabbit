@@ -10,9 +10,9 @@
 
 TEST(CbExploreAdf, ShouldThrowEmptyMultiExample)
 {
-  auto vw = VW::initialize(vwtest::make_args("--cb_explore_adf", "--quiet"));
-  VW::multi_ex example_collection;
+  auto vw = VW980::initialize(vwtest::make_args("--cb_explore_adf", "--quiet"));
+  VW980::multi_ex example_collection;
 
   // An empty example collection is invalid and so should throw.
-  EXPECT_THROW(vw->learn(example_collection), VW::vw_exception);
+  EXPECT_THROW(vw->learn(example_collection), VW980::vw_exception);
 }

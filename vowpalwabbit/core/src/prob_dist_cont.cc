@@ -10,27 +10,27 @@
 #include "vw/core/vw.h"
 
 using namespace std;
-namespace VW
+namespace VW980
 {
 // Convert pdf to string of form 'begin-end:pdf_value, ... '
-std::string to_string(const VW::continuous_actions::probability_density_function& pdf, int decimal_precision)
+std::string to_string(const VW980::continuous_actions::probability_density_function& pdf, int decimal_precision)
 {
   std::ostringstream ss;
   for (size_t i = 0; i < pdf.size(); i++)
   {
     if (i > 0) { ss << ','; }
-    ss << fmt::format("{}-{}:{}", VW::fmt_float(pdf[i].left, decimal_precision),
-        VW::fmt_float(pdf[i].right, decimal_precision), VW::fmt_float(pdf[i].pdf_value, decimal_precision));
+    ss << fmt::format("{}-{}:{}", VW980::fmt_float(pdf[i].left, decimal_precision),
+        VW980::fmt_float(pdf[i].right, decimal_precision), VW980::fmt_float(pdf[i].pdf_value, decimal_precision));
   }
 
   return ss.str();
 }
 
 std::string to_string(
-    const VW::continuous_actions::probability_density_function_value& pdf_value, int decimal_precision)
+    const VW980::continuous_actions::probability_density_function_value& pdf_value, int decimal_precision)
 {
-  return fmt::format("{},{}", VW::fmt_float(pdf_value.action, decimal_precision),
-      VW::fmt_float(pdf_value.pdf_value, decimal_precision));
+  return fmt::format("{},{}", VW980::fmt_float(pdf_value.action, decimal_precision),
+      VW980::fmt_float(pdf_value.pdf_value, decimal_precision));
 }
 
 namespace continuous_actions
@@ -44,4 +44,4 @@ bool is_valid_pdf(probability_density_function& pdf)
 }
 
 }  // namespace continuous_actions
-}  // namespace VW
+}  // namespace VW980

@@ -29,8 +29,8 @@ API const char* GetFinalRegressorFilename(vw_net_native::workspace_context* work
 
 API char* SerializeCommandLine(vw_net_native::workspace_context* workspace)
 {
-  VW::config::options_i* options = workspace->vw->options.get();
-  VW::config::cli_options_serializer serializer;
+  VW980::config::options_i* options = workspace->vw->options.get();
+  VW980::config::cli_options_serializer serializer;
   for (auto const& option : options->get_all_options())
   {
     if (options->was_supplied(option->m_name)) { serializer.add(*option); }

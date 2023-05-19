@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-void VW::unique_features(features& fs, int max)
+void VW980::unique_features(features& fs, int max)
 {
   if (fs.indices.empty()) { return; }
   if (max == 0)
@@ -22,7 +22,7 @@ void VW::unique_features(features& fs, int max)
     return;
   }
 
-  auto flat_extents = VW::details::flatten_namespace_extents(fs.namespace_extents, fs.indices.size());
+  auto flat_extents = VW980::details::flatten_namespace_extents(fs.namespace_extents, fs.indices.size());
 
   auto last_index = std::size_t{0};
   for (auto i = std::size_t{1}; i != fs.size(); ++i)
@@ -42,12 +42,12 @@ void VW::unique_features(features& fs, int max)
       if (unique_items_found >= static_cast<size_t>(max)) { break; }
     }
   }
-  fs.namespace_extents = VW::details::unflatten_namespace_extents(flat_extents);
+  fs.namespace_extents = VW980::details::unflatten_namespace_extents(flat_extents);
   ++last_index;
   fs.truncate_to(last_index);
 }
 
-void VW::unique_sort_features(uint64_t parse_mask, VW::example& ae)
+void VW980::unique_sort_features(uint64_t parse_mask, VW980::example& ae)
 {
   for (features& fs : ae)
   {

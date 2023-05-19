@@ -23,9 +23,9 @@
 #include <sstream>
 #include <vector>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
-using namespace VW::reductions;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
+using namespace VW980::reductions;
 
 namespace
 {
@@ -38,11 +38,11 @@ public:
   uint32_t num_bootstrap_rounds = 0;  // number of bootstrap rounds
   size_t bs_type = 0;
   std::vector<double> pred_vec;
-  VW::workspace* all = nullptr;  // for raw prediction and loss
-  std::shared_ptr<VW::rand_state> random_state;
+  VW980::workspace* all = nullptr;  // for raw prediction and loss
+  std::shared_ptr<VW980::rand_state> random_state;
 };
 
-void bs_predict_mean(const VW::workspace& all, VW::example& ec, const std::vector<double>& pred_vec)
+void bs_predict_mean(const VW980::workspace& all, VW980::example& ec, const std::vector<double>& pred_vec)
 {
   ec.pred.scalar = static_cast<float>(std::accumulate(pred_vec.cbegin(), pred_vec.cend(), 0.0)) / pred_vec.size();
   if (ec.weight > 0 && ec.l.simple.label != FLT_MAX)
@@ -51,7 +51,7 @@ void bs_predict_mean(const VW::workspace& all, VW::example& ec, const std::vecto
   }
 }
 
-void bs_predict_vote(VW::example& ec, const std::vector<double>& pred_vec)
+void bs_predict_vote(VW980::example& ec, const std::vector<double>& pred_vec)
 {
   // majority vote in linear time
   unsigned int counter = 0;
@@ -139,23 +139,23 @@ void bs_predict_vote(VW::example& ec, const std::vector<double>& pred_vec)
   ec.loss = ((ec.pred.scalar == ec.l.simple.label) ? 0.f : 1.f) * ec.weight;
 }
 
-void print_result(VW::io::writer* f, float res, const VW::v_array<char>& tag, float lower_bound, float upper_bound,
-    VW::io::logger& logger)
+void print_result(VW980::io::writer* f, float res, const VW980::v_array<char>& tag, float lower_bound, float upper_bound,
+    VW980::io::logger& logger)
 {
   if (f == nullptr) { return; }
 
   std::stringstream ss;
   ss << std::fixed << res;
-  if (!tag.empty()) { ss << " " << VW::string_view{tag.begin(), tag.size()}; }
+  if (!tag.empty()) { ss << " " << VW980::string_view{tag.begin(), tag.size()}; }
   ss << std::fixed << ' ' << lower_bound << ' ' << upper_bound << '\n';
   const auto ss_str = ss.str();
   ssize_t len = ss_str.size();
   ssize_t t = f->write(ss_str.c_str(), static_cast<unsigned int>(len));
-  if (t != len) { logger.err_error("write error: {}", VW::io::strerror_to_string(errno)); }
+  if (t != len) { logger.err_error("write error: {}", VW980::io::strerror_to_string(errno)); }
 }
 
 void output_example_prediction_bs(
-    VW::workspace& all, const bs_data& data, const VW::example& ec, VW::io::logger& logger)
+    VW980::workspace& all, const bs_data& data, const VW980::example& ec, VW980::io::logger& logger)
 {
   if (!all.final_prediction_sink.empty())
   {
@@ -169,9 +169,9 @@ void output_example_prediction_bs(
 }
 
 template <bool is_learn>
-void predict_or_learn(bs_data& d, learner& base, VW::example& ec)
+void predict_or_learn(bs_data& d, learner& base, VW980::example& ec)
 {
-  VW::workspace& all = *d.all;
+  VW980::workspace& all = *d.all;
   bool should_output = all.raw_prediction != nullptr;
 
   float weight_temp = ec.weight;
@@ -216,11 +216,11 @@ void predict_or_learn(bs_data& d, learner& base, VW::example& ec)
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::bs_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::bs_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto data = VW::make_unique<bs_data>();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto data = VW980::make_unique<bs_data>();
   std::string type_string;
   option_group_definition new_options("[Reduction] Bootstrap");
   new_options
@@ -261,10 +261,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::bs_setup(VW::setup_base_i&
                .set_feature_width(feature_width)
                .set_learn_returns_prediction(true)
                .set_output_example_prediction(output_example_prediction_bs)
-               .set_update_stats(VW::details::update_stats_simple_label<bs_data>)
-               .set_print_update(VW::details::print_update_simple_label<bs_data>)
-               .set_input_label_type(VW::label_type_t::SIMPLE)
-               .set_output_prediction_type(VW::prediction_type_t::SCALAR)
+               .set_update_stats(VW980::details::update_stats_simple_label<bs_data>)
+               .set_print_update(VW980::details::print_update_simple_label<bs_data>)
+               .set_input_label_type(VW980::label_type_t::SIMPLE)
+               .set_output_prediction_type(VW980::prediction_type_t::SCALAR)
                .build();
 
   return l;

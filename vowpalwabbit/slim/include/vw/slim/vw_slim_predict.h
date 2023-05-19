@@ -35,13 +35,13 @@ uint64_t ceil_log_2(uint64_t v);
 class namespace_copy_guard
 {
 public:
-  namespace_copy_guard(VW::example_predict& ex, unsigned char ns);
+  namespace_copy_guard(VW980::example_predict& ex, unsigned char ns);
   ~namespace_copy_guard();
 
-  void feature_push_back(VW::feature_value v, VW::feature_index idx);
+  void feature_push_back(VW980::feature_value v, VW980::feature_index idx);
 
 private:
-  VW::example_predict& _ex;
+  VW980::example_predict& _ex;
   unsigned char _ns;
   bool _remove_ns;
 };
@@ -49,22 +49,22 @@ private:
 class feature_offset_guard
 {
 public:
-  feature_offset_guard(VW::example_predict& ex, uint64_t ft_offset);
+  feature_offset_guard(VW980::example_predict& ex, uint64_t ft_offset);
   ~feature_offset_guard();
 
 private:
-  VW::example_predict& _ex;
+  VW980::example_predict& _ex;
   uint64_t _old_ft_offset;
 };
 
 class stride_shift_guard
 {
 public:
-  stride_shift_guard(VW::example_predict& ex, uint64_t shift);
+  stride_shift_guard(VW980::example_predict& ex, uint64_t shift);
   ~stride_shift_guard();
 
 private:
-  VW::example_predict& _ex;
+  VW980::example_predict& _ex;
   uint64_t _shift;
 };
 
@@ -139,12 +139,12 @@ public:
 
     // VW performs the following transformation as a side-effect of looking for duplicates.
     // This affects how interaction hashes are generated.
-    std::vector<std::vector<VW::namespace_index>> vec_sorted;
+    std::vector<std::vector<VW980::namespace_index>> vec_sorted;
     for (auto& interaction : _interactions) { std::sort(std::begin(interaction), std::end(interaction)); }
 
     for (const auto& inter : _interactions)
     {
-      if (VW::contains_wildcard(inter))
+      if (VW980::contains_wildcard(inter))
       {
         _contains_wildcard = true;
         break;
@@ -250,7 +250,7 @@ public:
    * @param score The output score produced by the model.
    * @return int Returns 0 (S_VW_PREDICT_OK) if succesful, otherwise one of the error codes (see E_VW_PREDICT_ERR_*).
    */
-  int predict(VW::example_predict& ex, float& score)
+  int predict(VW980::example_predict& ex, float& score)
   {
     if (!_model_loaded) { return E_VW_PREDICT_ERR_NO_MODEL_LOADED; }
 
@@ -260,22 +260,22 @@ public:
     {
       // add constant feature
       ns_copy_guard =
-          std::unique_ptr<namespace_copy_guard>(new namespace_copy_guard(ex, VW::details::CONSTANT_NAMESPACE));
-      ns_copy_guard->feature_push_back(1.f, (VW::details::CONSTANT << _stride_shift) + ex.ft_offset);
+          std::unique_ptr<namespace_copy_guard>(new namespace_copy_guard(ex, VW980::details::CONSTANT_NAMESPACE));
+      ns_copy_guard->feature_push_back(1.f, (VW980::details::CONSTANT << _stride_shift) + ex.ft_offset);
     }
 
     if (_contains_wildcard)
     {
       // permutations is not supported by slim so we can just use combinations!
       _generate_interactions.update_interactions_if_new_namespace_seen<
-          VW::details::generate_namespace_combinations_with_repetition, false>(_interactions, ex.indices);
-      score = VW::inline_predict<W>(*_weights, false, _ignore_linear, _generate_interactions.generated_interactions,
+          VW980::details::generate_namespace_combinations_with_repetition, false>(_interactions, ex.indices);
+      score = VW980::inline_predict<W>(*_weights, false, _ignore_linear, _generate_interactions.generated_interactions,
           _unused_extent_interactions,
           /* permutations */ false, ex, _generate_interactions_object_cache);
     }
     else
     {
-      score = VW::inline_predict<W>(*_weights, false, _ignore_linear, _interactions, _unused_extent_interactions,
+      score = VW980::inline_predict<W>(*_weights, false, _ignore_linear, _interactions, _unused_extent_interactions,
           /* permutations */ false, ex, _generate_interactions_object_cache);
     }
     return S_VW_PREDICT_OK;
@@ -283,7 +283,7 @@ public:
 
   // multiclass classification
   int predict(
-      VW::example_predict& shared, VW::example_predict* actions, size_t num_actions, std::vector<float>& out_scores)
+      VW980::example_predict& shared, VW980::example_predict* actions, size_t num_actions, std::vector<float>& out_scores)
   {
     if (!_model_loaded) { return E_VW_PREDICT_ERR_NO_MODEL_LOADED; }
 
@@ -291,7 +291,7 @@ public:
 
     out_scores.resize(num_actions);
 
-    VW::example_predict* action = actions;
+    VW980::example_predict* action = actions;
     for (size_t i = 0; i < num_actions; i++, action++)
     {
       std::vector<std::unique_ptr<namespace_copy_guard>> ns_copy_guards;
@@ -315,7 +315,7 @@ public:
     return S_VW_PREDICT_OK;
   }
 
-  int predict(const char* event_id, VW::example_predict& shared, VW::example_predict* actions, size_t num_actions,
+  int predict(const char* event_id, VW980::example_predict& shared, VW980::example_predict* actions, size_t num_actions,
       std::vector<float>& pdf, std::vector<int>& ranking)
   {
     if (!_model_loaded) { return E_VW_PREDICT_ERR_NO_MODEL_LOADED; }
@@ -341,7 +341,7 @@ public:
         uint32_t top_action = (uint32_t)(top_action_iterator - std::begin(scores));
 
         RETURN_EXPLORATION_ON_FAIL(
-            VW::explore::generate_epsilon_greedy(_epsilon, top_action, std::begin(pdf), std::end(pdf)));
+            VW980::explore::generate_epsilon_greedy(_epsilon, top_action, std::begin(pdf), std::end(pdf)));
         break;
       }
       case vw_predict_exploration::softmax:
@@ -350,7 +350,7 @@ public:
         RETURN_ON_FAIL(predict(shared, actions, num_actions, scores));
 
         // generate exploration distribution
-        RETURN_EXPLORATION_ON_FAIL(VW::explore::generate_softmax(
+        RETURN_EXPLORATION_ON_FAIL(VW980::explore::generate_softmax(
             _lambda, std::begin(scores), std::end(scores), std::begin(pdf), std::end(pdf)));
         break;
       }
@@ -362,8 +362,8 @@ public:
         std::vector<std::unique_ptr<stride_shift_guard>> stride_shift_guards;
         stride_shift_guards.push_back(
             std::unique_ptr<stride_shift_guard>(new stride_shift_guard(shared, _stride_shift)));
-        VW::example_predict* actions_end = actions + num_actions;
-        for (VW::example_predict* action = actions; action != actions_end; ++action)
+        VW980::example_predict* actions_end = actions + num_actions;
+        for (VW980::example_predict* action = actions; action != actions_end; ++action)
         {
           stride_shift_guards.push_back(
               std::unique_ptr<stride_shift_guard>(new stride_shift_guard(*action, _stride_shift)));
@@ -372,7 +372,7 @@ public:
         for (size_t i = 0; i < _bag_size; i++)
         {
           std::vector<std::unique_ptr<feature_offset_guard>> feature_offset_guards;
-          for (VW::example_predict* action = actions; action != actions_end; ++action)
+          for (VW980::example_predict* action = actions; action != actions_end; ++action)
           {
             feature_offset_guards.push_back(
                 std::unique_ptr<feature_offset_guard>(new feature_offset_guard(*action, i)));
@@ -388,11 +388,11 @@ public:
 
         // generate exploration distribution
         RETURN_EXPLORATION_ON_FAIL(
-            VW::explore::generate_bag(std::begin(top_actions), std::end(top_actions), std::begin(pdf), std::end(pdf)));
+            VW980::explore::generate_bag(std::begin(top_actions), std::end(top_actions), std::begin(pdf), std::end(pdf)));
 
         if (_minimum_epsilon > 0)
           RETURN_EXPLORATION_ON_FAIL(
-              VW::explore::enforce_minimum_probability(_minimum_epsilon, true, std::begin(pdf), std::end(pdf)));
+              VW980::explore::enforce_minimum_probability(_minimum_epsilon, true, std::begin(pdf), std::end(pdf)));
 
         break;
       }
@@ -406,7 +406,7 @@ public:
     // Sample from the pdf
     uint32_t chosen_action_idx;
     RETURN_EXPLORATION_ON_FAIL(
-        VW::explore::sample_after_normalizing(event_id, std::begin(pdf), std::end(pdf), chosen_action_idx));
+        VW980::explore::sample_after_normalizing(event_id, std::begin(pdf), std::end(pdf), chosen_action_idx));
 
     // Swap top element with chosen one (unless chosen is the top)
     if (chosen_action_idx != 0)
@@ -472,12 +472,12 @@ private:
   std::string _id;
   std::string _version;
   std::string _command_line_arguments;
-  std::vector<std::vector<VW::namespace_index>> _interactions;
-  std::vector<std::vector<VW::extent_term>> _unused_extent_interactions;
-  VW::details::generate_interactions_object_cache _generate_interactions_object_cache;
-  VW::interactions_generator _generate_interactions;
+  std::vector<std::vector<VW980::namespace_index>> _interactions;
+  std::vector<std::vector<VW980::extent_term>> _unused_extent_interactions;
+  VW980::details::generate_interactions_object_cache _generate_interactions_object_cache;
+  VW980::interactions_generator _generate_interactions;
   bool _contains_wildcard;
-  std::array<bool, VW::NUM_NAMESPACES> _ignore_linear;
+  std::array<bool, VW980::NUM_NAMESPACES> _ignore_linear;
   bool _no_constant;
 
   vw_predict_exploration _exploration;

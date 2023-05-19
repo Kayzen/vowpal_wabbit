@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace parsers
 {
@@ -49,14 +49,14 @@ public:
 
   void add_feature(const char* key, const char* value, hash_func_t hash_func, uint64_t parse_mask)
   {
-    ftrs->push_back(1., VW::chain_hash_static(key, value, namespace_hash, hash_func, parse_mask));
+    ftrs->push_back(1., VW980::chain_hash_static(key, value, namespace_hash, hash_func, parse_mask));
     feature_count++;
     if (audit) { ftrs->space_names.emplace_back(name, key, value); }
   }
 };
 
 template <bool audit>
-void push_ns(VW::example* ex, const char* ns, std::vector<namespace_builder<audit>>& namespaces, hash_func_t hash_func,
+void push_ns(VW980::example* ex, const char* ns, std::vector<namespace_builder<audit>>& namespaces, hash_func_t hash_func,
     uint64_t hash_seed)
 {
   namespace_builder<audit> n;
@@ -82,7 +82,7 @@ void push_ns(VW::example* ex, const char* ns, std::vector<namespace_builder<audi
 }
 
 template <bool audit>
-void pop_ns(VW::example* ex, std::vector<namespace_builder<audit>>& namespaces)
+void pop_ns(VW980::example* ex, std::vector<namespace_builder<audit>>& namespaces)
 {
   auto& ns = namespaces.back();
   if (ns.feature_count > 0)
@@ -107,4 +107,4 @@ void pop_ns(VW::example* ex, std::vector<namespace_builder<audit>>& namespaces)
 }  // namespace details
 }  // namespace json
 }  // namespace parsers
-}  // namespace VW
+}  // namespace VW980

@@ -9,7 +9,7 @@
 #include "vw/experimental/types.h"
 
 c_reader::c_reader(void* context, VWReadFunc* read)
-    : VW::io::reader(false /* is_resettable */), _context(context), _read_func(read)
+    : VW980::io::reader(false /* is_resettable */), _context(context), _read_func(read)
 {
 }
 

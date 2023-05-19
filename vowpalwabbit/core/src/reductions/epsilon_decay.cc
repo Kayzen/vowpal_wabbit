@@ -22,10 +22,10 @@
 
 #include <utility>
 
-using namespace VW::config;
-using namespace VW::LEARNER;
+using namespace VW980::config;
+using namespace VW980::LEARNER;
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
@@ -69,13 +69,13 @@ epsilon_decay_data::epsilon_decay_data(uint64_t model_count, uint64_t min_scope,
   }
 }
 
-void epsilon_decay_data::update_weights(float init_ep, VW::LEARNER::learner& base, VW::multi_ex& examples)
+void epsilon_decay_data::update_weights(float init_ep, VW980::LEARNER::learner& base, VW980::multi_ex& examples)
 {
   auto model_count = static_cast<int64_t>(conf_seq_estimators.size());
-  VW::cb_class logged{};
+  VW980::cb_class logged{};
   uint64_t labelled_action = 0;
   const auto it =
-      std::find_if(examples.begin(), examples.end(), [](VW::example* item) { return !item->l.cb.costs.empty(); });
+      std::find_if(examples.begin(), examples.end(), [](VW980::example* item) { return !item->l.cb.costs.empty(); });
   if (it != examples.end())
   {
     logged = (*it)->l.cb.costs[0];
@@ -87,16 +87,16 @@ void epsilon_decay_data::update_weights(float init_ep, VW::LEARNER::learner& bas
                  << " p_log: " << logged.probability << " reward: " << r << "\n";
       ++_global_counter;
     }
-    auto& ep_fts = examples[0]->ex_reduction_features.template get<VW::cb_explore_adf::greedy::reduction_features>();
+    auto& ep_fts = examples[0]->ex_reduction_features.template get<VW980::cb_explore_adf::greedy::reduction_features>();
 
-    VW::action_scores champ_a_s;
+    VW980::action_scores champ_a_s;
 
     // Process each model, then update the upper/lower bounds for each model
     for (int64_t model_ind = model_count - 1; model_ind >= 0; --model_ind)
     {
       if (!_constant_epsilon)
       {
-        ep_fts.epsilon = VW::reductions::epsilon_decay::decayed_epsilon(
+        ep_fts.epsilon = VW980::reductions::epsilon_decay::decayed_epsilon(
             init_ep, conf_seq_estimators[model_ind][model_ind].update_count);
       }
       if (!base.learn_returns_prediction) { base.predict(examples, _weight_indices[model_ind]); }
@@ -171,7 +171,7 @@ void epsilon_decay_data::clear_weights_and_estimators(int64_t swap_dist, int64_t
   }
   for (int64_t ind = 0; ind < swap_dist; ++ind)
   {
-    VW::reductions::multi_model::clear_innermost_offset(_weights, _weight_indices[ind], _feature_width, _model_count);
+    VW980::reductions::multi_model::clear_innermost_offset(_weights, _weight_indices[ind], _feature_width, _model_count);
   }
 }
 
@@ -226,7 +226,7 @@ void epsilon_decay_data::check_horizon_bounds()
 
 namespace model_utils
 {
-size_t read_model_field(io_buf& io, VW::reductions::epsilon_decay::epsilon_decay_data& epsilon_decay)
+size_t read_model_field(io_buf& io, VW980::reductions::epsilon_decay::epsilon_decay_data& epsilon_decay)
 {
   size_t bytes = 0;
   epsilon_decay.conf_seq_estimators.clear();
@@ -235,7 +235,7 @@ size_t read_model_field(io_buf& io, VW::reductions::epsilon_decay::epsilon_decay
   return bytes;
 }
 
-size_t write_model_field(io_buf& io, const VW::reductions::epsilon_decay::epsilon_decay_data& epsilon_decay,
+size_t write_model_field(io_buf& io, const VW980::reductions::epsilon_decay::epsilon_decay_data& epsilon_decay,
     const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
@@ -244,25 +244,25 @@ size_t write_model_field(io_buf& io, const VW::reductions::epsilon_decay::epsilo
   return bytes;
 }
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980
 
 namespace
 {
 void predict(
-    VW::reductions::epsilon_decay::epsilon_decay_data& data, VW::LEARNER::learner& base, VW::multi_ex& examples)
+    VW980::reductions::epsilon_decay::epsilon_decay_data& data, VW980::LEARNER::learner& base, VW980::multi_ex& examples)
 {
   uint64_t final_model_idx = static_cast<uint64_t>(data.conf_seq_estimators.size()) - 1;
   if (!data._constant_epsilon)
   {
-    auto& ep_fts = examples[0]->ex_reduction_features.template get<VW::cb_explore_adf::greedy::reduction_features>();
+    auto& ep_fts = examples[0]->ex_reduction_features.template get<VW980::cb_explore_adf::greedy::reduction_features>();
     const auto& active_estimator = data.conf_seq_estimators[final_model_idx][final_model_idx];
     ep_fts.epsilon =
-        VW::reductions::epsilon_decay::decayed_epsilon(data._initial_epsilon, active_estimator.update_count);
+        VW980::reductions::epsilon_decay::decayed_epsilon(data._initial_epsilon, active_estimator.update_count);
   }
   base.predict(examples, data._weight_indices[final_model_idx]);
 }
 
-void learn(VW::reductions::epsilon_decay::epsilon_decay_data& data, VW::LEARNER::learner& base, VW::multi_ex& examples)
+void learn(VW980::reductions::epsilon_decay::epsilon_decay_data& data, VW980::LEARNER::learner& base, VW980::multi_ex& examples)
 {
   data.update_weights(data._initial_epsilon, base, examples);
   data.check_estimator_bounds();
@@ -270,35 +270,35 @@ void learn(VW::reductions::epsilon_decay::epsilon_decay_data& data, VW::LEARNER:
 }
 
 void save_load_epsilon_decay(
-    VW::reductions::epsilon_decay::epsilon_decay_data& epsilon_decay, VW::io_buf& io, bool read, bool text)
+    VW980::reductions::epsilon_decay::epsilon_decay_data& epsilon_decay, VW980::io_buf& io, bool read, bool text)
 {
   if (io.num_files() == 0) { return; }
-  if (read) { VW::model_utils::read_model_field(io, epsilon_decay); }
+  if (read) { VW980::model_utils::read_model_field(io, epsilon_decay); }
   else if (!epsilon_decay._predict_only_model)
   {
-    VW::model_utils::write_model_field(io, epsilon_decay, "_epsilon_decay", text);
+    VW980::model_utils::write_model_field(io, epsilon_decay, "_epsilon_decay", text);
   }
 }
 
-void finish(VW::reductions::epsilon_decay::epsilon_decay_data& data)
+void finish(VW980::reductions::epsilon_decay::epsilon_decay_data& data)
 {
   if (data._epsilon_decay_audit_str != "")
   {
-    VW::io_buf buf;
-    buf.add_file(VW::io::open_file_writer(data._epsilon_decay_audit_str));
-    VW::details::bin_text_write(buf, nullptr, 0, data._audit_msg, true);
+    VW980::io_buf buf;
+    buf.add_file(VW980::io::open_file_writer(data._epsilon_decay_audit_str));
+    VW980::details::bin_text_write(buf, nullptr, 0, data._audit_msg, true);
     buf.flush();
     buf.close_file();
   }
 }
 
-void pre_save_load_epsilon_decay(VW::workspace& all, VW::reductions::epsilon_decay::epsilon_decay_data& data)
+void pre_save_load_epsilon_decay(VW980::workspace& all, VW980::reductions::epsilon_decay::epsilon_decay_data& data)
 {
   options_i& options = *all.options;
   if (!data._predict_only_model) { return; }
 
   // Adjust champ weights to new single-model space
-  VW::reductions::multi_model::reduce_innermost_model_weights(
+  VW980::reductions::multi_model::reduce_innermost_model_weights(
       data._weights, data._weight_indices[data.conf_seq_estimators.size() - 1], data._feature_width, data._model_count);
 
   for (auto& group : options.get_all_option_group_definitions())
@@ -315,10 +315,10 @@ void pre_save_load_epsilon_decay(VW::workspace& all, VW::reductions::epsilon_dec
 
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::epsilon_decay_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::epsilon_decay_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
 
   std::string arg;
   bool epsilon_decay_option;
@@ -355,12 +355,12 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::epsilon_decay_setup(VW::se
                .experimental())
       .add(make_option("epsilon_decay_significance_level", epsilon_decay_significance_level)
                .keep()
-               .default_value(VW::details::DEFAULT_ALPHA)
+               .default_value(VW980::details::DEFAULT_ALPHA)
                .help("Set significance level for champion change")
                .experimental())
       .add(make_option("epsilon_decay_estimator_decay", epsilon_decay_estimator_decay)
                .keep()
-               .default_value(VW::details::CRESSEREAD_DEFAULT_TAU)
+               .default_value(VW980::details::CRESSEREAD_DEFAULT_TAU)
                .help("Time constant for count decay")
                .experimental())
       .add(make_option("epsilon_decay_audit", epsilon_decay_audit_str)
@@ -416,7 +416,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::epsilon_decay_setup(VW::se
   bool predict_only_model = options.was_supplied("predict_only_model");
   bool is_brentq = opt_func == "brentq";
 
-  auto data = VW::make_unique<VW::reductions::epsilon_decay::epsilon_decay_data>(model_count, min_scope,
+  auto data = VW980::make_unique<VW980::reductions::epsilon_decay::epsilon_decay_data>(model_count, min_scope,
       epsilon_decay_significance_level, epsilon_decay_estimator_decay, all.weights.dense_weights,
       epsilon_decay_audit_str, constant_epsilon, all.total_feature_width, min_champ_examples, initial_epsilon,
       shift_model_bounds, reward_as_cost, tol_x, is_brentq, predict_only_model);
@@ -427,12 +427,12 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::epsilon_decay_setup(VW::se
 
   if (base->is_multiline())
   {
-    auto l = VW::LEARNER::make_reduction_learner(std::move(data), VW::LEARNER::require_multiline(base), learn, predict,
+    auto l = VW980::LEARNER::make_reduction_learner(std::move(data), VW980::LEARNER::require_multiline(base), learn, predict,
         stack_builder.get_setupfn_name(epsilon_decay_setup))
-                 .set_input_label_type(VW::label_type_t::CB)
-                 .set_output_label_type(VW::label_type_t::CB)
-                 .set_input_prediction_type(VW::prediction_type_t::ACTION_PROBS)
-                 .set_output_prediction_type(VW::prediction_type_t::ACTION_PROBS)
+                 .set_input_label_type(VW980::label_type_t::CB)
+                 .set_output_label_type(VW980::label_type_t::CB)
+                 .set_input_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
+                 .set_output_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
                  .set_feature_width(model_count)
                  .set_save_load(save_load_epsilon_decay)
                  .set_finish(::finish)

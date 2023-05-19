@@ -8,10 +8,10 @@
 
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> baseline_challenger_cb_setup(VW::setup_base_i&);
+std::shared_ptr<VW980::LEARNER::learner> baseline_challenger_cb_setup(VW980::setup_base_i&);
 }
-}  // namespace VW
+}  // namespace VW980

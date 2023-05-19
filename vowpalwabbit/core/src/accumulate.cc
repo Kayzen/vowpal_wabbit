@@ -19,7 +19,7 @@ Alekh Agarwal and John Langford, with help Olivier Chapelle.
 
 static void add_float(float& c1, const float& c2) { c1 += c2; }
 
-void VW::details::accumulate(VW::workspace& all, parameters& weights, size_t offset)
+void VW980::details::accumulate(VW980::workspace& all, parameters& weights, size_t offset)
 {
   uint64_t length = UINT64_ONE << all.num_bits;  // This is size of gradient
   float* local_grad = new float[length];
@@ -39,7 +39,7 @@ void VW::details::accumulate(VW::workspace& all, parameters& weights, size_t off
     }
   }
 
-  VW::details::all_reduce<float, add_float>(all, local_grad, length);  // TODO: modify to not use first()
+  VW980::details::all_reduce<float, add_float>(all, local_grad, length);  // TODO: modify to not use first()
 
   if (weights.sparse)
   {
@@ -59,14 +59,14 @@ void VW::details::accumulate(VW::workspace& all, parameters& weights, size_t off
   delete[] local_grad;
 }
 
-float VW::details::accumulate_scalar(VW::workspace& all, float local_sum)
+float VW980::details::accumulate_scalar(VW980::workspace& all, float local_sum)
 {
   float temp = local_sum;
-  VW::details::all_reduce<float, add_float>(all, &temp, 1);
+  VW980::details::all_reduce<float, add_float>(all, &temp, 1);
   return temp;
 }
 
-void VW::details::accumulate_avg(VW::workspace& all, parameters& weights, size_t offset)
+void VW980::details::accumulate_avg(VW980::workspace& all, parameters& weights, size_t offset)
 {
   uint32_t length = 1 << all.num_bits;  // This is size of gradient
   float numnodes = static_cast<float>(all.all_reduce->total);
@@ -87,7 +87,7 @@ void VW::details::accumulate_avg(VW::workspace& all, parameters& weights, size_t
     }
   }
 
-  VW::details::all_reduce<float, add_float>(all, local_grad, length);  // TODO: modify to not use first()
+  VW980::details::all_reduce<float, add_float>(all, local_grad, length);  // TODO: modify to not use first()
 
   if (weights.sparse)
   {
@@ -107,7 +107,7 @@ void VW::details::accumulate_avg(VW::workspace& all, parameters& weights, size_t
   delete[] local_grad;
 }
 
-void VW::details::accumulate_weighted_avg(VW::workspace& all, parameters& weights)
+void VW980::details::accumulate_weighted_avg(VW980::workspace& all, parameters& weights)
 {
   if (!weights.adaptive)
   {
@@ -134,10 +134,10 @@ void VW::details::accumulate_weighted_avg(VW::workspace& all, parameters& weight
   }
 
   // First compute weights for averaging
-  VW::details::all_reduce<float, add_float>(all, local_weights, length);
+  VW980::details::all_reduce<float, add_float>(all, local_weights, length);
 
-  if (weights.sparse) { VW::details::do_weighting(all.normalized_idx, length, local_weights, weights.sparse_weights); }
-  else { VW::details::do_weighting(all.normalized_idx, length, local_weights, weights.dense_weights); }
+  if (weights.sparse) { VW980::details::do_weighting(all.normalized_idx, length, local_weights, weights.sparse_weights); }
+  else { VW980::details::do_weighting(all.normalized_idx, length, local_weights, weights.dense_weights); }
 
   if (weights.sparse)
   {
@@ -146,7 +146,7 @@ void VW::details::accumulate_weighted_avg(VW::workspace& all, parameters& weight
   }
   else
   {
-    VW::details::all_reduce<float, add_float>(
+    VW980::details::all_reduce<float, add_float>(
         all, weights.dense_weights.first(), (static_cast<size_t>(length)) * (1ull << weights.stride_shift()));
   }
   delete[] local_weights;

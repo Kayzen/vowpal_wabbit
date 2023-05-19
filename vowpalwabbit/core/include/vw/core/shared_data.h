@@ -10,7 +10,7 @@
 #include <memory>
 #include <string>
 
-namespace VW
+namespace VW980
 {
 class shared_data
 {
@@ -40,7 +40,7 @@ public:
   float min_label = 0.f;  // minimum label encountered
   float max_label = 0.f;  // maximum label encountered
 
-  std::unique_ptr<VW::named_labels> ldict;
+  std::unique_ptr<VW980::named_labels> ldict;
 
   // for holdout
   double weighted_holdout_examples = 0.0;
@@ -78,7 +78,7 @@ public:
       uint32_t prediction, size_t num_features);
   void print_update(std::ostream& output_stream, bool holdout_set_off, size_t current_pass, const std::string& label,
       const std::string& prediction, size_t num_features);
-  void print_summary(std::ostream& output, const shared_data& sd, const VW::loss_function& loss_func,
+  void print_summary(std::ostream& output, const shared_data& sd, const VW980::loss_function& loss_func,
       uint64_t current_pass, bool holdout_set_off) const;
 };
-}  // namespace VW
+}  // namespace VW980

@@ -16,7 +16,7 @@
 #  include <unistd.h>
 #endif
 
-namespace VW
+namespace VW980
 {
 #if __cplusplus >= 201402L  // C++14 and beyond
 using std::make_unique;
@@ -102,4 +102,4 @@ T* calloc_mergable_or_throw(size_t nmemb)
 }
 }  // namespace details
 
-}  // namespace VW
+}  // namespace VW980

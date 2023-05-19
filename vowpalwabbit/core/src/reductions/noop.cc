@@ -10,14 +10,14 @@
 #include "vw/core/learner.h"
 #include "vw/core/setup_base.h"
 
-using namespace VW::config;
+using namespace VW980::config;
 namespace
 {
-void learn(char&, VW::example&) {}
+void learn(char&, VW980::example&) {}
 
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::noop_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::noop_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
 
@@ -29,11 +29,11 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::noop_setup(VW::setup_base_
 
   // While the learn function doesnt use anything, the implicit finish function expects scalar and simple.
   // This can change if we change the finish function.
-  auto ret = VW::LEARNER::make_no_data_bottom_learner(
-      learn, learn, stack_builder.get_setupfn_name(noop_setup), VW::prediction_type_t::SCALAR, VW::label_type_t::SIMPLE)
-                 .set_output_example_prediction(VW::details::output_example_prediction_simple_label<char>)
-                 .set_update_stats(VW::details::update_stats_simple_label<char>)
-                 .set_print_update(VW::details::print_update_simple_label<char>)
+  auto ret = VW980::LEARNER::make_no_data_bottom_learner(
+      learn, learn, stack_builder.get_setupfn_name(noop_setup), VW980::prediction_type_t::SCALAR, VW980::label_type_t::SIMPLE)
+                 .set_output_example_prediction(VW980::details::output_example_prediction_simple_label<char>)
+                 .set_update_stats(VW980::details::update_stats_simple_label<char>)
+                 .set_print_update(VW980::details::print_update_simple_label<char>)
                  .build();
   return ret;
 }

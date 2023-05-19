@@ -9,7 +9,7 @@
 
 #  include <x86intrin.h>
 
-namespace VW
+namespace VW980
 {
 namespace cb_explore_adf
 {
@@ -91,7 +91,7 @@ inline void compute8(const __m256& feature_values, const __m256i& feature_indice
 }
 
 // A data parallel implementation of the foreach_feature that processes 8 features at once.
-float compute_dot_prod_avx2(uint64_t column_index, VW::workspace* _all, uint64_t seed, VW::example* ex)
+float compute_dot_prod_avx2(uint64_t column_index, VW980::workspace* _all, uint64_t seed, VW980::example* ex)
 {
   float sum = 0.f;
   const uint64_t offset = ex->ft_offset;
@@ -128,7 +128,7 @@ float compute_dot_prod_avx2(uint64_t column_index, VW::workspace* _all, uint64_t
     }
   }
 
-  const auto& red_features = ex->ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+  const auto& red_features = ex->ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
   const auto& interactions =
       red_features.generated_interactions ? *red_features.generated_interactions : *ex->interactions;
   const auto& extent_interactions = red_features.generated_extent_interactions
@@ -161,7 +161,7 @@ float compute_dot_prod_avx2(uint64_t column_index, VW::workspace* _all, uint64_t
 
     for (size_t i = 0; i < num_features_ns0; ++i)
     {
-      const uint64_t halfhash = VW::details::FNV_PRIME * ns0_indices[i];
+      const uint64_t halfhash = VW980::details::FNV_PRIME * ns0_indices[i];
       const __m256i halfhashes = _mm256_set1_epi64x(halfhash);
       const float val = ns0_values[i];
       const __m256 vals = _mm256_set1_ps(val);
@@ -192,6 +192,6 @@ float compute_dot_prod_avx2(uint64_t column_index, VW::workspace* _all, uint64_t
 }
 
 }  // namespace cb_explore_adf
-}  // namespace VW
+}  // namespace VW980
 
 #endif

@@ -14,7 +14,7 @@
 
 #include <numeric>
 
-namespace VW
+namespace VW980
 {
 namespace slates
 {
@@ -34,34 +34,34 @@ bool test_label(const slates::label& ld) { return ld.labeled == false; }
 // For a more complete description of the grammar, including examples see:
 // https://github.com/VowpalWabbit/vowpal_wabbit/wiki/Slates
 
-void parse_label(slates::label& ld, VW::label_parser_reuse_mem& reuse_mem, const std::vector<VW::string_view>& words,
-    VW::io::logger& logger)
+void parse_label(slates::label& ld, VW980::label_parser_reuse_mem& reuse_mem, const std::vector<VW980::string_view>& words,
+    VW980::io::logger& logger)
 {
   ld.weight = 1;
 
   if (words.empty()) { THROW("Slates labels may not be empty"); }
-  if (!(words[0] == VW::details::SLATES_LABEL)) { THROW("Slates labels require the first word to be slates"); }
+  if (!(words[0] == VW980::details::SLATES_LABEL)) { THROW("Slates labels require the first word to be slates"); }
 
   if (words.size() == 1) { THROW("Slates labels require a type. It must be one of: [shared, action, slot]"); }
 
   const auto& type = words[1];
-  if (type == VW::details::SHARED_TYPE)
+  if (type == VW980::details::SHARED_TYPE)
   {
     // There is a cost defined.
     if (words.size() == 3)
     {
-      ld.cost = VW::details::float_of_string(words[2], logger);
+      ld.cost = VW980::details::float_of_string(words[2], logger);
       ld.labeled = true;
     }
     else if (words.size() != 2) { THROW("Slates shared labels must be of the form: slates shared [global_cost]"); }
     ld.type = example_type::SHARED;
   }
-  else if (type == VW::details::ACTION_TYPE)
+  else if (type == VW980::details::ACTION_TYPE)
   {
     if (words.size() != 3) { THROW("Slates action labels must be of the form: slates action <slot_id>"); }
 
     char* char_after_int = nullptr;
-    ld.slot_id = VW::details::int_of_string(words[2], char_after_int, logger);
+    ld.slot_id = VW980::details::int_of_string(words[2], char_after_int, logger);
     if (char_after_int != nullptr && *char_after_int != ' ' && *char_after_int != '\0')
     {
       THROW("Slot id seems to be malformed");
@@ -69,31 +69,31 @@ void parse_label(slates::label& ld, VW::label_parser_reuse_mem& reuse_mem, const
 
     ld.type = example_type::ACTION;
   }
-  else if (type == VW::details::SLOT_TYPE)
+  else if (type == VW980::details::SLOT_TYPE)
   {
     if (words.size() == 3)
     {
       ld.labeled = true;
-      VW::tokenize(',', words[2], reuse_mem.tokens);
+      VW980::tokenize(',', words[2], reuse_mem.tokens);
 
-      std::vector<VW::string_view> split_colons;
+      std::vector<VW980::string_view> split_colons;
       for (auto& token : reuse_mem.tokens)
       {
-        VW::tokenize(':', token, split_colons);
+        VW980::tokenize(':', token, split_colons);
         if (split_colons.size() != 2) { THROW("Malformed action score token"); }
 
         // Element 0 is the action, element 1 is the probability
-        ld.probabilities.push_back({static_cast<uint32_t>(VW::details::int_of_string(split_colons[0], logger)),
-            VW::details::float_of_string(split_colons[1], logger)});
+        ld.probabilities.push_back({static_cast<uint32_t>(VW980::details::int_of_string(split_colons[0], logger)),
+            VW980::details::float_of_string(split_colons[1], logger)});
       }
 
       // If a full distribution has been given, check if it sums to 1, otherwise throw.
       if (ld.probabilities.size() > 1)
       {
         float total_pred = std::accumulate(ld.probabilities.begin(), ld.probabilities.end(), 0.f,
-            [](float result_so_far, const VW::action_score& action_pred) { return result_so_far + action_pred.score; });
+            [](float result_so_far, const VW980::action_score& action_pred) { return result_so_far + action_pred.score; });
 
-        if (!VW::math::are_same(total_pred, 1.f))
+        if (!VW980::math::are_same(total_pred, 1.f))
         {
           THROW(
               "When providing all prediction probabilities they must add up to 1.0, instead summed to " << total_pred);
@@ -115,16 +115,16 @@ label_parser slates_label_parser = {
     // default_label
     [](polylabel& label) { default_label(label.slates); },
     // parse_label
-    [](polylabel& label, reduction_features& /* red_features */, VW::label_parser_reuse_mem& reuse_mem,
-        const VW::named_labels* /* ldict */, const std::vector<VW::string_view>& words, VW::io::logger& logger)
+    [](polylabel& label, reduction_features& /* red_features */, VW980::label_parser_reuse_mem& reuse_mem,
+        const VW980::named_labels* /* ldict */, const std::vector<VW980::string_view>& words, VW980::io::logger& logger)
     { parse_label(label.slates, reuse_mem, words, logger); },
     // cache_label
     [](const polylabel& label, const reduction_features& /* red_features */, io_buf& cache,
         const std::string& upstream_name, bool text)
-    { return VW::model_utils::write_model_field(cache, label.slates, upstream_name, text); },
+    { return VW980::model_utils::write_model_field(cache, label.slates, upstream_name, text); },
     // read_cached_label
     [](polylabel& label, reduction_features& /* red_features */, io_buf& cache)
-    { return VW::model_utils::read_model_field(cache, label.slates); },
+    { return VW980::model_utils::read_model_field(cache, label.slates); },
     // get_weight
     [](const polylabel& label, const reduction_features& /* red_features */) { return weight(label.slates); },
     // test_label
@@ -133,15 +133,15 @@ label_parser slates_label_parser = {
     label_type_t::SLATES};
 
 }  // namespace slates
-}  // namespace VW
+}  // namespace VW980
 
-VW::string_view VW::to_string(VW::slates::example_type ex_type)
+VW980::string_view VW980::to_string(VW980::slates::example_type ex_type)
 {
 #define CASE(type) \
   case type:       \
     return #type;
 
-  using namespace VW::slates;
+  using namespace VW980::slates;
   switch (ex_type)
   {
     CASE(example_type::UNSET)
@@ -159,11 +159,11 @@ VW::string_view VW::to_string(VW::slates::example_type ex_type)
 #undef CASE
 }
 
-namespace VW
+namespace VW980
 {
 namespace model_utils
 {
-size_t read_model_field(io_buf& io, VW::slates::label& slates)
+size_t read_model_field(io_buf& io, VW980::slates::label& slates)
 {
   // Since read_cached_features doesn't default the label we must do it here.
   size_t bytes = 0;
@@ -176,7 +176,7 @@ size_t read_model_field(io_buf& io, VW::slates::label& slates)
   return bytes;
 }
 
-size_t write_model_field(io_buf& io, const VW::slates::label& slates, const std::string& upstream_name, bool text)
+size_t write_model_field(io_buf& io, const VW980::slates::label& slates, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, slates.type, upstream_name + "_type", text);
@@ -188,4 +188,4 @@ size_t write_model_field(io_buf& io, const VW::slates::label& slates, const std:
   return bytes;
 }
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980

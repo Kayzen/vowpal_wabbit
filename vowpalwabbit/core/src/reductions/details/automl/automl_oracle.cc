@@ -5,13 +5,13 @@
 #include "vw/core/automl_impl.h"
 #include "vw/core/interactions.h"
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
 namespace automl
 {
-void insert_if_is_allowed_to_remove(set_ns_list_t& new_elements, const std::vector<VW::namespace_index> interaction)
+void insert_if_is_allowed_to_remove(set_ns_list_t& new_elements, const std::vector<VW980::namespace_index> interaction)
 {
   if (interaction.size() == 2)
   {
@@ -39,7 +39,7 @@ void insert_if_is_allowed_to_remove(set_ns_list_t& new_elements, const std::vect
 
 template <>
 config_oracle<oracle_rand_impl>::config_oracle(uint64_t default_lease, priority_func calc_priority,
-    const std::string& interaction_type, const std::string& oracle_type, std::shared_ptr<VW::rand_state>& rand_state,
+    const std::string& interaction_type, const std::string& oracle_type, std::shared_ptr<VW980::rand_state>& rand_state,
     config_type conf_type)
     : _interaction_type(interaction_type)
     , _oracle_type(oracle_type)
@@ -51,7 +51,7 @@ config_oracle<oracle_rand_impl>::config_oracle(uint64_t default_lease, priority_
 }
 template <>
 config_oracle<qbase_cubic>::config_oracle(uint64_t default_lease, priority_func calc_priority,
-    const std::string& interaction_type, const std::string& oracle_type, std::shared_ptr<VW::rand_state>& rand_state,
+    const std::string& interaction_type, const std::string& oracle_type, std::shared_ptr<VW980::rand_state>& rand_state,
     config_type conf_type)
     : _interaction_type(interaction_type)
     , _oracle_type(oracle_type)
@@ -63,7 +63,7 @@ config_oracle<qbase_cubic>::config_oracle(uint64_t default_lease, priority_func 
 }
 template <typename oracle_impl>
 config_oracle<oracle_impl>::config_oracle(uint64_t default_lease, priority_func calc_priority,
-    const std::string& interaction_type, const std::string& oracle_type, std::shared_ptr<VW::rand_state>&,
+    const std::string& interaction_type, const std::string& oracle_type, std::shared_ptr<VW980::rand_state>&,
     config_type conf_type)
     : _interaction_type(interaction_type)
     , _oracle_type(oracle_type)
@@ -185,8 +185,8 @@ void ns_based_config::apply_config_to_interactions(const bool ccb_on,
   // which we don't use in automl stack
   //
   // CCB adds the following interactions:
-  //   1. Every existing interaction + VW::details::CCB_ID_NAMESPACE
-  //   2. wildcard_namespace + VW::details::CCB_ID_NAMESPACE
+  //   1. Every existing interaction + VW980::details::CCB_ID_NAMESPACE
+  //   2. wildcard_namespace + VW980::details::CCB_ID_NAMESPACE
   if (ccb_on)
   {
     auto total = interactions.size();
@@ -195,26 +195,26 @@ void ns_based_config::apply_config_to_interactions(const bool ccb_on,
     for (size_t i = 0; i < total; ++i)
     {
       auto copy = interactions[i];
-      copy.push_back(VW::details::CCB_ID_NAMESPACE);
+      copy.push_back(VW980::details::CCB_ID_NAMESPACE);
       interactions.emplace_back(std::move(copy));
     }
 
     for (auto it = ns_counter.begin(); it != ns_counter.end(); ++it)
     {
-      interactions.emplace_back(std::vector<namespace_index>{(*it).first, VW::details::CCB_ID_NAMESPACE});
+      interactions.emplace_back(std::vector<namespace_index>{(*it).first, VW980::details::CCB_ID_NAMESPACE});
     }
 
     assert(interactions.size() == reserve_size);
   }
 
-  std::sort(interactions.begin(), interactions.end(), VW::details::sort_interactions_comparator);
+  std::sort(interactions.begin(), interactions.end(), VW980::details::sort_interactions_comparator);
 }
 
 // Helper function to insert new configs from oracle into map of configs as well as index_queue.
 // Handles creating new config with exclusions or overwriting stale configs to avoid reallocation.
 template <typename oracle_impl>
 bool config_oracle<oracle_impl>::insert_config(set_ns_list_t&& new_elements,
-    const std::map<namespace_index, uint64_t>& ns_counter, VW::reductions::automl::config_type conf_type,
+    const std::map<namespace_index, uint64_t>& ns_counter, VW980::reductions::automl::config_type conf_type,
     bool allow_dups)
 {
   // First check if config already exists
@@ -425,8 +425,8 @@ bool config_oracle<oracle_impl>::repopulate_index_queue(const std::map<namespace
   for (size_t i = 0; i < valid_config_size; ++i)
   {
     // Only re-add if not removed and not live
-    if (configs[i].state == VW::reductions::automl::config_state::New ||
-        configs[i].state == VW::reductions::automl::config_state::Inactive)
+    if (configs[i].state == VW980::reductions::automl::config_state::New ||
+        configs[i].state == VW980::reductions::automl::config_state::Inactive)
     {
       float priority = calc_priority(configs[i], ns_counter);
       index_queue.push(std::make_pair(priority, i));
@@ -443,4 +443,4 @@ template class config_oracle<qbase_cubic>;
 
 }  // namespace automl
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

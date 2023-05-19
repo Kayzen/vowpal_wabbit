@@ -13,10 +13,10 @@ TEST(Rand, ReproduceMaxBoundaryIssue)
 {
   uint64_t seed = 58587211;
   const uint64_t new_random_seed =
-      VW::uniform_hash(reinterpret_cast<const char*>(&seed), sizeof(seed), static_cast<uint32_t>(seed));
+      VW980::uniform_hash(reinterpret_cast<const char*>(&seed), sizeof(seed), static_cast<uint32_t>(seed));
   EXPECT_EQ(new_random_seed, 2244123448);
 
-  float random_draw = VW::details::merand48_noadvance(new_random_seed);
+  float random_draw = VW980::details::merand48_noadvance(new_random_seed);
   EXPECT_NEAR(random_draw, 0.99999f, 0.001f);
 
   const float range_max = 7190.0f;
@@ -28,7 +28,7 @@ TEST(Rand, ReproduceMaxBoundaryIssue)
 
 TEST(Rand, CheckRandStateCrossPlatform)
 {
-  VW::rand_state random_state;
+  VW980::rand_state random_state;
   random_state.set_random_state(10);
   EXPECT_FLOAT_EQ(random_state.get_and_update_random(), 0.0170166492);
   EXPECT_FLOAT_EQ(random_state.get_and_update_random(), 0.370730162);

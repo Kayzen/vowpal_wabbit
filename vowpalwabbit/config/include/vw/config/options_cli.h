@@ -14,7 +14,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace config
 {
@@ -38,11 +38,11 @@ private:
   std::vector<std::string> _command_line;
 
   // Key is either short or long name
-  std::unordered_map<VW::string_view, std::vector<VW::string_view>> _prog_parsed_token_map;
+  std::unordered_map<VW980::string_view, std::vector<VW980::string_view>> _prog_parsed_token_map;
 
   std::set<std::string> _reachable_options;
   std::unordered_map<std::string, std::vector<std::set<std::string>>> _dependent_necessary_options;
 };
 
 }  // namespace config
-}  // namespace VW
+}  // namespace VW980

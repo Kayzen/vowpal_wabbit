@@ -7,13 +7,13 @@
 #include "vw/core/v_array.h"
 #include "vw/core/vw_fwd.h"
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
 void binary_print_result_by_ref(
-    VW::io::writer* f, float res, float weight, const VW::v_array<char>& tag, VW::io::logger& logger);
+    VW980::io::writer* f, float res, float weight, const VW980::v_array<char>& tag, VW980::io::logger& logger);
 
-void get_prediction(VW::io::reader* f, float& res, float& weight);
+void get_prediction(VW980::io::reader* f, float& res, float& weight);
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980

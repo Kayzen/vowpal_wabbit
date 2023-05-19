@@ -10,12 +10,12 @@
 
 TEST(ExampleFtHash, CheckLargeStringOneSmallDiff)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet"));
   uint64_t hash_1;
   uint64_t hash_2;
 
   {
-    auto* ex = VW::read_example(*vw,
+    auto* ex = VW980::read_example(*vw,
         "|Action politics:3 sports:93 music:18 food:165 math:141 science:33 computers:93 literature:84 "
         "social_media:153 |f dancing:105 news:81 celebrities:0 coffee:45 baking:138 ai:9 taxes:15 technology:120 "
         "pandemic:135 |m world_war_i:93 world_war_ii:147 religion:120 vaccination:141 the_queen:3 immigration:51 "
@@ -25,10 +25,10 @@ TEST(ExampleFtHash, CheckLargeStringOneSmallDiff)
         "oscars:12 acupuncture:6 hiking:99 swimming:156 barrys:111");
     hash_1 = ex->get_or_calculate_order_independent_feature_space_hash();
 
-    VW::finish_example(*vw, *ex);
+    VW980::finish_example(*vw, *ex);
   }
   {
-    auto* ex = VW::read_example(*vw,
+    auto* ex = VW980::read_example(*vw,
         "|Action politics:3 sports:93 music:18 food:165 math:141 science:33 computers:93 literature:84 "
         "social_media:153 |f dancing:105 news:81 celebrities:0 coffee:45 baking:138 ai:9 taxes:15 technology:120 "
         "pandemic:135 |m world_war_i:93 world_war_ii:147 religion:120 vaccination:141 the_queen:3 immigration:51 "
@@ -38,7 +38,7 @@ TEST(ExampleFtHash, CheckLargeStringOneSmallDiff)
         "oscars:12 acupuncture:6 hiking:99 swimming:156 barrys:112");
     hash_2 = ex->get_or_calculate_order_independent_feature_space_hash();
 
-    VW::finish_example(*vw, *ex);
+    VW980::finish_example(*vw, *ex);
   }
 
   EXPECT_NE(hash_1, hash_2);
@@ -48,7 +48,7 @@ TEST(ExampleFtHash, CheckLargeStringOneSmallDiff)
 
 TEST(ExampleFtHash, CheckOrderDoesNotCount)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet", "--chain_hash"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet", "--chain_hash"));
 
   std::vector<std::string> bagofwords = {"politics:3", "sports:93", "music:18", "food:165", "math:141", "science:33",
       "computers:93", "literature:84", "social_media:153", "dancing:105", "news:81", "celebrities:0", "coffee:45",
@@ -81,10 +81,10 @@ TEST(ExampleFtHash, CheckOrderDoesNotCount)
 
     s1 = ss.str();
 
-    auto* ex = VW::read_example(*vw, s1);
+    auto* ex = VW980::read_example(*vw, s1);
     hash_1 = ex->get_or_calculate_order_independent_feature_space_hash();
 
-    VW::finish_example(*vw, *ex);
+    VW980::finish_example(*vw, *ex);
   }
   {
     std::set<size_t> picked;
@@ -103,10 +103,10 @@ TEST(ExampleFtHash, CheckOrderDoesNotCount)
 
     s2 = ss.str();
 
-    auto* ex = VW::read_example(*vw, s2);
+    auto* ex = VW980::read_example(*vw, s2);
     hash_2 = ex->get_or_calculate_order_independent_feature_space_hash();
 
-    VW::finish_example(*vw, *ex);
+    VW980::finish_example(*vw, *ex);
   }
 
   EXPECT_NE(s1, s2);
@@ -116,21 +116,21 @@ TEST(ExampleFtHash, CheckOrderDoesNotCount)
 
 TEST(ExampleFtHash, CheckDefaultValueMissingSameHash)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet"));
   uint64_t hash_1;
   uint64_t hash_2;
 
   {
-    auto* ex = VW::read_example(*vw, "| a");
+    auto* ex = VW980::read_example(*vw, "| a");
     hash_1 = ex->get_or_calculate_order_independent_feature_space_hash();
 
-    VW::finish_example(*vw, *ex);
+    VW980::finish_example(*vw, *ex);
   }
   {
-    auto* ex = VW::read_example(*vw, "| a:1");
+    auto* ex = VW980::read_example(*vw, "| a:1");
     hash_2 = ex->get_or_calculate_order_independent_feature_space_hash();
 
-    VW::finish_example(*vw, *ex);
+    VW980::finish_example(*vw, *ex);
   }
 
   EXPECT_EQ(hash_1, hash_2);
@@ -139,39 +139,39 @@ TEST(ExampleFtHash, CheckDefaultValueMissingSameHash)
 
 TEST(ExampleFtHash, CheckZeroHash)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet", "--noconstant"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet", "--noconstant"));
   {
-    auto* ex = VW::read_example(*vw, "| a:0");
+    auto* ex = VW980::read_example(*vw, "| a:0");
     EXPECT_EQ(ex->get_or_calculate_order_independent_feature_space_hash(), 0);
 
-    VW::finish_example(*vw, *ex);
+    VW980::finish_example(*vw, *ex);
   }
 
   {
-    auto* ex = VW::read_example(*vw, "shared |");
+    auto* ex = VW980::read_example(*vw, "shared |");
     EXPECT_EQ(ex->get_or_calculate_order_independent_feature_space_hash(), 0);
 
-    VW::finish_example(*vw, *ex);
+    VW980::finish_example(*vw, *ex);
   }
 }
 
 TEST(ExampleFtHash, SmallDiffs)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet", "--noconstant"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet", "--noconstant"));
   uint64_t hash_1;
   uint64_t hash_2;
 
   {
-    auto* ex = VW::read_example(*vw, "| a1:0.0000001 a2");
+    auto* ex = VW980::read_example(*vw, "| a1:0.0000001 a2");
     hash_1 = ex->get_or_calculate_order_independent_feature_space_hash();
 
-    VW::finish_example(*vw, *ex);
+    VW980::finish_example(*vw, *ex);
   }
   {
-    auto* ex = VW::read_example(*vw, "| a1:0.000001 a2");
+    auto* ex = VW980::read_example(*vw, "| a1:0.000001 a2");
     hash_2 = ex->get_or_calculate_order_independent_feature_space_hash();
 
-    VW::finish_example(*vw, *ex);
+    VW980::finish_example(*vw, *ex);
   }
 
   EXPECT_NE(hash_1, hash_2);

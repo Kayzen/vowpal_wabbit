@@ -17,9 +17,9 @@
 
 TEST(TagUtils, TagWithSeedSeedExtraction)
 {
-  auto opts = VW::make_unique<VW::config::options_cli>(
+  auto opts = VW980::make_unique<VW980::config::options_cli>(
       std::vector<std::string>{"--json", "--chain_hash", "--no_stdin", "--quiet"});
-  auto vw = VW::initialize(std::move(opts));
+  auto vw = VW980::initialize(std::move(opts));
   std::string json = R"(
   {
     "_label": 1,
@@ -32,19 +32,19 @@ TEST(TagUtils, TagWithSeedSeedExtraction)
   auto examples = vwtest::parse_json(*vw, json);
   auto example = examples[0];
 
-  VW::string_view expected{"test_seed"};
+  VW980::string_view expected{"test_seed"};
 
-  VW::string_view seed;
+  VW980::string_view seed;
 
-  auto extracted = VW::try_extract_random_seed(*example, seed);
+  auto extracted = VW980::try_extract_random_seed(*example, seed);
   EXPECT_EQ(true, extracted);
   EXPECT_EQ(expected, seed);
-  VW::finish_example(*vw, examples);
+  VW980::finish_example(*vw, examples);
 }
 
 TEST(TagUtils, TagWithoutSeedSeedExtraction)
 {
-  auto vw = VW::initialize(vwtest::make_args("--json", "--chain_hash", "--no_stdin", "--quiet"));
+  auto vw = VW980::initialize(vwtest::make_args("--json", "--chain_hash", "--no_stdin", "--quiet"));
   std::string json = R"(
   {
     "_label": 1,
@@ -57,17 +57,17 @@ TEST(TagUtils, TagWithoutSeedSeedExtraction)
   auto examples = vwtest::parse_json(*vw, json);
   auto example = examples[0];
 
-  VW::string_view seed;
+  VW980::string_view seed;
 
-  auto extracted = VW::try_extract_random_seed(*example, seed);
+  auto extracted = VW980::try_extract_random_seed(*example, seed);
   EXPECT_EQ(false, extracted);
 
-  VW::finish_example(*vw, examples);
+  VW980::finish_example(*vw, examples);
 }
 
 TEST(TagUtils, NoTagSeedExtraction)
 {
-  auto vw = VW::initialize(vwtest::make_args("--json", "--chain_hash", "--no_stdin", "--quiet"));
+  auto vw = VW980::initialize(vwtest::make_args("--json", "--chain_hash", "--no_stdin", "--quiet"));
   std::string json = R"(
   {
     "_label": 1,
@@ -79,10 +79,10 @@ TEST(TagUtils, NoTagSeedExtraction)
   auto examples = vwtest::parse_json(*vw, json);
   auto example = examples[0];
 
-  VW::string_view seed;
+  VW980::string_view seed;
 
-  auto extracted = VW::try_extract_random_seed(*example, seed);
+  auto extracted = VW980::try_extract_random_seed(*example, seed);
   EXPECT_EQ(false, extracted);
 
-  VW::finish_example(*vw, examples);
+  VW980::finish_example(*vw, examples);
 }

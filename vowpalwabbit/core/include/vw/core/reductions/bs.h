@@ -7,14 +7,14 @@
 
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> bs_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> bs_setup(VW980::setup_base_i& stack_builder);
 namespace bs
 {
-inline uint32_t weight_gen(VW::rand_state& state)  // sampling from Poisson with rate 1
+inline uint32_t weight_gen(VW980::rand_state& state)  // sampling from Poisson with rate 1
 {
   float temp = state.get_and_update_random();
   if (temp <= 0.3678794411714423215955) { return 0; }
@@ -42,4 +42,4 @@ inline uint32_t weight_gen(VW::rand_state& state)  // sampling from Poisson with
 
 }  // namespace bs
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

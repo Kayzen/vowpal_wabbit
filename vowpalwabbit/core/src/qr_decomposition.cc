@@ -4,7 +4,7 @@
 
 #include "qr_decomposition.h"
 
-namespace VW
+namespace VW980
 {
 void gram_schmidt(Eigen::MatrixXf& mat)
 {
@@ -42,4 +42,4 @@ void gram_schmidt(Eigen::SparseMatrix<float>& mat)
     mat.innerVector(i) *= (1.f / norm);
   }
 }
-}  // namespace VW
+}  // namespace VW980

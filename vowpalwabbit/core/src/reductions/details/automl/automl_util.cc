@@ -7,7 +7,7 @@
 #include "vw/core/multi_model_utils.h"
 #include "vw/core/vw.h"
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
@@ -37,10 +37,10 @@ bool count_namespaces(const multi_ex& ecs, std::map<namespace_index, uint64_t>& 
   {
     for (const auto& ns : ex->indices)
     {
-      if (!VW::is_interaction_ns(ns)) { continue; }
+      if (!VW980::is_interaction_ns(ns)) { continue; }
       // CCB_SLOT_NAMESPACE should be accounted for since generate_interactions treats it as a normal namespace
       // it should still not be removed from oracle so we have to keep track of it here
-      if (ns != VW::details::CCB_SLOT_NAMESPACE && !is_allowed_to_remove(ns)) { continue; }
+      if (ns != VW980::details::CCB_SLOT_NAMESPACE && !is_allowed_to_remove(ns)) { continue; }
       ns_counter[ns]++;
       if (ns_counter[ns] == 1) { new_ns_seen = true; }
     }
@@ -51,7 +51,7 @@ bool count_namespaces(const multi_ex& ecs, std::map<namespace_index, uint64_t>& 
 
 bool is_allowed_to_remove(const namespace_index ns)
 {
-  if (ns == VW::details::CCB_SLOT_NAMESPACE || ns == VW::details::CCB_ID_NAMESPACE) { return false; }
+  if (ns == VW980::details::CCB_SLOT_NAMESPACE || ns == VW980::details::CCB_ID_NAMESPACE) { return false; }
   return true;
 }
 }  // namespace automl
@@ -60,7 +60,7 @@ namespace util
 {
 // fail if incompatible reductions got setup
 // todo: audit if they reference global all interactions
-void fail_if_enabled(VW::workspace& all, const std::set<std::string>& not_compat)
+void fail_if_enabled(VW980::workspace& all, const std::set<std::string>& not_compat)
 {
   std::vector<std::string> enabled_learners;
   if (all.l != nullptr) { all.l->get_enabled_learners(enabled_learners); }
@@ -73,23 +73,23 @@ void fail_if_enabled(VW::workspace& all, const std::set<std::string>& not_compat
 
 std::string ns_to_str(unsigned char ns)
 {
-  if (ns == VW::details::CONSTANT_NAMESPACE) { return "[constant]"; }
-  else if (ns == VW::details::CCB_SLOT_NAMESPACE) { return "[ccbslot]"; }
-  else if (ns == VW::details::CCB_ID_NAMESPACE) { return "[ccbid]"; }
-  else if (ns == VW::details::WILDCARD_NAMESPACE) { return "[wild]"; }
-  else if (ns == VW::details::DEFAULT_NAMESPACE) { return "[default]"; }
+  if (ns == VW980::details::CONSTANT_NAMESPACE) { return "[constant]"; }
+  else if (ns == VW980::details::CCB_SLOT_NAMESPACE) { return "[ccbslot]"; }
+  else if (ns == VW980::details::CCB_ID_NAMESPACE) { return "[ccbid]"; }
+  else if (ns == VW980::details::WILDCARD_NAMESPACE) { return "[wild]"; }
+  else if (ns == VW980::details::DEFAULT_NAMESPACE) { return "[default]"; }
   else { return std::string(1, ns); }
 }
 
 std::string interaction_vec_t_to_string(const std::vector<std::vector<namespace_index>>& interactions)
 {
   std::stringstream ss;
-  for (const std::vector<VW::namespace_index>& v : interactions)
+  for (const std::vector<VW980::namespace_index>& v : interactions)
   {
     if (v.size() == 2) { ss << "-q "; }
     else if (v.size() == 3) { ss << "--cubic="; }
     else { THROW("Only supports up to cubic interactions"); }
-    for (VW::namespace_index c : v) { ss << ns_to_str(c); }
+    for (VW980::namespace_index c : v) { ss << ns_to_str(c); }
     ss << " ";
   }
   return ss.str();
@@ -119,4 +119,4 @@ std::string elements_to_string(const automl::set_ns_list_t& elements, const char
 }
 }  // namespace util
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

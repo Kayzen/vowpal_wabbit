@@ -9,7 +9,7 @@
 #include "vw/core/numeric_casts.h"
 #include "vw/core/vw.h"
 
-using namespace VW::config;
+using namespace VW980::config;
 
 namespace SequenceTask
 {
@@ -42,7 +42,7 @@ void initialize(Search::search& sch, size_t& /*num_actions*/, options_i& /*optio
       0);
 }
 
-void run(Search::search& sch, VW::multi_ex& ec)
+void run(Search::search& sch, VW980::multi_ex& ec)
 {
   Search::predictor search_predictor(sch, static_cast<ptag>(0));
   for (size_t i = 0; i < ec.size(); i++)
@@ -96,11 +96,11 @@ inline action bilou_to_bio(action y)
   return y / 2 + 1;  // out -> out, {unit,begin} -> begin; {in,last} -> in
 }
 
-void convert_bio_to_bilou(VW::multi_ex& ec)
+void convert_bio_to_bilou(VW980::multi_ex& ec)
 {
   for (size_t n = 0; n < ec.size(); n++)
   {
-    VW::multiclass_label& ylab = ec[n]->l.multi;
+    VW980::multiclass_label& ylab = ec[n]->l.multi;
     action y = ylab.label;
     action nexty = (n == ec.size() - 1) ? 0 : ec[n + 1]->l.multi.label;
     if (y == 1)
@@ -138,8 +138,8 @@ class task_data
 public:
   encoding_type encoding;
 
-  VW::v_array<action> allowed_actions;
-  VW::v_array<action> only_two_allowed;  // used for BILOU encoding
+  VW980::v_array<action> allowed_actions;
+  VW980::v_array<action> only_two_allowed;  // used for BILOU encoding
   size_t multipass;
 };
 
@@ -154,8 +154,8 @@ void initialize(Search::search& sch, size_t& num_actions, options_i& options)
       .add(make_option("search_span_multipass", multipass).default_value(1).help("Do multiple passes"));
   options.add_and_parse(new_options);
 
-  auto data = VW::make_unique<task_data>();
-  data->multipass = VW::cast_to_smaller_type<size_t>(multipass);
+  auto data = VW980::make_unique<task_data>();
+  data->multipass = VW980::cast_to_smaller_type<size_t>(multipass);
 
   if (search_span_bilou)
   {
@@ -195,13 +195,13 @@ void initialize(Search::search& sch, size_t& num_actions, options_i& options)
   sch.set_task_data<task_data>(data.release());
 }
 
-void setup(Search::search& sch, VW::multi_ex& ec)
+void setup(Search::search& sch, VW980::multi_ex& ec)
 {
   task_data& data = *sch.get_task_data<task_data>();
   if (data.encoding == encoding_type::BILOU) { convert_bio_to_bilou(ec); }
 }
 
-void takedown(Search::search& sch, VW::multi_ex& ec)
+void takedown(Search::search& sch, VW980::multi_ex& ec)
 {
   task_data& data = *sch.get_task_data<task_data>();
 
@@ -209,16 +209,16 @@ void takedown(Search::search& sch, VW::multi_ex& ec)
   {
     for (size_t n = 0; n < ec.size(); n++)
     {
-      VW::multiclass_label ylab = ec[n]->l.multi;
+      VW980::multiclass_label ylab = ec[n]->l.multi;
       ylab.label = bilou_to_bio(ylab.label);
     }
   }
 }
 
-void run(Search::search& sch, VW::multi_ex& ec)
+void run(Search::search& sch, VW980::multi_ex& ec)
 {
   task_data& data = *sch.get_task_data<task_data>();
-  VW::v_array<action>* y_allowed = &(data.allowed_actions);
+  VW980::v_array<action>* y_allowed = &(data.allowed_actions);
   Search::predictor search_predictor(sch, static_cast<ptag>(0));
   for (size_t pass = 1; pass <= data.multipass; pass++)
   {
@@ -296,10 +296,10 @@ void initialize(Search::search& sch, size_t& num_actions, options_i& /*options*/
   sch.set_task_data<size_t>(new size_t{num_actions});
 }
 
-void run(Search::search& sch, VW::multi_ex& ec)
+void run(Search::search& sch, VW980::multi_ex& ec)
 {
   size_t K = *sch.get_task_data<size_t>();  // NOLINT
-  float* costs = VW::details::calloc_or_throw<float>(K);
+  float* costs = VW980::details::calloc_or_throw<float>(K);
   Search::predictor search_predictor(sch, static_cast<ptag>(0));
   for (size_t i = 0; i < ec.size(); i++)
   {
@@ -352,7 +352,7 @@ void initialize(Search::search& sch, size_t& /*num_actions*/, options_i& options
   }
 }
 
-void run(Search::search& sch, VW::multi_ex& ec)
+void run(Search::search& sch, VW980::multi_ex& ec)
 {
   task_data& data = *sch.get_task_data<task_data>();
   uint32_t max_prediction = 1;
@@ -382,13 +382,13 @@ namespace SequenceTask_DemoLDF  // this is just to debug/show off how to do LDF
 class task_data
 {
 public:
-  std::vector<VW::example> ldf_examples;
+  std::vector<VW980::example> ldf_examples;
   size_t num_actions;
 };
 
 void initialize(Search::search& sch, size_t& num_actions, options_i& /*options*/)
 {
-  VW::cs_class default_wclass = {0., 0, 0., 0.};
+  VW980::cs_class default_wclass = {0., 0, 0., 0.};
 
   task_data* data = new task_data;
   data->ldf_examples.resize(num_actions);
@@ -410,16 +410,16 @@ void initialize(Search::search& sch, size_t& num_actions, options_i& /*options*/
 
 // this is totally bogus for the example -- you'd never actually do this!
 void my_update_example_indices(
-    Search::search& sch, bool /* audit */, VW::example* ec, uint64_t mult_amount, uint64_t plus_amount)
+    Search::search& sch, bool /* audit */, VW980::example* ec, uint64_t mult_amount, uint64_t plus_amount)
 {
   size_t ss = sch.get_stride_shift();
-  for (VW::features& fs : *ec)
+  for (VW980::features& fs : *ec)
   {
-    for (VW::feature_index& idx : fs.indices) { idx = (((idx >> ss) * mult_amount) + plus_amount) << ss; }
+    for (VW980::feature_index& idx : fs.indices) { idx = (((idx >> ss) * mult_amount) + plus_amount) << ss; }
   }
 }
 
-void run(Search::search& sch, VW::multi_ex& ec)
+void run(Search::search& sch, VW980::multi_ex& ec)
 {
   auto* data = sch.get_task_data<task_data>();
   Search::predictor search_predictor(sch, static_cast<ptag>(0));
@@ -429,7 +429,7 @@ void run(Search::search& sch, VW::multi_ex& ec)
     {
       if (sch.predictNeedsExample())  // we can skip this work if `predict` won't actually use the example data
       {
-        VW::copy_example_data(&data->ldf_examples[a], ec[i]);  // copy but leave label alone!
+        VW980::copy_example_data(&data->ldf_examples[a], ec[i]);  // copy but leave label alone!
         // now, offset it appropriately for the action id
         my_update_example_indices(sch, true, &data->ldf_examples[a], 28904713, 4832917 * static_cast<uint64_t>(a));
       }

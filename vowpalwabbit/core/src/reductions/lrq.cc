@@ -17,15 +17,15 @@
 #include <cfloat>
 #include <cstring>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
 class lrq_state
 {
 public:
-  VW::workspace* all = nullptr;  // feature creation, audit, hash_inv
+  VW980::workspace* all = nullptr;  // feature creation, audit, hash_inv
   bool lrindices[256];
   size_t orig_size[256];
   std::set<std::string> lrpairs;
@@ -50,16 +50,16 @@ bool valid_int(const char* s)
   return (*s != '\0' && *endptr == '\0');
 }
 
-inline bool cheesyrbit(uint64_t& seed) { return VW::details::merand48(seed) > 0.5; }
+inline bool cheesyrbit(uint64_t& seed) { return VW980::details::merand48(seed) > 0.5; }
 
 inline float cheesyrand(uint64_t x)
 {
   uint64_t seed = x;
 
-  return VW::details::merand48(seed);
+  return VW980::details::merand48(seed);
 }
 
-constexpr inline bool example_is_test(VW::example& ec) { return ec.l.simple.label == FLT_MAX; }
+constexpr inline bool example_is_test(VW980::example& ec) { return ec.l.simple.label == FLT_MAX; }
 
 void reset_seed(lrq_state& lrq)
 {
@@ -67,14 +67,14 @@ void reset_seed(lrq_state& lrq)
 }
 
 template <bool is_learn>
-void predict_or_learn(lrq_state& lrq, learner& base, VW::example& ec)
+void predict_or_learn(lrq_state& lrq, learner& base, VW980::example& ec)
 {
-  VW::workspace& all = *lrq.all;
+  VW980::workspace& all = *lrq.all;
 
   // Remember original features
 
   memset(lrq.orig_size, 0, sizeof(lrq.orig_size));
-  for (VW::namespace_index i : ec.indices)
+  for (VW980::namespace_index i : ec.indices)
   {
     if (lrq.lrindices[i]) { lrq.orig_size[i] = ec.feature_space[i].size(); }
   }
@@ -112,7 +112,7 @@ void predict_or_learn(lrq_state& lrq, learner& base, VW::example& ec)
           if (!do_dropout || cheesyrbit(lrq.seed))
           {
             uint64_t lwindex = (lindex + (static_cast<uint64_t>(n) << stride_shift));
-            VW::weight* lw = &lrq.all->weights[lwindex];
+            VW980::weight* lw = &lrq.all->weights[lwindex];
 
             // perturb away from saddle point at (0, 0)
             if (is_learn)
@@ -171,11 +171,11 @@ void predict_or_learn(lrq_state& lrq, learner& base, VW::example& ec)
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::lrq_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::lrq_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto lrq = VW::make_unique<lrq_state>();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto lrq = VW980::make_unique<lrq_state>();
   std::vector<std::string> lrq_names;
   option_group_definition new_options("[Reduction] Low Rank Quadratics");
   new_options.add(make_option("lrq", lrq_names).keep().necessary().help("Use low rank quadratic features"))
@@ -191,7 +191,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::lrq_setup(VW::setup_base_i
     if (name.find(':') != std::string::npos) { THROW("--lrq does not support wildcards ':'"); }
   }
 
-  for (auto& lrq_name : lrq_names) { lrq_name = VW::decode_inline_hex(lrq_name, all.logger); }
+  for (auto& lrq_name : lrq_names) { lrq_name = VW980::decode_inline_hex(lrq_name, all.logger); }
 
   new (&lrq->lrpairs) std::set<std::string>(lrq_names.begin(), lrq_names.end());
 

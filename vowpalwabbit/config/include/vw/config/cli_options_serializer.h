@@ -10,7 +10,7 @@
 #include <sstream>
 #include <string>
 
-namespace VW
+namespace VW980
 {
 namespace config
 {
@@ -37,4 +37,4 @@ private:
 };
 
 }  // namespace config
-}  // namespace VW
+}  // namespace VW980

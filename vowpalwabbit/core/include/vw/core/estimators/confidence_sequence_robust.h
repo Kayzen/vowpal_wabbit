@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -84,7 +84,7 @@ class confidence_sequence_robust
 {
 public:
   confidence_sequence_robust(
-      double tol_x = 1e-6, bool is_brentq = false, double alpha = VW::details::CS_ROBUST_DEFAULT_ALPHA);
+      double tol_x = 1e-6, bool is_brentq = false, double alpha = VW980::details::CS_ROBUST_DEFAULT_ALPHA);
   void update(double w, double r);
   void persist(metric_sink& metrics, const std::string& suffix);
   void reset_stats();
@@ -97,18 +97,18 @@ public:
   uint64_t update_count;
   double last_w;
   double last_r;
-  VW::details::countable_discrete_base lower;
-  VW::details::countable_discrete_base upper;
+  VW980::details::countable_discrete_base lower;
+  VW980::details::countable_discrete_base upper;
 };
 }  // namespace estimators
 
 namespace model_utils
 {
-size_t read_model_field(io_buf&, VW::details::g_tilde&);
-size_t write_model_field(io_buf&, const VW::details::g_tilde&, const std::string&, bool);
-size_t read_model_field(io_buf&, VW::details::countable_discrete_base&);
-size_t write_model_field(io_buf&, const VW::details::countable_discrete_base&, const std::string&, bool);
-size_t read_model_field(io_buf&, VW::estimators::confidence_sequence_robust&);
-size_t write_model_field(io_buf&, const VW::estimators::confidence_sequence_robust&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::details::g_tilde&);
+size_t write_model_field(io_buf&, const VW980::details::g_tilde&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::details::countable_discrete_base&);
+size_t write_model_field(io_buf&, const VW980::details::countable_discrete_base&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::estimators::confidence_sequence_robust&);
+size_t write_model_field(io_buf&, const VW980::estimators::confidence_sequence_robust&, const std::string&, bool);
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980

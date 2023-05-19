@@ -26,28 +26,28 @@
 #include <functional>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 class workspace;
 }
-namespace VW
+namespace VW980
 {
 void copy_example_data(example* dst, const example* src);
-void setup_example(VW::workspace& all, example* ae);
+void setup_example(VW980::workspace& all, example* ae);
 
 class polylabel
 {
 public:
-  VW::no_label empty;
-  VW::simple_label simple;
-  VW::multiclass_label multi;
-  VW::cs_label cs;
-  VW::cb_label cb;
-  VW::cb_continuous::continuous_label cb_cont;
-  VW::ccb_label conditional_contextual_bandit;
-  VW::slates::label slates;
-  VW::cb_eval_label cb_eval;
-  VW::multilabel_label multilabels;
+  VW980::no_label empty;
+  VW980::simple_label simple;
+  VW980::multiclass_label multi;
+  VW980::cs_label cs;
+  VW980::cb_label cb;
+  VW980::cb_continuous::continuous_label cb_cont;
+  VW980::ccb_label conditional_contextual_bandit;
+  VW980::slates::label slates;
+  VW980::cb_eval_label cb_eval;
+  VW980::multilabel_label multilabels;
 };
 
 struct no_pred
@@ -67,15 +67,15 @@ public:
   polyprediction& operator=(const polyprediction&) = delete;
 
   float scalar = 0.f;
-  VW::v_array<float> scalars;  // a sequence of scalar predictions
-  VW::action_scores a_s;       // a sequence of classes with scores.  Also used for probabilities.
-  VW::decision_scores_t decision_scores;
+  VW980::v_array<float> scalars;  // a sequence of scalar predictions
+  VW980::action_scores a_s;       // a sequence of classes with scores.  Also used for probabilities.
+  VW980::decision_scores_t decision_scores;
   uint32_t multiclass = 0;
-  VW::multilabel_prediction multilabels;
+  VW980::multilabel_prediction multilabels;
   float prob = 0.f;                                          // for --probabilities --csoaa_ldf=mc
-  VW::continuous_actions::probability_density_function pdf;  // probability density defined over an action range
-  VW::continuous_actions::probability_density_function_value pdf_value;  // probability density value for a given action
-  VW::active_multiclass_prediction active_multiclass;
+  VW980::continuous_actions::probability_density_function pdf;  // probability density defined over an action range
+  VW980::continuous_actions::probability_density_function_value pdf_value;  // probability density value for a given action
+  VW980::active_multiclass_prediction active_multiclass;
   no_pred nopred;
 };
 
@@ -99,7 +99,7 @@ public:
   polyprediction pred;
 
   float weight = 1.f;     // a relative importance weight for the example, default = 1
-  VW::v_array<char> tag;  // An identifier for the example.
+  VW980::v_array<char> tag;  // An identifier for the example.
   size_t example_counter = 0;
 
   // helpers
@@ -133,8 +133,8 @@ public:
     _total_sum_feat_sq_calculated = false;
   }
 
-  friend void VW::copy_example_data(example* dst, const example* src);
-  friend void VW::setup_example(VW::workspace& all, example* ae);
+  friend void VW980::copy_example_data(example* dst, const example* src);
+  friend void VW980::setup_example(VW980::workspace& all, example* ae);
 
 private:
   bool _total_sum_feat_sq_calculated = false;
@@ -144,7 +144,7 @@ private:
 class workspace;
 
 // TODO: make workspace and example const
-void flatten_features(VW::workspace& all, example& ec, features& fs);
+void flatten_features(VW980::workspace& all, example& ec, features& fs);
 
 inline bool example_is_newline(const example& ec) { return ec.is_newline; }
 
@@ -154,39 +154,39 @@ namespace details
 {
 inline void add_passthrough_feature_magic(example& ec, uint64_t magic, uint64_t i, float x)
 {
-  if (ec.passthrough) { ec.passthrough->push_back(x, (VW::details::FNV_PRIME * magic) ^ i); }
+  if (ec.passthrough) { ec.passthrough->push_back(x, (VW980::details::FNV_PRIME * magic) ^ i); }
 }
 }  // namespace details
 
 #define VW_ADD_PASSTHROUGH_FEATURE(ec, i, x)  \
-  VW::details::add_passthrough_feature_magic( \
+  VW980::details::add_passthrough_feature_magic( \
       ec, __FILE__[0] * 483901 + __FILE__[1] * 3417 + __FILE__[2] * 8490177, i, x);
 
-void return_multiple_example(VW::workspace& all, VW::multi_ex& examples);
+void return_multiple_example(VW980::workspace& all, VW980::multi_ex& examples);
 
 using example_factory_t = std::function<example&()>;
 
 namespace details
 {
-void clean_example(VW::workspace& all, example& ec);
+void clean_example(VW980::workspace& all, example& ec);
 
-void append_example_namespace(VW::example& ec, VW::namespace_index ns, const features& fs);
-void truncate_example_namespace(VW::example& ec, VW::namespace_index ns, const features& fs);
+void append_example_namespace(VW980::example& ec, VW980::namespace_index ns, const features& fs);
+void truncate_example_namespace(VW980::example& ec, VW980::namespace_index ns, const features& fs);
 
-void append_example_namespaces_from_example(VW::example& target, const VW::example& source);
-void truncate_example_namespaces_from_example(VW::example& target, const VW::example& source);
+void append_example_namespaces_from_example(VW980::example& target, const VW980::example& source);
+void truncate_example_namespaces_from_example(VW980::example& target, const VW980::example& source);
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980
 
 // Deprecated compat definitions
 
-using polylabel VW_DEPRECATED("polylabel moved into VW namespace") = VW::polylabel;
-using polyprediction VW_DEPRECATED("polyprediction moved into VW namespace") = VW::polyprediction;
-using example VW_DEPRECATED("example moved into VW namespace") = VW::example;
-using multi_ex VW_DEPRECATED("multi_ex moved into VW namespace") = VW::multi_ex;
+using polylabel VW_DEPRECATED("polylabel moved into VW namespace") = VW980::polylabel;
+using polyprediction VW_DEPRECATED("polyprediction moved into VW namespace") = VW980::polyprediction;
+using example VW_DEPRECATED("example moved into VW namespace") = VW980::example;
+using multi_ex VW_DEPRECATED("multi_ex moved into VW namespace") = VW980::multi_ex;
 
 VW_DEPRECATED("example_is_newline moved into VW namespace")
-inline bool example_is_newline(const VW::example& ec) { return VW::example_is_newline(ec); }
+inline bool example_is_newline(const VW980::example& ec) { return VW980::example_is_newline(ec); }
 
 VW_DEPRECATED("valid_ns moved into VW namespace")
-inline bool valid_ns(char c) { return VW::valid_ns(c); }
+inline bool valid_ns(char c) { return VW980::valid_ns(c); }

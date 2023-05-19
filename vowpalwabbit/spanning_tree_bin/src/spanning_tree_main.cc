@@ -23,10 +23,10 @@ int getpid() { return (int)::GetCurrentProcessId(); }
 #include <fstream>
 #include <iostream>
 
-void usage(const VW::config::options_cli& desc)
+void usage(const VW980::config::options_cli& desc)
 {
   std::cout << "usage: spanning_tree [--port,-p number] [--nondaemon] [--help,-h] [pid_file]" << std::endl;
-  VW::config::cli_help_formatter help_formatter;
+  VW980::config::cli_help_formatter help_formatter;
   std::cout << help_formatter.format_help(desc.get_all_option_group_definitions()) << std::endl;
 }
 
@@ -36,12 +36,12 @@ int main(int argc, char* argv[])
   bool nondaemon = false;
   bool help = false;
 
-  VW::config::options_cli opts(std::vector<std::string>(argv + 1, argv + argc));
+  VW980::config::options_cli opts(std::vector<std::string>(argv + 1, argv + argc));
 
-  VW::config::option_group_definition desc("Spanning Tree");
-  desc.add(VW::config::make_option("nondaemon", nondaemon).help("Run spanning tree in foreground"))
-      .add(VW::config::make_option("help", help).short_name("h").help("Print help message"))
-      .add(VW::config::make_option("port", port)
+  VW980::config::option_group_definition desc("Spanning Tree");
+  desc.add(VW980::config::make_option("nondaemon", nondaemon).help("Run spanning tree in foreground"))
+      .add(VW980::config::make_option("help", help).short_name("h").help("Print help message"))
+      .add(VW980::config::make_option("port", port)
                .short_name("p")
                .default_value(26543)
                .help("Port number for spanning tree to listen on"));
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
       VW_WARNING_STATE_POP
     }
 
-    VW::spanning_tree spanning_tree_obj(static_cast<short unsigned int>(port));
+    VW980::spanning_tree spanning_tree_obj(static_cast<short unsigned int>(port));
 
     if (!pid_file_name.empty())
     {
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 
     spanning_tree_obj.run();
   }
-  catch (VW::vw_exception& e)
+  catch (VW980::vw_exception& e)
   {
     std::cerr << "spanning tree (" << e.filename() << ":" << e.line_number() << "): " << e.what() << std::endl;
   }

@@ -15,24 +15,24 @@
 
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
 namespace expreplay
 {
-template <VW::label_parser& lp>
+template <VW980::label_parser& lp>
 class expreplay
 {
 public:
-  VW::workspace* all = nullptr;
-  std::shared_ptr<VW::rand_state> _random_state;
+  VW980::workspace* all = nullptr;
+  std::shared_ptr<VW980::rand_state> _random_state;
   size_t N = 0;                   // how big is the buffer?
-  std::vector<VW::example*> buf;  // the deep copies of examples (N of them)
+  std::vector<VW980::example*> buf;  // the deep copies of examples (N of them)
   std::vector<bool> filled;       // which of buf[] is filleds
   size_t replay_count = 0;  // each time er.learn() is called, how many times do we call base.learn()? default=1 (in
                             // which case we're just permuting)
-  VW::LEARNER::learner* base = nullptr;
+  VW980::LEARNER::learner* base = nullptr;
 
   ~expreplay()
   {
@@ -40,8 +40,8 @@ public:
   }
 };
 
-template <VW::label_parser& lp>
-void learn(expreplay<lp>& er, VW::LEARNER::learner& base, VW::example& ec)
+template <VW980::label_parser& lp>
+void learn(expreplay<lp>& er, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   // Cannot learn if the example weight is 0.
   if (lp.get_weight(ec.l, ec.ex_reduction_features) == 0.) { return; }
@@ -56,23 +56,23 @@ void learn(expreplay<lp>& er, VW::LEARNER::learner& base, VW::example& ec)
   if (er.filled[n]) { base.learn(*er.buf[n]); }
 
   er.filled[n] = true;
-  VW::copy_example_data_with_label(er.buf[n], &ec);
+  VW980::copy_example_data_with_label(er.buf[n], &ec);
 }
 
-template <VW::label_parser& lp>
-void predict(expreplay<lp>&, VW::LEARNER::learner& base, VW::example& ec)
+template <VW980::label_parser& lp>
+void predict(expreplay<lp>&, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   base.predict(ec);
 }
 
-template <VW::label_parser& lp>
-void multipredict(expreplay<lp>&, VW::LEARNER::learner& base, VW::example& ec, size_t count, size_t step,
-    VW::polyprediction* pred, bool finalize_predictions)
+template <VW980::label_parser& lp>
+void multipredict(expreplay<lp>&, VW980::LEARNER::learner& base, VW980::example& ec, size_t count, size_t step,
+    VW980::polyprediction* pred, bool finalize_predictions)
 {
   base.multipredict(ec, count, step, pred, finalize_predictions);
 }
 
-template <VW::label_parser& lp>
+template <VW980::label_parser& lp>
 void end_pass(expreplay<lp>& er)
 {  // we need to go through and learn on everyone who remains
   // also need to clean up remaining examples
@@ -87,11 +87,11 @@ void end_pass(expreplay<lp>& er)
 }
 }  // namespace expreplay
 
-template <char er_level, VW::label_parser& lp>
-std::shared_ptr<VW::LEARNER::learner> expreplay_setup(VW::setup_base_i& stack_builder)
+template <char er_level, VW980::label_parser& lp>
+std::shared_ptr<VW980::LEARNER::learner> expreplay_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   std::string replay_string = "replay_";
   replay_string += er_level;
   std::string replay_count_string = replay_string;
@@ -99,27 +99,27 @@ std::shared_ptr<VW::LEARNER::learner> expreplay_setup(VW::setup_base_i& stack_bu
   uint64_t N;
   uint64_t replay_count;
 
-  auto er = VW::make_unique<expreplay::expreplay<lp>>();
-  VW::config::option_group_definition new_options("[Reduction] Experience Replay / " + replay_string);
+  auto er = VW980::make_unique<expreplay::expreplay<lp>>();
+  VW980::config::option_group_definition new_options("[Reduction] Experience Replay / " + replay_string);
   new_options
-      .add(VW::config::make_option(replay_string, N)
+      .add(VW980::config::make_option(replay_string, N)
                .keep()
                .necessary()
                .help("Use experience replay at a specified level [b=classification/regression, m=multiclass, c=cost "
                      "sensitive] with specified buffer size"))
-      .add(VW::config::make_option(replay_count_string, replay_count)
+      .add(VW980::config::make_option(replay_count_string, replay_count)
                .default_value(1)
                .help("How many times (in expectation) should each example be played (default: 1 = permuting)"));
 
   if (!options.add_parse_and_check_necessary(new_options) || N == 0) { return nullptr; }
 
-  er->N = VW::cast_to_smaller_type<size_t>(N);
-  er->replay_count = VW::cast_to_smaller_type<size_t>(replay_count);
+  er->N = VW980::cast_to_smaller_type<size_t>(N);
+  er->replay_count = VW980::cast_to_smaller_type<size_t>(replay_count);
   er->all = &all;
   er->_random_state = all.get_random_state();
   for (uint64_t i = 0; i < er->N; i++)
   {
-    er->buf.push_back(new VW::example);
+    er->buf.push_back(new VW980::example);
     er->buf.back()->interactions = &all.interactions;
     er->buf.back()->extent_interactions = &all.extent_interactions;
   }
@@ -131,7 +131,7 @@ std::shared_ptr<VW::LEARNER::learner> expreplay_setup(VW::setup_base_i& stack_bu
                          << ", replay count=" << er->replay_count << std::endl;
   }
 
-  auto base_learner = VW::LEARNER::require_singleline(stack_builder.setup_base_learner());
+  auto base_learner = VW980::LEARNER::require_singleline(stack_builder.setup_base_learner());
   er->base = base_learner.get();
   auto l =
       make_reduction_learner(std::move(er), base_learner, expreplay::learn<lp>, expreplay::predict<lp>, replay_string)
@@ -141,4 +141,4 @@ std::shared_ptr<VW::LEARNER::learner> expreplay_setup(VW::setup_base_i& stack_bu
   return l;
 }
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

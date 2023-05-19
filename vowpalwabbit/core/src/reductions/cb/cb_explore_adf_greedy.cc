@@ -19,7 +19,7 @@
 #include <cmath>
 #include <functional>
 #include <vector>
-using namespace VW::cb_explore_adf;
+using namespace VW980::cb_explore_adf;
 
 namespace
 {
@@ -30,15 +30,15 @@ public:
   ~cb_explore_adf_greedy() = default;
 
   // Should be called through cb_explore_adf_base for pre/post-processing
-  void predict(VW::LEARNER::learner& base, VW::multi_ex& examples) { predict_or_learn_impl<false>(base, examples); }
-  void learn(VW::LEARNER::learner& base, VW::multi_ex& examples) { predict_or_learn_impl<true>(base, examples); }
+  void predict(VW980::LEARNER::learner& base, VW980::multi_ex& examples) { predict_or_learn_impl<false>(base, examples); }
+  void learn(VW980::LEARNER::learner& base, VW980::multi_ex& examples) { predict_or_learn_impl<true>(base, examples); }
 
 private:
   float _epsilon;
   bool _first_only;
   template <bool is_learn>
-  void predict_or_learn_impl(VW::LEARNER::learner& base, VW::multi_ex& examples);
-  void update_example_prediction(VW::multi_ex& examples);
+  void predict_or_learn_impl(VW980::LEARNER::learner& base, VW980::multi_ex& examples);
+  void update_example_prediction(VW980::multi_ex& examples);
 };
 
 cb_explore_adf_greedy::cb_explore_adf_greedy(float epsilon, bool first_only)
@@ -46,12 +46,12 @@ cb_explore_adf_greedy::cb_explore_adf_greedy(float epsilon, bool first_only)
 {
 }
 
-void cb_explore_adf_greedy::update_example_prediction(VW::multi_ex& examples)
+void cb_explore_adf_greedy::update_example_prediction(VW980::multi_ex& examples)
 {
-  VW::action_scores& preds = examples[0]->pred.a_s;
+  VW980::action_scores& preds = examples[0]->pred.a_s;
   uint32_t num_actions = static_cast<uint32_t>(preds.size());
 
-  auto& ep_fts = examples[0]->ex_reduction_features.template get<VW::cb_explore_adf::greedy::reduction_features>();
+  auto& ep_fts = examples[0]->ex_reduction_features.template get<VW980::cb_explore_adf::greedy::reduction_features>();
   float actual_ep = (ep_fts.valid_epsilon_supplied()) ? ep_fts.epsilon : _epsilon;
 
   size_t tied_actions = fill_tied(preds);
@@ -66,7 +66,7 @@ void cb_explore_adf_greedy::update_example_prediction(VW::multi_ex& examples)
 }
 
 template <bool is_learn>
-void cb_explore_adf_greedy::predict_or_learn_impl(VW::LEARNER::learner& base, VW::multi_ex& examples)
+void cb_explore_adf_greedy::predict_or_learn_impl(VW980::LEARNER::learner& base, VW980::multi_ex& examples)
 {
   // Explore uniform random an epsilon fraction of the time.
   if (is_learn)
@@ -82,10 +82,10 @@ void cb_explore_adf_greedy::predict_or_learn_impl(VW::LEARNER::learner& base, VW
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_greedy_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_explore_adf_greedy_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   using config::make_option;
   bool cb_explore_adf_option = false;
   float epsilon = 0.;
@@ -129,16 +129,16 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_greedy_setu
   auto base = require_multiline(stack_builder.setup_base_learner(feature_width));
 
   using explore_type = cb_explore_adf_base<cb_explore_adf_greedy>;
-  auto data = VW::make_unique<explore_type>(all.global_metrics.are_metrics_enabled(), epsilon, first_only);
+  auto data = VW980::make_unique<explore_type>(all.global_metrics.are_metrics_enabled(), epsilon, first_only);
 
   if (epsilon < 0.0 || epsilon > 1.0) { THROW("The value of epsilon must be in [0,1]"); }
   auto l = make_reduction_learner(std::move(data), base, explore_type::learn, explore_type::predict,
       stack_builder.get_setupfn_name(cb_explore_adf_greedy_setup))
                .set_learn_returns_prediction(base->learn_returns_prediction)
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
-               .set_input_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_PROBS)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
+               .set_input_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
                .set_feature_width(feature_width)
                .set_output_example_prediction(explore_type::output_example_prediction)
                .set_update_stats(explore_type::update_stats)

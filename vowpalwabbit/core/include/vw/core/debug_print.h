@@ -7,14 +7,14 @@
 #include <utility>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 class example;
 class example_predict;
 using multi_ex = std::vector<example*>;
-}  // namespace VW
+}  // namespace VW980
 
-namespace VW
+namespace VW980
 {
 namespace debug
 {
@@ -30,4 +30,4 @@ std::string debug_depth_indent_string(const example& ec);
 std::string debug_depth_indent_string(int32_t stack_depth);
 
 }  // namespace debug
-}  // namespace VW
+}  // namespace VW980

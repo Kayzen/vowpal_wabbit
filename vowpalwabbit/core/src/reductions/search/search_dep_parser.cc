@@ -12,7 +12,7 @@
 #include "vw/core/reductions/gd.h"
 #include "vw/core/vw.h"
 
-using namespace VW::config;
+using namespace VW980::config;
 
 #define VAL_NAMESPACE 100  // valency and distance feature space
 #define OFFSET_CONST 344429
@@ -27,27 +27,27 @@ Search::search_task task = {"dep_parser", run, initialize, nullptr, setup, nullp
 class task_data
 {
 public:
-  VW::example ex;
+  VW980::example ex;
   size_t root_label;
   uint32_t num_label;
-  VW::v_array<uint32_t> valid_actions;
-  VW::v_array<uint32_t> action_loss;
-  VW::v_array<uint32_t> gold_heads;
-  VW::v_array<uint32_t> gold_tags;
-  VW::v_array<uint32_t> stack;
-  VW::v_array<uint32_t> heads;
-  VW::v_array<uint32_t> tags;
-  VW::v_array<uint32_t> temp;
-  VW::v_array<uint32_t> valid_action_temp;
-  VW::v_array<action> gold_actions;
-  VW::v_array<action> gold_action_temp;
+  VW980::v_array<uint32_t> valid_actions;
+  VW980::v_array<uint32_t> action_loss;
+  VW980::v_array<uint32_t> gold_heads;
+  VW980::v_array<uint32_t> gold_tags;
+  VW980::v_array<uint32_t> stack;
+  VW980::v_array<uint32_t> heads;
+  VW980::v_array<uint32_t> tags;
+  VW980::v_array<uint32_t> temp;
+  VW980::v_array<uint32_t> valid_action_temp;
+  VW980::v_array<action> gold_actions;
+  VW980::v_array<action> gold_action_temp;
   std::vector<std::pair<action, float>> gold_action_losses;
 
   // [0]:num_left_arcs, [1]:num_right_arcs; [2]: leftmost_arc, [3]: second_leftmost_arc,
   // [4]:rightmost_arc, [5]: second_rightmost_arc
-  std::array<VW::v_array<uint32_t>, 6> children;
+  std::array<VW980::v_array<uint32_t>, 6> children;
 
-  std::array<VW::example*, 13> ec_buf;
+  std::array<VW980::example*, 13> ec_buf;
   bool old_style_labels;
   bool cost_to_go;
   bool one_learner;
@@ -66,7 +66,7 @@ constexpr uint32_t MY_NULL = 9999999; /*representing_default*/
 
 void initialize(Search::search& sch, size_t& /*num_actions*/, options_i& options)
 {
-  VW::workspace& all = sch.get_vw_pointer_unsafe();
+  VW980::workspace& all = sch.get_vw_pointer_unsafe();
   task_data* data = new task_data();
   sch.set_task_data<task_data>(data);
   data->action_loss.resize(5);
@@ -91,21 +91,21 @@ void initialize(Search::search& sch, size_t& /*num_actions*/, options_i& options
   new_options.add(
       make_option("old_style_labels", data->old_style_labels).keep().help("Use old hack of label information"));
   options.add_and_parse(new_options);
-  data->root_label = VW::cast_to_smaller_type<size_t>(root_label);
+  data->root_label = VW980::cast_to_smaller_type<size_t>(root_label);
 
   data->ex.indices.push_back(VAL_NAMESPACE);
   for (size_t i = 1; i < 14; i++) { data->ex.indices.push_back(static_cast<unsigned char>(i) + 'A'); }
-  data->ex.indices.push_back(VW::details::CONSTANT_NAMESPACE);
+  data->ex.indices.push_back(VW980::details::CONSTANT_NAMESPACE);
   data->ex.interactions = &sch.get_vw_pointer_unsafe().interactions;
   data->ex.extent_interactions = &sch.get_vw_pointer_unsafe().extent_interactions;
 
   if (data->one_learner) { sch.set_feature_width(1); }
   else { sch.set_feature_width(3); }
 
-  std::vector<std::vector<VW::namespace_index>> newpairs{{'B', 'C'}, {'B', 'E'}, {'B', 'B'}, {'C', 'C'}, {'D', 'D'},
+  std::vector<std::vector<VW980::namespace_index>> newpairs{{'B', 'C'}, {'B', 'E'}, {'B', 'B'}, {'C', 'C'}, {'D', 'D'},
       {'E', 'E'}, {'F', 'F'}, {'G', 'G'}, {'E', 'F'}, {'B', 'H'}, {'B', 'J'}, {'E', 'L'}, {'d', 'B'}, {'d', 'C'},
       {'d', 'D'}, {'d', 'E'}, {'d', 'F'}, {'d', 'G'}, {'d', 'd'}};
-  std::vector<std::vector<VW::namespace_index>> newtriples{{'E', 'F', 'G'}, {'B', 'E', 'F'}, {'B', 'C', 'E'},
+  std::vector<std::vector<VW980::namespace_index>> newtriples{{'E', 'F', 'G'}, {'B', 'E', 'F'}, {'B', 'C', 'E'},
       {'B', 'C', 'D'}, {'B', 'E', 'L'}, {'E', 'L', 'M'}, {'B', 'H', 'I'}, {'B', 'C', 'C'}, {'B', 'E', 'J'},
       {'B', 'E', 'H'}, {'B', 'J', 'K'}, {'B', 'E', 'N'}};
 
@@ -116,24 +116,24 @@ void initialize(Search::search& sch, size_t& /*num_actions*/, options_i& options
   if (data->cost_to_go) { sch.set_options(AUTO_CONDITION_FEATURES | NO_CACHING | ACTION_COSTS); }
   else { sch.set_options(AUTO_CONDITION_FEATURES | NO_CACHING); }
 
-  sch.set_label_parser(VW::cs_label_parser_global, [](const VW::polylabel& l) -> bool { return l.cs.costs.empty(); });
+  sch.set_label_parser(VW980::cs_label_parser_global, [](const VW980::polylabel& l) -> bool { return l.cs.costs.empty(); });
 }
 
 void inline add_feature(
-    VW::example& ex, uint64_t idx, unsigned char ns, uint64_t mask, uint64_t multiplier, bool /* audit */ = false)
+    VW980::example& ex, uint64_t idx, unsigned char ns, uint64_t mask, uint64_t multiplier, bool /* audit */ = false)
 {
   ex.feature_space[static_cast<int>(ns)].push_back(1.0f, (idx * multiplier) & mask);
 }
 
-void add_all_features(VW::example& ex, VW::example& src, unsigned char tgt_ns, uint64_t mask, uint64_t multiplier,
+void add_all_features(VW980::example& ex, VW980::example& src, unsigned char tgt_ns, uint64_t mask, uint64_t multiplier,
     uint64_t offset, bool /* audit */ = false)
 {
-  VW::features& tgt_fs = ex.feature_space[tgt_ns];
-  for (VW::namespace_index ns : src.indices)
+  VW980::features& tgt_fs = ex.feature_space[tgt_ns];
+  for (VW980::namespace_index ns : src.indices)
   {
-    if (ns != VW::details::CONSTANT_NAMESPACE)
-    {  // ignore VW::details::CONSTANT_NAMESPACE
-      for (VW::feature_index i : src.feature_space[ns].indices)
+    if (ns != VW980::details::CONSTANT_NAMESPACE)
+    {  // ignore VW980::details::CONSTANT_NAMESPACE
+      for (VW980::feature_index i : src.feature_space[ns].indices)
       {
         tgt_fs.push_back(1.0f, ((i / multiplier + offset) * multiplier) & mask);
       }
@@ -141,23 +141,23 @@ void add_all_features(VW::example& ex, VW::example& src, unsigned char tgt_ns, u
   }
 }
 
-void inline reset_ex(VW::example& ex)
+void inline reset_ex(VW980::example& ex)
 {
   ex.num_features = 0;
   ex.reset_total_sum_feat_sq();
-  for (VW::features& fs : ex) { fs.clear(); }
+  for (VW980::features& fs : ex) { fs.clear(); }
 }
 
 // arc-hybrid System.
 size_t transition_hybrid(Search::search& sch, uint64_t a_id, uint32_t idx, uint32_t t_id, uint32_t /* n */)
 {
   task_data* data = sch.get_task_data<task_data>();
-  VW::v_array<uint32_t>& heads = data->heads;
-  VW::v_array<uint32_t>& stack = data->stack;
-  VW::v_array<uint32_t>& gold_heads = data->gold_heads;
-  VW::v_array<uint32_t>& gold_tags = data->gold_tags;
-  VW::v_array<uint32_t>& tags = data->tags;
-  VW::v_array<uint32_t>* children = data->children.data();
+  VW980::v_array<uint32_t>& heads = data->heads;
+  VW980::v_array<uint32_t>& stack = data->stack;
+  VW980::v_array<uint32_t>& gold_heads = data->gold_heads;
+  VW980::v_array<uint32_t>& gold_tags = data->gold_tags;
+  VW980::v_array<uint32_t>& tags = data->tags;
+  VW980::v_array<uint32_t>* children = data->children.data();
   if (a_id == SHIFT)
   {
     stack.push_back(idx);
@@ -198,12 +198,12 @@ size_t transition_hybrid(Search::search& sch, uint64_t a_id, uint32_t idx, uint3
 size_t transition_eager(Search::search& sch, uint64_t a_id, uint32_t idx, uint32_t t_id, uint32_t n)
 {
   task_data* data = sch.get_task_data<task_data>();
-  VW::v_array<uint32_t>& heads = data->heads;
-  VW::v_array<uint32_t>& stack = data->stack;
-  VW::v_array<uint32_t>& gold_heads = data->gold_heads;
-  VW::v_array<uint32_t>& gold_tags = data->gold_tags;
-  VW::v_array<uint32_t>& tags = data->tags;
-  VW::v_array<uint32_t>* children = data->children.data();
+  VW980::v_array<uint32_t>& heads = data->heads;
+  VW980::v_array<uint32_t>& stack = data->stack;
+  VW980::v_array<uint32_t>& gold_heads = data->gold_heads;
+  VW980::v_array<uint32_t>& gold_tags = data->gold_tags;
+  VW980::v_array<uint32_t>& tags = data->tags;
+  VW980::v_array<uint32_t>* children = data->children.data();
   if (a_id == SHIFT)
   {
     stack.push_back(idx);
@@ -245,9 +245,9 @@ size_t transition_eager(Search::search& sch, uint64_t a_id, uint32_t idx, uint32
   THROW("transition_eager failed");
 }
 
-void extract_features(Search::search& sch, uint32_t idx, VW::multi_ex& ec)
+void extract_features(Search::search& sch, uint32_t idx, VW980::multi_ex& ec)
 {
-  VW::workspace& all = sch.get_vw_pointer_unsafe();
+  VW980::workspace& all = sch.get_vw_pointer_unsafe();
   task_data* data = sch.get_task_data<task_data>();
   reset_ex(data->ex);
   uint64_t mask = sch.get_mask();
@@ -257,8 +257,8 @@ void extract_features(Search::search& sch, uint32_t idx, VW::multi_ex& ec)
   auto& tags = data->tags;
   auto& children = data->children;
   auto& temp = data->temp;
-  VW::example** ec_buf = data->ec_buf.data();
-  VW::example& ex = data->ex;
+  VW980::example** ec_buf = data->ec_buf.data();
+  VW980::example& ex = data->ex;
 
   size_t n = ec.size();
   bool empty = stack.empty();
@@ -329,7 +329,7 @@ void extract_features(Search::search& sch, uint32_t idx, VW::multi_ex& ec)
     add_feature(ex, temp[j] + additional_offset, VAL_NAMESPACE, mask, multiplier);
   }
   size_t count = 0;
-  for (VW::features& fs : data->ex)
+  for (VW980::features& fs : data->ex)
   {
     fs.sum_feat_sq = static_cast<float>(fs.size());
     count += fs.size();
@@ -338,12 +338,12 @@ void extract_features(Search::search& sch, uint32_t idx, VW::multi_ex& ec)
   data->ex.num_features = count;
 }
 
-void get_valid_actions(Search::search& sch, VW::v_array<uint32_t>& valid_action, uint64_t idx, uint64_t n,
+void get_valid_actions(Search::search& sch, VW980::v_array<uint32_t>& valid_action, uint64_t idx, uint64_t n,
     uint64_t stack_depth, uint64_t state)
 {
   task_data* data = sch.get_task_data<task_data>();
   uint32_t& sys = data->transition_system;
-  VW::v_array<uint32_t>&stack = data->stack, &heads = data->heads, &temp = data->temp;
+  VW980::v_array<uint32_t>&stack = data->stack, &heads = data->heads, &temp = data->temp;
   valid_action.clear();
   if (sys == ARC_HYBRID)
   {
@@ -390,7 +390,7 @@ void get_valid_actions(Search::search& sch, VW::v_array<uint32_t>& valid_action,
   }
 }
 
-bool is_valid(uint64_t action, const VW::v_array<uint32_t>& valid_actions)
+bool is_valid(uint64_t action, const VW980::v_array<uint32_t>& valid_actions)
 {
   for (size_t i = 0; i < valid_actions.size(); i++)
   {
@@ -443,7 +443,7 @@ void get_eager_action_cost(Search::search& sch, uint32_t idx, uint64_t n)
 void get_hybrid_action_cost(Search::search& sch, size_t idx, uint64_t n)
 {
   task_data* data = sch.get_task_data<task_data>();
-  VW::v_array<uint32_t>&action_loss = data->action_loss, &stack = data->stack, &gold_heads = data->gold_heads;
+  VW980::v_array<uint32_t>&action_loss = data->action_loss, &stack = data->stack, &gold_heads = data->gold_heads;
   size_t size = stack.size();
   size_t last = (size == 0) ? 0 : stack.back();
 
@@ -525,7 +525,7 @@ void get_cost_to_go_losses(Search::search& sch, std::vector<std::pair<action, fl
   }
 }
 
-void get_gold_actions(Search::search& sch, uint32_t idx, uint64_t /* n */, VW::v_array<action>& gold_actions)
+void get_gold_actions(Search::search& sch, uint32_t idx, uint64_t /* n */, VW980::v_array<action>& gold_actions)
 {
   task_data* data = sch.get_task_data<task_data>();
   auto& action_loss = data->action_loss;
@@ -562,8 +562,8 @@ void get_gold_actions(Search::search& sch, uint32_t idx, uint64_t /* n */, VW::v
   }
 }
 
-void convert_to_onelearner_actions(Search::search& sch, VW::v_array<action>& actions,
-    VW::v_array<action>& actions_onelearner, uint32_t left_label, uint32_t right_label)
+void convert_to_onelearner_actions(Search::search& sch, VW980::v_array<action>& actions,
+    VW980::v_array<action>& actions_onelearner, uint32_t left_label, uint32_t right_label)
 {
   task_data* data = sch.get_task_data<task_data>();
   uint32_t& sys = data->transition_system;
@@ -595,7 +595,7 @@ void convert_to_onelearner_actions(Search::search& sch, VW::v_array<action>& act
   }
 }
 
-void setup(Search::search& sch, VW::multi_ex& ec)
+void setup(Search::search& sch, VW980::multi_ex& ec)
 {
   task_data* data = sch.get_task_data<task_data>();
   auto& gold_heads = data->gold_heads;
@@ -634,14 +634,14 @@ void setup(Search::search& sch, VW::multi_ex& ec)
   for (size_t i = 0; i < 6; i++) { data->children[i].resize(n + static_cast<size_t>(1)); }
 }
 
-void run(Search::search& sch, VW::multi_ex& ec)
+void run(Search::search& sch, VW980::multi_ex& ec)
 {
   task_data* data = sch.get_task_data<task_data>();
-  VW::v_array<uint32_t>&stack = data->stack, &gold_heads = data->gold_heads, &valid_actions = data->valid_actions,
+  VW980::v_array<uint32_t>&stack = data->stack, &gold_heads = data->gold_heads, &valid_actions = data->valid_actions,
   &heads = data->heads, &gold_tags = data->gold_tags, &tags = data->tags, &valid_action_temp = data->valid_action_temp;
-  VW::v_array<uint32_t>& gold_action_temp = data->gold_action_temp;
+  VW980::v_array<uint32_t>& gold_action_temp = data->gold_action_temp;
   std::vector<std::pair<action, float>>& gold_action_losses = data->gold_action_losses;
-  VW::v_array<action>& gold_actions = data->gold_actions;
+  VW980::v_array<action>& gold_actions = data->gold_actions;
   bool &cost_to_go = data->cost_to_go, &one_learner = data->one_learner;
   uint32_t& num_label = data->num_label;
   uint32_t& sys = data->transition_system;

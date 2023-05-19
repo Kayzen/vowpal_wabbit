@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace config
 {
@@ -70,4 +70,4 @@ protected:
   std::map<char, std::shared_ptr<base_option>> _short_options;
 };
 }  // namespace config
-}  // namespace VW
+}  // namespace VW980

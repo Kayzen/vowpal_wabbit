@@ -10,7 +10,7 @@
 #include "vw/core/reductions/gd.h"
 #include "vw/core/vw.h"
 
-using namespace VW::config;
+using namespace VW980::config;
 
 /*
 example format:
@@ -87,18 +87,18 @@ public:
   std::vector<std::vector<size_t>> adj;     // adj[n] is a vector of *edge example ids* that contain n
   std::vector<uint32_t> bfs;                // order of nodes to process
   std::vector<size_t> pred;                 // predictions
-  VW::example* cur_node;                    // pointer to the current node for add_edge_features_fn
+  VW980::example* cur_node;                    // pointer to the current node for add_edge_features_fn
   std::vector<float> neighbor_predictions;  // prediction on this neighbor for add_edge_features_fn
   std::vector<uint32_t> confusion_matrix;
   std::vector<float> true_counts;
   float true_counts_total;
 };
 
-inline bool example_is_test(const VW::polylabel& l) { return l.cs.costs.empty(); }
+inline bool example_is_test(const VW980::polylabel& l) { return l.cs.costs.empty(); }
 
 void initialize(Search::search& sch, size_t& num_actions, options_i& options)
 {
-  auto D = VW::make_unique<task_data>();  // NOLINT
+  auto D = VW980::make_unique<task_data>();  // NOLINT
   uint64_t num_loops;
 
   option_group_definition new_options("[Search] Search Graphtask");
@@ -111,7 +111,7 @@ void initialize(Search::search& sch, size_t& num_actions, options_i& options)
                .help("Construct features based on directed graph semantics"));
   options.add_and_parse(new_options);
 
-  D->num_loops = VW::cast_to_smaller_type<size_t>(num_loops);
+  D->num_loops = VW980::cast_to_smaller_type<size_t>(num_loops);
   D->use_structure = !D->use_structure;
 
   if (D->num_loops <= 1)
@@ -134,12 +134,12 @@ void initialize(Search::search& sch, size_t& num_actions, options_i& options)
 
   sch.set_task_data<task_data>(D.release());
   sch.set_options(0);  // Search::AUTO_HAMMING_LOSS
-  sch.set_label_parser(VW::cs_label_parser_global, example_is_test);
+  sch.set_label_parser(VW980::cs_label_parser_global, example_is_test);
 }
 
-inline bool example_is_edge(VW::example* e) { return e->l.cs.costs.size() > 1; }
+inline bool example_is_edge(VW980::example* e) { return e->l.cs.costs.size() > 1; }
 
-void run_bfs(task_data& D, VW::multi_ex& ec)
+void run_bfs(task_data& D, VW980::multi_ex& ec)
 {
   D.bfs.clear();
   std::vector<bool> touched;
@@ -185,7 +185,7 @@ void run_bfs(task_data& D, VW::multi_ex& ec)
   }
 }
 
-void setup(Search::search& sch, VW::multi_ex& ec)
+void setup(Search::search& sch, VW980::multi_ex& ec)
 {
   task_data& D = *sch.get_task_data<task_data>();  // NOLINT
   D.multiplier = D.total_feature_width << D.ss;
@@ -238,7 +238,7 @@ void setup(Search::search& sch, VW::multi_ex& ec)
   for (size_t n = 0; n < D.N; n++) { D.pred.push_back(D.K + 1); }
 }
 
-void takedown(Search::search& sch, VW::multi_ex& /*ec*/)
+void takedown(Search::search& sch, VW980::multi_ex& /*ec*/)
 {
   task_data& D = *sch.get_task_data<task_data>();  // NOLINT
   D.bfs.clear();
@@ -249,26 +249,26 @@ void takedown(Search::search& sch, VW::multi_ex& /*ec*/)
 
 void add_edge_features_group_fn(task_data& D, float fv, uint64_t fx)
 {
-  VW::example* node = D.cur_node;
+  VW980::example* node = D.cur_node;
   uint64_t fx2 = fx / D.multiplier;
   for (size_t k = 0; k < D.numN; k++)
   {
     if (D.neighbor_predictions[k] == 0.) { continue; }
-    node->feature_space[VW::details::NEIGHBOR_NAMESPACE].push_back(
+    node->feature_space[VW980::details::NEIGHBOR_NAMESPACE].push_back(
         fv * D.neighbor_predictions[k], static_cast<uint64_t>((fx2 + 348919043 * k) * D.multiplier) & D.mask);
   }
 }
 
 void add_edge_features_single_fn(task_data& D, float fv, uint64_t fx)
 {
-  VW::example* node = D.cur_node;
-  auto& fs = node->feature_space[VW::details::NEIGHBOR_NAMESPACE];
+  VW980::example* node = D.cur_node;
+  auto& fs = node->feature_space[VW980::details::NEIGHBOR_NAMESPACE];
   uint64_t fx2 = fx / D.multiplier;
   size_t k = static_cast<size_t>(D.neighbor_predictions[0]);
   fs.push_back(fv, static_cast<uint32_t>((fx2 + 348919043 * k) * D.multiplier) & D.mask);
 }
 
-void add_edge_features(Search::search& sch, task_data& D, size_t n, VW::multi_ex& ec)
+void add_edge_features(Search::search& sch, task_data& D, size_t n, VW980::multi_ex& ec)
 {
   D.cur_node = ec[n];
 
@@ -322,40 +322,40 @@ void add_edge_features(Search::search& sch, task_data& D, size_t n, VW::multi_ex
 
     if (pred_total == 0.) { continue; }
     for (size_t k = 0; k < D.numN; k++) { D.neighbor_predictions[k] /= pred_total; }
-    VW::example& edge = *ec[i];
+    VW980::example& edge = *ec[i];
 
     if (pred_total <= 1.)  // single edge
     {
       D.neighbor_predictions[0] = static_cast<float>(last_pred);
-      VW::foreach_feature<task_data, uint64_t, add_edge_features_single_fn>(sch.get_vw_pointer_unsafe(), edge, D);
+      VW980::foreach_feature<task_data, uint64_t, add_edge_features_single_fn>(sch.get_vw_pointer_unsafe(), edge, D);
     }
     else
     {  // lots of edges
-      VW::foreach_feature<task_data, uint64_t, add_edge_features_group_fn>(sch.get_vw_pointer_unsafe(), edge, D);
+      VW980::foreach_feature<task_data, uint64_t, add_edge_features_group_fn>(sch.get_vw_pointer_unsafe(), edge, D);
     }
   }
-  ec[n]->indices.push_back(VW::details::NEIGHBOR_NAMESPACE);
+  ec[n]->indices.push_back(VW980::details::NEIGHBOR_NAMESPACE);
   ec[n]->reset_total_sum_feat_sq();
-  ec[n]->num_features += ec[n]->feature_space[VW::details::NEIGHBOR_NAMESPACE].size();
+  ec[n]->num_features += ec[n]->feature_space[VW980::details::NEIGHBOR_NAMESPACE].size();
 
-  VW::workspace& all = sch.get_vw_pointer_unsafe();
+  VW980::workspace& all = sch.get_vw_pointer_unsafe();
   for (const auto& i : all.interactions)
   {
     if (i.size() != 2) { continue; }
     int i0 = static_cast<int>(i[0]);
     int i1 = static_cast<int>(i[1]);
-    if ((i0 == static_cast<int>(VW::details::NEIGHBOR_NAMESPACE)) ||
-        (i1 == static_cast<int>(VW::details::NEIGHBOR_NAMESPACE)))
+    if ((i0 == static_cast<int>(VW980::details::NEIGHBOR_NAMESPACE)) ||
+        (i1 == static_cast<int>(VW980::details::NEIGHBOR_NAMESPACE)))
     {
       ec[n]->num_features += ec[n]->feature_space[i0].size() * ec[n]->feature_space[i1].size();
     }
   }
 }
 
-void del_edge_features(task_data& /*D*/, uint32_t n, VW::multi_ex& ec)
+void del_edge_features(task_data& /*D*/, uint32_t n, VW980::multi_ex& ec)
 {
   ec[n]->indices.pop_back();
-  auto& fs = ec[n]->feature_space[VW::details::NEIGHBOR_NAMESPACE];
+  auto& fs = ec[n]->feature_space[VW980::details::NEIGHBOR_NAMESPACE];
   ec[n]->num_features -= fs.size();
   fs.clear();
 }
@@ -388,7 +388,7 @@ float macro_f(task_data& D)
   return total_f1 / count_f1;
 }
 
-void run(Search::search& sch, VW::multi_ex& ec)
+void run(Search::search& sch, VW980::multi_ex& ec)
 {
   task_data& D = *sch.get_task_data<task_data>();
   float loss_val = 0.5f / static_cast<float>(D.num_loops);

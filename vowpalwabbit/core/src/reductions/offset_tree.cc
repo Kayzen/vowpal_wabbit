@@ -10,10 +10,10 @@
 #include "vw/core/learner.h"
 #include "vw/core/setup_base.h"
 
-using namespace VW::config;
-using namespace VW::LEARNER;
+using namespace VW980::config;
+using namespace VW980::LEARNER;
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
@@ -150,7 +150,7 @@ const offset_tree::scores_t& offset_tree::predict(LEARNER::learner& base, exampl
     return _scores;
   }
 
-  const VW::cb_label saved_label = ec.l.cb;
+  const VW980::cb_label saved_label = ec.l.cb;
   ec.l.cb.costs.clear();
 
   // Get predictions for all internal nodes
@@ -227,18 +227,18 @@ void offset_tree::learn(LEARNER::learner& base, example& ec)
 }
 }  // namespace offset_tree
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980
 
 namespace
 {
 inline void copy_to_action_scores(
-    const VW::reductions::offset_tree::offset_tree::scores_t& scores, VW::action_scores& a_s)
+    const VW980::reductions::offset_tree::offset_tree::scores_t& scores, VW980::action_scores& a_s)
 {
   a_s.clear();
   for (uint32_t idx = 0; idx < scores.size(); ++idx) { a_s.push_back({idx, scores[idx]}); }
 }
 
-void predict(VW::reductions::offset_tree::offset_tree& tree, learner& base, VW::example& ec)
+void predict(VW980::reductions::offset_tree::offset_tree& tree, learner& base, VW980::example& ec)
 {
   // get predictions for all internal nodes in binary tree.
   ec.pred.a_s.clear();
@@ -246,7 +246,7 @@ void predict(VW::reductions::offset_tree::offset_tree& tree, learner& base, VW::
   copy_to_action_scores(scores, ec.pred.a_s);
 }
 
-void learn(VW::reductions::offset_tree::offset_tree& tree, learner& base, VW::example& ec)
+void learn(VW980::reductions::offset_tree::offset_tree& tree, learner& base, VW980::example& ec)
 {
   ec.pred.a_s.clear();
 
@@ -261,7 +261,7 @@ void learn(VW::reductions::offset_tree::offset_tree& tree, learner& base, VW::ex
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::offset_tree_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::offset_tree_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
   option_group_definition new_options("[Reduction] Offset Tree");
@@ -276,7 +276,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::offset_tree_setup(VW::setu
   // default to legacy cb implementation
   options.insert("cb_force_legacy", "");
 
-  auto otree = VW::make_unique<VW::reductions::offset_tree::offset_tree>(num_actions);
+  auto otree = VW980::make_unique<VW980::reductions::offset_tree::offset_tree>(num_actions);
   otree->init();
 
   size_t feature_width = otree->learner_count();

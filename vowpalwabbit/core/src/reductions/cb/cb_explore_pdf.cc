@@ -15,10 +15,10 @@
 
 // Aliases
 using std::endl;
-using VW::config::make_option;
-using VW::config::option_group_definition;
-using VW::config::options_i;
-using VW::LEARNER::learner;
+using VW980::config::make_option;
+using VW980::config::option_group_definition;
+using VW980::config::options_i;
+using VW980::LEARNER::learner;
 
 // Enable/Disable indented debug statements
 #undef VW_DEBUG_LOG
@@ -31,8 +31,8 @@ namespace
 class cb_explore_pdf
 {
 public:
-  int learn(VW::example& ec, VW::experimental::api_status* status);
-  int predict(VW::example& ec, VW::experimental::api_status* status);
+  int learn(VW980::example& ec, VW980::experimental::api_status* status);
+  int predict(VW980::example& ec, VW980::experimental::api_status* status);
 
   void init(learner* p_base);
 
@@ -45,27 +45,27 @@ private:
   learner* _base = nullptr;
 };
 
-int cb_explore_pdf::learn(VW::example& ec, VW::experimental::api_status*)
+int cb_explore_pdf::learn(VW980::example& ec, VW980::experimental::api_status*)
 {
   _base->learn(ec);
-  return VW::experimental::error_code::success;
+  return VW980::experimental::error_code::success;
 }
 
-int cb_explore_pdf::predict(VW::example& ec, VW::experimental::api_status*)
+int cb_explore_pdf::predict(VW980::example& ec, VW980::experimental::api_status*)
 {
-  const auto& reduction_features = ec.ex_reduction_features.template get<VW::continuous_actions::reduction_features>();
+  const auto& reduction_features = ec.ex_reduction_features.template get<VW980::continuous_actions::reduction_features>();
   if (first_only && !reduction_features.is_pdf_set() && !reduction_features.is_chosen_action_set())
   {
     // uniform random
     ec.pred.pdf.push_back(
-        VW::continuous_actions::pdf_segment{min_value, max_value, static_cast<float>(1. / (max_value - min_value))});
-    return VW::experimental::error_code::success;
+        VW980::continuous_actions::pdf_segment{min_value, max_value, static_cast<float>(1. / (max_value - min_value))});
+    return VW980::experimental::error_code::success;
   }
   else if (first_only && reduction_features.is_pdf_set())
   {
     // pdf provided
     ec.pred.pdf = reduction_features.pdf;
-    return VW::experimental::error_code::success;
+    return VW980::experimental::error_code::success;
   }
 
   _base->predict(ec);
@@ -75,20 +75,20 @@ int cb_explore_pdf::predict(VW::example& ec, VW::experimental::api_status*)
   {
     pred_pdf[i].pdf_value = pred_pdf[i].pdf_value * (1 - epsilon) + epsilon / (max_value - min_value);
   }
-  return VW::experimental::error_code::success;
+  return VW980::experimental::error_code::success;
 }
 
 void cb_explore_pdf::init(learner* p_base) { _base = p_base; }
 
 // Free function to tie function pointers to reduction class methods
 template <bool is_learn>
-void predict_or_learn(cb_explore_pdf& reduction, learner&, VW::example& ec)
+void predict_or_learn(cb_explore_pdf& reduction, learner&, VW980::example& ec)
 {
-  VW::experimental::api_status status;
+  VW980::experimental::api_status status;
   if (is_learn) { reduction.learn(ec, &status); }
   else { reduction.predict(ec, &status); }
 
-  if (status.get_error_code() != VW::experimental::error_code::success)
+  if (status.get_error_code() != VW980::experimental::error_code::success)
   {
     VW_DBG(ec) << status.get_error_msg() << endl;
   }
@@ -99,7 +99,7 @@ void predict_or_learn(cb_explore_pdf& reduction, learner&, VW::example& ec)
 ////////////////////////////////////////////////////
 
 // Setup reduction in stack
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_pdf_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_explore_pdf_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
   option_group_definition new_options("[Reduction] Continuous Actions: cb_explore_pdf");
@@ -131,8 +131,8 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_pdf_setup(VW::s
   if (!options.was_supplied("min_value") || !options.was_supplied("max_value"))
     THROW("Min and max values must be supplied with cb_explore_pdf");
 
-  auto p_base = VW::LEARNER::require_singleline(stack_builder.setup_base_learner());
-  auto p_reduction = VW::make_unique<cb_explore_pdf>();
+  auto p_base = VW980::LEARNER::require_singleline(stack_builder.setup_base_learner());
+  auto p_reduction = VW980::make_unique<cb_explore_pdf>();
   p_reduction->init(p_base.get());
   p_reduction->epsilon = epsilon;
   p_reduction->min_value = min;
@@ -141,10 +141,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_pdf_setup(VW::s
 
   auto l = make_reduction_learner(std::move(p_reduction), p_base, predict_or_learn<true>, predict_or_learn<false>,
       stack_builder.get_setupfn_name(cb_explore_pdf_setup))
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CONTINUOUS)
-               .set_input_prediction_type(VW::prediction_type_t::PDF)
-               .set_output_prediction_type(VW::prediction_type_t::PDF)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CONTINUOUS)
+               .set_input_prediction_type(VW980::prediction_type_t::PDF)
+               .set_output_prediction_type(VW980::prediction_type_t::PDF)
                .build();
   return l;
 }

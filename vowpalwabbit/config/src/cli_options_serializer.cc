@@ -6,7 +6,7 @@
 
 #include <vector>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 cli_options_serializer::cli_options_serializer() { m_output_stream.precision(15); }
 

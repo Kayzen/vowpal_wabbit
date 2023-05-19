@@ -12,7 +12,7 @@
 
 TEST(VArray, SizeIsConst)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   list.push_back(2);
 
@@ -22,13 +22,13 @@ TEST(VArray, SizeIsConst)
 
 TEST(VArray, EmptyIsConst)
 {
-  const VW::v_array<int> list;
+  const VW980::v_array<int> list;
   EXPECT_EQ(true, list.empty());
 }
 
 TEST(VArray, Dereference)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   list.push_back(2);
 
@@ -37,7 +37,7 @@ TEST(VArray, Dereference)
 
 TEST(VArray, Clear)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   list.push_back(2);
   EXPECT_EQ(std::size_t(2), list.size());
@@ -47,35 +47,35 @@ TEST(VArray, Clear)
 
 TEST(VArray, Copy)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   list.push_back(2);
   EXPECT_EQ(std::size_t(2), list.size());
 
-  VW::v_array<int> list2 = list;
+  VW980::v_array<int> list2 = list;
   EXPECT_EQ(std::size_t(2), list2.size());
 
-  VW::v_array<int> list3(list);
+  VW980::v_array<int> list3(list);
   EXPECT_EQ(std::size_t(2), list3.size());
 }
 
 TEST(VArray, Move)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   list.push_back(2);
   EXPECT_EQ(std::size_t(2), list.size());
 
-  VW::v_array<int> list2 = std::move(list);
+  VW980::v_array<int> list2 = std::move(list);
   EXPECT_EQ(std::size_t(2), list2.size());
 
-  VW::v_array<int> list3(std::move(list2));
+  VW980::v_array<int> list3(std::move(list2));
   EXPECT_EQ(std::size_t(2), list3.size());
 }
 
 TEST(VArray, PopBack)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   list.push_back(2);
   EXPECT_EQ(std::size_t(2), list.size());
@@ -88,7 +88,7 @@ TEST(VArray, PopBack)
 
 TEST(VArray, FindExists)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   list.push_back(2);
   list.push_back(6);
@@ -101,7 +101,7 @@ TEST(VArray, FindExists)
 
 TEST(VArray, FindNotExists)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   list.push_back(2);
   list.push_back(6);
@@ -113,7 +113,7 @@ TEST(VArray, FindNotExists)
 
 TEST(VArray, Back)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   list.push_back(2);
   EXPECT_EQ(2, list.back());
@@ -121,7 +121,7 @@ TEST(VArray, Back)
 
 TEST(VArray, EraseSingleElementSingleElementArray)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   EXPECT_EQ(std::size_t(1), list.size());
   list.erase(list.begin());
@@ -130,7 +130,7 @@ TEST(VArray, EraseSingleElementSingleElementArray)
 
 TEST(VArray, EraseSingleElementReuseArray)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   EXPECT_EQ(std::size_t(1), list.size());
   list.erase(list.begin());
@@ -142,7 +142,7 @@ TEST(VArray, EraseSingleElementReuseArray)
 
 TEST(VArray, EraseRange)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   list.push_back(2);
   list.push_back(3);
@@ -157,7 +157,7 @@ TEST(VArray, EraseRange)
 
 TEST(VArray, EraseRangeZeroWidth)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(1);
   list.push_back(2);
   EXPECT_EQ(std::size_t(2), list.size());
@@ -167,7 +167,7 @@ TEST(VArray, EraseRangeZeroWidth)
 
 TEST(VArray, EraseLastElement)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.push_back(5);
   list.push_back(3);
   EXPECT_EQ(std::size_t(2), list.size());
@@ -179,7 +179,7 @@ TEST(VArray, EraseLastElement)
 
 TEST(VArray, InsertFromEmpty)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.insert(list.begin(), 1);
 
   EXPECT_EQ(std::size_t(1), list.size());
@@ -188,7 +188,7 @@ TEST(VArray, InsertFromEmpty)
 
 TEST(VArray, InsertCheckIterator)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   auto it = list.insert(list.begin(), 47);
 
   EXPECT_EQ(std::size_t(1), list.size());
@@ -198,7 +198,7 @@ TEST(VArray, InsertCheckIterator)
 
 TEST(VArray, InsertEndIterator)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   auto it = list.insert(list.end(), 22);
 
   EXPECT_EQ(std::size_t(1), list.size());
@@ -208,7 +208,7 @@ TEST(VArray, InsertEndIterator)
 
 TEST(VArray, InsertMultipleInsert)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   list.insert(list.begin(), 1);
   list.insert(list.end(), 2);
 
@@ -249,7 +249,7 @@ TEST(VArray, InsertMultipleInsert)
 
 TEST(VArray, InsertInLoop)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   const auto num_values_to_insert = 1000;
   for (auto i = 0; i < num_values_to_insert; i++) { list.insert(list.begin(), i); }
 
@@ -260,7 +260,7 @@ TEST(VArray, InsertInLoop)
 
 TEST(VArray, InsertRange)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   std::vector<int> to_insert = {1, 2};
   list.insert(list.begin(), to_insert.begin(), to_insert.end());
 
@@ -289,7 +289,7 @@ TEST(VArray, InsertRange)
 
 TEST(VArray, InsertRangeEmptyEnd)
 {
-  VW::v_array<int> list;
+  VW980::v_array<int> list;
   std::vector<int> to_insert = {1, 2};
   list.insert(list.end(), to_insert.begin(), to_insert.end());
 

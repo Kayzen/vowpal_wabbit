@@ -8,8 +8,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-namespace err = VW::experimental::error_code;
-using api_status = VW::experimental::api_status;
+namespace err = VW980::experimental::error_code;
+using api_status = VW980::experimental::api_status;
 
 int testfn()
 {

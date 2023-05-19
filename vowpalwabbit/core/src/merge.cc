@@ -21,9 +21,9 @@
 
 namespace
 {
-std::string get_keep_command_line(const VW::workspace& workspace)
+std::string get_keep_command_line(const VW980::workspace& workspace)
 {
-  VW::config::cli_options_serializer serializer;
+  VW980::config::cli_options_serializer serializer;
   for (auto const& option : workspace.options->get_all_options())
   {
     if (workspace.options->was_supplied(option->m_name) && option->m_keep) { serializer.add(*option); }
@@ -32,14 +32,14 @@ std::string get_keep_command_line(const VW::workspace& workspace)
   return serializer.str();
 }
 
-void validate_compatibility(const std::vector<const VW::workspace*>& workspaces, VW::io::logger* logger)
+void validate_compatibility(const std::vector<const VW980::workspace*>& workspaces, VW980::io::logger* logger)
 {
   if (workspaces.size() < 2) { THROW("Must specify at least two model files to merge."); }
 
   const auto& ref_model = *workspaces[0];
   for (auto model_it = workspaces.begin() + 1; model_it != workspaces.end(); model_it++)
   {
-    const auto* incompatible = VW::are_features_compatible(ref_model, **model_it);
+    const auto* incompatible = VW980::are_features_compatible(ref_model, **model_it);
     if (incompatible != nullptr)
     {
       THROW("Model is incompatible with the destination model. Reason: " << incompatible);
@@ -91,20 +91,20 @@ void validate_compatibility(const std::vector<const VW::workspace*>& workspaces,
   }
 }
 
-std::unique_ptr<VW::workspace> copy_workspace(const VW::workspace* ws, VW::io::logger* logger = nullptr)
+std::unique_ptr<VW980::workspace> copy_workspace(const VW980::workspace* ws, VW980::io::logger* logger = nullptr)
 {
   assert(ws != nullptr);
-  auto command_line = VW::split_command_line(get_keep_command_line(*ws));
+  auto command_line = VW980::split_command_line(get_keep_command_line(*ws));
   if (logger == nullptr) { command_line.emplace_back("--quiet"); }
   else { command_line.emplace_back("--driver_output_off"); }
   command_line.emplace_back("--preserve_performance_counters");
 
   auto backing_vector = std::make_shared<std::vector<char>>();
-  VW::io_buf temp_buffer;
-  temp_buffer.add_file(VW::io::create_vector_writer(backing_vector));
-  VW::save_predictor(*const_cast<VW::workspace*>(ws), temp_buffer);
-  return VW::initialize(VW::make_unique<VW::config::options_cli>(command_line),
-      VW::io::create_buffer_view(backing_vector->data(), backing_vector->size()), nullptr, nullptr, logger);
+  VW980::io_buf temp_buffer;
+  temp_buffer.add_file(VW980::io::create_vector_writer(backing_vector));
+  VW980::save_predictor(*const_cast<VW980::workspace*>(ws), temp_buffer);
+  return VW980::initialize(VW980::make_unique<VW980::config::options_cli>(command_line),
+      VW980::io::create_buffer_view(backing_vector->data(), backing_vector->size()), nullptr, nullptr, logger);
 }
 
 std::vector<float> calc_per_model_weighting(const std::vector<float>& example_counts)
@@ -122,60 +122,60 @@ namespace
 // These are a bit risky, but it feels like a much nicer user interface for a
 // user to be able to pass a ref to a writer to a function rather than require a
 // unique pointer especially since we do not take ownership.
-class reader_ref_adapter : public VW::io::reader
+class reader_ref_adapter : public VW980::io::reader
 {
 public:
-  reader_ref_adapter(VW::io::reader& ref) : VW::io::reader(false), _inner_ref(ref) {}
+  reader_ref_adapter(VW980::io::reader& ref) : VW980::io::reader(false), _inner_ref(ref) {}
   ssize_t read(char* buffer, size_t num_bytes) override { return _inner_ref.read(buffer, num_bytes); }
 
 private:
-  VW::io::reader& _inner_ref;
+  VW980::io::reader& _inner_ref;
 };
 
-class writer_ref_adapter : public VW::io::writer
+class writer_ref_adapter : public VW980::io::writer
 {
 public:
-  writer_ref_adapter(VW::io::writer& ref) : _inner_ref(ref) {}
+  writer_ref_adapter(VW980::io::writer& ref) : _inner_ref(ref) {}
   ssize_t write(const char* buffer, size_t num_bytes) override { return _inner_ref.write(buffer, num_bytes); }
   void flush() override { _inner_ref.flush(); }
 
 private:
-  VW::io::writer& _inner_ref;
+  VW980::io::writer& _inner_ref;
 };
 
 }  // namespace
 
-namespace VW
+namespace VW980
 {
-void model_delta::serialize(VW::io::writer& output) const
+void model_delta::serialize(VW980::io::writer& output) const
 {
   io_buf buffer;
-  buffer.add_file(VW::make_unique<writer_ref_adapter>(output));
-  VW::save_predictor(*_ws, buffer);
+  buffer.add_file(VW980::make_unique<writer_ref_adapter>(output));
+  VW980::save_predictor(*_ws, buffer);
 }
 
-std::unique_ptr<model_delta> model_delta::deserialize(VW::io::reader& input)
+std::unique_ptr<model_delta> model_delta::deserialize(VW980::io::reader& input)
 {
   auto command_line = std::vector<std::string>{"--preserve_performance_counters", "--quiet"};
-  return VW::make_unique<model_delta>(VW::initialize(
-      VW::make_unique<VW::config::options_cli>(command_line), VW::make_unique<reader_ref_adapter>(input)));
+  return VW980::make_unique<model_delta>(VW980::initialize(
+      VW980::make_unique<VW980::config::options_cli>(command_line), VW980::make_unique<reader_ref_adapter>(input)));
 }
 
-VW::model_delta merge_deltas(const std::vector<const VW::model_delta*>& deltas_to_merge, VW::io::logger* logger)
+VW980::model_delta merge_deltas(const std::vector<const VW980::model_delta*>& deltas_to_merge, VW980::io::logger* logger)
 {
   // Get workspace pointers from deltas
-  std::vector<const VW::workspace*> workspaces_to_merge;
+  std::vector<const VW980::workspace*> workspaces_to_merge;
   workspaces_to_merge.reserve(deltas_to_merge.size());
   for (const auto delta_ptr : deltas_to_merge) { workspaces_to_merge.push_back(delta_ptr->unsafe_get_workspace_ptr()); }
   validate_compatibility(workspaces_to_merge, logger);
 
   // Get VW command line and create output workspace
-  auto command_line = VW::split_command_line(get_keep_command_line(*workspaces_to_merge[0]));
+  auto command_line = VW980::split_command_line(get_keep_command_line(*workspaces_to_merge[0]));
   if (logger == nullptr) { command_line.emplace_back("--quiet"); }
   else { command_line.emplace_back("--driver_output_off"); }
   command_line.emplace_back("--preserve_performance_counters");
   auto dest_workspace =
-      VW::initialize(VW::make_unique<VW::config::options_cli>(command_line), nullptr, nullptr, nullptr, logger);
+      VW980::initialize(VW980::make_unique<VW980::config::options_cli>(command_line), nullptr, nullptr, nullptr, logger);
 
   // Get example counts and compute weighting of models
   std::vector<float> example_counts;
@@ -189,7 +189,7 @@ VW::model_delta merge_deltas(const std::vector<const VW::model_delta*>& deltas_t
   {
     if (target_learner->has_merge())
     {
-      std::vector<const VW::LEARNER::learner*> learners_to_merge;
+      std::vector<const VW980::LEARNER::learner*> learners_to_merge;
       for (const auto* delta : workspaces_to_merge)
       {
         auto* source_data = delta->l->get_learner_by_name_prefix(target_learner->get_name());
@@ -235,13 +235,13 @@ VW::model_delta merge_deltas(const std::vector<const VW::model_delta*>& deltas_t
     dest_workspace->sd->min_label = std::min(dest_workspace->sd->min_label, delta->sd->min_label);
   }
 
-  return VW::model_delta(std::move(dest_workspace));
+  return VW980::model_delta(std::move(dest_workspace));
 }
 
-std::unique_ptr<VW::workspace> merge_models(const VW::workspace* base_workspace,
-    const std::vector<const VW::workspace*>& workspaces_to_merge, VW::io::logger* logger)
+std::unique_ptr<VW980::workspace> merge_models(const VW980::workspace* base_workspace,
+    const std::vector<const VW980::workspace*>& workspaces_to_merge, VW980::io::logger* logger)
 {
-  std::vector<VW::model_delta> deltas;
+  std::vector<VW980::model_delta> deltas;
   deltas.reserve(workspaces_to_merge.size());
 
   if (base_workspace != nullptr)
@@ -257,26 +257,26 @@ std::unique_ptr<VW::workspace> merge_models(const VW::workspace* base_workspace,
     }
   }
 
-  std::vector<const VW::model_delta*> delta_ptrs;
+  std::vector<const VW980::model_delta*> delta_ptrs;
   delta_ptrs.reserve(deltas.size());
   for (const auto& d : deltas) { delta_ptrs.push_back(&d); }
-  VW::model_delta merged = merge_deltas(delta_ptrs, logger);
+  VW980::model_delta merged = merge_deltas(delta_ptrs, logger);
 
   if (base_workspace != nullptr) { return *base_workspace + merged; }
-  return std::unique_ptr<VW::workspace>(merged.unsafe_release_workspace_ptr());
+  return std::unique_ptr<VW980::workspace>(merged.unsafe_release_workspace_ptr());
 }
-}  // namespace VW
+}  // namespace VW980
 
-std::unique_ptr<VW::workspace> VW::operator+(const VW::workspace& base, const VW::model_delta& md)
+std::unique_ptr<VW980::workspace> VW980::operator+(const VW980::workspace& base, const VW980::model_delta& md)
 {
-  const VW::workspace* delta = md.unsafe_get_workspace_ptr();
-  validate_compatibility(std::vector<const VW::workspace*>{&base, delta}, nullptr);
-  auto dest_command_line = VW::split_command_line(get_keep_command_line(base));
+  const VW980::workspace* delta = md.unsafe_get_workspace_ptr();
+  validate_compatibility(std::vector<const VW980::workspace*>{&base, delta}, nullptr);
+  auto dest_command_line = VW980::split_command_line(get_keep_command_line(base));
   dest_command_line.emplace_back("--quiet");
   dest_command_line.emplace_back("--preserve_performance_counters");
 
   auto destination_workspace =
-      VW::initialize(VW::make_unique<VW::config::options_cli>(dest_command_line), nullptr, nullptr, nullptr, nullptr);
+      VW980::initialize(VW980::make_unique<VW980::config::options_cli>(dest_command_line), nullptr, nullptr, nullptr, nullptr);
 
   auto* target_learner = destination_workspace->l.get();
   while (target_learner != nullptr)
@@ -284,8 +284,8 @@ std::unique_ptr<VW::workspace> VW::operator+(const VW::workspace& base, const VW
     if (target_learner->has_add())
     {
       auto learner_name = target_learner->get_name();
-      const VW::LEARNER::learner* learner = base.l->get_learner_by_name_prefix(learner_name);
-      const VW::LEARNER::learner* delta_learner = delta->l->get_learner_by_name_prefix(learner_name);
+      const VW980::LEARNER::learner* learner = base.l->get_learner_by_name_prefix(learner_name);
+      const VW980::LEARNER::learner* delta_learner = delta->l->get_learner_by_name_prefix(learner_name);
 
       target_learner->add(base, *delta, learner, delta_learner, *destination_workspace, target_learner);
     }
@@ -318,15 +318,15 @@ std::unique_ptr<VW::workspace> VW::operator+(const VW::workspace& base, const VW
   return destination_workspace;
 }
 
-VW::model_delta VW::operator-(const VW::workspace& ws1, const VW::workspace& ws2)
+VW980::model_delta VW980::operator-(const VW980::workspace& ws1, const VW980::workspace& ws2)
 {
-  validate_compatibility(std::vector<const VW::workspace*>{&ws1, &ws2}, nullptr);
-  auto dest_command_line = VW::split_command_line(get_keep_command_line(ws1));
+  validate_compatibility(std::vector<const VW980::workspace*>{&ws1, &ws2}, nullptr);
+  auto dest_command_line = VW980::split_command_line(get_keep_command_line(ws1));
   dest_command_line.emplace_back("--quiet");
   dest_command_line.emplace_back("--preserve_performance_counters");
 
   auto destination_workspace =
-      VW::initialize(VW::make_unique<VW::config::options_cli>(dest_command_line), nullptr, nullptr, nullptr, nullptr);
+      VW980::initialize(VW980::make_unique<VW980::config::options_cli>(dest_command_line), nullptr, nullptr, nullptr, nullptr);
 
   auto* target_learner = destination_workspace->l.get();
   while (target_learner != nullptr)
@@ -334,8 +334,8 @@ VW::model_delta VW::operator-(const VW::workspace& ws1, const VW::workspace& ws2
     if (target_learner->has_subtract())
     {
       auto learner_name = target_learner->get_name();
-      const VW::LEARNER::learner* ws1_learner = ws1.l->get_learner_by_name_prefix(learner_name);
-      const VW::LEARNER::learner* ws2_learner = ws2.l->get_learner_by_name_prefix(learner_name);
+      const VW980::LEARNER::learner* ws1_learner = ws1.l->get_learner_by_name_prefix(learner_name);
+      const VW980::LEARNER::learner* ws2_learner = ws2.l->get_learner_by_name_prefix(learner_name);
 
       target_learner->subtract(ws1, ws2, ws1_learner, ws2_learner, *destination_workspace, target_learner);
     }
@@ -365,5 +365,5 @@ VW::model_delta VW::operator-(const VW::workspace& ws1, const VW::workspace& ws2
   output_sd.max_label = std::max(ws1.sd->max_label, ws2.sd->max_label);
   output_sd.min_label = std::min(ws1.sd->min_label, ws2.sd->min_label);
 
-  return VW::model_delta(std::move(destination_workspace));
+  return VW980::model_delta(std::move(destination_workspace));
 }

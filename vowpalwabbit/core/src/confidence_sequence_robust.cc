@@ -10,7 +10,7 @@
 #include <cassert>
 #include <cmath>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -346,7 +346,7 @@ double confidence_sequence_robust::upper_bound() const { return 1 - upper.get_ci
 
 namespace model_utils
 {
-size_t read_model_field(io_buf& io, VW::details::g_tilde& gt)
+size_t read_model_field(io_buf& io, VW980::details::g_tilde& gt)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, gt.sum_x);
@@ -357,7 +357,7 @@ size_t read_model_field(io_buf& io, VW::details::g_tilde& gt)
   return bytes;
 }
 
-size_t write_model_field(io_buf& io, const VW::details::g_tilde& gt, const std::string& upstream_name, bool text)
+size_t write_model_field(io_buf& io, const VW980::details::g_tilde& gt, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, gt.sum_x, upstream_name + "_sum_x", text);
@@ -368,7 +368,7 @@ size_t write_model_field(io_buf& io, const VW::details::g_tilde& gt, const std::
   return bytes;
 }
 
-size_t read_model_field(io_buf& io, VW::details::countable_discrete_base& cdb)
+size_t read_model_field(io_buf& io, VW980::details::countable_discrete_base& cdb)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, cdb.t);
@@ -377,7 +377,7 @@ size_t read_model_field(io_buf& io, VW::details::countable_discrete_base& cdb)
 }
 
 size_t write_model_field(
-    io_buf& io, const VW::details::countable_discrete_base& cdb, const std::string& upstream_name, bool text)
+    io_buf& io, const VW980::details::countable_discrete_base& cdb, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, cdb.t, upstream_name + "_t", text);
@@ -385,7 +385,7 @@ size_t write_model_field(
   return bytes;
 }
 
-size_t read_model_field(io_buf& io, VW::estimators::confidence_sequence_robust& csr)
+size_t read_model_field(io_buf& io, VW980::estimators::confidence_sequence_robust& csr)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, csr.update_count);
@@ -397,7 +397,7 @@ size_t read_model_field(io_buf& io, VW::estimators::confidence_sequence_robust& 
 }
 
 size_t write_model_field(
-    io_buf& io, const VW::estimators::confidence_sequence_robust& csr, const std::string& upstream_name, bool text)
+    io_buf& io, const VW980::estimators::confidence_sequence_robust& csr, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, csr.update_count, upstream_name + "_update_count", text);
@@ -408,4 +408,4 @@ size_t write_model_field(
   return bytes;
 }
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980

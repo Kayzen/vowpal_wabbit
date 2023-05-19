@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 class named_labels
 {
@@ -26,7 +26,7 @@ public:
   named_labels& operator=(named_labels&& other) noexcept = delete;
 
   uint32_t getK() const;
-  uint32_t get(string_view s, VW::io::logger& logger) const;
+  uint32_t get(string_view s, VW980::io::logger& logger) const;
   string_view get(uint32_t v) const;
 
 private:
@@ -38,4 +38,4 @@ private:
 
   void initialize_maps_from_input_string();
 };
-}  // namespace VW
+}  // namespace VW980

@@ -21,7 +21,7 @@ using namespace System;
 using namespace System::Collections::Generic;
 using namespace System::Text;
 
-namespace VW
+namespace VW980
 {
 void trace_listener_cli(void* context, const std::string& message)
 {
@@ -57,7 +57,7 @@ VowpalWabbitBase::VowpalWabbitBase(VowpalWabbitSettings^ settings)
       { m_model = settings->Model;
         if (!settings->Verbose && !settings->Arguments->Contains("--quiet") && !m_model->Arguments->CommandLine->Contains("--quiet"))
           string.append(" --quiet");
-        m_vw = VW::seed_vw_model(m_model->m_vw, string, trace_listener, trace_context);
+        m_vw = VW980::seed_vw_model(m_model->m_vw, string, trace_listener, trace_context);
         m_model->IncrementReference();
       }
       else
@@ -67,14 +67,14 @@ VowpalWabbitBase::VowpalWabbitBase(VowpalWabbitSettings^ settings)
         { if (!settings->Verbose && !settings->Arguments->Contains("--quiet"))
             string.append(" --quiet");
 
-          m_vw = VW::initialize(string, nullptr, false, trace_listener, trace_context);
+          m_vw = VW980::initialize(string, nullptr, false, trace_listener, trace_context);
         }
         else
         {
-          VW::io_buf model;
+          VW980::io_buf model;
           auto* stream = new clr_stream_adapter(settings->ModelStream);
-          model.add_file(std::unique_ptr<VW::io::reader>(stream));
-          m_vw = VW::initialize(string, &model, false, trace_listener, trace_context);
+          model.add_file(std::unique_ptr<VW980::io::reader>(stream));
+          m_vw = VW980::initialize(string, &model, false, trace_listener, trace_context);
           settings->ModelStream = nullptr;
         }
       }
@@ -150,15 +150,15 @@ void VowpalWabbitBase::InternalDispose()
   try
   { if (m_vw != nullptr)
     {
-      VW::details::reset_source(*m_vw, m_vw->num_bits);
+      VW980::details::reset_source(*m_vw, m_vw->num_bits);
 
-      // make sure don't try to free m_vw twice in case VW::finish throws.
-      VW::workspace* vw_tmp = m_vw;
+      // make sure don't try to free m_vw twice in case VW980::finish throws.
+      VW980::workspace* vw_tmp = m_vw;
       m_vw = nullptr;
-      VW::finish(*vw_tmp);
+      VW980::finish(*vw_tmp);
     }
 
-    // don't add code here as in the case of VW::finish throws an exception it won't be called
+    // don't add code here as in the case of VW980::finish throws an exception it won't be called
   }
   CATCHRETHROW
 }
@@ -187,31 +187,31 @@ void VowpalWabbitBase::Reload([System::Runtime::InteropServices::Optional] Strin
 
   try
   {
-    VW::details::reset_source(*m_vw, m_vw->num_bits);
+    VW980::details::reset_source(*m_vw, m_vw->num_bits);
 
     auto buffer = std::make_shared<std::vector<char>>();
     {
-      VW::io_buf write_buffer;
-      write_buffer.add_file(VW::io::create_vector_writer(buffer));
-      VW::save_predictor(*m_vw, write_buffer);
+      VW980::io_buf write_buffer;
+      write_buffer.add_file(VW980::io::create_vector_writer(buffer));
+      VW980::save_predictor(*m_vw, write_buffer);
     }
 
-    // make sure don't try to free m_vw twice in case VW::finish throws.
-    VW::workspace* vw_tmp = m_vw;
+    // make sure don't try to free m_vw twice in case VW980::finish throws.
+    VW980::workspace* vw_tmp = m_vw;
     m_vw = nullptr;
-    VW::finish(*vw_tmp);
+    VW980::finish(*vw_tmp);
 
     // reload from model
     // seek to beginning
-    VW::io_buf reader_view_of_buffer;
-    reader_view_of_buffer.add_file(VW::io::create_buffer_view(buffer->data(), buffer->size()));
-    m_vw = VW::initialize(stringArgs.c_str(), &reader_view_of_buffer);
+    VW980::io_buf reader_view_of_buffer;
+    reader_view_of_buffer.add_file(VW980::io::create_buffer_view(buffer->data(), buffer->size()));
+    m_vw = VW980::initialize(stringArgs.c_str(), &reader_view_of_buffer);
   }
   CATCHRETHROW
 }
 
 String^ VowpalWabbitBase::AreFeaturesCompatible(VowpalWabbitBase^ other)
-{ auto diff = VW::are_features_compatible(*m_vw, *other->m_vw);
+{ auto diff = VW980::are_features_compatible(*m_vw, *other->m_vw);
 
   return diff == nullptr ? nullptr : gcnew String(diff);
 }
@@ -250,7 +250,7 @@ void VowpalWabbitBase::SaveModel(String^ filename)
   auto name = msclr::interop::marshal_as<std::string>(filename);
 
   try
-  { VW::save_predictor(*m_vw, name);
+  { VW980::save_predictor(*m_vw, name);
   }
   CATCHRETHROW
 }
@@ -261,11 +261,11 @@ void VowpalWabbitBase::SaveModel(Stream^ stream)
 
   try
   {
-    VW::io_buf buf;
+    VW980::io_buf buf;
     auto* stream_adapter = new clr_stream_adapter(stream);
-    buf.add_file(std::unique_ptr<VW::io::writer>(stream_adapter));
-    VW::save_predictor(*m_vw, buf);
+    buf.add_file(std::unique_ptr<VW980::io::writer>(stream_adapter));
+    VW980::save_predictor(*m_vw, buf);
   }
   CATCHRETHROW
 }
-}  // namespace VW
+}  // namespace VW980

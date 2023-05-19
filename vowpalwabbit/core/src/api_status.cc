@@ -4,7 +4,7 @@
 
 #include "vw/core/api_status.h"
 
-namespace VW
+namespace VW980
 {
 namespace experimental
 {
@@ -51,4 +51,4 @@ status_builder::operator int() const { return _code; }
 
 bool status_builder::enable_logging() const { return _status != nullptr || _trace != nullptr; }
 }  // namespace experimental
-}  // namespace VW
+}  // namespace VW980

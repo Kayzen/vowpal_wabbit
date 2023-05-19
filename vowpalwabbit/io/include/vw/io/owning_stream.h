@@ -5,7 +5,7 @@
 #include <memory>
 #include <ostream>
 
-namespace VW
+namespace VW980
 {
 namespace io
 {
@@ -22,4 +22,4 @@ private:
 };
 
 }  // namespace io
-}  // namespace VW
+}  // namespace VW980

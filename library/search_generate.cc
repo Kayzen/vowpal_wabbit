@@ -272,7 +272,7 @@ float get_or_one(std::vector<std::pair<char, size_t>>& v, char c)
 class Generator : public SearchTask<input, output>  // NOLINT
 {
 public:
-  Generator(VW::workspace& vw_obj, Trie* _dict = nullptr)
+  Generator(VW980::workspace& vw_obj, Trie* _dict = nullptr)
       : SearchTask<input, output>(vw_obj), _dist(0), _dict(_dict)  // must run parent constructor!
   {
     // TODO: if action costs is specified but no allowed actions provided, don't segfault :P
@@ -287,24 +287,24 @@ public:
 
     auto& vw_obj = sch.get_vw_pointer_unsafe();
 
-    VW::v_array<action> ref;
+    VW980::v_array<action> ref;
     int n = (int)in.in.length();
     out = "^";
     std::vector<nextstr> next;
     for (int m = 1; m <= n * 2; m++)  // at most |in|*2 outputs
     {
-      VW::example ex;
+      VW980::example ex;
 
       // length info
-      auto ns_hash_l = VW::hash_space(vw_obj, "l");
+      auto ns_hash_l = VW980::hash_space(vw_obj, "l");
       auto& fs_l = ex.feature_space['l'];
       ex.indices.push_back('l');
-      fs_l.push_back(static_cast<float>(n), VW::hash_feature(vw_obj, "in", ns_hash_l));
-      fs_l.push_back(static_cast<float>(m), VW::hash_feature(vw_obj, "out", ns_hash_l));
-      if (n != m) { fs_l.push_back(static_cast<float>(n - m), VW::hash_feature(vw_obj, "diff", ns_hash_l)); }
+      fs_l.push_back(static_cast<float>(n), VW980::hash_feature(vw_obj, "in", ns_hash_l));
+      fs_l.push_back(static_cast<float>(m), VW980::hash_feature(vw_obj, "out", ns_hash_l));
+      if (n != m) { fs_l.push_back(static_cast<float>(n - m), VW980::hash_feature(vw_obj, "diff", ns_hash_l)); }
 
       // suffixes thus far
-      auto ns_hash_s = VW::hash_space(vw_obj, "s");
+      auto ns_hash_s = VW980::hash_space(vw_obj, "s");
       auto& fs_s = ex.feature_space['s'];
       ex.indices.push_back('s');
       std::string tmp("$");
@@ -313,18 +313,18 @@ public:
         std::stringstream ss;
         ss << out[i] << tmp;
         tmp = ss.str();
-        fs_s.push_back(1.f, VW::hash_feature(vw_obj, "p=" + tmp, ns_hash_s));
+        fs_s.push_back(1.f, VW980::hash_feature(vw_obj, "p=" + tmp, ns_hash_s));
       }
 
       // characters thus far
-      auto ns_hash_c = VW::hash_space(vw_obj, "c");
+      auto ns_hash_c = VW980::hash_space(vw_obj, "c");
       auto& fs_c = ex.feature_space['c'];
       ex.indices.push_back('c');
-      for (char c : out) { fs_c.push_back(1.f, VW::hash_feature(vw_obj, "c=" + std::string(1, c), ns_hash_c)); }
-      fs_c.push_back(1.f, VW::hash_feature(vw_obj, "c=$", ns_hash_c));
+      for (char c : out) { fs_c.push_back(1.f, VW980::hash_feature(vw_obj, "c=" + std::string(1, c), ns_hash_c)); }
+      fs_c.push_back(1.f, VW980::hash_feature(vw_obj, "c=$", ns_hash_c));
 
       // words thus far
-      auto ns_hash_w = VW::hash_space(vw_obj, "w");
+      auto ns_hash_w = VW980::hash_space(vw_obj, "w");
       auto& fs_w = ex.feature_space['w'];
       ex.indices.push_back('w');
       tmp = "";
@@ -333,12 +333,12 @@ public:
         if (c == '^') { continue; }
         if (c == ' ')
         {
-          fs_w.push_back(1.f, VW::hash_feature(vw_obj, "w=" + tmp + "$", ns_hash_w));
+          fs_w.push_back(1.f, VW980::hash_feature(vw_obj, "w=" + tmp + "$", ns_hash_w));
           tmp = "";
         }
         else { tmp += c; }
       }
-      fs_w.push_back(1.f, VW::hash_feature(vw_obj, "w=" + tmp, ns_hash_w));
+      fs_w.push_back(1.f, VW980::hash_feature(vw_obj, "w=" + tmp, ns_hash_w));
 
       // do we match the trie?
       if (_dict)
@@ -346,7 +346,7 @@ public:
         next.clear();
         _dict->get_next(nullptr, next);
 
-        auto ns_hash_d = VW::hash_space(vw_obj, "d");
+        auto ns_hash_d = VW980::hash_space(vw_obj, "d");
         auto& fs_d = ex.feature_space['d'];
         ex.indices.push_back('d');
 
@@ -354,8 +354,8 @@ public:
         float best_count = 0.;
         for (const auto& xx : next)
         {
-          if (xx.cw > 0.) { fs_d.push_back(xx.cw, VW::hash_feature(vw_obj, "c=" + std::string(1, xx.c), ns_hash_d)); }
-          if (xx.sw > 0.) { fs_d.push_back(xx.sw, VW::hash_feature(vw_obj, "mc=" + xx.s, ns_hash_d)); }
+          if (xx.cw > 0.) { fs_d.push_back(xx.cw, VW980::hash_feature(vw_obj, "c=" + std::string(1, xx.c), ns_hash_d)); }
+          if (xx.sw > 0.) { fs_d.push_back(xx.sw, VW980::hash_feature(vw_obj, "mc=" + xx.s, ns_hash_d)); }
           if (xx.sw > best_count)
           {
             best_count = xx.sw;
@@ -364,7 +364,7 @@ public:
         }
         if (best_count > 0.)
         {
-          fs_d.push_back(best_count, VW::hash_feature(vw_obj, "best=" + std::string(1, best_char), ns_hash_d));
+          fs_d.push_back(best_count, VW980::hash_feature(vw_obj, "best=" + std::string(1, best_char), ns_hash_d));
         }
       }
 
@@ -376,7 +376,7 @@ public:
         ex("c=" + in.in[n]);
       ex("c=$");
       */
-      auto ns_hash_i = VW::hash_space(vw_obj, "i");
+      auto ns_hash_i = VW980::hash_space(vw_obj, "i");
       auto& fs_i = ex.feature_space['i'];
       ex.indices.push_back('i');
       tmp = "";
@@ -384,12 +384,12 @@ public:
       {
         if (c == ' ')
         {
-          fs_i.push_back(1.f, VW::hash_feature(vw_obj, "w=" + tmp, ns_hash_i));
+          fs_i.push_back(1.f, VW980::hash_feature(vw_obj, "w=" + tmp, ns_hash_i));
           tmp = "";
         }
         else { tmp += c; }
       }
-      fs_i.push_back(1.f, VW::hash_feature(vw_obj, "w=" + tmp, ns_hash_i));
+      fs_i.push_back(1.f, VW980::hash_feature(vw_obj, "w=" + tmp, ns_hash_i));
 
       ref.clear();
 
@@ -402,11 +402,11 @@ public:
                             .set_oracle(ref)
                             .predict() );
       */
-      VW::setup_example(vw_obj, &ex);
+      VW980::setup_example(vw_obj, &ex);
       std::vector<std::pair<action, float>> all = ied.all_next();
       char c = action2char(Search::predictor(sch, m).set_input(ex).set_allowed(all).predict());
 
-      VW::finish_example(vw_obj, ex);
+      VW980::finish_example(vw_obj, ex);
 
       if (c == '$') { break; }
       out += c;
@@ -427,8 +427,8 @@ private:
 
 void run_easy()
 {
-  auto vw_obj = VW::initialize(
-      VW::make_unique<VW::config::options_cli>(std::vector<std::string>{"--search", "29", "--quiet", "--search_task",
+  auto vw_obj = VW980::initialize(
+      VW980::make_unique<VW980::config::options_cli>(std::vector<std::string>{"--search", "29", "--quiet", "--search_task",
           "hook", "--example_queue_limit", "1024", "--search_rollin", "learn", "--search_rollout", "none"}));
   Generator task(*vw_obj);
   output out("");
@@ -525,7 +525,7 @@ void train()
       "none -q i: --ngram i15 --skips i5 --ngram c15 --ngram w6 --skips c3 --skips w3");  //  --search_use_passthrough_repr");
                                                                                           //  // -q si -q wi -q ci -q di
                                                                                           //  -f my_model
-  auto vw_obj = VW::initialize(VW::make_unique<VW::config::options_cli>(VW::split_command_line(init_str)));
+  auto vw_obj = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(VW980::split_command_line(init_str)));
 
   cerr << init_str << endl;
   // Generator gen(*vw_obj, nullptr); // &dict);
@@ -542,7 +542,7 @@ void train()
 
 void predict()
 {
-  auto vw_obj = VW::initialize(VW::make_unique<VW::config::options_cli>(
+  auto vw_obj = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(
       std::vector<std::string>{"--quiet", "-t", "--example_queue_limit", "1024", "-i", "my_model"}));
   vw_obj->finish();
 }

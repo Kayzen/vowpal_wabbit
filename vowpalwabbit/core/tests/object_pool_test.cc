@@ -19,11 +19,11 @@ public:
 TEST(ObjectPool, ObjectPoolTest)
 {
   {
-    VW::object_pool<obj> pool_with_size{50};
+    VW980::object_pool<obj> pool_with_size{50};
     EXPECT_EQ(pool_with_size.size(), 50);
   }
 
-  VW::object_pool<obj> pool{0};
+  VW980::object_pool<obj> pool{0};
   EXPECT_EQ(pool.size(), 0);
   EXPECT_EQ(pool.empty(), true);
 

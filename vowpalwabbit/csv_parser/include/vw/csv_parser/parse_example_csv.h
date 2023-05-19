@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace parsers
 {
@@ -32,27 +32,27 @@ public:
   bool csv_remove_outer_quotes = true;
 };
 
-int parse_csv_examples(VW::workspace* all, io_buf& buf, VW::multi_ex& examples);
+int parse_csv_examples(VW980::workspace* all, io_buf& buf, VW980::multi_ex& examples);
 
-class csv_parser : public VW::details::input_parser
+class csv_parser : public VW980::details::input_parser
 {
 public:
   std::vector<std::string> header_fn;
   std::vector<std::string> header_ns;
   size_t line_num = 0;
   csv_parser_options options;
-  VW::v_array<size_t> label_list;
-  VW::v_array<size_t> tag_list;
-  std::unordered_map<std::string, VW::v_array<size_t>> feature_list;
+  VW980::v_array<size_t> label_list;
+  VW980::v_array<size_t> tag_list;
+  std::unordered_map<std::string, VW980::v_array<size_t>> feature_list;
   std::unordered_map<std::string, float> ns_value;
 
-  explicit csv_parser(csv_parser_options options) : VW::details::input_parser("csv"), options(std::move(options)) {}
+  explicit csv_parser(csv_parser_options options) : VW980::details::input_parser("csv"), options(std::move(options)) {}
   ~csv_parser() override = default;
 
-  static void set_parse_args(VW::config::option_group_definition& in_options, csv_parser_options& parsed_options);
+  static void set_parse_args(VW980::config::option_group_definition& in_options, csv_parser_options& parsed_options);
   static void handle_parse_args(csv_parser_options& parsed_options);
 
-  bool next(VW::workspace& all, io_buf& buf, VW::multi_ex& examples) override
+  bool next(VW980::workspace& all, io_buf& buf, VW980::multi_ex& examples) override
   {
     return parse_csv(&all, examples[0], buf) != 0;
   }
@@ -60,9 +60,9 @@ public:
 private:
   static void set_csv_separator(std::string& str, const std::string& name);
   void reset();
-  int parse_csv(VW::workspace* all, VW::example* ae, io_buf& buf);
-  size_t read_line(VW::workspace* all, VW::example* ae, io_buf& buf);
+  int parse_csv(VW980::workspace* all, VW980::example* ae, io_buf& buf);
+  size_t read_line(VW980::workspace* all, VW980::example* ae, io_buf& buf);
 };
 }  // namespace csv
 }  // namespace parsers
-}  // namespace VW
+}  // namespace VW980

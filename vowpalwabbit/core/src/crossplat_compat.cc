@@ -10,7 +10,7 @@
 #  include <unistd.h>
 #endif
 
-int VW::string_cpy(char* dest, size_t dest_size, const char* src)
+int VW980::string_cpy(char* dest, size_t dest_size, const char* src)
 {
 #ifdef _WIN32
   // strcpy_s returns an errno_t
@@ -22,7 +22,7 @@ int VW::string_cpy(char* dest, size_t dest_size, const char* src)
 #endif
 }
 
-int VW::file_open(FILE** pf, const char* filename, const char* mode)
+int VW980::file_open(FILE** pf, const char* filename, const char* mode)
 {
 #ifdef _WIN32
   // fopen_s returns an errno_t
@@ -34,7 +34,7 @@ int VW::file_open(FILE** pf, const char* filename, const char* mode)
 #endif
 }
 
-int VW::get_pid()
+int VW980::get_pid()
 {
 #ifdef _WIN32
   return _getpid();

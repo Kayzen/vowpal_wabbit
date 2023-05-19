@@ -6,10 +6,10 @@
 
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> cb_to_cb_adf_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> cb_to_cb_adf_setup(VW980::setup_base_i& stack_builder);
 }
-}  // namespace VW
+}  // namespace VW980

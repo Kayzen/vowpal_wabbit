@@ -15,17 +15,17 @@ using namespace ::testing;
 
 TEST(Tokenize, BasicString)
 {
-  std::vector<VW::string_view> container;
+  std::vector<VW980::string_view> container;
   std::string str = "this is   a string  ";
-  VW::tokenize(' ', str, container);
+  VW980::tokenize(' ', str, container);
   EXPECT_THAT(container, ElementsAre(StrEq("this"), StrEq("is"), StrEq("a"), StrEq("string")));
 }
 
 TEST(Tokenize, BasicStringAllowEmpty)
 {
-  std::vector<VW::string_view> container;
+  std::vector<VW980::string_view> container;
   std::string str = "this is   a string  ";
-  VW::tokenize(' ', str, container, true);
+  VW980::tokenize(' ', str, container, true);
 
   EXPECT_THAT(container,
       testing::ElementsAre(
@@ -34,9 +34,9 @@ TEST(Tokenize, BasicStringAllowEmpty)
 
 TEST(Tokenize, BasicStringAllowEmptyNoEndSpace)
 {
-  std::vector<VW::string_view> container;
+  std::vector<VW980::string_view> container;
   std::string str = "this is   a string";
-  VW::tokenize(' ', str, container, true);
+  VW980::tokenize(' ', str, container, true);
 
   EXPECT_THAT(
       container, testing::ElementsAre(StrEq("this"), StrEq("is"), StrEq(""), StrEq(""), StrEq("a"), StrEq("string")));

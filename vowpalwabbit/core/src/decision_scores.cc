@@ -19,7 +19,7 @@
 #include <iostream>
 
 template <typename LabelPrintFunc>
-void print_update(VW::workspace& all, const VW::multi_ex& slots, const VW::decision_scores_t& decision_scores,
+void print_update(VW980::workspace& all, const VW980::multi_ex& slots, const VW980::decision_scores_t& decision_scores,
     size_t num_features, LabelPrintFunc label_print_func)
 {
   std::ostringstream pred_ss;
@@ -33,9 +33,9 @@ void print_update(VW::workspace& all, const VW::multi_ex& slots, const VW::decis
       *all.trace_message, all.holdout_set_off, all.current_pass, label_print_func(slots), pred_ss.str(), num_features);
 }
 
-namespace VW
+namespace VW980
 {
-void print_decision_scores(VW::io::writer* f, const VW::decision_scores_t& decision_scores, VW::io::logger& logger)
+void print_decision_scores(VW980::io::writer* f, const VW980::decision_scores_t& decision_scores, VW980::io::logger& logger)
 {
   if (f != nullptr)
   {
@@ -44,11 +44,11 @@ void print_decision_scores(VW::io::writer* f, const VW::decision_scores_t& decis
     const auto str = ss.str();
     ssize_t len = str.size();
     ssize_t t = f->write(str.c_str(), static_cast<unsigned int>(len));
-    if (t != len) { logger.err_error("write error: {}", VW::io::strerror_to_string(errno)); }
+    if (t != len) { logger.err_error("write error: {}", VW980::io::strerror_to_string(errno)); }
   }
 }
 
-std::string to_string(const VW::decision_scores_t& decision_scores, int decimal_precision)
+std::string to_string(const VW980::decision_scores_t& decision_scores, int decimal_precision)
 {
   std::ostringstream ss;
 
@@ -58,7 +58,7 @@ std::string to_string(const VW::decision_scores_t& decision_scores, int decimal_
     for (const auto& action_score : slot)
     {
       ss << delimiter
-         << fmt::format("{}:{}", action_score.action, VW::fmt_float(action_score.score, decimal_precision));
+         << fmt::format("{}:{}", action_score.action, VW980::fmt_float(action_score.score, decimal_precision));
       delimiter = ",";
     }
     ss << '\n';
@@ -66,15 +66,15 @@ std::string to_string(const VW::decision_scores_t& decision_scores, int decimal_
   return ss.str();
 }
 
-void print_update_ccb(VW::workspace& all, const std::vector<example*>& slots,
-    const VW::decision_scores_t& decision_scores, size_t num_features)
+void print_update_ccb(VW980::workspace& all, const std::vector<example*>& slots,
+    const VW980::decision_scores_t& decision_scores, size_t num_features)
 {
   print_update(all, slots, decision_scores, num_features, reductions::ccb::generate_ccb_label_printout);
 }
 
-void print_update_slates(VW::workspace& all, const std::vector<example*>& slots,
-    const VW::decision_scores_t& decision_scores, size_t num_features)
+void print_update_slates(VW980::workspace& all, const std::vector<example*>& slots,
+    const VW980::decision_scores_t& decision_scores, size_t num_features)
 {
-  print_update(all, slots, decision_scores, num_features, VW::reductions::generate_slates_label_printout);
+  print_update(all, slots, decision_scores, num_features, VW980::reductions::generate_slates_label_printout);
 }
-}  // namespace VW
+}  // namespace VW980

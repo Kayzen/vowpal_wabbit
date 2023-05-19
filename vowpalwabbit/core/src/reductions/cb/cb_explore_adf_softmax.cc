@@ -18,7 +18,7 @@
 #include <algorithm>
 #include <cmath>
 #include <vector>
-using namespace VW::cb_explore_adf;
+using namespace VW980::cb_explore_adf;
 
 namespace
 {
@@ -29,34 +29,34 @@ public:
   ~cb_explore_adf_softmax() = default;
 
   // Should be called through cb_explore_adf_base for pre/post-processing
-  void predict(VW::LEARNER::learner& base, VW::multi_ex& examples) { predict_or_learn_impl<false>(base, examples); }
-  void learn(VW::LEARNER::learner& base, VW::multi_ex& examples) { predict_or_learn_impl<true>(base, examples); }
+  void predict(VW980::LEARNER::learner& base, VW980::multi_ex& examples) { predict_or_learn_impl<false>(base, examples); }
+  void learn(VW980::LEARNER::learner& base, VW980::multi_ex& examples) { predict_or_learn_impl<true>(base, examples); }
 
 private:
   float _epsilon;
   float _lambda;
   template <bool is_learn>
-  void predict_or_learn_impl(VW::LEARNER::learner& base, VW::multi_ex& examples);
+  void predict_or_learn_impl(VW980::LEARNER::learner& base, VW980::multi_ex& examples);
 };
 
 cb_explore_adf_softmax::cb_explore_adf_softmax(float epsilon, float lambda) : _epsilon(epsilon), _lambda(lambda) {}
 
 template <bool is_learn>
-void cb_explore_adf_softmax::predict_or_learn_impl(VW::LEARNER::learner& base, VW::multi_ex& examples)
+void cb_explore_adf_softmax::predict_or_learn_impl(VW980::LEARNER::learner& base, VW980::multi_ex& examples)
 {
-  VW::LEARNER::multiline_learn_or_predict<is_learn>(base, examples, examples[0]->ft_offset);
+  VW980::LEARNER::multiline_learn_or_predict<is_learn>(base, examples, examples[0]->ft_offset);
 
-  VW::v_array<VW::action_score>& preds = examples[0]->pred.a_s;
-  VW::explore::generate_softmax(
+  VW980::v_array<VW980::action_score>& preds = examples[0]->pred.a_s;
+  VW980::explore::generate_softmax(
       -_lambda, begin_scores(preds), end_scores(preds), begin_scores(preds), end_scores(preds));
 
-  VW::explore::enforce_minimum_probability(_epsilon, true, begin_scores(preds), end_scores(preds));
+  VW980::explore::enforce_minimum_probability(_epsilon, true, begin_scores(preds), end_scores(preds));
 }
 }  // namespace
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_softmax_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_explore_adf_softmax_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   using config::make_option;
   bool cb_explore_adf_option = false;
   bool softmax = false;
@@ -89,15 +89,15 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_softmax_set
   auto base = require_multiline(stack_builder.setup_base_learner(feature_width));
 
   using explore_type = cb_explore_adf_base<cb_explore_adf_softmax>;
-  auto data = VW::make_unique<explore_type>(all.global_metrics.are_metrics_enabled(), epsilon, lambda);
+  auto data = VW980::make_unique<explore_type>(all.global_metrics.are_metrics_enabled(), epsilon, lambda);
 
   if (epsilon < 0.0 || epsilon > 1.0) { THROW("The value of epsilon must be in [0,1]"); }
   auto l = make_reduction_learner(std::move(data), base, explore_type::learn, explore_type::predict,
       stack_builder.get_setupfn_name(cb_explore_adf_softmax_setup))
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
-               .set_input_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_PROBS)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
+               .set_input_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
                .set_feature_width(feature_width)
                .set_output_example_prediction(explore_type::output_example_prediction)
                .set_update_stats(explore_type::update_stats)

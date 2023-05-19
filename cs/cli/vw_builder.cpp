@@ -5,7 +5,7 @@
 #include "vw_builder.h"
 #include "vw/core/parser.h"
 
-namespace VW
+namespace VW980
 {
 VowpalWabbitExampleBuilder::VowpalWabbitExampleBuilder(IVowpalWabbitExamplePool^ vw) :
   m_vw(vw), m_example(nullptr)
@@ -34,7 +34,7 @@ VowpalWabbitExample^ VowpalWabbitExampleBuilder::CreateExample()
 
   try
   { // finalize example
-    VW::setup_example(*m_vw->Native->m_vw, m_example->m_example);
+    VW980::setup_example(*m_vw->Native->m_vw, m_example->m_example);
   }
   CATCHRETHROW
 

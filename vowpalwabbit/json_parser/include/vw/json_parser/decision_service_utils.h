@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace parsers
 {
@@ -29,4 +29,4 @@ public:
 };
 }  // namespace json
 }  // namespace parsers
-}  // namespace VW
+}  // namespace VW980
