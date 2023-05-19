@@ -81,7 +81,7 @@ void* CriticalArrayGuard::data() { return _arr0; }
 size_t CriticalArrayGuard::length() const { return _length; }
 
 // VW
-JNIEXPORT jlong JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_initialize(JNIEnv* env, jclass, jstring args)
+JNIEXPORT jlong JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_initialize(JNIEnv* env, jclass, jstring args)
 {
   StringGuard g_args(env, args);
 
@@ -96,7 +96,7 @@ JNIEXPORT jlong JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_initializ
   }
 }
 
-JNIEXPORT jlong JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_initializeFromModel(
+JNIEXPORT jlong JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_initializeFromModel(
     JNIEnv* env, jclass, jstring args, jbyteArray model)
 {
   StringGuard g_args(env, args);
@@ -144,7 +144,7 @@ void populateMultiEx(JNIEnv* env, jobjectArray examples, VW980::workspace& all, 
   }
 }
 
-JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_learn(
+JNIEXPORT jobject JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_learn(
     JNIEnv* env, jobject vwObj, jobjectArray examples)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(get_native_pointer(env, vwObj));
@@ -162,7 +162,7 @@ JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_learn(
   }
 }
 
-JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_learnFromString(
+JNIEXPORT jobject JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_learnFromString(
     JNIEnv* env, jobject vwObj, jstring examplesString)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(get_native_pointer(env, vwObj));
@@ -184,7 +184,7 @@ JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_learnFr
   }
 }
 
-JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_predict(
+JNIEXPORT jobject JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_predict(
     JNIEnv* env, jobject vwObj, jobjectArray examples)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(get_native_pointer(env, vwObj));
@@ -202,7 +202,7 @@ JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_predict
   }
 }
 
-JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_predictFromString(
+JNIEXPORT jobject JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_predictFromString(
     JNIEnv* env, jobject vwObj, jstring examplesString)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(get_native_pointer(env, vwObj));
@@ -224,7 +224,7 @@ JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_predict
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_performRemainingPasses(JNIEnv* env, jobject vwObj)
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_performRemainingPasses(JNIEnv* env, jobject vwObj)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(get_native_pointer(env, vwObj));
 
@@ -244,7 +244,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_performRem
   }
 }
 
-JNIEXPORT jbyteArray JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_getModel(JNIEnv* env, jobject vwObj)
+JNIEXPORT jbyteArray JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_getModel(JNIEnv* env, jobject vwObj)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(get_native_pointer(env, vwObj));
 
@@ -271,7 +271,7 @@ JNIEXPORT jbyteArray JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_getM
   }
 }
 
-JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_getArguments(JNIEnv* env, jobject vwObj)
+JNIEXPORT jobject JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_getArguments(JNIEnv* env, jobject vwObj)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(get_native_pointer(env, vwObj));
 
@@ -296,7 +296,7 @@ JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_getArgu
   return env->NewObject(clazz, ctor, all->num_bits, all->hash_seed, args, all->eta, all->power_t);
 }
 
-JNIEXPORT jstring JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_getOutputPredictionType(
+JNIEXPORT jstring JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_getOutputPredictionType(
     JNIEnv* env, jobject vwObj)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(get_native_pointer(env, vwObj));
@@ -305,7 +305,7 @@ JNIEXPORT jstring JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_getOutp
   return env->NewStringUTF(std::string(VW980::to_string(all->l->get_output_prediction_type())).c_str());
 }
 
-JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_getPerformanceStatistics(
+JNIEXPORT jobject JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_getPerformanceStatistics(
     JNIEnv* env, jobject vwObj)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(get_native_pointer(env, vwObj));
@@ -349,7 +349,7 @@ JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_getPerf
       bestConstant, bestConstantLoss, totalNumberOfFeatures);
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_endPass(JNIEnv* env, jobject vwObj)
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_endPass(JNIEnv* env, jobject vwObj)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(get_native_pointer(env, vwObj));
 
@@ -371,7 +371,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_endPass(JN
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_finish(JNIEnv* env, jobject vwObj)
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_finish(JNIEnv* env, jobject vwObj)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(get_native_pointer(env, vwObj));
 
@@ -387,7 +387,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_finish(JNI
   }
 }
 
-JNIEXPORT jint JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_hash(
+JNIEXPORT jint JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_hash(
     JNIEnv* env, jclass, jbyteArray data, jint offset, jint len, jint seed)
 {
   CriticalArrayGuard dataGuard(env, data);
@@ -402,7 +402,7 @@ JNIEXPORT jint JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_hash(
   VW980::workspace* all = exWrapper->_all;                                                                \
   example* ex = exWrapper->_example;
 
-JNIEXPORT jlong JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_initialize(
+JNIEXPORT jlong JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_initialize(
     JNIEnv* env, jclass, jlong vwPtr, jboolean isEmpty)
 {
   auto* all = reinterpret_cast<VW980::workspace*>(vwPtr);
@@ -430,7 +430,7 @@ JNIEXPORT jlong JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_initiali
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_finish(JNIEnv* env, jobject exampleObj)
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_finish(JNIEnv* env, jobject exampleObj)
 {
   INIT_VARS
 
@@ -444,7 +444,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_finish(JN
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_clear(JNIEnv* env, jobject exampleObj)
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_clear(JNIEnv* env, jobject exampleObj)
 {
   INIT_VARS
 
@@ -464,7 +464,7 @@ void addNamespaceIfNotExists(VW980::workspace* all, example* ex, char ns)
   if (std::find(ex->indices.begin(), ex->indices.end(), ns) == ex->indices.end()) { ex->indices.push_back(ns); }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_addToNamespaceDense(
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_addToNamespaceDense(
     JNIEnv* env, jobject exampleObj, jchar ns, jint weight_index_base, jdoubleArray values)
 {
   INIT_VARS
@@ -503,7 +503,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_addToName
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_addToNamespaceSparse(
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_addToNamespaceSparse(
     JNIEnv* env, jobject exampleObj, jchar ns, jintArray indices, jdoubleArray values)
 {
   INIT_VARS
@@ -546,7 +546,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_addToName
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setLabel(
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_setLabel(
     JNIEnv* env, jobject exampleObj, jfloat weight, jfloat label)
 {
   INIT_VARS
@@ -566,7 +566,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setLabel(
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setDefaultLabel(JNIEnv* env, jobject exampleObj)
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_setDefaultLabel(JNIEnv* env, jobject exampleObj)
 {
   INIT_VARS
 
@@ -580,7 +580,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setDefaul
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setMulticlassLabel(
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_setMulticlassLabel(
     JNIEnv* env, jobject exampleObj, jfloat weight, jint label)
 {
   INIT_VARS
@@ -598,7 +598,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setMultic
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setCostSensitiveLabels(
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_setCostSensitiveLabels(
     JNIEnv* env, jobject exampleObj, jfloatArray costs, jintArray classes)
 {
   INIT_VARS
@@ -638,7 +638,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setCostSe
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setMultiLabels(
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_setMultiLabels(
     JNIEnv* env, jobject exampleObj, jintArray classes)
 {
   INIT_VARS
@@ -660,7 +660,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setMultiL
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setContextualBanditContinuousLabel(
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_setContextualBanditContinuousLabel(
     JNIEnv* env, jobject exampleObj, jfloatArray actions, jfloatArray costs, jfloatArray pdfValues)
 {
   INIT_VARS
@@ -704,7 +704,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setContex
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setContextualBanditLabel(
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_setContextualBanditLabel(
     JNIEnv* env, jobject exampleObj, jint action, jdouble cost, jdouble probability)
 {
   INIT_VARS
@@ -726,7 +726,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setContex
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setSharedLabel(JNIEnv* env, jobject exampleObj)
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_setSharedLabel(JNIEnv* env, jobject exampleObj)
 {
   INIT_VARS
 
@@ -749,7 +749,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setShared
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setSlatesSharedLabel(
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_setSlatesSharedLabel(
     JNIEnv* env, jobject exampleObj, jfloat cost)
 {
   INIT_VARS
@@ -767,7 +767,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setSlates
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setSlatesActionLabel(
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_setSlatesActionLabel(
     JNIEnv* env, jobject exampleObj, jint slot_id)
 {
   INIT_VARS
@@ -785,7 +785,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setSlates
   }
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setSlatesSlotLabel(
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_setSlatesSlotLabel(
     JNIEnv* env, jobject exampleObj, jintArray actions, jfloatArray probs)
 {
   INIT_VARS
@@ -825,14 +825,14 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_setSlates
   }
 }
 
-JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_getPrediction(JNIEnv* env, jobject exampleObj)
+JNIEXPORT jobject JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_getPrediction(JNIEnv* env, jobject exampleObj)
 {
   INIT_VARS
 
   return getJavaPrediction(env, all, ex);
 }
 
-JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_learn(JNIEnv* env, jobject exampleObj)
+JNIEXPORT void JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_learn(JNIEnv* env, jobject exampleObj)
 {
   INIT_VARS
 
@@ -851,7 +851,7 @@ JNIEXPORT void JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_learn(JNI
   }
 }
 
-JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_predict(JNIEnv* env, jobject exampleObj)
+JNIEXPORT jobject JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_predict(JNIEnv* env, jobject exampleObj)
 {
   INIT_VARS
 
@@ -873,7 +873,7 @@ JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_predic
   }
 }
 
-JNIEXPORT jstring JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitExample_toString(JNIEnv* env, jobject exampleObj)
+JNIEXPORT jstring JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitExample_toString(JNIEnv* env, jobject exampleObj)
 {
   INIT_VARS
 
@@ -1053,7 +1053,7 @@ jobject getJavaPrediction(JNIEnv* env, VW980::workspace* all, example* ex)
   }
 }
 
-JNIEXPORT jobject JNICALL Java_org_vowpalwabbit_spark_VowpalWabbitNative_mergeModels(
+JNIEXPORT jobject JNICALL Java_vw980_org_vowpalwabbit_spark_VowpalWabbitNative_mergeModels(
     JNIEnv* env, jclass, jobject baseWorkspace, jobjectArray workspacePointers)
 try
 {

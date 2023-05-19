@@ -6,7 +6,7 @@
 #define RETURN_TYPE "vowpalWabbit/learner/VWLearners$VWReturnType"
 #define RETURN_TYPE_INSTANCE "L" RETURN_TYPE ";"
 
-JNIEXPORT jlong JNICALL Java_vowpalWabbit_learner_VWLearners_initialize(JNIEnv* env, jclass obj, jstring command)
+JNIEXPORT jlong JNICALL Java_vw980_vowpalWabbit_learner_VWLearners_initialize(JNIEnv* env, jclass obj, jstring command)
 {
   jlong vwPtr = 0;
   try
@@ -21,7 +21,7 @@ JNIEXPORT jlong JNICALL Java_vowpalWabbit_learner_VWLearners_initialize(JNIEnv* 
   return vwPtr;
 }
 
-JNIEXPORT void JNICALL Java_vowpalWabbit_learner_VWLearners_performRemainingPasses(JNIEnv* env, jclass obj, jlong vwPtr)
+JNIEXPORT void JNICALL Java_vw980_vowpalWabbit_learner_VWLearners_performRemainingPasses(JNIEnv* env, jclass obj, jlong vwPtr)
 {
   try
   {
@@ -40,7 +40,7 @@ JNIEXPORT void JNICALL Java_vowpalWabbit_learner_VWLearners_performRemainingPass
   }
 }
 
-JNIEXPORT void JNICALL Java_vowpalWabbit_learner_VWLearners_closeInstance(JNIEnv* env, jclass obj, jlong vwPtr)
+JNIEXPORT void JNICALL Java_vw980_vowpalWabbit_learner_VWLearners_closeInstance(JNIEnv* env, jclass obj, jlong vwPtr)
 {
   try
   {
@@ -54,7 +54,7 @@ JNIEXPORT void JNICALL Java_vowpalWabbit_learner_VWLearners_closeInstance(JNIEnv
   }
 }
 
-JNIEXPORT void JNICALL Java_vowpalWabbit_learner_VWLearners_saveModel(
+JNIEXPORT void JNICALL Java_vw980_vowpalWabbit_learner_VWLearners_saveModel(
     JNIEnv* env, jclass obj, jlong vwPtr, jstring filename)
 {
   try
@@ -71,7 +71,7 @@ JNIEXPORT void JNICALL Java_vowpalWabbit_learner_VWLearners_saveModel(
   }
 }
 
-JNIEXPORT jobject JNICALL Java_vowpalWabbit_learner_VWLearners_getReturnType(JNIEnv* env, jclass obj, jlong vwPtr)
+JNIEXPORT jobject JNICALL Java_vw980_vowpalWabbit_learner_VWLearners_getReturnType(JNIEnv* env, jclass obj, jlong vwPtr)
 {
   jclass clVWReturnType = env->FindClass(RETURN_TYPE);
   jfieldID field;

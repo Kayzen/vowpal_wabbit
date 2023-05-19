@@ -24,13 +24,13 @@ jobject action_scores_prediction(example* vec, JNIEnv* env)
   return env->NewObject(action_scores_class, action_scores_constructor, j_action_scores);
 }
 
-JNIEXPORT jobject JNICALL Java_vowpalWabbit_learner_VWActionScoresLearner_predict(
+JNIEXPORT jobject JNICALL Java_vw980_vowpalWabbit_learner_VWActionScoresLearner_predict(
     JNIEnv* env, jobject obj, jstring example_string, jboolean learn, jlong vwPtr)
 {
   return base_predict<jobject>(env, example_string, learn, vwPtr, action_scores_prediction);
 }
 
-JNIEXPORT jobject JNICALL Java_vowpalWabbit_learner_VWActionScoresLearner_predictMultiline(
+JNIEXPORT jobject JNICALL Java_vw980_vowpalWabbit_learner_VWActionScoresLearner_predictMultiline(
     JNIEnv* env, jobject obj, jobjectArray example_strings, jboolean learn, jlong vwPtr)
 {
   return base_predict<jobject>(env, example_strings, learn, vwPtr, action_scores_prediction);
