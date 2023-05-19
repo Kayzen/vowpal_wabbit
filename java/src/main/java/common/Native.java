@@ -11,7 +11,7 @@ import java.util.*;
 
 public class Native {
     private static void try_load_from_path() {
-        System.loadLibrary("vw_jni");
+        System.loadLibrary("vw980_jni");
     }
 
     private static void try_load_from_jar() throws IOException {
@@ -49,7 +49,7 @@ public class Native {
             }
 
             // load the library
-            System.load(tempDirectory.resolve("natives/linux_64/libvw_jni.so").toString());
+            System.load(tempDirectory.resolve("natives/linux_64/libvw980_jni.so").toString());
     }
 
     static {
@@ -59,10 +59,10 @@ public class Native {
             try {
                 try_load_from_jar();
             } catch (Exception ex_inner) {
-                throw new RuntimeException("Unable to load native library 'vw_jni'", ex_inner);
+                throw new RuntimeException("Unable to load native library 'vw980_jni'", ex_inner);
             }
             catch (UnsatisfiedLinkError ex_inner) {
-                throw new RuntimeException("Unable to load native library 'vw_jni'", ex_inner);
+                throw new RuntimeException("Unable to load native library 'vw980_jni'", ex_inner);
             }
         }
     }
