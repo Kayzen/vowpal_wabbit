@@ -16,7 +16,7 @@ final public class VWLearners {
     static {
         try {
             // Load from java.library.path
-            System.loadLibrary("vw_jni");
+            System.loadLibrary("vw980_jni");
         } catch (UnsatisfiedLinkError e) {
             // Load from JAR
             Native.load();
