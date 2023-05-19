@@ -9,10 +9,10 @@
 #include "vw_labelcomparator.h"
 #include "vw_label.h"
 
-namespace VW
+namespace VW980
 {
 using namespace System::Collections::Generic;
-using namespace VW::Labels;
+using namespace VW980::Labels;
 
 ref class VowpalWabbitExample;
 ref class VowpalWabbit;

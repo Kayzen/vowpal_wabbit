@@ -23,8 +23,8 @@
 #include <memory>
 #include <utility>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 using std::endl;
 // All exploration algorithms return a vector of probabilities, to be used by GenericExplorer downstream
 
@@ -36,14 +36,14 @@ namespace
 class cb_explore
 {
 public:
-  std::shared_ptr<VW::rand_state> random_state;
-  VW::details::cb_to_cs cbcs;
-  VW::v_array<uint32_t> preds;
-  VW::v_array<float> cover_probs;
+  std::shared_ptr<VW980::rand_state> random_state;
+  VW980::details::cb_to_cs cbcs;
+  VW980::v_array<uint32_t> preds;
+  VW980::v_array<float> cover_probs;
 
-  VW::cb_label cb_label;
-  VW::cs_label cs_label;
-  VW::cs_label second_cs_label;
+  VW980::cb_label cb_label;
+  VW980::cs_label cs_label;
+  VW980::cs_label second_cs_label;
 
   learner* cs = nullptr;
 
@@ -54,16 +54,16 @@ public:
   float psi = 0.f;
   bool nounif = false;
   bool epsilon_decay = false;
-  VW::version_struct model_file_version;
-  VW::io::logger logger;
+  VW980::version_struct model_file_version;
+  VW980::io::logger logger;
 
   size_t counter = 0;
 
-  cb_explore(VW::io::logger logger) : logger(std::move(logger)) {}
+  cb_explore(VW980::io::logger logger) : logger(std::move(logger)) {}
 };
 
 template <bool is_learn>
-void predict_or_learn_first(cb_explore& data, learner& base, VW::example& ec)
+void predict_or_learn_first(cb_explore& data, learner& base, VW980::example& ec)
 {
   // Explore tau times, then act according to optimal.
   bool learn = is_learn && ec.l.cb.costs[0].probability < 1;
@@ -87,7 +87,7 @@ void predict_or_learn_first(cb_explore& data, learner& base, VW::example& ec)
 }
 
 template <bool is_learn>
-void predict_or_learn_greedy(cb_explore& data, learner& base, VW::example& ec)
+void predict_or_learn_greedy(cb_explore& data, learner& base, VW980::example& ec)
 {
   // Explore uniform random an epsilon fraction of the time.
   // TODO: pointers are copied here. What happens if base.learn/base.predict re-allocs?
@@ -100,17 +100,17 @@ void predict_or_learn_greedy(cb_explore& data, learner& base, VW::example& ec)
 
   // pre-allocate pdf
 
-  VW_DBG(ec) << "cb_explore: " << (is_learn ? "learn() " : "predict() ") << VW::debug::multiclass_pred_to_string(ec)
+  VW_DBG(ec) << "cb_explore: " << (is_learn ? "learn() " : "predict() ") << VW980::debug::multiclass_pred_to_string(ec)
              << endl;
 
   probs.reserve(data.cbcs.num_actions);
   for (uint32_t i = 0; i < data.cbcs.num_actions; i++) { probs.push_back({i, 0}); }
   uint32_t chosen = ec.pred.multiclass - 1;
-  VW::explore::generate_epsilon_greedy(data.epsilon, chosen, begin_scores(probs), end_scores(probs));
+  VW980::explore::generate_epsilon_greedy(data.epsilon, chosen, begin_scores(probs), end_scores(probs));
 }
 
 template <bool is_learn>
-void predict_or_learn_bag(cb_explore& data, learner& base, VW::example& ec)
+void predict_or_learn_bag(cb_explore& data, learner& base, VW980::example& ec)
 {
   // Randomize over predictions from a base set of predictors
   auto& probs = ec.pred.a_s;
@@ -120,7 +120,7 @@ void predict_or_learn_bag(cb_explore& data, learner& base, VW::example& ec)
   float prob = 1.f / static_cast<float>(data.bag_size);
   for (size_t i = 0; i < data.bag_size; i++)
   {
-    uint32_t count = VW::reductions::bs::weight_gen(*data.random_state);
+    uint32_t count = VW980::reductions::bs::weight_gen(*data.random_state);
     bool learn = is_learn && count > 0;
     if (learn) { base.learn(ec, i); }
     else { base.predict(ec, i); }
@@ -134,7 +134,7 @@ void predict_or_learn_bag(cb_explore& data, learner& base, VW::example& ec)
 }
 
 void get_cover_probabilities(
-    cb_explore& data, learner& /* base */, VW::example& ec, VW::action_scores& probs, float min_prob)
+    cb_explore& data, learner& /* base */, VW980::example& ec, VW980::action_scores& probs, float min_prob)
 {
   float additive_probability = 1.f / static_cast<float>(data.cover_size);
   data.preds.clear();
@@ -152,12 +152,12 @@ void get_cover_probabilities(
   }
   uint32_t num_actions = data.cbcs.num_actions;
 
-  VW::explore::enforce_minimum_probability(
+  VW980::explore::enforce_minimum_probability(
       min_prob * num_actions, !data.nounif, begin_scores(probs), end_scores(probs));
 }
 
 template <bool is_learn>
-void predict_or_learn_cover(cb_explore& data, learner& base, VW::example& ec)
+void predict_or_learn_cover(cb_explore& data, learner& base, VW980::example& ec)
 {
   VW_DBG(ec) << "predict_or_learn_cover:" << is_learn << " start" << endl;
   // Randomize over predictions from a base set of predictors
@@ -171,14 +171,14 @@ void predict_or_learn_cover(cb_explore& data, learner& base, VW::example& ec)
   for (uint32_t j = 0; j < num_actions; j++) { data.cs_label.costs.push_back({FLT_MAX, j + 1, 0., 0.}); }
 
   size_t cover_size = data.cover_size;
-  VW::v_array<float>& probabilities = data.cover_probs;
+  VW980::v_array<float>& probabilities = data.cover_probs;
 
   float additive_probability = 1.f / static_cast<float>(cover_size);
 
   data.cb_label = ec.l.cb;
 
-  // Guard VW::example state restore against throws
-  auto restore_guard = VW::scope_exit([&data, &ec] { ec.l.cb = data.cb_label; });
+  // Guard VW980::example state restore against throws
+  auto restore_guard = VW980::scope_exit([&data, &ec] { ec.l.cb = data.cb_label; });
 
   ec.l.cs = data.cs_label;
 
@@ -203,8 +203,8 @@ void predict_or_learn_cover(cb_explore& data, learner& base, VW::example& ec)
     auto optional_cost = get_observed_cost_cb(data.cb_label);
     // cost observed, not default
     if (optional_cost.first) { data.cbcs.known_cost = optional_cost.second; }
-    else { data.cbcs.known_cost = VW::cb_class{}; }
-    VW::details::gen_cs_example<false>(data.cbcs, ec, data.cb_label, data.cs_label, data.logger);
+    else { data.cbcs.known_cost = VW980::cb_class{}; }
+    VW980::details::gen_cs_example<false>(data.cbcs, ec, data.cb_label, data.cs_label, data.logger);
     for (uint32_t i = 0; i < num_actions; i++) { probabilities[i] = 0.f; }
 
     ec.l.cs = std::move(data.second_cs_label);
@@ -231,11 +231,11 @@ void predict_or_learn_cover(cb_explore& data, learner& base, VW::example& ec)
     data.second_cs_label = std::move(ec.l.cs);
   }
 
-  ec.l.cs = VW::cs_label{};
+  ec.l.cs = VW980::cs_label{};
 }
 
 void print_update_cb_explore(
-    VW::workspace& all, VW::shared_data& sd, bool is_test, const VW::example& ec, std::stringstream& pred_string)
+    VW980::workspace& all, VW980::shared_data& sd, bool is_test, const VW980::example& ec, std::stringstream& pred_string)
 {
   if ((sd.weighted_examples() >= all.sd->dump_interval) && !all.quiet && !all.bfgs)
   {
@@ -251,13 +251,13 @@ void print_update_cb_explore(
   }
 }
 
-float calc_loss(const cb_explore& data, const VW::example& ec, const VW::cb_label& ld)
+float calc_loss(const cb_explore& data, const VW980::example& ec, const VW980::cb_label& ld)
 {
   float loss = 0.f;
 
-  const VW::details::cb_to_cs& c = data.cbcs;
+  const VW980::details::cb_to_cs& c = data.cbcs;
 
-  auto optional_cost = VW::get_observed_cost_cb(ld);
+  auto optional_cost = VW980::get_observed_cost_cb(ld);
   // cost observed, not default
   if (optional_cost.first == true)
   {
@@ -270,21 +270,21 @@ float calc_loss(const cb_explore& data, const VW::example& ec, const VW::cb_labe
   return loss;
 }
 
-void save_load(cb_explore& cb, VW::io_buf& io, bool read, bool text)
+void save_load(cb_explore& cb, VW980::io_buf& io, bool read, bool text)
 {
   if (io.num_files() == 0) { return; }
 
-  if (!read || cb.model_file_version >= VW::version_definitions::VERSION_FILE_WITH_CCB_MULTI_SLOTS_SEEN_FLAG)
+  if (!read || cb.model_file_version >= VW980::version_definitions::VERSION_FILE_WITH_CCB_MULTI_SLOTS_SEEN_FLAG)
   {
     std::stringstream msg;
-    if (!read) { msg << "cb cover storing VW::example counter:  = " << cb.counter << "\n"; }
-    VW::details::bin_text_read_write_fixed_validated(
+    if (!read) { msg << "cb cover storing VW980::example counter:  = " << cb.counter << "\n"; }
+    VW980::details::bin_text_read_write_fixed_validated(
         io, reinterpret_cast<char*>(&cb.counter), sizeof(cb.counter), read, msg, text);
   }
 }
 
 void update_stats_cb_explore(
-    const VW::workspace&, VW::shared_data& sd, const cb_explore& data, const VW::example& ec, VW::io::logger&)
+    const VW980::workspace&, VW980::shared_data& sd, const cb_explore& data, const VW980::example& ec, VW980::io::logger&)
 {
   const auto& ld = ec.l.cb;
   float loss = calc_loss(data, ec, ld);
@@ -292,7 +292,7 @@ void update_stats_cb_explore(
 }
 
 void output_example_prediction_cb_explore(
-    VW::workspace& all, const cb_explore&, const VW::example& ec, VW::io::logger& logger)
+    VW980::workspace& all, const cb_explore&, const VW980::example& ec, VW980::io::logger& logger)
 {
   std::stringstream ss;
 
@@ -301,7 +301,7 @@ void output_example_prediction_cb_explore(
 }
 
 void print_update_cb_explore(
-    VW::workspace& all, VW::shared_data& sd, const cb_explore&, const VW::example& ec, VW::io::logger&)
+    VW980::workspace& all, VW980::shared_data& sd, const cb_explore&, const VW980::example& ec, VW980::io::logger&)
 {
   float maxprob = 0.f;
   uint32_t maxid = 0;
@@ -320,11 +320,11 @@ void print_update_cb_explore(
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_explore_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto data = VW::make_unique<cb_explore>(all.logger);
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto data = VW980::make_unique<cb_explore>(all.logger);
   option_group_definition new_options("[Reduction] Contextual Bandit Exploration");
   new_options
       .add(make_option("cb_explore", data->cbcs.num_actions)
@@ -368,7 +368,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_setup(VW::setup
 
   if (data->epsilon < 0.0 || data->epsilon > 1.0) { THROW("The value of epsilon must be in [0,1]"); }
 
-  data->cbcs.cb_type = VW::cb_type_t::DR;
+  data->cbcs.cb_type = VW980::cb_type_t::DR;
   data->model_file_version = all.model_file_ver;
 
   size_t params_per_weight = 1;
@@ -376,10 +376,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_setup(VW::setup
   else if (options.was_supplied("bag")) { params_per_weight = data->bag_size; }
 
   auto base = require_singleline(stack_builder.setup_base_learner(params_per_weight));
-  data->cbcs.scorer = VW::LEARNER::require_singleline(base->get_learner_by_name_prefix("scorer"));
+  data->cbcs.scorer = VW980::LEARNER::require_singleline(base->get_learner_by_name_prefix("scorer"));
 
-  void (*learn_ptr)(cb_explore&, learner&, VW::example&);
-  void (*predict_ptr)(cb_explore&, learner&, VW::example&);
+  void (*learn_ptr)(cb_explore&, learner&, VW980::example&);
+  void (*predict_ptr)(cb_explore&, learner&, VW980::example&);
 
   std::string name_addition;
 
@@ -396,9 +396,9 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_setup(VW::setup
       data->epsilon_decay = true;
     }
 
-    data->cs = VW::LEARNER::require_singleline(base->get_learner_by_name_prefix("cs"));
+    data->cs = VW980::LEARNER::require_singleline(base->get_learner_by_name_prefix("cs"));
 
-    for (uint32_t j = 0; j < num_actions; j++) { data->second_cs_label.costs.push_back(VW::cs_class{}); }
+    for (uint32_t j = 0; j < num_actions; j++) { data->second_cs_label.costs.push_back(VW980::cs_class{}); }
     data->cover_probs.resize(num_actions);
     data->preds.reserve(data->cover_size);
     learn_ptr = predict_or_learn_cover<true>;
@@ -425,10 +425,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_setup(VW::setup
   }
   auto l = make_reduction_learner(
       std::move(data), base, learn_ptr, predict_ptr, stack_builder.get_setupfn_name(cb_explore_setup) + name_addition)
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
-               .set_input_prediction_type(VW::prediction_type_t::MULTICLASS)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_PROBS)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
+               .set_input_prediction_type(VW980::prediction_type_t::MULTICLASS)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
                .set_feature_width(params_per_weight)
                .set_update_stats(::update_stats_cb_explore)
                .set_output_example_prediction(::output_example_prediction_cb_explore)

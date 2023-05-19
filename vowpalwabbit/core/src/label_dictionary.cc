@@ -6,16 +6,16 @@
 
 #include "vw/core/example.h"
 
-void VW::details::append_example_namespace_from_memory(const label_feature_map& lfm, VW::example& ec, size_t lab)
+void VW980::details::append_example_namespace_from_memory(const label_feature_map& lfm, VW980::example& ec, size_t lab)
 {
   auto res_iter = lfm.find(lab);
   if (res_iter == lfm.end()) { return; }
-  VW::details::append_example_namespace(ec, static_cast<VW::namespace_index>('l'), res_iter->second);
+  VW980::details::append_example_namespace(ec, static_cast<VW980::namespace_index>('l'), res_iter->second);
 }
 
-void VW::details::truncate_example_namespace_from_memory(const label_feature_map& lfm, VW::example& ec, size_t lab)
+void VW980::details::truncate_example_namespace_from_memory(const label_feature_map& lfm, VW980::example& ec, size_t lab)
 {
   auto res_iter = lfm.find(lab);
   if (res_iter == lfm.end()) { return; }
-  VW::details::truncate_example_namespace(ec, static_cast<VW::namespace_index>('l'), res_iter->second);
+  VW980::details::truncate_example_namespace(ec, static_cast<VW980::namespace_index>('l'), res_iter->second);
 }

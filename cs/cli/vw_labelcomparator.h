@@ -6,7 +6,7 @@
 
 #include "vw_example.h"
 
-namespace VW
+namespace VW980
 {
 ref class VowpalWabbitExample;
 

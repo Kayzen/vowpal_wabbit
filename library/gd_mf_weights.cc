@@ -22,12 +22,12 @@ int main(int argc, char* argv[])
   string outdir;
   string vwparams;
 
-  VW::config::options_cli opts(std::vector<std::string>(argv + 1, argv + argc));
-  VW::config::option_group_definition desc("GD MF Weights");
-  desc.add(VW::config::make_option("help", help).short_name("h").help("Produce help message"))
-      .add(VW::config::make_option("infile", infile).short_name("I").help("Input (in vw format) of weights to extract"))
-      .add(VW::config::make_option("outdir", outdir).short_name("O").help("Directory to write model files to"))
-      .add(VW::config::make_option("vwparams", vwparams)
+  VW980::config::options_cli opts(std::vector<std::string>(argv + 1, argv + argc));
+  VW980::config::option_group_definition desc("GD MF Weights");
+  desc.add(VW980::config::make_option("help", help).short_name("h").help("Produce help message"))
+      .add(VW980::config::make_option("infile", infile).short_name("I").help("Input (in vw format) of weights to extract"))
+      .add(VW980::config::make_option("outdir", outdir).short_name("O").help("Directory to write model files to"))
+      .add(VW980::config::make_option("vwparams", vwparams)
                .help("vw parameters for model instantiation (-i model.reg -t ..."));
 
   opts.add_and_parse(desc);
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     cout << "written to <outdir>/<ns>.linear and <outdir>/<ns>.quadratic,respectively." << std::endl;
     cout << std::endl;
 
-    VW::config::cli_help_formatter help_formatter;
+    VW980::config::cli_help_formatter help_formatter;
     std::cout << help_formatter.format_help(opts.get_all_option_group_definitions()) << std::endl;
 
     cout << "Example usage:" << std::endl;
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
   }
 
   // initialize model
-  auto model = VW::initialize(VW::make_unique<VW::config::options_cli>(VW::split_command_line(vwparams)));
+  auto model = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(VW980::split_command_line(vwparams)));
   model->audit = true;
 
   string target("--rank ");
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
   auto& weights = model->weights.dense_weights;
 
   FILE* file;
-  VW::file_open(&file, infile.c_str(), "r");
+  VW980::file_open(&file, infile.c_str(), "r");
   char* line = nullptr;
   size_t len = 0;
   ssize_t read;
@@ -94,15 +94,15 @@ int main(int argc, char* argv[])
   std::ofstream right_linear((outdir + string("/") + string(1, right_ns) + string(".linear")).c_str());
   std::ofstream right_quadratic((outdir + string("/") + string(1, right_ns) + string(".quadratic")).c_str());
 
-  VW::example* ec = nullptr;
+  VW980::example* ec = nullptr;
   while ((read = getline(&line, &len, file)) != -1)
   {
     line[strlen(line) - 1] = 0;  // chop
 
-    ec = VW::read_example(*model, line);
+    ec = VW980::read_example(*model, line);
 
     // write out features for left namespace
-    VW::features& left = ec->feature_space[left_ns];
+    VW980::features& left = ec->feature_space[left_ns];
     for (size_t i = 0; i < left.size(); ++i)
     {
       left_linear << left.space_names[i].name << '\t' << weights[left.indices[i]];
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
     left_quadratic << std::endl;
 
     // write out features for right namespace
-    VW::features& right = ec->feature_space[right_ns];
+    VW980::features& right = ec->feature_space[right_ns];
     for (size_t i = 0; i < right.size(); ++i)
     {
       right_linear << right.space_names[i].name << '\t' << weights[right.indices[i]];
@@ -125,11 +125,11 @@ int main(int argc, char* argv[])
     right_linear << std::endl;
     right_quadratic << std::endl;
 
-    VW::finish_example(*model, *ec);
+    VW980::finish_example(*model, *ec);
   }
 
   // write constant
-  constant << weights[ec->feature_space[VW::details::CONSTANT_NAMESPACE].indices[0]] << std::endl;
+  constant << weights[ec->feature_space[VW980::details::CONSTANT_NAMESPACE].indices[0]] << std::endl;
 
   // clean up
   model->finish();

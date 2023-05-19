@@ -17,11 +17,11 @@
 
 #include <cmath>
 
-using namespace VW;
-using namespace VW::config;
-using namespace VW::LEARNER;
+using namespace VW980;
+using namespace VW980::config;
+using namespace VW980::LEARNER;
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
@@ -109,9 +109,9 @@ void pmf_to_pdf_reduction::transform_prediction(example& ec)
 
 void pmf_to_pdf_reduction::predict(example& ec)
 {
-  auto swap_label = VW::swap_guard(ec.l.cb, temp_lbl_cb);
+  auto swap_label = VW980::swap_guard(ec.l.cb, temp_lbl_cb);
 
-  const auto& reduction_features = ec.ex_reduction_features.template get<VW::continuous_actions::reduction_features>();
+  const auto& reduction_features = ec.ex_reduction_features.template get<VW980::continuous_actions::reduction_features>();
   if (first_only && reduction_features.is_chosen_action_set())
   {
     float chosen_action = reduction_features.chosen_action;
@@ -128,7 +128,7 @@ void pmf_to_pdf_reduction::predict(example& ec)
   else
   {
     // scope for saving / restoring prediction
-    auto save_prediction = VW::swap_guard(ec.pred.a_s, temp_pred_a_s);
+    auto save_prediction = VW980::swap_guard(ec.pred.a_s, temp_pred_a_s);
     _p_base->predict(ec);
   }
   transform_prediction(ec);
@@ -159,36 +159,36 @@ void pmf_to_pdf_reduction::learn(example& ec)
   const uint32_t local_min_value = std::max(0, action_segment_index - static_cast<int>(b));
   const uint32_t local_max_value = std::min(num_actions - 1, action_segment_index + b);
 
-  auto swap_label = VW::swap_guard(ec.l.cb, temp_lbl_cb);
+  auto swap_label = VW980::swap_guard(ec.l.cb, temp_lbl_cb);
 
   ec.l.cb.costs.clear();
 
   auto actual_bandwidth = !tree_bandwidth ? 1 : 2 * b;  // avoid zero division
 
   ec.l.cb.costs.push_back(
-      VW::cb_class(cost, local_min_value + 1, pdf_value * actual_bandwidth * continuous_range / num_actions));
+      VW980::cb_class(cost, local_min_value + 1, pdf_value * actual_bandwidth * continuous_range / num_actions));
   ec.l.cb.costs.push_back(
-      VW::cb_class(cost, local_max_value + 1, pdf_value * actual_bandwidth * continuous_range / num_actions));
+      VW980::cb_class(cost, local_max_value + 1, pdf_value * actual_bandwidth * continuous_range / num_actions));
 
-  auto swap_prediction = VW::swap_guard(ec.pred.a_s, temp_pred_a_s);
+  auto swap_prediction = VW980::swap_guard(ec.pred.a_s, temp_pred_a_s);
 
   _p_base->learn(ec);
 }
 
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980
 
 namespace
 {
-void predict(VW::reductions::pmf_to_pdf_reduction& data, learner&, VW::example& ec) { data.predict(ec); }
-void learn(VW::reductions::pmf_to_pdf_reduction& data, learner&, VW::example& ec) { data.learn(ec); }
+void predict(VW980::reductions::pmf_to_pdf_reduction& data, learner&, VW980::example& ec) { data.predict(ec); }
+void learn(VW980::reductions::pmf_to_pdf_reduction& data, learner&, VW980::example& ec) { data.learn(ec); }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::pmf_to_pdf_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::pmf_to_pdf_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto data = VW::make_unique<VW::reductions::pmf_to_pdf_reduction>();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto data = VW980::make_unique<VW980::reductions::pmf_to_pdf_reduction>();
 
   option_group_definition new_options("[Reduction] Convert Discrete PMF into Continuous PDF");
   new_options
@@ -250,10 +250,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::pmf_to_pdf_setup(VW::setup
 
   auto l =
       make_reduction_learner(std::move(data), p_base, learn, predict, stack_builder.get_setupfn_name(pmf_to_pdf_setup))
-          .set_input_label_type(VW::label_type_t::CONTINUOUS)
-          .set_output_label_type(VW::label_type_t::CB)
-          .set_input_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-          .set_output_prediction_type(VW::prediction_type_t::PDF)
+          .set_input_label_type(VW980::label_type_t::CONTINUOUS)
+          .set_output_label_type(VW980::label_type_t::CB)
+          .set_input_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+          .set_output_prediction_type(VW980::prediction_type_t::PDF)
           .build();
   return l;
 }

@@ -8,5 +8,5 @@
 extern "C"
 {
   API const char* NativeExceptionWhat(std::exception const* exception);
-  API const char* NativeVwExceptionWhere(VW::vw_exception const* exception, int& line_number);
+  API const char* NativeVwExceptionWhere(VW980::vw_exception const* exception, int& line_number);
 }

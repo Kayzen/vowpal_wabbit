@@ -11,7 +11,7 @@
 #include "vw/core/vw.h"
 #include "vw_clr.h"
 
-namespace VW
+namespace VW980
 {
 namespace Labels
 {
@@ -29,7 +29,7 @@ using namespace Newtonsoft::Json;
 
 public interface class ILabel
   {
-    void UpdateExample(VW::workspace* vw, example* ex);
+    void UpdateExample(VW980::workspace* vw, example* ex);
     void ReadFromExample(example* ex);
   };
 
@@ -70,7 +70,7 @@ public:
     void set(float value)
     { if (value < 0 || value >1)
       {
-        if (value > 1 && value - 1 < VW::details::PROBABILITY_TOLERANCE)
+        if (value > 1 && value - 1 < VW980::details::PROBABILITY_TOLERANCE)
           m_probability = 1.0f;
         else
           throw gcnew ArgumentOutOfRangeException("invalid probability: " + value);
@@ -100,10 +100,10 @@ public:
 
   virtual void ReadFromExample(example* ex)
   {
-    VW::cb_label* ld = &ex->l.cb;
+    VW980::cb_label* ld = &ex->l.cb;
     if (ld->costs.size() > 0)
     {
-      VW::cb_class& f = ld->costs[0];
+      VW980::cb_class& f = ld->costs[0];
 
       m_action = f.action;
       m_cost = f.cost;
@@ -111,10 +111,10 @@ public:
     }
   }
 
-  virtual void UpdateExample(VW::workspace* vw, example* ex)
+  virtual void UpdateExample(VW980::workspace* vw, example* ex)
   {
-    VW::cb_label* ld = &ex->l.cb;
-    VW::cb_class f;
+    VW980::cb_label* ld = &ex->l.cb;
+    VW980::cb_class f;
 
     f.partial_prediction = 0.;
     f.action = m_action;
@@ -146,15 +146,15 @@ public ref class SharedLabel sealed : ILabel
 private:
   uint32_t m_action;
 
-  SharedLabel() : m_action((uint32_t)VW::uniform_hash("shared", 6, 0)) {}
+  SharedLabel() : m_action((uint32_t)VW980::uniform_hash("shared", 6, 0)) {}
 
 public:
   static SharedLabel^ Instance = gcnew SharedLabel;
 
-  virtual void UpdateExample(VW::workspace* vw, example* ex)
+  virtual void UpdateExample(VW980::workspace* vw, example* ex)
   {
-    VW::cb_label* ld = &ex->l.cb;
-    VW::cb_class f;
+    VW980::cb_label* ld = &ex->l.cb;
+    VW980::cb_class f;
 
     f.partial_prediction = 0.;
     f.action = m_action;
@@ -225,12 +225,12 @@ public:
 
     m_label = ld->label;
 
-    const auto& red_fts = ex->ex_reduction_features.template get<VW::simple_label_reduction_features>();
+    const auto& red_fts = ex->ex_reduction_features.template get<VW980::simple_label_reduction_features>();
     m_weight = red_fts.weight;
     m_initial = red_fts.initial;
   }
 
-  virtual void UpdateExample(VW::workspace* vw, example* ex)
+  virtual void UpdateExample(VW980::workspace* vw, example* ex)
   {
     auto* ld = &ex->l.simple;
     ld->label = m_label;
@@ -239,11 +239,11 @@ public:
 
     if (m_initial.HasValue)
     {
-      auto& red_fts = ex->ex_reduction_features.template get<VW::simple_label_reduction_features>();
+      auto& red_fts = ex->ex_reduction_features.template get<VW980::simple_label_reduction_features>();
       red_fts.initial = m_initial.Value;
     }
 
-    VW::count_label(*vw->sd, ld->label);
+    VW980::count_label(*vw->sd, ld->label);
   }
 
   virtual String^ ToString() override
@@ -316,7 +316,7 @@ public:
   { throw gcnew NotImplementedException("to be done...");
   }
 
-  virtual void UpdateExample(VW::workspace* vw, example* ex) { throw gcnew NotImplementedException("to be done..."); }
+  virtual void UpdateExample(VW980::workspace* vw, example* ex) { throw gcnew NotImplementedException("to be done..."); }
 
   virtual String^ ToString() override
   { auto sb = gcnew StringBuilder;
@@ -366,12 +366,12 @@ public:
   { throw gcnew NotImplementedException("to be done...");
   }
 
-  virtual void UpdateExample(VW::workspace* vw, example* ex)
+  virtual void UpdateExample(VW980::workspace* vw, example* ex)
   { auto bytes = System::Text::Encoding::UTF8->GetBytes(m_label);
     auto valueHandle = GCHandle::Alloc(bytes, GCHandleType::Pinned);
 
     try
-    { VW::parse_example_label(*vw, *ex, reinterpret_cast<char*>(valueHandle.AddrOfPinnedObject().ToPointer()));
+    { VW980::parse_example_label(*vw, *ex, reinterpret_cast<char*>(valueHandle.AddrOfPinnedObject().ToPointer()));
     }
     CATCHRETHROW
     finally

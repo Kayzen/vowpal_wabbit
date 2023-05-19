@@ -8,19 +8,19 @@
 #include "vw/io/io_adapter.h"
 #include "vw/io/logger.h"
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
 void global_print_newline(
-    const std::vector<std::unique_ptr<VW::io::writer>>& final_prediction_sink, VW::io::logger& logger)
+    const std::vector<std::unique_ptr<VW980::io::writer>>& final_prediction_sink, VW980::io::logger& logger)
 {
   const char temp = '\n';
   for (auto& sink : final_prediction_sink)
   {
     ssize_t t = sink->write(&temp, 1);
-    if (t != 1) { logger.err_error("write error: {}", VW::io::strerror_to_string(errno)); }
+    if (t != 1) { logger.err_error("write error: {}", VW980::io::strerror_to_string(errno)); }
   }
 }
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980

@@ -13,7 +13,7 @@
 
 namespace
 {
-void parse_no_label(const std::vector<VW::string_view>& words, VW::io::logger& logger)
+void parse_no_label(const std::vector<VW980::string_view>& words, VW980::io::logger& logger)
 {
   switch (words.size())
   {
@@ -25,30 +25,30 @@ void parse_no_label(const std::vector<VW::string_view>& words, VW::io::logger& l
 }
 }  // namespace
 
-namespace VW
+namespace VW980
 {
-VW::label_parser no_label_parser_global = {
+VW980::label_parser no_label_parser_global = {
     // default_label
-    [](VW::polylabel& /* label */) {},
+    [](VW980::polylabel& /* label */) {},
     // parse_label
-    [](VW::polylabel& /* label */, VW::reduction_features& /* red_features */,
-        VW::label_parser_reuse_mem& /* reuse_mem */, const VW::named_labels* /* ldict */,
-        const std::vector<VW::string_view>& words, VW::io::logger& logger) { parse_no_label(words, logger); },
+    [](VW980::polylabel& /* label */, VW980::reduction_features& /* red_features */,
+        VW980::label_parser_reuse_mem& /* reuse_mem */, const VW980::named_labels* /* ldict */,
+        const std::vector<VW980::string_view>& words, VW980::io::logger& logger) { parse_no_label(words, logger); },
     // cache_label
-    [](const VW::polylabel& /* label */, const VW::reduction_features& /* red_features */, io_buf& /* cache */,
+    [](const VW980::polylabel& /* label */, const VW980::reduction_features& /* red_features */, io_buf& /* cache */,
         const std::string&, bool) -> size_t { return 1; },
     // read_cached_label
-    [](VW::polylabel& /* label */, VW::reduction_features& /* red_features */, io_buf&
+    [](VW980::polylabel& /* label */, VW980::reduction_features& /* red_features */, io_buf&
         /* cache */) -> size_t { return 1; },
     // get_weight
-    [](const VW::polylabel& /* label */, const VW::reduction_features& /* red_features */) { return 1.f; },
+    [](const VW980::polylabel& /* label */, const VW980::reduction_features& /* red_features */) { return 1.f; },
     // test_label
-    [](const VW::polylabel& /* label */) { return false; },
+    [](const VW980::polylabel& /* label */) { return false; },
     // label type
-    VW::label_type_t::NOLABEL};
+    VW980::label_type_t::NOLABEL};
 }
 
-void VW::details::print_no_label_update(VW::workspace& all, VW::example& ec)
+void VW980::details::print_no_label_update(VW980::workspace& all, VW980::example& ec)
 {
   if (all.sd->weighted_labeled_examples + all.sd->weighted_unlabeled_examples >= all.sd->dump_interval && !all.quiet &&
       !all.bfgs)
@@ -58,7 +58,7 @@ void VW::details::print_no_label_update(VW::workspace& all, VW::example& ec)
   }
 }
 
-void VW::details::output_and_account_no_label_example(VW::workspace& all, VW::example& ec)
+void VW980::details::output_and_account_no_label_example(VW980::workspace& all, VW980::example& ec)
 {
   all.sd->update(ec.test_only, false, ec.loss, ec.weight, ec.get_num_features());
 
@@ -68,8 +68,8 @@ void VW::details::output_and_account_no_label_example(VW::workspace& all, VW::ex
   print_no_label_update(all, ec);
 }
 
-void VW::details::return_no_label_example(VW::workspace& all, void*, VW::example& ec)
+void VW980::details::return_no_label_example(VW980::workspace& all, void*, VW980::example& ec)
 {
-  VW::details::output_and_account_example(all, ec);
-  VW::finish_example(all, ec);
+  VW980::details::output_and_account_example(all, ec);
+  VW980::finish_example(all, ec);
 }

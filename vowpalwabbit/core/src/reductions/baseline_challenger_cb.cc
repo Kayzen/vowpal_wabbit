@@ -19,21 +19,21 @@
 #include <memory>
 #include <utility>
 
-using namespace VW;
-using namespace VW::config;
-using namespace VW::LEARNER;
-using namespace VW::reductions;
+using namespace VW980;
+using namespace VW980::config;
+using namespace VW980::LEARNER;
+using namespace VW980::reductions;
 
-namespace VW
+namespace VW980
 {
 class discounted_expectation;
 class baseline_challenger_data;
 namespace model_utils
 {
-size_t read_model_field(io_buf&, VW::discounted_expectation&);
-size_t write_model_field(io_buf&, const VW::discounted_expectation&, const std::string&, bool);
-size_t read_model_field(io_buf&, VW::baseline_challenger_data&);
-size_t write_model_field(io_buf&, const VW::baseline_challenger_data&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::discounted_expectation&);
+size_t write_model_field(io_buf&, const VW980::discounted_expectation&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::baseline_challenger_data&);
+size_t write_model_field(io_buf&, const VW980::baseline_challenger_data&, const std::string&, bool);
 }  // namespace model_utils
 class discounted_expectation
 {
@@ -48,9 +48,9 @@ public:
 
   double current() const { return _n == 0 ? 0 : _sum / _n; }
 
-  friend size_t VW::model_utils::read_model_field(io_buf&, VW::discounted_expectation&);
-  friend size_t VW::model_utils::write_model_field(
-      io_buf&, const VW::discounted_expectation&, const std::string&, bool);
+  friend size_t VW980::model_utils::read_model_field(io_buf&, VW980::discounted_expectation&);
+  friend size_t VW980::model_utils::write_model_field(
+      io_buf&, const VW980::discounted_expectation&, const std::string&, bool);
 
 private:
   double _tau;
@@ -61,13 +61,13 @@ private:
 class baseline_challenger_data
 {
 public:
-  VW::estimators::chi_squared baseline;
+  VW980::estimators::chi_squared baseline;
   discounted_expectation policy_expectation;
   float baseline_epsilon;
 
   baseline_challenger_data(double alpha, double tau) : baseline(alpha, tau), policy_expectation(tau) {}
 
-  static int get_chosen_action(const VW::action_scores& action_scores) { return action_scores[0].action; }
+  static int get_chosen_action(const VW980::action_scores& action_scores) { return action_scores[0].action; }
 
   template <bool is_learn>
   inline void learn_or_predict(learner& base, multi_ex& examples)
@@ -85,7 +85,7 @@ public:
       if (lbl_example != examples.end())
       {
         const auto labelled_action = static_cast<uint32_t>(std::distance(examples.begin(), lbl_example));
-        const VW::cb_class& logged = (*lbl_example)->l.cb.costs[0];
+        const VW980::cb_class& logged = (*lbl_example)->l.cb.costs[0];
 
         double r = -logged.cost;
         double w = (labelled_action == chosen_action ? 1 : 0) / logged.probability;
@@ -115,14 +115,14 @@ public:
     }
   }
 
-  friend size_t VW::model_utils::read_model_field(io_buf&, VW::baseline_challenger_data&);
-  friend size_t VW::model_utils::write_model_field(
-      io_buf&, const VW::baseline_challenger_data&, const std::string&, bool);
+  friend size_t VW980::model_utils::read_model_field(io_buf&, VW980::baseline_challenger_data&);
+  friend size_t VW980::model_utils::write_model_field(
+      io_buf&, const VW980::baseline_challenger_data&, const std::string&, bool);
 };
 
 namespace model_utils
 {
-size_t read_model_field(io_buf& io, VW::discounted_expectation& de)
+size_t read_model_field(io_buf& io, VW980::discounted_expectation& de)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, de._sum);
@@ -130,7 +130,7 @@ size_t read_model_field(io_buf& io, VW::discounted_expectation& de)
   return bytes;
 }
 
-size_t write_model_field(io_buf& io, const VW::discounted_expectation& de, const std::string& upstream_name, bool text)
+size_t write_model_field(io_buf& io, const VW980::discounted_expectation& de, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, de._sum, upstream_name + "_expectation_sum", text);
@@ -138,7 +138,7 @@ size_t write_model_field(io_buf& io, const VW::discounted_expectation& de, const
   return bytes;
 }
 
-size_t read_model_field(io_buf& io, VW::baseline_challenger_data& challenger)
+size_t read_model_field(io_buf& io, VW980::baseline_challenger_data& challenger)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, challenger.baseline);
@@ -147,7 +147,7 @@ size_t read_model_field(io_buf& io, VW::baseline_challenger_data& challenger)
 }
 
 size_t write_model_field(
-    io_buf& io, const VW::baseline_challenger_data& challenger, const std::string& upstream_name, bool text)
+    io_buf& io, const VW980::baseline_challenger_data& challenger, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, challenger.baseline, upstream_name + "_baseline", text);
@@ -155,19 +155,19 @@ size_t write_model_field(
   return bytes;
 }
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980
 
 template <bool is_learn>
-void learn_or_predict(baseline_challenger_data& data, learner& base, VW::multi_ex& examples)
+void learn_or_predict(baseline_challenger_data& data, learner& base, VW980::multi_ex& examples)
 {
   data.learn_or_predict<is_learn>(base, examples);
 }
 
-void save_load(baseline_challenger_data& data, VW::io_buf& io, bool read, bool text)
+void save_load(baseline_challenger_data& data, VW980::io_buf& io, bool read, bool text)
 {
   if (io.num_files() == 0) { return; }
-  if (read) { VW::model_utils::read_model_field(io, data); }
-  else { VW::model_utils::write_model_field(io, data, "_challenger", text); }
+  if (read) { VW980::model_utils::read_model_field(io, data); }
+  else { VW980::model_utils::write_model_field(io, data, "_challenger", text); }
 }
 
 void persist_metrics(baseline_challenger_data& data, metric_sink& metrics)
@@ -180,7 +180,7 @@ void persist_metrics(baseline_challenger_data& data, metric_sink& metrics)
   metrics.set_bool("baseline_cb_baseline_in_use", ci > exp);
 }
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::baseline_challenger_cb_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::baseline_challenger_cb_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
 
@@ -197,12 +197,12 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::baseline_challenger_cb_set
                      "perfoming better")
                .experimental())
       .add(make_option("cb_c_alpha", alpha)
-               .default_value(VW::details::DEFAULT_ALPHA)
+               .default_value(VW980::details::DEFAULT_ALPHA)
                .keep()
                .help("Confidence level for baseline")
                .experimental())
       .add(make_option("cb_c_tau", tau)
-               .default_value(VW::details::BASELINE_DEFAULT_TAU)
+               .default_value(VW980::details::BASELINE_DEFAULT_TAU)
                .keep()
                .help("Time constant for count decay")
                .experimental());
@@ -211,14 +211,14 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::baseline_challenger_cb_set
 
   if (!options.was_supplied("cb_adf")) { THROW("cb_challenger requires cb_explore_adf or cb_adf"); }
 
-  auto data = VW::make_unique<baseline_challenger_data>(alpha, tau);
+  auto data = VW980::make_unique<baseline_challenger_data>(alpha, tau);
 
   auto l = make_reduction_learner(std::move(data), require_multiline(stack_builder.setup_base_learner()),
       learn_or_predict<true>, learn_or_predict<false>, stack_builder.get_setupfn_name(baseline_challenger_cb_setup))
-               .set_input_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
+               .set_input_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
                .set_save_load(save_load)
                .set_persist_metrics(persist_metrics)
                .build();

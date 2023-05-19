@@ -33,8 +33,8 @@
 // this is a randomized algorithm for approximating the linucb bonus.
 // Hopefully it works well when the expected reward is realizable.  YMMV.
 
-using namespace VW::LEARNER;
-using namespace VW::cb_explore_adf;
+using namespace VW980::LEARNER;
+using namespace VW980::cb_explore_adf;
 
 namespace
 {
@@ -42,7 +42,7 @@ class cb_explore_adf_rnd
 {
 public:
   cb_explore_adf_rnd(float _epsilon, float _alpha, float _invlambda, uint32_t _numrnd, size_t _feature_width_below,
-      VW::workspace* _all)
+      VW980::workspace* _all)
       : _epsilon(_epsilon)
       , _alpha(_alpha)
       , _sqrtinvlambda(std::sqrt(_invlambda))
@@ -54,8 +54,8 @@ public:
   ~cb_explore_adf_rnd() = default;
 
   // Should be called through cb_explore_adf_base for pre/post-processing
-  void predict(learner& base, VW::multi_ex& examples) { predict_or_learn_impl<false>(base, examples); }
-  void learn(learner& base, VW::multi_ex& examples) { predict_or_learn_impl<true>(base, examples); }
+  void predict(learner& base, VW980::multi_ex& examples) { predict_or_learn_impl<false>(base, examples); }
+  void learn(learner& base, VW980::multi_ex& examples) { predict_or_learn_impl<true>(base, examples); }
 
 private:
   float _epsilon;
@@ -64,36 +64,36 @@ private:
   uint32_t _numrnd;
 
   size_t _feature_width_below;
-  VW::workspace* _all;
+  VW980::workspace* _all;
 
   std::vector<float> _bonuses;
   std::vector<float> _initials;
 
-  VW::cb_class _save_class;
+  VW980::cb_class _save_class;
 
   template <bool is_learn>
-  void predict_or_learn_impl(learner& base, VW::multi_ex& examples);
+  void predict_or_learn_impl(learner& base, VW980::multi_ex& examples);
 
-  float get_initial_prediction(VW::example*);
-  void get_initial_predictions(VW::multi_ex&, uint32_t);
-  void zero_bonuses(VW::multi_ex&);
-  void accumulate_bonuses(VW::multi_ex&);
+  float get_initial_prediction(VW980::example*);
+  void get_initial_predictions(VW980::multi_ex&, uint32_t);
+  void zero_bonuses(VW980::multi_ex&);
+  void accumulate_bonuses(VW980::multi_ex&);
   void finish_bonuses();
-  void compute_ci(VW::v_array<VW::action_score>&, float);
+  void compute_ci(VW980::v_array<VW980::action_score>&, float);
 
   template <bool>
-  void save_labels(VW::multi_ex&);
+  void save_labels(VW980::multi_ex&);
   template <bool>
-  void make_fake_rnd_labels(VW::multi_ex&);
+  void make_fake_rnd_labels(VW980::multi_ex&);
   template <bool>
-  void restore_labels(VW::multi_ex&);
+  void restore_labels(VW980::multi_ex&);
   template <bool>
-  void base_learn_or_predict(learner&, VW::multi_ex&, uint32_t);
+  void base_learn_or_predict(learner&, VW980::multi_ex&, uint32_t);
 };
 
-void cb_explore_adf_rnd::zero_bonuses(VW::multi_ex& examples) { _bonuses.assign(examples.size(), 0.f); }
+void cb_explore_adf_rnd::zero_bonuses(VW980::multi_ex& examples) { _bonuses.assign(examples.size(), 0.f); }
 
-void cb_explore_adf_rnd::accumulate_bonuses(VW::multi_ex& examples)
+void cb_explore_adf_rnd::accumulate_bonuses(VW980::multi_ex& examples)
 {
   const auto& preds = examples[0]->pred.a_s;
   for (const auto& p : preds)
@@ -108,7 +108,7 @@ void cb_explore_adf_rnd::finish_bonuses()
   for (auto& b : _bonuses) { b = std::sqrt(b / _numrnd); }
 }
 
-void cb_explore_adf_rnd::compute_ci(VW::v_array<VW::action_score>& preds, float max_bonus)
+void cb_explore_adf_rnd::compute_ci(VW980::v_array<VW980::action_score>& preds, float max_bonus)
 {
   constexpr float eulergamma = 0.57721566490153286f;
   for (auto& p : preds) { p.score -= eulergamma * (_bonuses[p.action] - max_bonus); }
@@ -116,14 +116,14 @@ void cb_explore_adf_rnd::compute_ci(VW::v_array<VW::action_score>& preds, float 
 
 namespace
 {
-bool is_the_labeled_example(const VW::example* ec)
+bool is_the_labeled_example(const VW980::example* ec)
 {
   return (ec->l.cb.costs.size() == 1 && ec->l.cb.costs[0].cost != FLT_MAX && ec->l.cb.costs[0].probability > 0);
 }
 }  // namespace
 
 template <bool is_learn>
-void cb_explore_adf_rnd::save_labels(VW::multi_ex& examples)
+void cb_explore_adf_rnd::save_labels(VW980::multi_ex& examples)
 {
   if (is_learn)
   {
@@ -144,7 +144,7 @@ namespace
 class lazy_gaussian
 {
 public:
-  inline float operator[](uint64_t index) const { return VW::details::merand48_boxmuller(index); }
+  inline float operator[](uint64_t index) const { return VW980::details::merand48_boxmuller(index); }
 };
 
 inline void vec_add_with_norm(std::pair<float, float>& p, float fx, float fw)
@@ -155,19 +155,19 @@ inline void vec_add_with_norm(std::pair<float, float>& p, float fx, float fw)
 
 }  // namespace
 
-float cb_explore_adf_rnd::get_initial_prediction(VW::example* ec)
+float cb_explore_adf_rnd::get_initial_prediction(VW980::example* ec)
 {
   lazy_gaussian w;
 
   std::pair<float, float> dotwithnorm(0.f, 0.f);
-  VW::foreach_feature<std::pair<float, float>, float, vec_add_with_norm, lazy_gaussian>(w, _all->ignore_some_linear,
+  VW980::foreach_feature<std::pair<float, float>, float, vec_add_with_norm, lazy_gaussian>(w, _all->ignore_some_linear,
       _all->ignore_linear, _all->interactions, _all->extent_interactions, _all->permutations, *ec, dotwithnorm,
       _all->generate_interactions_object_cache_state);
 
   return _sqrtinvlambda * dotwithnorm.second / std::sqrt(2.0f * std::max(1e-12f, dotwithnorm.first));
 }
 
-void cb_explore_adf_rnd::get_initial_predictions(VW::multi_ex& examples, uint32_t id)
+void cb_explore_adf_rnd::get_initial_predictions(VW980::multi_ex& examples, uint32_t id)
 {
   _initials.clear();
   _initials.reserve(examples.size());
@@ -175,14 +175,14 @@ void cb_explore_adf_rnd::get_initial_predictions(VW::multi_ex& examples, uint32_
   {
     auto* ec = examples[i];
 
-    VW::LEARNER::details::increment_offset(*ec, _feature_width_below, id);
+    VW980::LEARNER::details::increment_offset(*ec, _feature_width_below, id);
     _initials.push_back(get_initial_prediction(ec));
-    VW::LEARNER::details::decrement_offset(*ec, _feature_width_below, id);
+    VW980::LEARNER::details::decrement_offset(*ec, _feature_width_below, id);
   }
 }
 
 template <bool is_learn>
-void cb_explore_adf_rnd::make_fake_rnd_labels(VW::multi_ex& examples)
+void cb_explore_adf_rnd::make_fake_rnd_labels(VW980::multi_ex& examples)
 {
   if (is_learn)
   {
@@ -200,7 +200,7 @@ void cb_explore_adf_rnd::make_fake_rnd_labels(VW::multi_ex& examples)
 }
 
 template <bool is_learn>
-void cb_explore_adf_rnd::restore_labels(VW::multi_ex& examples)
+void cb_explore_adf_rnd::restore_labels(VW980::multi_ex& examples)
 {
   if (is_learn)
   {
@@ -217,19 +217,19 @@ void cb_explore_adf_rnd::restore_labels(VW::multi_ex& examples)
 }
 
 template <bool is_learn>
-void cb_explore_adf_rnd::base_learn_or_predict(learner& base, VW::multi_ex& examples, uint32_t id)
+void cb_explore_adf_rnd::base_learn_or_predict(learner& base, VW980::multi_ex& examples, uint32_t id)
 {
   if (is_learn) { base.learn(examples, id); }
   else { base.predict(examples, id); }
 }
 
 template <bool is_learn>
-void cb_explore_adf_rnd::predict_or_learn_impl(learner& base, VW::multi_ex& examples)
+void cb_explore_adf_rnd::predict_or_learn_impl(learner& base, VW980::multi_ex& examples)
 {
   save_labels<is_learn>(examples);
 
   // Guard example state restore against throws
-  auto restore_guard = VW::scope_exit([this, &examples] { this->restore_labels<is_learn>(examples); });
+  auto restore_guard = VW980::scope_exit([this, &examples] { this->restore_labels<is_learn>(examples); });
 
   zero_bonuses(examples);
   for (uint32_t id = 0; id < _numrnd; ++id)
@@ -248,16 +248,16 @@ void cb_explore_adf_rnd::predict_or_learn_impl(learner& base, VW::multi_ex& exam
   auto& preds = examples[0]->pred.a_s;
   float max_bonus = std::max(1e-3f, *std::max_element(_bonuses.begin(), _bonuses.end()));
   compute_ci(preds, max_bonus);
-  VW::explore::generate_softmax(
+  VW980::explore::generate_softmax(
       -1.0f / max_bonus, begin_scores(preds), end_scores(preds), begin_scores(preds), end_scores(preds));
-  VW::explore::enforce_minimum_probability(_epsilon, true, begin_scores(preds), end_scores(preds));
+  VW980::explore::enforce_minimum_probability(_epsilon, true, begin_scores(preds), end_scores(preds));
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_rnd_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_explore_adf_rnd_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   using config::make_option;
   bool cb_explore_adf_option = false;
   float epsilon = 0.;
@@ -303,16 +303,16 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_rnd_setup(V
   auto base = require_multiline(stack_builder.setup_base_learner(feature_width));
 
   using explore_type = cb_explore_adf_base<cb_explore_adf_rnd>;
-  auto data = VW::make_unique<explore_type>(all.global_metrics.are_metrics_enabled(), epsilon, alpha, invlambda, numrnd,
+  auto data = VW980::make_unique<explore_type>(all.global_metrics.are_metrics_enabled(), epsilon, alpha, invlambda, numrnd,
       base->feature_width_below * feature_width, &all);
 
   if (epsilon < 0.0 || epsilon > 1.0) { THROW("The value of epsilon must be in [0,1]"); }
   auto l = make_reduction_learner(std::move(data), base, explore_type::learn, explore_type::predict,
       stack_builder.get_setupfn_name(cb_explore_adf_rnd_setup))
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
-               .set_input_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_PROBS)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
+               .set_input_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
                .set_feature_width(feature_width)
                .set_output_example_prediction(explore_type::output_example_prediction)
                .set_update_stats(explore_type::update_stats)

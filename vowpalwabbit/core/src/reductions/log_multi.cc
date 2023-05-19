@@ -17,8 +17,8 @@
 #include <cstdio>
 #include <sstream>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 // TODO: This file makes extensive use of cout and partial line logging.
 //       Will require some investigation on how to proceed
@@ -58,7 +58,7 @@ class node
 public:
   // everyone has
   uint32_t parent;               // the parent node
-  VW::v_array<node_pred> preds;  // per-class state
+  VW980::v_array<node_pred> preds;  // per-class state
   uint32_t
       min_count;  // the number of examples reaching this node (if it's a leaf) or the minimum reaching any grandchild.
 
@@ -233,7 +233,7 @@ bool children(log_multi& b, uint32_t& current, uint32_t& class_index, uint32_t l
 }
 
 void train_node(
-    log_multi& b, learner& base, VW::example& ec, uint32_t& current, uint32_t& class_index, uint32_t /* depth */)
+    log_multi& b, learner& base, VW980::example& ec, uint32_t& current, uint32_t& class_index, uint32_t /* depth */)
 {
   if (b.nodes[current].norm_Eh > b.nodes[current].preds[class_index].norm_Ehk) { ec.l.simple.label = -1.f; }
   else { ec.l.simple.label = 1.f; }
@@ -259,12 +259,12 @@ inline uint32_t descend(node& n, float prediction)
   else { return n.right; }
 }
 
-void predict(log_multi& b, learner& base, VW::example& ec)
+void predict(log_multi& b, learner& base, VW980::example& ec)
 {
-  VW::multiclass_label mc = ec.l.multi;
+  VW980::multiclass_label mc = ec.l.multi;
 
   ec.l.simple = {FLT_MAX};
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
 
   uint32_t cn = 0;
   while (b.nodes[cn].internal)
@@ -276,16 +276,16 @@ void predict(log_multi& b, learner& base, VW::example& ec)
   ec.l.multi = mc;
 }
 
-void learn(log_multi& b, learner& base, VW::example& ec)
+void learn(log_multi& b, learner& base, VW980::example& ec)
 {
   if (ec.l.multi.label != static_cast<uint32_t>(-1))  // if training the tree
   {
-    VW::multiclass_label mc = ec.l.multi;
+    VW980::multiclass_label mc = ec.l.multi;
     uint32_t start_pred = ec.pred.multiclass;
 
     uint32_t class_index = 0;
     ec.l.simple = {FLT_MAX};
-    ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+    ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
     uint32_t cn = 0;
     uint32_t depth = 0;
     while (children(b, cn, class_index, mc.label))
@@ -302,37 +302,37 @@ void learn(log_multi& b, learner& base, VW::example& ec)
   }
 }
 
-void save_load_tree(log_multi& b, VW::io_buf& model_file, bool read, bool text)
+void save_load_tree(log_multi& b, VW980::io_buf& model_file, bool read, bool text)
 {
   if (model_file.num_files() > 0)
   {
     std::stringstream msg;
     msg << "k = " << b.k;
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&b.max_predictors), sizeof(b.k), read, msg, text);
 
     msg << "nodes = " << b.nodes.size() << " ";
     uint32_t temp = static_cast<uint32_t>(b.nodes.size());
-    VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&temp), sizeof(temp), read, msg, text);
+    VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&temp), sizeof(temp), read, msg, text);
     if (read)
     {
       for (uint32_t j = 1; j < temp; j++) { b.nodes.push_back(init_node()); }
     }
 
     msg << "max predictors = " << b.max_predictors << " ";
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&b.max_predictors), sizeof(b.max_predictors), read, msg, text);
 
     msg << "predictors_used = " << b.predictors_used << " ";
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&b.predictors_used), sizeof(b.predictors_used), read, msg, text);
 
     msg << "progress = " << b.progress << " ";
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&b.progress), sizeof(b.progress), read, msg, text);
 
     msg << "swap_resist = " << b.swap_resist << "\n";
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&b.swap_resist), sizeof(b.swap_resist), read, msg, text);
 
     for (size_t j = 0; j < b.nodes.size(); j++)
@@ -341,58 +341,58 @@ void save_load_tree(log_multi& b, VW::io_buf& model_file, bool read, bool text)
       node& n = b.nodes[j];
 
       msg << " parent = " << n.parent;
-      VW::details::bin_text_read_write_fixed(
+      VW980::details::bin_text_read_write_fixed(
           model_file, reinterpret_cast<char*>(&n.parent), sizeof(n.parent), read, msg, text);
 
       temp = static_cast<uint32_t>(n.preds.size());
 
       msg << " preds = " << temp;
-      VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&temp), sizeof(temp), read, msg, text);
+      VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&temp), sizeof(temp), read, msg, text);
       if (read)
       {
         for (uint32_t k = 0; k < temp; k++) { n.preds.push_back(node_pred(1)); }
       }
 
       msg << " min_count = " << n.min_count;
-      VW::details::bin_text_read_write_fixed(
+      VW980::details::bin_text_read_write_fixed(
           model_file, reinterpret_cast<char*>(&n.min_count), sizeof(n.min_count), read, msg, text);
 
       msg << " internal = " << n.internal;
-      VW::details::bin_text_read_write_fixed(
+      VW980::details::bin_text_read_write_fixed(
           model_file, reinterpret_cast<char*>(&n.internal), sizeof(n.internal), read, msg, text);
 
       if (n.internal)
       {
         msg << " base_predictor = " << n.base_predictor;
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&n.base_predictor), sizeof(n.base_predictor), read, msg, text);
 
         msg << " left = " << n.left;
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&n.left), sizeof(n.left), read, msg, text);
 
         msg << " right = " << n.right;
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&n.right), sizeof(n.right), read, msg, text);
 
         msg << " norm_Eh = " << n.norm_Eh;
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&n.norm_Eh), sizeof(n.norm_Eh), read, msg, text);
 
         msg << " Eh = " << n.Eh;
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&n.Eh), sizeof(n.Eh), read, msg, text);
 
         msg << " n = " << n.n << "\n";
-        VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&n.n), sizeof(n.n), read, msg, text);
+        VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&n.n), sizeof(n.n), read, msg, text);
       }
       else
       {
         msg << " max_count = " << n.max_count;
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&n.max_count), sizeof(n.max_count), read, msg, text);
         msg << " max_count_label = " << n.max_count_label << "\n";
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&n.max_count_label), sizeof(n.max_count_label), read, msg, text);
       }
 
@@ -401,23 +401,23 @@ void save_load_tree(log_multi& b, VW::io_buf& model_file, bool read, bool text)
         node_pred& p = n.preds[k];
 
         msg << "  Ehk = " << p.Ehk;
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&p.Ehk), sizeof(p.Ehk), read, msg, text);
 
         msg << " norm_Ehk = " << p.norm_Ehk;
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&p.norm_Ehk), sizeof(p.norm_Ehk), read, msg, text);
 
         msg << " nk = " << p.nk;
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&p.nk), sizeof(p.nk), read, msg, text);
 
         msg << " label = " << p.label;
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&p.label), sizeof(p.label), read, msg, text);
 
         msg << " label_count = " << p.label_count << "\n";
-        VW::details::bin_text_read_write_fixed(
+        VW980::details::bin_text_read_write_fixed(
             model_file, reinterpret_cast<char*>(&p.label_count), sizeof(p.label_count), read, msg, text);
       }
     }
@@ -425,12 +425,12 @@ void save_load_tree(log_multi& b, VW::io_buf& model_file, bool read, bool text)
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::log_multi_setup(VW::setup_base_i& stack_builder)  // learner setup
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::log_multi_setup(VW980::setup_base_i& stack_builder)  // learner setup
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
 
-  auto data = VW::make_unique<log_multi>();
+  auto data = VW980::make_unique<log_multi>();
   option_group_definition new_options("[Reduction] Logarithmic Time Multiclass Tree");
   new_options.add(make_option("log_multi", data->k).keep().necessary().help("Use online tree for multiclass"))
       .add(make_option("no_progress", data->progress).help("Disable progressive validation"))
@@ -453,14 +453,14 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::log_multi_setup(VW::setup_
   auto l = make_reduction_learner(std::move(data), require_singleline(stack_builder.setup_base_learner(feature_width)),
       learn, predict, stack_builder.get_setupfn_name(log_multi_setup))
                .set_feature_width(feature_width)
-               .set_update_stats(VW::details::update_stats_multiclass_label<log_multi>)
-               .set_output_example_prediction(VW::details::output_example_prediction_multiclass_label<log_multi>)
-               .set_print_update(VW::details::print_update_multiclass_label<log_multi>)
+               .set_update_stats(VW980::details::update_stats_multiclass_label<log_multi>)
+               .set_output_example_prediction(VW980::details::output_example_prediction_multiclass_label<log_multi>)
+               .set_print_update(VW980::details::print_update_multiclass_label<log_multi>)
                .set_save_load(save_load_tree)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
-               .set_output_prediction_type(VW::prediction_type_t::MULTICLASS)
-               .set_input_label_type(VW::label_type_t::MULTICLASS)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
+               .set_output_prediction_type(VW980::prediction_type_t::MULTICLASS)
+               .set_input_label_type(VW980::label_type_t::MULTICLASS)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
                .build();
   return l;
 }

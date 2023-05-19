@@ -14,7 +14,7 @@
 #include <memory>
 #include <vector>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 TEST(OptionsCli, TypedOptionsParsing)
 {
@@ -131,8 +131,8 @@ TEST(OptionsCli, TypeConversionFailure)
   option_group_definition arg_group2("group2");
   arg_group2.add(make_option("int_opt", int_opt));
 
-  EXPECT_THROW(options->add_and_parse(arg_group1), VW::vw_argument_invalid_value_exception);
-  EXPECT_THROW(options->add_and_parse(arg_group2), VW::vw_argument_invalid_value_exception);
+  EXPECT_THROW(options->add_and_parse(arg_group1), VW980::vw_argument_invalid_value_exception);
+  EXPECT_THROW(options->add_and_parse(arg_group2), VW980::vw_argument_invalid_value_exception);
 }
 
 // Boost PO does not follow these semantics. It is arguably a bug that is fixed with the options_cli implementation
@@ -220,7 +220,7 @@ TEST(OptionsCli, IncorrectOptionTypeStrForInt)
   option_group_definition arg_group("group");
   arg_group.add(make_option("int_opt", int_opt));
 
-  EXPECT_THROW(options->add_and_parse(arg_group), VW::vw_argument_invalid_value_exception);
+  EXPECT_THROW(options->add_and_parse(arg_group), VW980::vw_argument_invalid_value_exception);
 }
 
 TEST(OptionsCli, MultipleLocationsOneOption)
@@ -248,7 +248,7 @@ TEST(OptionsCli, DuplicateOptionClash)
   arg_group.add(make_option("the_opt", int_opt));
   arg_group.add(make_option("the_opt", str_opt));
 
-  EXPECT_THROW(options->add_and_parse(arg_group), VW::vw_exception);
+  EXPECT_THROW(options->add_and_parse(arg_group), VW980::vw_exception);
 }
 
 TEST(OptionsCli, MismatchedValuesDuplicateCommandLine)
@@ -259,7 +259,7 @@ TEST(OptionsCli, MismatchedValuesDuplicateCommandLine)
   option_group_definition arg_group("group");
   arg_group.add(make_option("int_opt", int_opt));
 
-  EXPECT_THROW(options->add_and_parse(arg_group), VW::vw_argument_disagreement_exception);
+  EXPECT_THROW(options->add_and_parse(arg_group), VW980::vw_argument_disagreement_exception);
 }
 
 TEST(OptionsCli, GetPositionalTokens)
@@ -310,7 +310,7 @@ TEST(OptionsCli, NonmatchingValuesCommandLine)
   option_group_definition arg_group("group");
   arg_group.add(make_option("int_opt", int_opt));
 
-  EXPECT_THROW(options->add_and_parse(arg_group), VW::vw_argument_disagreement_exception);
+  EXPECT_THROW(options->add_and_parse(arg_group), VW980::vw_argument_disagreement_exception);
 }
 
 TEST(OptionsCli, NonmatchingValuesCommandLineWithOverride)
@@ -412,7 +412,7 @@ TEST(OptionsCli, UnregisteredOptions)
   EXPECT_EQ(int_opt, 3);
 
   std::vector<std::string> warnings;
-  EXPECT_THROW(warnings = options->check_unregistered(), VW::vw_exception);
+  EXPECT_THROW(warnings = options->check_unregistered(), VW980::vw_exception);
 }
 
 TEST(OptionsCli, CheckNecessary)
@@ -546,5 +546,5 @@ TEST(OptionsCli, MakeOptionTags)
   ASSERT_THAT(arg_group.m_options.back()->get_tags(), ::testing::ElementsAre("taga"));
 
   int int_opt2{};
-  EXPECT_THROW(arg_group.add(make_option("int_opt2", int_opt2).tags({"taga", "taga"})), VW::vw_exception);
+  EXPECT_THROW(arg_group.add(make_option("int_opt2", int_opt2).tags({"taga", "taga"})), VW980::vw_exception);
 }

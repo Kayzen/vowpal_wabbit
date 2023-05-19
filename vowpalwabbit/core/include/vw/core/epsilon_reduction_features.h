@@ -4,7 +4,7 @@
 
 #pragma once
 
-namespace VW
+namespace VW980
 {
 namespace cb_explore_adf
 {
@@ -22,4 +22,4 @@ public:
 };
 }  // namespace greedy
 }  // namespace cb_explore_adf
-}  // namespace VW
+}  // namespace VW980

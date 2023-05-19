@@ -11,11 +11,11 @@
 
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> cats_setup(setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> cats_setup(setup_base_i& stack_builder);
 
 namespace cats
 {
@@ -31,11 +31,11 @@ public:
 
   int learn(example& ec, experimental::api_status* status);
   int predict(example& ec, experimental::api_status* status);
-  float get_loss(const VW::cb_continuous::continuous_label& cb_cont_costs, float predicted_action) const;
+  float get_loss(const VW980::cb_continuous::continuous_label& cb_cont_costs, float predicted_action) const;
 
 private:
   LEARNER::learner* _base = nullptr;
 };
 }  // namespace cats
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

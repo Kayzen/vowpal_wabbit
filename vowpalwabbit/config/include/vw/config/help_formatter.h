@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace config
 {
@@ -25,4 +25,4 @@ public:
 };
 
 }  // namespace config
-}  // namespace VW
+}  // namespace VW980

@@ -13,9 +13,9 @@
   case type:       \
     return #type;
 
-VW::string_view VW::to_string(VW::cb_type_t label_type)
+VW980::string_view VW980::to_string(VW980::cb_type_t label_type)
 {
-  using namespace VW;
+  using namespace VW980;
   switch (label_type)
   {
     CASE(cb_type_t::DR)
@@ -32,12 +32,12 @@ VW::string_view VW::to_string(VW::cb_type_t label_type)
   return "unknown label type enum";
 }
 
-VW::cb_type_t VW::cb_type_from_string(VW::string_view str)
+VW980::cb_type_t VW980::cb_type_from_string(VW980::string_view str)
 {
-  if (str == "dr") { return VW::cb_type_t::DR; }
-  if (str == "dm") { return VW::cb_type_t::DM; }
-  if (str == "ips") { return VW::cb_type_t::IPS; }
-  if (str == "mtr") { return VW::cb_type_t::MTR; }
-  if (str == "sm") { return VW::cb_type_t::SM; }
+  if (str == "dr") { return VW980::cb_type_t::DR; }
+  if (str == "dm") { return VW980::cb_type_t::DM; }
+  if (str == "ips") { return VW980::cb_type_t::IPS; }
+  if (str == "mtr") { return VW980::cb_type_t::MTR; }
+  if (str == "sm") { return VW980::cb_type_t::SM; }
   THROW("Unknown cb_type: " << str);
 }

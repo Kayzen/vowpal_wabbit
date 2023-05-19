@@ -3,31 +3,31 @@
 #include <type_traits>
 #include <typeinfo>
 
-namespace VW
+namespace VW980
 {
-// VW::is_nonqualified_example_type<ExampleT> will check if a given type is exactly VW::example or VW::multi_ex
+// VW980::is_nonqualified_example_type<ExampleT> will check if a given type is exactly VW980::example or VW980::multi_ex
 template <class ExampleT>
 struct is_nonqualified_example_type
     : std::integral_constant<bool,
-          std::is_same<VW::example, ExampleT>::value || std::is_same<VW::multi_ex, ExampleT>::value>
+          std::is_same<VW980::example, ExampleT>::value || std::is_same<VW980::multi_ex, ExampleT>::value>
 {
 };
 
-// VW::is_example_type<ExampleT> will check if a given type is (maybe const) VW::example or VW::multi_ex
+// VW980::is_example_type<ExampleT> will check if a given type is (maybe const) VW980::example or VW980::multi_ex
 template <class ExampleT>
 struct is_example_type
-    : std::integral_constant<bool, VW::is_nonqualified_example_type<typename std::remove_cv<ExampleT>::type>::value>
+    : std::integral_constant<bool, VW980::is_nonqualified_example_type<typename std::remove_cv<ExampleT>::type>::value>
 {
 };
 
-// VW::is_multiline_type<ExampleT> will check if a given type is (maybe const) VW::multi_ex
+// VW980::is_multiline_type<ExampleT> will check if a given type is (maybe const) VW980::multi_ex
 template <class ExampleT>
 struct is_multiline_type
-    : std::integral_constant<bool, std::is_same<VW::multi_ex, typename std::remove_cv<ExampleT>::type>::value>
+    : std::integral_constant<bool, std::is_same<VW980::multi_ex, typename std::remove_cv<ExampleT>::type>::value>
 {
 };
 
-// Polymorphic wrapper around VW::example and VW::multi_ex
+// Polymorphic wrapper around VW980::example and VW980::multi_ex
 //
 // The polymorphic_ex class is a pointer/reference wrapper that hides the
 // underlying VW example type. It can be implicitly created from, and converted
@@ -39,10 +39,10 @@ class polymorphic_ex
 {
 public:
   // Implicit conversion from both const and mutable pointer to polymorphic_ex
-  template <class ExampleT, typename std::enable_if<VW::is_example_type<ExampleT>::value, bool>::type = true>
+  template <class ExampleT, typename std::enable_if<VW980::is_example_type<ExampleT>::value, bool>::type = true>
   polymorphic_ex(ExampleT* ex)
       : _ptr(ex)
-      , _is_multiline(VW::is_multiline_type<ExampleT>::value)
+      , _is_multiline(VW980::is_multiline_type<ExampleT>::value)
 #ifndef NDEBUG
       , _type(typeid(typename std::remove_cv<ExampleT>::type))
       , _is_const(std::is_const<ExampleT>::value)
@@ -51,10 +51,10 @@ public:
   }
 
   // Implicit conversion from both const and mutable reference to polymorphic_ex
-  template <class ExampleT, typename std::enable_if<VW::is_example_type<ExampleT>::value, bool>::type = true>
+  template <class ExampleT, typename std::enable_if<VW980::is_example_type<ExampleT>::value, bool>::type = true>
   polymorphic_ex(ExampleT& ex)
       : _ptr(&ex)
-      , _is_multiline(VW::is_multiline_type<ExampleT>::value)
+      , _is_multiline(VW980::is_multiline_type<ExampleT>::value)
 #ifndef NDEBUG
       , _type(typeid(typename std::remove_cv<ExampleT>::type))
       , _is_const(std::is_const<ExampleT>::value)
@@ -64,7 +64,7 @@ public:
 
   // Implicit conversion from polymorphic_ex to const pointer
   template <class ExampleT,
-      typename std::enable_if<VW::is_nonqualified_example_type<ExampleT>::value, bool>::type = true>
+      typename std::enable_if<VW980::is_nonqualified_example_type<ExampleT>::value, bool>::type = true>
   operator const ExampleT*() const
   {
 #ifndef NDEBUG
@@ -75,7 +75,7 @@ public:
 
   // Implicit conversion from polymorphic_ex to const reference
   template <class ExampleT,
-      typename std::enable_if<VW::is_nonqualified_example_type<ExampleT>::value, bool>::type = true>
+      typename std::enable_if<VW980::is_nonqualified_example_type<ExampleT>::value, bool>::type = true>
   operator const ExampleT&() const
   {
 #ifndef NDEBUG
@@ -86,7 +86,7 @@ public:
 
   // Implicit conversion from polymorphic_ex to mutable pointer
   template <class ExampleT,
-      typename std::enable_if<VW::is_nonqualified_example_type<ExampleT>::value, bool>::type = true>
+      typename std::enable_if<VW980::is_nonqualified_example_type<ExampleT>::value, bool>::type = true>
   operator ExampleT*()
   {
 #ifndef NDEBUG
@@ -98,7 +98,7 @@ public:
 
   // Implicit conversion from polymorphic_ex to mutable reference
   template <class ExampleT,
-      typename std::enable_if<VW::is_nonqualified_example_type<ExampleT>::value, bool>::type = true>
+      typename std::enable_if<VW980::is_nonqualified_example_type<ExampleT>::value, bool>::type = true>
   operator ExampleT&()
   {
 #ifndef NDEBUG
@@ -120,4 +120,4 @@ private:
 #endif
 };
 
-}  // namespace VW
+}  // namespace VW980

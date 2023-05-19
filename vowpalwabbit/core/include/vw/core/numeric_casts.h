@@ -6,7 +6,7 @@
 #include <limits>
 #include <sstream>
 
-namespace VW
+namespace VW980
 {
 template <typename RetType, typename InputType>
 RetType cast_to_smaller_type(InputType input)
@@ -79,4 +79,4 @@ RetType cast_unsigned_to_signed(InputType input)
   return result;
 }
 
-}  // namespace VW
+}  // namespace VW980

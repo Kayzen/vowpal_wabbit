@@ -9,11 +9,11 @@
 #include <memory>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
 void global_print_newline(
-    const std::vector<std::unique_ptr<VW::io::writer>>& final_prediction_sink, VW::io::logger& logger);
+    const std::vector<std::unique_ptr<VW980::io::writer>>& final_prediction_sink, VW980::io::logger& logger);
 }
-}  // namespace VW
+}  // namespace VW980

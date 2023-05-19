@@ -6,9 +6,9 @@
 
 namespace GraphTask
 {
-void initialize(Search::search&, size_t&, VW::config::options_i&);
-void setup(Search::search&, VW::multi_ex&);
-void run(Search::search&, VW::multi_ex&);
-void takedown(Search::search&, VW::multi_ex&);
+void initialize(Search::search&, size_t&, VW980::config::options_i&);
+void setup(Search::search&, VW980::multi_ex&);
+void run(Search::search&, VW980::multi_ex&);
+void takedown(Search::search&, VW980::multi_ex&);
 extern Search::search_task task;
 }  // namespace GraphTask

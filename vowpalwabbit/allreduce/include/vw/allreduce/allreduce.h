@@ -66,7 +66,7 @@ using socket_t = int;
 #  include <mutex>
 #endif
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -213,7 +213,7 @@ public:
   ~all_reduce_sockets() override = default;
 
   template <class T, void (*f)(T&, const T&)>
-  void all_reduce(T* buffer, const size_t n, VW::io::logger& logger)
+  void all_reduce(T* buffer, const size_t n, VW980::io::logger& logger)
   {
     if (_span_server != _socks.current_master) { all_reduce_init(logger); }
     reduce<T, f>((char*)buffer, n * sizeof(T));
@@ -226,7 +226,7 @@ private:
   int _port;
   size_t _unique_id;  // unique id for each node in the network, id == 0 means extra io.
 
-  void all_reduce_init(VW::io::logger& logger);
+  void all_reduce_init(VW980::io::logger& logger);
 
   template <class T>
   void pass_up(char* buffer, size_t left_read_pos, size_t right_read_pos, size_t& parent_sent_pos)
@@ -314,18 +314,18 @@ private:
   void pass_down(char* buffer, size_t parent_read_pos, size_t& children_sent_pos);
   void broadcast(char* buffer, size_t n);
 
-  socket_t sock_connect(uint32_t ip, int port, VW::io::logger& logger);
-  socket_t getsock(VW::io::logger& logger);
+  socket_t sock_connect(uint32_t ip, int port, VW980::io::logger& logger);
+  socket_t getsock(VW980::io::logger& logger);
 };
 
-}  // namespace VW
+}  // namespace VW980
 
 using AllReduceType VW_DEPRECATED(
-    "AllReduceType was moved into VW namespace. Use VW::all_reduce_type") = VW::all_reduce_type;
-using AllReduce VW_DEPRECATED("AllReduce was moved into VW namespace. Use VW::all_reduce_base") = VW::all_reduce_base;
+    "AllReduceType was moved into VW namespace. Use VW980::all_reduce_type") = VW980::all_reduce_type;
+using AllReduce VW_DEPRECATED("AllReduce was moved into VW namespace. Use VW980::all_reduce_base") = VW980::all_reduce_base;
 using AllReduceSync VW_DEPRECATED(
-    "AllReduceSync was moved into VW namespace. Use VW::all_reduce_sync") = VW::all_reduce_sync;
+    "AllReduceSync was moved into VW namespace. Use VW980::all_reduce_sync") = VW980::all_reduce_sync;
 using AllReduceSockets VW_DEPRECATED(
-    "all_reduce_sockets was moved into VW namespace. Use VW::all_reduce_sockets") = VW::all_reduce_sockets;
+    "all_reduce_sockets was moved into VW namespace. Use VW980::all_reduce_sockets") = VW980::all_reduce_sockets;
 using AllReduceThreads VW_DEPRECATED(
-    "all_reduce_threads was moved into VW namespace. Use VW::all_reduce_threads") = VW::all_reduce_threads;
+    "all_reduce_threads was moved into VW namespace. Use VW980::all_reduce_threads") = VW980::all_reduce_threads;

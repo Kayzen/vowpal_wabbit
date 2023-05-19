@@ -14,7 +14,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace VW
+namespace VW980
 {
 /**
  * \brief This is a diagnostic overload used to prevent v_array from being used with types that are not trivially
@@ -400,9 +400,9 @@ private:
   size_t _erase_count{};
 };
 
-}  // namespace VW
+}  // namespace VW980
 
 //  VW_DEPRECATED: This is deprecated. Cannot mark templates as deprecated though so a message must suffice.
 // TODO: remove this alias.
 template <typename T>
-using v_array = VW::v_array<T>;
+using v_array = VW980::v_array<T>;

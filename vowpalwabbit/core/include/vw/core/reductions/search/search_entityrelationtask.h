@@ -6,7 +6,7 @@
 
 namespace EntityRelationTask
 {
-void initialize(Search::search&, size_t&, VW::config::options_i&);
-void run(Search::search&, VW::multi_ex&);
+void initialize(Search::search&, size_t&, VW980::config::options_i&);
+void run(Search::search&, VW980::multi_ex&);
 extern Search::search_task task;
 }  // namespace EntityRelationTask

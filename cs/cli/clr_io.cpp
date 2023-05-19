@@ -8,7 +8,7 @@
 using namespace System;
 using namespace System::Runtime::InteropServices;
 
-namespace VW
+namespace VW980
 {
   clr_stream_adapter::clr_stream_adapter(Stream^ stream) :
     reader(false), m_stream(stream), m_buffer(nullptr)

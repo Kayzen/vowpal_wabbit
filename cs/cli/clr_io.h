@@ -7,12 +7,12 @@
 using namespace System;
 using namespace System::IO;
 
-namespace VW
+namespace VW980
 {
 /// <summary>
 /// C++ wrapper for managed <see cref="Stream"/>.
 /// </summary>
-class clr_stream_adapter : public VW::io::writer, public VW::io::reader
+class clr_stream_adapter : public VW980::io::writer, public VW980::io::reader
 {
 private:
   gcroot<Stream^> m_stream;

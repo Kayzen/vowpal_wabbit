@@ -28,19 +28,19 @@ class sfm_data
 {
 public:
   std::unique_ptr<sfm_metrics> metrics;
-  VW::label_type_t label_type = VW::label_type_t::CB;
+  VW980::label_type_t label_type = VW980::label_type_t::CB;
   bool store_shared_ex_in_reduction_features = false;
 };
 
 template <bool is_learn>
-void predict_or_learn(sfm_data& data, VW::LEARNER::learner& base, VW::multi_ex& ec_seq)
+void predict_or_learn(sfm_data& data, VW980::LEARNER::learner& base, VW980::multi_ex& ec_seq)
 {
   if (ec_seq.empty()) THROW("cb_adf: At least one action must be provided for an example to be valid.");
 
-  VW::multi_ex::value_type shared_example = nullptr;
+  VW980::multi_ex::value_type shared_example = nullptr;
   const bool store_shared_ex_in_reduction_features = data.store_shared_ex_in_reduction_features;
 
-  const bool has_example_header = VW::LEARNER::ec_is_example_header(*ec_seq[0], data.label_type);
+  const bool has_example_header = VW980::LEARNER::ec_is_example_header(*ec_seq[0], data.label_type);
 
   if (has_example_header)
   {
@@ -49,11 +49,11 @@ void predict_or_learn(sfm_data& data, VW::LEARNER::learner& base, VW::multi_ex& 
     // merge sequences
     for (auto& example : ec_seq)
     {
-      VW::details::append_example_namespaces_from_example(*example, *shared_example);
+      VW980::details::append_example_namespaces_from_example(*example, *shared_example);
       if (store_shared_ex_in_reduction_features)
       {
         auto& red_features =
-            example->ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+            example->ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
         red_features.shared_example = shared_example;
       }
     }
@@ -63,19 +63,19 @@ void predict_or_learn(sfm_data& data, VW::LEARNER::learner& base, VW::multi_ex& 
   }
 
   // Guard example state restore against throws
-  auto restore_guard = VW::scope_exit(
+  auto restore_guard = VW980::scope_exit(
       [has_example_header, &shared_example, &ec_seq, &store_shared_ex_in_reduction_features]
       {
         if (has_example_header)
         {
           for (auto& example : ec_seq)
           {
-            VW::details::truncate_example_namespaces_from_example(*example, *shared_example);
+            VW980::details::truncate_example_namespaces_from_example(*example, *shared_example);
 
             if (store_shared_ex_in_reduction_features)
             {
               auto& red_features =
-                  example->ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+                  example->ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
               red_features.reset_to_default();
             }
           }
@@ -98,7 +98,7 @@ void predict_or_learn(sfm_data& data, VW::LEARNER::learner& base, VW::multi_ex& 
   }
 }
 
-void persist(sfm_data& data, VW::metric_sink& metrics)
+void persist(sfm_data& data, VW980::metric_sink& metrics)
 {
   if (data.metrics)
   {
@@ -107,25 +107,25 @@ void persist(sfm_data& data, VW::metric_sink& metrics)
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::shared_feature_merger_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::shared_feature_merger_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
 
   auto base = stack_builder.setup_base_learner();
   if (base == nullptr) { return nullptr; }
   std::set<label_type_t> sfm_labels = {label_type_t::CB, label_type_t::CS};
   if (sfm_labels.find(base->get_input_label_type()) == sfm_labels.end() || !base->is_multiline()) { return base; }
 
-  auto data = VW::make_unique<sfm_data>();
-  if (all.global_metrics.are_metrics_enabled()) { data->metrics = VW::make_unique<sfm_metrics>(); }
+  auto data = VW980::make_unique<sfm_data>();
+  if (all.global_metrics.are_metrics_enabled()) { data->metrics = VW980::make_unique<sfm_metrics>(); }
   if (options.was_supplied("large_action_space")) { data->store_shared_ex_in_reduction_features = true; }
 
-  auto multi_base = VW::LEARNER::require_multiline(base);
+  auto multi_base = VW980::LEARNER::require_multiline(base);
   data->label_type = base->get_input_label_type();
 
   // Both label and prediction types inherit that of base.
-  auto learner = VW::LEARNER::make_reduction_learner(std::move(data), multi_base, predict_or_learn<true>,
+  auto learner = VW980::LEARNER::make_reduction_learner(std::move(data), multi_base, predict_or_learn<true>,
       predict_or_learn<false>, stack_builder.get_setupfn_name(shared_feature_merger_setup))
                      .set_learn_returns_prediction(base->learn_returns_prediction)
                      .set_persist_metrics(persist)

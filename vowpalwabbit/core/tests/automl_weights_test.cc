@@ -18,7 +18,7 @@
 #include <map>
 #include <string>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 using simulator::callback_map;
 using simulator::cb_sim;
@@ -28,9 +28,9 @@ constexpr float AUTO_ML_FLOAT_TOL = 0.001f;
 namespace vw_hash_helpers
 {
 // see parse_example.cc:maybeFeature(..) for other cases
-size_t get_hash_for_feature(VW::workspace& all, const std::string& ns, const std::string& feature)
+size_t get_hash_for_feature(VW980::workspace& all, const std::string& ns, const std::string& feature)
 {
-  std::uint64_t hash_ft = VW::hash_feature(all, feature, VW::hash_space(all, ns));
+  std::uint64_t hash_ft = VW980::hash_feature(all, feature, VW980::hash_space(all, ns));
   std::uint64_t ft = hash_ft & all.parse_mask;
   // apply multiplier like setup_example
   ft *= (static_cast<uint64_t>(all.total_feature_width) << all.weights.stride_shift());
@@ -39,7 +39,7 @@ size_t get_hash_for_feature(VW::workspace& all, const std::string& ns, const std
 }
 
 // see gd.cc:audit_feature(..)
-size_t hash_to_index(VW::parameters& weights, size_t hash)
+size_t hash_to_index(VW980::parameters& weights, size_t hash)
 {
   hash = hash & weights.mask();
   hash = hash >> weights.stride_shift();
@@ -49,10 +49,10 @@ size_t hash_to_index(VW::parameters& weights, size_t hash)
 
 // craft feature index for interaction
 // see: interactions_predict.h:process_quadratic_interaction(..)
-size_t interaction_to_index(VW::parameters& weights, size_t one, size_t two)
+size_t interaction_to_index(VW980::parameters& weights, size_t one, size_t two)
 {
   // FNV_PRIME from constant.h
-  return hash_to_index(weights, (VW::details::FNV_PRIME * one) ^ two);
+  return hash_to_index(weights, (VW980::details::FNV_PRIME * one) ^ two);
 }
 }  // namespace vw_hash_helpers
 
@@ -64,7 +64,7 @@ using namespace vw_hash_helpers;
 // n) asserts weights before/after every operation
 // NOTE: interactions are currently 0 for offset 0 since
 // config 0 is hard-coded to be empty interactions for now.
-bool weights_offset_test(cb_sim&, VW::workspace& all, VW::multi_ex&)
+bool weights_offset_test(cb_sim&, VW980::workspace& all, VW980::multi_ex&)
 {
   const size_t offset_to_clear = 1;
   auto& weights = all.weights.dense_weights;
@@ -97,7 +97,7 @@ bool weights_offset_test(cb_sim&, VW::workspace& all, VW::multi_ex&)
   EXPECT_NEAR(EXPECTED_W2, weights.strided_index(interaction_index + offset_to_clear + 1), AUTO_ML_FLOAT_TOL);
 
   // all weights of offset 1 will be set to zero
-  VW::reductions::multi_model::clear_innermost_offset(
+  VW980::reductions::multi_model::clear_innermost_offset(
       weights, offset_to_clear, all.total_feature_width, all.total_feature_width);
 
   for (auto index : feature_indexes)
@@ -115,7 +115,7 @@ bool weights_offset_test(cb_sim&, VW::workspace& all, VW::multi_ex&)
   EXPECT_NEAR(EXPECTED_W2, weights.strided_index(interaction_index + offset_to_clear + 1), AUTO_ML_FLOAT_TOL);
 
   // copy from offset 2 to offset 1
-  VW::reductions::multi_model::move_innermost_offsets(
+  VW980::reductions::multi_model::move_innermost_offsets(
       weights, offset_to_clear + 1, offset_to_clear, all.total_feature_width, all.total_feature_width);
 
   for (auto index : feature_indexes)
@@ -151,7 +151,7 @@ bool weights_offset_test(cb_sim&, VW::workspace& all, VW::multi_ex&)
   EXPECT_EQ(ZERO, weights.strided_index(interaction_index_empty + 1));
   EXPECT_EQ(ZERO, weights.strided_index(interaction_index_empty + 2));
 
-  // VW::automl::helper::print_weights_nonzero(all, 0, all->weights.dense_weights);
+  // VW980::automl::helper::print_weights_nonzero(all, 0, all->weights.dense_weights);
   return true;
 }
 
@@ -172,7 +172,7 @@ TEST(AutomlWeights, OperationsWIterations)
   EXPECT_GT(ctr.back(), 0.4f);
 }
 
-bool all_weights_equal_test(cb_sim&, VW::workspace& all, VW::multi_ex&)
+bool all_weights_equal_test(cb_sim&, VW980::workspace& all, VW980::multi_ex&)
 {
   auto& weights = all.weights.dense_weights;
   uint32_t stride_size = 1 << weights.stride_shift();
@@ -230,12 +230,12 @@ TEST(AutomlWeights, LearnOrderWIterations)
   auto vw_arg1 = vw_arg;
   vw_arg1.push_back("--invert_hash");
   vw_arg1.push_back("learnorder1.vw");
-  auto vw_increasing = VW::initialize(VW::make_unique<VW::config::options_cli>(vw_arg1));
+  auto vw_increasing = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(vw_arg1));
   auto vw_arg2 = vw_arg;
   vw_arg2.push_back("--invert_hash");
   vw_arg2.push_back("learnorder2.vw");
   vw_arg2.push_back("--debug_reversed_learn");
-  auto vw_decreasing = VW::initialize(VW::make_unique<VW::config::options_cli>(vw_arg2));
+  auto vw_decreasing = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(vw_arg2));
   simulator::cb_sim sim1(seed);
   simulator::cb_sim sim2(seed);
   auto ctr1 = sim1.run_simulation_hook(vw_increasing.get(), num_iterations, test_hooks);
@@ -286,7 +286,7 @@ TEST(AutomlWeights, EqualNoAutomlWIterations)
   vw_qcolcol_args.push_back("--bit_precision=18");
   vw_qcolcol_args.push_back("--invert_hash=without_automl.vw");
   vw_qcolcol_args.push_back("--quadratic=::");
-  auto vw_qcolcol = VW::initialize(VW::make_unique<VW::config::options_cli>(vw_qcolcol_args));
+  auto vw_qcolcol = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(vw_qcolcol_args));
 
   auto vw_automl_args = vw_arg_base;
   vw_automl_args.insert(vw_automl_args.end(), vw_automl_arg_base.begin(), vw_automl_arg_base.end());
@@ -294,7 +294,7 @@ TEST(AutomlWeights, EqualNoAutomlWIterations)
   vw_automl_args.push_back("--invert_hash=with_automl.vw");
   vw_automl_args.push_back("--extra_metrics=equaltest.json");
   vw_automl_args.push_back("--verbose_metrics");
-  auto vw_automl = VW::initialize(VW::make_unique<VW::config::options_cli>(vw_automl_args));
+  auto vw_automl = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(vw_automl_args));
   simulator::cb_sim sim1(seed);
   simulator::cb_sim sim2(seed);
   auto ctr1 = sim1.run_simulation_hook(vw_qcolcol.get(), num_iterations, test_hooks);
@@ -308,7 +308,7 @@ TEST(AutomlWeights, EqualNoAutomlWIterations)
   std::vector<std::tuple<float, float, float, float>> qcolcol_weights_vector;
   std::vector<std::tuple<float, float, float, float>> automl_champ_weights_vector;
 
-  VW::dense_parameters::iterator qcolcol_it = weights_qcolcol.begin();
+  VW980::dense_parameters::iterator qcolcol_it = weights_qcolcol.begin();
   auto end = weights_qcolcol.end();
 
   if (*qcolcol_it != 0.0f)
@@ -364,12 +364,12 @@ TEST(AutomlWeights, EqualSpinOffModelWIterations)
   vw_qcolcol_args.push_back("--interactions=\\x20\\x20");
   vw_qcolcol_args.push_back("--interactions=\\x20U");
   vw_qcolcol_args.push_back("--interactions=UU");
-  auto vw_qcolcol = VW::initialize(VW::make_unique<VW::config::options_cli>(vw_qcolcol_args));
+  auto vw_qcolcol = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(vw_qcolcol_args));
 
   auto vw_automl_args = vw_arg_base;
   vw_automl_args.insert(vw_automl_args.end(), vw_automl_arg_base.begin(), vw_automl_arg_base.end());
   vw_automl_args.push_back("--bit_precision=18");
-  auto vw_automl = VW::initialize(VW::make_unique<VW::config::options_cli>(vw_automl_args));
+  auto vw_automl = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(vw_automl_args));
 
   simulator::cb_sim sim1(seed, true);
   simulator::cb_sim sim2(seed, true);
@@ -389,7 +389,7 @@ TEST(AutomlWeights, EqualSpinOffModelWIterations)
   std::vector<std::tuple<float, float, float, float>> qcolcol_weights_vector;
   std::vector<std::tuple<float, float, float, float>> automl_weights_vector;
 
-  VW::dense_parameters::iterator qcolcol_it = weights_qcolcol.begin();
+  VW980::dense_parameters::iterator qcolcol_it = weights_qcolcol.begin();
   auto qcolcol_end = weights_qcolcol.end();
 
   if (*qcolcol_it != 0.0f)
@@ -404,7 +404,7 @@ TEST(AutomlWeights, EqualSpinOffModelWIterations)
 
   std::sort(qcolcol_weights_vector.begin(), qcolcol_weights_vector.end());
 
-  VW::dense_parameters::iterator automl_it = weights_automl.begin();
+  VW980::dense_parameters::iterator automl_it = weights_automl.begin();
   auto automl_end = weights_automl.end();
 
   if (*automl_it != 0.0f)
@@ -444,12 +444,12 @@ TEST(AutomlWeights, EqualSpinOffModelCubic)
   vw_qcolcol_args.push_back("--interactions=\\x20\\x20U");
   vw_qcolcol_args.push_back("--interactions=\\x20UU");
   vw_qcolcol_args.push_back("--interactions=UUU");
-  auto vw_qcolcol = VW::initialize(VW::make_unique<VW::config::options_cli>(vw_qcolcol_args));
+  auto vw_qcolcol = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(vw_qcolcol_args));
 
   auto vw_automl_args = vw_arg_base;
   vw_automl_args.insert(vw_automl_args.end(), vw_automl_arg_base.begin(), vw_automl_arg_base.end());
   vw_automl_args.push_back("--bit_precision=18");
-  auto vw_automl = VW::initialize(VW::make_unique<VW::config::options_cli>(vw_automl_args));
+  auto vw_automl = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(vw_automl_args));
 
   simulator::cb_sim sim1(seed, true);
   simulator::cb_sim sim2(seed, true);
@@ -469,7 +469,7 @@ TEST(AutomlWeights, EqualSpinOffModelCubic)
   std::vector<std::tuple<float, float, float, float>> qcolcol_weights_vector;
   std::vector<std::tuple<float, float, float, float>> automl_weights_vector;
 
-  VW::dense_parameters::iterator qcolcol_it = weights_qcolcol.begin();
+  VW980::dense_parameters::iterator qcolcol_it = weights_qcolcol.begin();
   auto qcolcol_end = weights_qcolcol.end();
 
   if (*qcolcol_it != 0.0f)
@@ -484,7 +484,7 @@ TEST(AutomlWeights, EqualSpinOffModelCubic)
 
   std::sort(qcolcol_weights_vector.begin(), qcolcol_weights_vector.end());
 
-  VW::dense_parameters::iterator automl_it = weights_automl.begin();
+  VW980::dense_parameters::iterator automl_it = weights_automl.begin();
   auto automl_end = weights_automl.end();
 
   if (*automl_it != 0.0f)

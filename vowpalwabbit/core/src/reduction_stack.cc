@@ -96,24 +96,24 @@
 
 #include <unordered_map>
 
-void register_reductions(std::vector<VW::reduction_setup_fn>& reductions,
-    std::vector<std::tuple<std::string, VW::reduction_setup_fn>>& reduction_stack)
+void register_reductions(std::vector<VW980::reduction_setup_fn>& reductions,
+    std::vector<std::tuple<std::string, VW980::reduction_setup_fn>>& reduction_stack)
 {
-  std::unordered_map<VW::reduction_setup_fn, std::string> allowlist = {{VW::reductions::gd_setup, "gd"},
-      {VW::reductions::ftrl_setup, "ftrl"}, {VW::reductions::sender_setup, "sender"}, {VW::reductions::nn_setup, "nn"},
-      {VW::reductions::oaa_setup, "oaa"}, {VW::reductions::scorer_setup, "scorer"},
-      {VW::reductions::csldf_setup, "csoaa_ldf"},
-      {VW::reductions::cb_explore_adf_greedy_setup, "cb_explore_adf_greedy"},
-      {VW::reductions::cb_explore_adf_regcb_setup, "cb_explore_adf_regcb"},
-      {VW::reductions::shared_feature_merger_setup, "shared_feature_merger"},
-      {VW::reductions::generate_interactions_setup, "generate_interactions"},
-      {VW::reductions::count_label_setup, "count_label"}, {VW::reductions::cb_to_cb_adf_setup, "cb_to_cbadf"},
-      {VW::reductions::cb_actions_mask_setup, "cb_actions_mask"}};
+  std::unordered_map<VW980::reduction_setup_fn, std::string> allowlist = {{VW980::reductions::gd_setup, "gd"},
+      {VW980::reductions::ftrl_setup, "ftrl"}, {VW980::reductions::sender_setup, "sender"}, {VW980::reductions::nn_setup, "nn"},
+      {VW980::reductions::oaa_setup, "oaa"}, {VW980::reductions::scorer_setup, "scorer"},
+      {VW980::reductions::csldf_setup, "csoaa_ldf"},
+      {VW980::reductions::cb_explore_adf_greedy_setup, "cb_explore_adf_greedy"},
+      {VW980::reductions::cb_explore_adf_regcb_setup, "cb_explore_adf_regcb"},
+      {VW980::reductions::shared_feature_merger_setup, "shared_feature_merger"},
+      {VW980::reductions::generate_interactions_setup, "generate_interactions"},
+      {VW980::reductions::count_label_setup, "count_label"}, {VW980::reductions::cb_to_cb_adf_setup, "cb_to_cbadf"},
+      {VW980::reductions::cb_actions_mask_setup, "cb_actions_mask"}};
 
-  auto name_extractor = VW::config::options_name_extractor();
-  VW::workspace dummy_all(VW::io::create_null_logger());
+  auto name_extractor = VW980::config::options_name_extractor();
+  VW980::workspace dummy_all(VW980::io::create_null_logger());
 
-  VW::cached_learner null_ptr_learner(dummy_all, name_extractor, nullptr);
+  VW980::cached_learner null_ptr_learner(dummy_all, name_extractor, nullptr);
 
   for (auto setup_fn : reductions)
   {
@@ -129,114 +129,114 @@ void register_reductions(std::vector<VW::reduction_setup_fn>& reductions,
   }
 }
 
-void prepare_reductions(std::vector<std::tuple<std::string, VW::reduction_setup_fn>>& reduction_stack)
+void prepare_reductions(std::vector<std::tuple<std::string, VW980::reduction_setup_fn>>& reduction_stack)
 {
-  std::vector<VW::reduction_setup_fn> reductions;
+  std::vector<VW980::reduction_setup_fn> reductions;
 
   // Base algorithms
-  reductions.push_back(VW::reductions::gd_setup);
-  reductions.push_back(VW::reductions::kernel_svm_setup);
-  reductions.push_back(VW::reductions::ftrl_setup);
-  reductions.push_back(VW::reductions::freegrad_setup);
-  reductions.push_back(VW::reductions::svrg_setup);
-  reductions.push_back(VW::reductions::sender_setup);
-  reductions.push_back(VW::reductions::gd_mf_setup);
-  reductions.push_back(VW::reductions::print_setup);
-  reductions.push_back(VW::reductions::noop_setup);
-  reductions.push_back(VW::reductions::bfgs_setup);
-  reductions.push_back(VW::reductions::oja_newton_setup);
+  reductions.push_back(VW980::reductions::gd_setup);
+  reductions.push_back(VW980::reductions::kernel_svm_setup);
+  reductions.push_back(VW980::reductions::ftrl_setup);
+  reductions.push_back(VW980::reductions::freegrad_setup);
+  reductions.push_back(VW980::reductions::svrg_setup);
+  reductions.push_back(VW980::reductions::sender_setup);
+  reductions.push_back(VW980::reductions::gd_mf_setup);
+  reductions.push_back(VW980::reductions::print_setup);
+  reductions.push_back(VW980::reductions::noop_setup);
+  reductions.push_back(VW980::reductions::bfgs_setup);
+  reductions.push_back(VW980::reductions::oja_newton_setup);
 
-  reductions.push_back(VW::reductions::mf_setup);
+  reductions.push_back(VW980::reductions::mf_setup);
 
-  reductions.push_back(VW::reductions::generate_interactions_setup);
+  reductions.push_back(VW980::reductions::generate_interactions_setup);
 
   // Score Users
-  reductions.push_back(VW::reductions::baseline_setup);
-  reductions.push_back(VW::reductions::expreplay_setup<'b', VW::simple_label_parser_global>);
-  reductions.push_back(VW::reductions::active_setup);
-  reductions.push_back(VW::reductions::active_cover_setup);
-  reductions.push_back(VW::reductions::confidence_setup);
-  reductions.push_back(VW::reductions::nn_setup);
-  reductions.push_back(VW::reductions::marginal_setup);
-  reductions.push_back(VW::reductions::autolink_setup);
-  reductions.push_back(VW::reductions::lrq_setup);
-  reductions.push_back(VW::reductions::lrqfa_setup);
-  reductions.push_back(VW::reductions::stagewise_poly_setup);
-  reductions.push_back(VW::reductions::scorer_setup);
-  reductions.push_back(VW::reductions::lda_setup);
-  reductions.push_back(VW::reductions::cbzo_setup);
+  reductions.push_back(VW980::reductions::baseline_setup);
+  reductions.push_back(VW980::reductions::expreplay_setup<'b', VW980::simple_label_parser_global>);
+  reductions.push_back(VW980::reductions::active_setup);
+  reductions.push_back(VW980::reductions::active_cover_setup);
+  reductions.push_back(VW980::reductions::confidence_setup);
+  reductions.push_back(VW980::reductions::nn_setup);
+  reductions.push_back(VW980::reductions::marginal_setup);
+  reductions.push_back(VW980::reductions::autolink_setup);
+  reductions.push_back(VW980::reductions::lrq_setup);
+  reductions.push_back(VW980::reductions::lrqfa_setup);
+  reductions.push_back(VW980::reductions::stagewise_poly_setup);
+  reductions.push_back(VW980::reductions::scorer_setup);
+  reductions.push_back(VW980::reductions::lda_setup);
+  reductions.push_back(VW980::reductions::cbzo_setup);
 
   // Reductions
-  reductions.push_back(VW::reductions::bs_setup);
-  reductions.push_back(VW::reductions::binary_setup);
+  reductions.push_back(VW980::reductions::bs_setup);
+  reductions.push_back(VW980::reductions::binary_setup);
 
-  reductions.push_back(VW::reductions::expreplay_setup<'m', VW::multiclass_label_parser_global>);
-  reductions.push_back(VW::reductions::topk_setup);
-  reductions.push_back(VW::reductions::oaa_setup);
-  reductions.push_back(VW::reductions::boosting_setup);
-  reductions.push_back(VW::reductions::ect_setup);
-  reductions.push_back(VW::reductions::log_multi_setup);
-  reductions.push_back(VW::reductions::recall_tree_setup);
-  reductions.push_back(VW::reductions::eigen_memory_tree_setup);
-  reductions.push_back(VW::reductions::memory_tree_setup);
-  reductions.push_back(VW::reductions::classweight_setup);
-  reductions.push_back(VW::reductions::multilabel_oaa_setup);
-  reductions.push_back(VW::reductions::plt_setup);
+  reductions.push_back(VW980::reductions::expreplay_setup<'m', VW980::multiclass_label_parser_global>);
+  reductions.push_back(VW980::reductions::topk_setup);
+  reductions.push_back(VW980::reductions::oaa_setup);
+  reductions.push_back(VW980::reductions::boosting_setup);
+  reductions.push_back(VW980::reductions::ect_setup);
+  reductions.push_back(VW980::reductions::log_multi_setup);
+  reductions.push_back(VW980::reductions::recall_tree_setup);
+  reductions.push_back(VW980::reductions::eigen_memory_tree_setup);
+  reductions.push_back(VW980::reductions::memory_tree_setup);
+  reductions.push_back(VW980::reductions::classweight_setup);
+  reductions.push_back(VW980::reductions::multilabel_oaa_setup);
+  reductions.push_back(VW980::reductions::plt_setup);
 
-  reductions.push_back(VW::reductions::cs_active_setup);
-  reductions.push_back(VW::reductions::csoaa_setup);
-  reductions.push_back(VW::reductions::interact_setup);
-  reductions.push_back(VW::reductions::csldf_setup);
-  reductions.push_back(VW::reductions::cb_algs_setup);
-  reductions.push_back(VW::reductions::cb_adf_setup);
-  reductions.push_back(VW::reductions::interaction_ground_setup);
-  reductions.push_back(VW::reductions::mwt_setup);
-  reductions.push_back(VW::reductions::cats_tree_setup);
-  reductions.push_back(VW::reductions::baseline_challenger_cb_setup);
-  reductions.push_back(VW::reductions::automl_setup);
-  reductions.push_back(VW::reductions::cb_explore_setup);
-  reductions.push_back(VW::reductions::cb_explore_adf_large_action_space_setup);
-  reductions.push_back(VW::reductions::cb_explore_adf_greedy_setup);
-  reductions.push_back(VW::reductions::cb_explore_adf_softmax_setup);
-  reductions.push_back(VW::reductions::cb_explore_adf_rnd_setup);
-  reductions.push_back(VW::reductions::cb_explore_adf_regcb_setup);
-  reductions.push_back(VW::reductions::cb_explore_adf_squarecb_setup);
-  reductions.push_back(VW::reductions::cb_explore_adf_synthcover_setup);
-  reductions.push_back(VW::reductions::cb_explore_adf_first_setup);
-  reductions.push_back(VW::reductions::cb_explore_adf_cover_setup);
-  reductions.push_back(VW::reductions::cb_explore_adf_bag_setup);
-  reductions.push_back(VW::reductions::cb_dro_setup);
-  reductions.push_back(VW::reductions::cb_sample_setup);
-  reductions.push_back(VW::reductions::epsilon_decay_setup);
-  reductions.push_back(VW::reductions::explore_eval_setup);
-  reductions.push_back(VW::reductions::cb_actions_mask_setup);
-  reductions.push_back(VW::reductions::shared_feature_merger_setup);
-  reductions.push_back(VW::reductions::ccb_explore_adf_setup);
-  reductions.push_back(VW::reductions::slates_setup);
+  reductions.push_back(VW980::reductions::cs_active_setup);
+  reductions.push_back(VW980::reductions::csoaa_setup);
+  reductions.push_back(VW980::reductions::interact_setup);
+  reductions.push_back(VW980::reductions::csldf_setup);
+  reductions.push_back(VW980::reductions::cb_algs_setup);
+  reductions.push_back(VW980::reductions::cb_adf_setup);
+  reductions.push_back(VW980::reductions::interaction_ground_setup);
+  reductions.push_back(VW980::reductions::mwt_setup);
+  reductions.push_back(VW980::reductions::cats_tree_setup);
+  reductions.push_back(VW980::reductions::baseline_challenger_cb_setup);
+  reductions.push_back(VW980::reductions::automl_setup);
+  reductions.push_back(VW980::reductions::cb_explore_setup);
+  reductions.push_back(VW980::reductions::cb_explore_adf_large_action_space_setup);
+  reductions.push_back(VW980::reductions::cb_explore_adf_greedy_setup);
+  reductions.push_back(VW980::reductions::cb_explore_adf_softmax_setup);
+  reductions.push_back(VW980::reductions::cb_explore_adf_rnd_setup);
+  reductions.push_back(VW980::reductions::cb_explore_adf_regcb_setup);
+  reductions.push_back(VW980::reductions::cb_explore_adf_squarecb_setup);
+  reductions.push_back(VW980::reductions::cb_explore_adf_synthcover_setup);
+  reductions.push_back(VW980::reductions::cb_explore_adf_first_setup);
+  reductions.push_back(VW980::reductions::cb_explore_adf_cover_setup);
+  reductions.push_back(VW980::reductions::cb_explore_adf_bag_setup);
+  reductions.push_back(VW980::reductions::cb_dro_setup);
+  reductions.push_back(VW980::reductions::cb_sample_setup);
+  reductions.push_back(VW980::reductions::epsilon_decay_setup);
+  reductions.push_back(VW980::reductions::explore_eval_setup);
+  reductions.push_back(VW980::reductions::cb_actions_mask_setup);
+  reductions.push_back(VW980::reductions::shared_feature_merger_setup);
+  reductions.push_back(VW980::reductions::ccb_explore_adf_setup);
+  reductions.push_back(VW980::reductions::slates_setup);
   // cbify/warm_cb can generate multi-examples. Merge shared features after them
-  reductions.push_back(VW::reductions::warm_cb_setup);
-  reductions.push_back(VW::reductions::get_pmf_setup);
-  reductions.push_back(VW::reductions::pmf_to_pdf_setup);
-  reductions.push_back(VW::reductions::cb_explore_pdf_setup);
-  reductions.push_back(VW::reductions::cats_pdf_setup);
-  reductions.push_back(VW::reductions::sample_pdf_setup);
-  reductions.push_back(VW::reductions::cats_setup);
-  reductions.push_back(VW::reductions::cbify_setup);
-  reductions.push_back(VW::reductions::cbifyldf_setup);
-  reductions.push_back(VW::reductions::cb_to_cb_adf_setup);
-  reductions.push_back(VW::reductions::offset_tree_setup);
-  reductions.push_back(VW::reductions::expreplay_setup<'c', VW::cs_label_parser_global>);
-  reductions.push_back(VW::reductions::search_setup);
-  reductions.push_back(VW::reductions::audit_regressor_setup);
-  reductions.push_back(VW::reductions::metrics_setup);
-  reductions.push_back(VW::reductions::count_label_setup);
+  reductions.push_back(VW980::reductions::warm_cb_setup);
+  reductions.push_back(VW980::reductions::get_pmf_setup);
+  reductions.push_back(VW980::reductions::pmf_to_pdf_setup);
+  reductions.push_back(VW980::reductions::cb_explore_pdf_setup);
+  reductions.push_back(VW980::reductions::cats_pdf_setup);
+  reductions.push_back(VW980::reductions::sample_pdf_setup);
+  reductions.push_back(VW980::reductions::cats_setup);
+  reductions.push_back(VW980::reductions::cbify_setup);
+  reductions.push_back(VW980::reductions::cbifyldf_setup);
+  reductions.push_back(VW980::reductions::cb_to_cb_adf_setup);
+  reductions.push_back(VW980::reductions::offset_tree_setup);
+  reductions.push_back(VW980::reductions::expreplay_setup<'c', VW980::cs_label_parser_global>);
+  reductions.push_back(VW980::reductions::search_setup);
+  reductions.push_back(VW980::reductions::audit_regressor_setup);
+  reductions.push_back(VW980::reductions::metrics_setup);
+  reductions.push_back(VW980::reductions::count_label_setup);
 
   register_reductions(reductions, reduction_stack);
 }
 
-namespace VW
+namespace VW980
 {
-default_reduction_stack_setup::default_reduction_stack_setup(VW::workspace& all, VW::config::options_i& options)
+default_reduction_stack_setup::default_reduction_stack_setup(VW980::workspace& all, VW980::config::options_i& options)
 {
   // push all reduction functions into the stack
   prepare_reductions(_reduction_stack);
@@ -247,7 +247,7 @@ default_reduction_stack_setup::default_reduction_stack_setup() { prepare_reducti
 
 // this should be reworked, but its setup related to how setup is tied with all object
 // which is not applicable to everything
-void default_reduction_stack_setup::delayed_state_attach(VW::workspace& all, VW::config::options_i& options)
+void default_reduction_stack_setup::delayed_state_attach(VW980::workspace& all, VW980::config::options_i& options)
 {
   _all_ptr = &all;
   _options_impl = &options;
@@ -265,7 +265,7 @@ std::string default_reduction_stack_setup::get_setupfn_name(reduction_setup_fn s
 
 // this function consumes all the _reduction_stack until it's able to construct a learner
 // same signature/code as the old setup_base(...) from parse_args.cc
-std::shared_ptr<VW::LEARNER::learner> default_reduction_stack_setup::setup_base_learner(size_t feature_width)
+std::shared_ptr<VW980::LEARNER::learner> default_reduction_stack_setup::setup_base_learner(size_t feature_width)
 {
   if (!_reduction_stack.empty())
   {
@@ -277,7 +277,7 @@ std::shared_ptr<VW::LEARNER::learner> default_reduction_stack_setup::setup_base_
     _feature_width_above *= feature_width;
     // 'hacky' way of keeping track of the option group created by the setup_func about to be created
     _options_impl->tint(setup_func_name);
-    std::shared_ptr<VW::LEARNER::learner> result = setup_func(*this);
+    std::shared_ptr<VW980::LEARNER::learner> result = setup_func(*this);
     _options_impl->reset_tint();
 
     // returning nullptr means that setup_func (any reduction) was not 'enabled' but
@@ -299,4 +299,4 @@ std::shared_ptr<VW::LEARNER::learner> default_reduction_stack_setup::setup_base_
   return nullptr;
 }
 
-}  // namespace VW
+}  // namespace VW980

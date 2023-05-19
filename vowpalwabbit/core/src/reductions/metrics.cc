@@ -19,12 +19,12 @@
 
 #include <cfloat>
 
-using namespace VW::config;
-using namespace VW::LEARNER;
+using namespace VW980::config;
+using namespace VW980::LEARNER;
 using namespace rapidjson;
 namespace
 {
-void insert_dsjson_metrics(const VW::details::dsjson_metrics* ds_metrics, VW::metric_sink& metrics,
+void insert_dsjson_metrics(const VW980::details::dsjson_metrics* ds_metrics, VW980::metric_sink& metrics,
     const std::vector<std::string>& enabled_learners)
 {
   // ds_metrics is nullptr when --dsjson is disabled
@@ -59,7 +59,7 @@ public:
   size_t predict_count = 0;
 };
 
-class json_metrics_writer : public VW::metric_sink_visitor
+class json_metrics_writer : public VW980::metric_sink_visitor
 {
 public:
   json_metrics_writer(Writer<FileWriteStream>& writer) : _writer(writer) { _writer.StartObject(); }
@@ -85,7 +85,7 @@ public:
     _writer.Key(key.c_str());
     _writer.Bool(value);
   }
-  void sink_metric(const std::string& key, const VW::metric_sink& value) override
+  void sink_metric(const std::string& key, const VW980::metric_sink& value) override
   {
     _writer.Key(key.c_str());
     _writer.StartObject();
@@ -97,12 +97,12 @@ private:
   Writer<FileWriteStream>& _writer;
 };
 
-void list_to_json_file(const std::string& filename, const VW::metric_sink& metrics, VW::io::logger& logger)
+void list_to_json_file(const std::string& filename, const VW980::metric_sink& metrics, VW980::io::logger& logger)
 {
   FILE* fp;
-  if (VW::file_open(&fp, filename.c_str(), "wt") == 0)
+  if (VW980::file_open(&fp, filename.c_str(), "wt") == 0)
   {
-    auto file_closer = VW::scope_exit([fp]() { fclose(fp); });
+    auto file_closer = VW980::scope_exit([fp]() { fclose(fp); });
 
     std::array<char, 1024> write_buffer;
     FileWriteStream os(fp, write_buffer.data(), write_buffer.size());
@@ -113,7 +113,7 @@ void list_to_json_file(const std::string& filename, const VW::metric_sink& metri
   else { logger.err_warn("skipping metrics. could not open file for metrics: {}", filename); }
 }
 
-void persist(metrics_data& data, VW::metric_sink& metrics)
+void persist(metrics_data& data, VW980::metric_sink& metrics)
 {
   metrics.set_uint("total_predict_calls", data.predict_count);
   metrics.set_uint("total_learn_calls", data.learn_count);
@@ -134,7 +134,7 @@ void predict_or_learn(metrics_data& data, T& base, E& ec)
   }
 }
 
-void additional_metrics(VW::workspace& all, VW::metric_sink& sink)
+void additional_metrics(VW980::workspace& all, VW980::metric_sink& sink)
 {
   sink.set_uint("total_log_calls", all.logger.get_log_count());
 
@@ -144,7 +144,7 @@ void additional_metrics(VW::workspace& all, VW::metric_sink& sink)
 }
 }  // namespace
 
-void VW::reductions::output_metrics(VW::workspace& all)
+void VW980::reductions::output_metrics(VW980::workspace& all)
 {
   metrics_collector& manager = all.global_metrics;
   if (manager.are_metrics_enabled())
@@ -154,12 +154,12 @@ void VW::reductions::output_metrics(VW::workspace& all)
   }
 }
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::metrics_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::metrics_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
 
-  auto data = VW::make_unique<metrics_data>();
+  auto data = VW980::make_unique<metrics_data>();
 
   std::string out_file;
   option_group_definition new_options("[Reduction] Debug Metrics");
@@ -170,11 +170,11 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::metrics_setup(VW::setup_ba
   if (!options.add_parse_and_check_necessary(new_options)) { return nullptr; }
 
   if (out_file.empty()) THROW("extra_metrics argument (output filename) is missing.");
-  all.global_metrics = VW::metrics_collector(true);
+  all.global_metrics = VW980::metrics_collector(true);
 
   auto* all_ptr = stack_builder.get_all_pointer();
   all.global_metrics.register_metrics_callback(
-      [all_ptr](VW::metric_sink& sink) -> void { additional_metrics(*all_ptr, sink); });
+      [all_ptr](VW980::metric_sink& sink) -> void { additional_metrics(*all_ptr, sink); });
 
   auto base = stack_builder.setup_base_learner();
 

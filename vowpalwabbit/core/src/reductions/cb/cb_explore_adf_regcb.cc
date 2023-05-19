@@ -29,8 +29,8 @@
 
 #define B_SEARCH_MAX_ITER 20
 
-using namespace VW::cb_explore_adf;
-using namespace VW::LEARNER;
+using namespace VW980::cb_explore_adf;
+using namespace VW980::LEARNER;
 
 namespace
 {
@@ -38,19 +38,19 @@ class cb_explore_adf_regcb
 {
 public:
   cb_explore_adf_regcb(bool regcbopt, float c0, bool first_only, float min_cb_cost, float max_cb_cost,
-      VW::version_struct model_file_version);
+      VW980::version_struct model_file_version);
   ~cb_explore_adf_regcb() = default;
 
   // Should be called through cb_explore_adf_base for pre/post-processing
-  void predict(learner& base, VW::multi_ex& examples) { predict_impl(base, examples); }
-  void learn(learner& base, VW::multi_ex& examples) { learn_impl(base, examples); }
-  void save_load(VW::io_buf& io, bool read, bool text);
+  void predict(learner& base, VW980::multi_ex& examples) { predict_impl(base, examples); }
+  void learn(learner& base, VW980::multi_ex& examples) { learn_impl(base, examples); }
+  void save_load(VW980::io_buf& io, bool read, bool text);
 
 private:
-  void predict_impl(learner& base, VW::multi_ex& examples);
-  void learn_impl(learner& base, VW::multi_ex& examples);
+  void predict_impl(learner& base, VW980::multi_ex& examples);
+  void learn_impl(learner& base, VW980::multi_ex& examples);
 
-  void get_cost_ranges(float delta, learner& base, VW::multi_ex& examples, bool min_only);
+  void get_cost_ranges(float delta, learner& base, VW980::multi_ex& examples, bool min_only);
   float binary_search(float fhat, float delta, float sens, float tol = 1e-6);
 
 private:
@@ -64,15 +64,15 @@ private:
   std::vector<float> _min_costs;
   std::vector<float> _max_costs;
 
-  VW::version_struct _model_file_version;
+  VW980::version_struct _model_file_version;
 
   // for backing up cb example data when computing sensitivities
-  std::vector<VW::action_scores> _ex_as;
-  std::vector<std::vector<VW::cb_class>> _ex_costs;
+  std::vector<VW980::action_scores> _ex_as;
+  std::vector<std::vector<VW980::cb_class>> _ex_costs;
 };
 
 cb_explore_adf_regcb::cb_explore_adf_regcb(bool regcbopt, float c0, bool first_only, float min_cb_cost,
-    float max_cb_cost, VW::version_struct model_file_version)
+    float max_cb_cost, VW980::version_struct model_file_version)
     : _counter(0)
     , _regcbopt(regcbopt)
     , _c0(c0)
@@ -106,7 +106,7 @@ float cb_explore_adf_regcb::binary_search(float fhat, float delta, float sens, f
   return l;
 }
 
-void cb_explore_adf_regcb::get_cost_ranges(float delta, learner& base, VW::multi_ex& examples, bool min_only)
+void cb_explore_adf_regcb::get_cost_ranges(float delta, learner& base, VW980::multi_ex& examples, bool min_only)
 {
   const size_t num_actions = examples[0]->pred.a_s.size();
   _min_costs.resize(num_actions);
@@ -165,10 +165,10 @@ void cb_explore_adf_regcb::get_cost_ranges(float delta, learner& base, VW::multi
   }
 }
 
-void cb_explore_adf_regcb::predict_impl(learner& base, VW::multi_ex& examples)
+void cb_explore_adf_regcb::predict_impl(learner& base, VW980::multi_ex& examples)
 {
   multiline_learn_or_predict<false>(base, examples, examples[0]->ft_offset);
-  VW::v_array<VW::action_score>& preds = examples[0]->pred.a_s;
+  VW980::v_array<VW980::action_score>& preds = examples[0]->pred.a_s;
   uint32_t num_actions = static_cast<uint32_t>(preds.size());
 
   const float max_range = _max_cb_cost - _min_cb_cost;
@@ -207,18 +207,18 @@ void cb_explore_adf_regcb::predict_impl(learner& base, VW::multi_ex& examples)
       if (_min_costs[preds[i].action] <= min_max_cost) { preds[i].score = 1; }
       else { preds[i].score = 0; }
       // explore uniformly on support
-      VW::explore::enforce_minimum_probability(
+      VW980::explore::enforce_minimum_probability(
           1.0, /*update_zero_elements=*/false, begin_scores(preds), end_scores(preds));
     }
   }
 }
 
-void cb_explore_adf_regcb::learn_impl(learner& base, VW::multi_ex& examples)
+void cb_explore_adf_regcb::learn_impl(learner& base, VW980::multi_ex& examples)
 {
-  VW::v_array<VW::action_score> preds = std::move(examples[0]->pred.a_s);
+  VW980::v_array<VW980::action_score> preds = std::move(examples[0]->pred.a_s);
   for (size_t i = 0; i < examples.size() - 1; ++i)
   {
-    VW::cb_label& ld = examples[i]->l.cb;
+    VW980::cb_label& ld = examples[i]->l.cb;
     if (ld.costs.size() == 1)
     {
       ld.costs[0].probability = 1.f;  // no importance weighting
@@ -230,23 +230,23 @@ void cb_explore_adf_regcb::learn_impl(learner& base, VW::multi_ex& examples)
   examples[0]->pred.a_s = std::move(preds);
 }
 
-void cb_explore_adf_regcb::save_load(VW::io_buf& io, bool read, bool text)
+void cb_explore_adf_regcb::save_load(VW980::io_buf& io, bool read, bool text)
 {
   if (io.num_files() == 0) { return; }
-  if (!read || _model_file_version >= VW::version_definitions::VERSION_FILE_WITH_REG_CB_SAVE_RESUME)
+  if (!read || _model_file_version >= VW980::version_definitions::VERSION_FILE_WITH_REG_CB_SAVE_RESUME)
   {
     std::stringstream msg;
     if (!read) { msg << "cb squarecb adf storing example counter:  = " << _counter << "\n"; }
-    VW::details::bin_text_read_write_fixed_validated(
+    VW980::details::bin_text_read_write_fixed_validated(
         io, reinterpret_cast<char*>(&_counter), sizeof(_counter), read, msg, text);
   }
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_regcb_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_explore_adf_regcb_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   using config::make_option;
   bool cb_explore_adf_option = false;
   bool regcb = false;
@@ -302,14 +302,14 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_regcb_setup
   auto base = require_multiline(stack_builder.setup_base_learner(feature_width));
 
   using explore_type = cb_explore_adf_base<cb_explore_adf_regcb>;
-  auto data = VW::make_unique<explore_type>(
+  auto data = VW980::make_unique<explore_type>(
       all.global_metrics.are_metrics_enabled(), regcbopt, c0, first_only, min_cb_cost, max_cb_cost, all.model_file_ver);
   auto l = make_reduction_learner(std::move(data), base, explore_type::learn, explore_type::predict,
       stack_builder.get_setupfn_name(cb_explore_adf_regcb_setup))
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
-               .set_input_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_PROBS)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
+               .set_input_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
                .set_feature_width(feature_width)
                .set_output_example_prediction(explore_type::output_example_prediction)
                .set_update_stats(explore_type::update_stats)

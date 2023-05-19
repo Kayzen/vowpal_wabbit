@@ -18,19 +18,19 @@
 #include <cfloat>
 #include <cmath>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
 class confidence
 {
 public:
-  VW::workspace* all = nullptr;
+  VW980::workspace* all = nullptr;
 };
 
 template <bool is_learn, bool is_confidence_after_training>
-void predict_or_learn_with_confidence(confidence& /* c */, learner& base, VW::example& ec)
+void predict_or_learn_with_confidence(confidence& /* c */, learner& base, VW980::example& ec)
 {
   float threshold = 0.f;
   float sensitivity = 0.f;
@@ -56,25 +56,25 @@ void predict_or_learn_with_confidence(confidence& /* c */, learner& base, VW::ex
 }
 
 void confidence_print_result(
-    VW::io::writer* f, float res, float confidence, const VW::v_array<char>& tag, VW::io::logger& logger)
+    VW980::io::writer* f, float res, float confidence, const VW980::v_array<char>& tag, VW980::io::logger& logger)
 {
   if (f != nullptr)
   {
     std::stringstream ss;
     ss << std::fixed << res << " " << confidence;
     ss << " ";
-    if (!tag.empty()) { ss << VW::string_view{tag.begin(), tag.size()}; }
+    if (!tag.empty()) { ss << VW980::string_view{tag.begin(), tag.size()}; }
     ss << '\n';
     // avoid serializing the stringstream multiple times
     auto ss_string(ss.str());
     ssize_t len = ss_string.size();
     ssize_t t = f->write(ss_string.c_str(), static_cast<unsigned int>(len));
-    if (t != len) { logger.err_error("write error: {}", VW::io::strerror_to_string(errno)); }
+    if (t != len) { logger.err_error("write error: {}", VW980::io::strerror_to_string(errno)); }
   }
 }
 
 void output_example_prediction_confidence(
-    VW::workspace& all, const confidence& /* data */, const VW::example& ec, VW::io::logger& logger)
+    VW980::workspace& all, const confidence& /* data */, const VW980::example& ec, VW980::io::logger& logger)
 {
   all.print_by_ref(all.raw_prediction.get(), ec.partial_prediction, -1, ec.tag, logger);
   for (const auto& sink : all.final_prediction_sink)
@@ -84,10 +84,10 @@ void output_example_prediction_confidence(
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::confidence_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::confidence_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   bool confidence_arg = false;
   bool confidence_after_training = false;
   option_group_definition new_options("[Reduction] Confidence");
@@ -107,11 +107,11 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::confidence_setup(VW::setup
     return nullptr;
   }
 
-  auto data = VW::make_unique<confidence>();
+  auto data = VW980::make_unique<confidence>();
   data->all = &all;
 
-  void (*learn_with_confidence_ptr)(confidence&, learner&, VW::example&) = nullptr;
-  void (*predict_with_confidence_ptr)(confidence&, learner&, VW::example&) = nullptr;
+  void (*learn_with_confidence_ptr)(confidence&, learner&, VW980::example&) = nullptr;
+  void (*predict_with_confidence_ptr)(confidence&, learner&, VW980::example&) = nullptr;
 
   if (confidence_after_training)
   {
@@ -130,13 +130,13 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::confidence_setup(VW::setup
   auto l = make_reduction_learner(std::move(data), base, learn_with_confidence_ptr, predict_with_confidence_ptr,
       stack_builder.get_setupfn_name(confidence_setup))
                .set_learn_returns_prediction(true)
-               .set_input_label_type(VW::label_type_t::SIMPLE)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
-               .set_output_prediction_type(VW::prediction_type_t::SCALAR)
+               .set_input_label_type(VW980::label_type_t::SIMPLE)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
+               .set_output_prediction_type(VW980::prediction_type_t::SCALAR)
                .set_output_example_prediction(output_example_prediction_confidence)
-               .set_print_update(VW::details::print_update_simple_label<confidence>)
-               .set_update_stats(VW::details::update_stats_simple_label<confidence>)
+               .set_print_update(VW980::details::print_update_simple_label<confidence>)
+               .set_update_stats(VW980::details::update_stats_simple_label<confidence>)
                .build();
 
   return l;

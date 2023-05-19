@@ -13,14 +13,14 @@
 VW_WARNING_STATE_PUSH
 VW_WARNING_DISABLE_BADLY_FORMED_XML
 
-namespace VW
+namespace VW980
 {
 /**
  * \brief Replace hex sequences in a string with their corresponding byte. A hex sequence must only contain two digits
  * and must be in the form \x00 \param arg String to replace hex values within \return A copy of the original string
  * with hex values replaced with corresponding byte.
  */
-std::string decode_inline_hex(VW::string_view arg, VW::io::logger& logger);
+std::string decode_inline_hex(VW980::string_view arg, VW980::io::logger& logger);
 
 /**
  * @brief Format float to string with max number of digits after the decimal place
@@ -32,6 +32,6 @@ std::string decode_inline_hex(VW::string_view arg, VW::io::logger& logger);
  */
 std::string fmt_float(float f, int max_decimal_places);
 
-}  // namespace VW
+}  // namespace VW980
 
 VW_WARNING_STATE_POP

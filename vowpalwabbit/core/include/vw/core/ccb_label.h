@@ -22,7 +22,7 @@
 // TODO: The ccb_reduction_features.h header can be removed once type and
 // explicit_included_actions are removed from the label
 
-namespace VW
+namespace VW980
 {
 class ccb_outcome
 {
@@ -32,7 +32,7 @@ public:
 
   // Either probability for top action or for all actions in action set.
   // Top action is always in first position.
-  VW::action_scores probabilities;
+  VW980::action_scores probabilities;
 };
 
 // TODO: Remove the elements that are in reduction_features
@@ -43,7 +43,7 @@ public:
   ccb_example_type type = ccb_example_type::UNSET;
   // Outcome may be unset.
   ccb_outcome* outcome = nullptr;
-  VW::v_array<uint32_t> explicit_included_actions;
+  VW980::v_array<uint32_t> explicit_included_actions;
   float weight = 0.f;
 
   ccb_label() = default;
@@ -58,13 +58,13 @@ public:
   void reset_to_default();
 };
 
-void parse_ccb_label(ccb_label& ld, VW::label_parser_reuse_mem& reuse_mem, const std::vector<VW::string_view>& words,
-    VW::io::logger& logger);
+void parse_ccb_label(ccb_label& ld, VW980::label_parser_reuse_mem& reuse_mem, const std::vector<VW980::string_view>& words,
+    VW980::io::logger& logger);
 
-extern VW::label_parser ccb_label_parser_global;
-}  // namespace VW
+extern VW980::label_parser ccb_label_parser_global;
+}  // namespace VW980
 
-namespace VW
+namespace VW980
 {
 namespace model_utils
 {
@@ -73,17 +73,17 @@ size_t write_model_field(io_buf&, const ccb_outcome&, const std::string&, bool);
 size_t read_model_field(io_buf&, ccb_label&);
 size_t write_model_field(io_buf&, const ccb_label&, const std::string&, bool);
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980
 
 namespace fmt
 {
 template <>
-class formatter<VW::ccb_example_type> : public formatter<std::string>
+class formatter<VW980::ccb_example_type> : public formatter<std::string>
 {
 public:
-  auto format(VW::ccb_example_type c, format_context& ctx) -> decltype(ctx.out())
+  auto format(VW980::ccb_example_type c, format_context& ctx) -> decltype(ctx.out())
   {
-    return formatter<std::string>::format(std::string{VW::to_string(c)}, ctx);
+    return formatter<std::string>::format(std::string{VW980::to_string(c)}, ctx);
   }
 };
 }  // namespace fmt
@@ -91,18 +91,18 @@ public:
 namespace CCB
 {
 using conditional_contextual_bandit_outcome VW_DEPRECATED(
-    "CCB::conditional_contextual_bandit_outcome renamed to VW::ccb_outcome. CCB::conditional_contextual_bandit_outcome "
-    "will be removed in VW 10.") = VW::ccb_outcome;
-using label VW_DEPRECATED("CCB::label renamed to VW::ccb_label. CCB::label will be removed in VW 10.") = VW::ccb_label;
+    "CCB::conditional_contextual_bandit_outcome renamed to VW980::ccb_outcome. CCB::conditional_contextual_bandit_outcome "
+    "will be removed in VW 10.") = VW980::ccb_outcome;
+using label VW_DEPRECATED("CCB::label renamed to VW980::ccb_label. CCB::label will be removed in VW 10.") = VW980::ccb_label;
 
 VW_DEPRECATED(
-    "CCB::default_label moved to VW::ccb_label::reset_to_default. CCB::default_label will be removed in VW 10.")
-inline void default_label(VW::ccb_label& ld) { ld.reset_to_default(); }
+    "CCB::default_label moved to VW980::ccb_label::reset_to_default. CCB::default_label will be removed in VW 10.")
+inline void default_label(VW980::ccb_label& ld) { ld.reset_to_default(); }
 
-VW_DEPRECATED("CCB::parse_label renamed to VW::parse_ccb_label. CCB::parse_label will be removed in VW 10.")
-inline void parse_label(VW::ccb_label& ld, VW::label_parser_reuse_mem& reuse_mem,
-    const std::vector<VW::string_view>& words, VW::io::logger& logger)
+VW_DEPRECATED("CCB::parse_label renamed to VW980::parse_ccb_label. CCB::parse_label will be removed in VW 10.")
+inline void parse_label(VW980::ccb_label& ld, VW980::label_parser_reuse_mem& reuse_mem,
+    const std::vector<VW980::string_view>& words, VW980::io::logger& logger)
 {
-  VW::parse_ccb_label(ld, reuse_mem, words, logger);
+  VW980::parse_ccb_label(ld, reuse_mem, words, logger);
 }
 }  // namespace CCB

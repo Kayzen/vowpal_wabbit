@@ -6,23 +6,23 @@
 #include "vw/core/label_parser.h"
 #include "vw/core/vw_fwd.h"
 
-namespace VW
+namespace VW980
 {
 struct no_label
 {
 };
 
-extern VW::label_parser no_label_parser_global;
+extern VW980::label_parser no_label_parser_global;
 namespace details
 {
-void return_no_label_example(VW::workspace& all, void*, VW::example& ec);
-void print_no_label_update(VW::workspace& all, VW::example& ec);
-void output_and_account_no_label_example(VW::workspace& all, VW::example& ec);
+void return_no_label_example(VW980::workspace& all, void*, VW980::example& ec);
+void print_no_label_update(VW980::workspace& all, VW980::example& ec);
+void output_and_account_no_label_example(VW980::workspace& all, VW980::example& ec);
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980
 
 namespace no_label
 {
 using no_label VW_DEPRECATED(
-    "no_label::no_label renamed to VW::no_label. no_label::no_label will be removed in VW 10.") = VW::no_label;
+    "no_label::no_label renamed to VW980::no_label. no_label::no_label will be removed in VW 10.") = VW980::no_label;
 }

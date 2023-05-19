@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-namespace VW
+namespace VW980
 {
 
 class rand_state
@@ -62,4 +62,4 @@ private:
   uint64_t _random_state = 0;
 };
 
-}  // namespace VW
+}  // namespace VW980

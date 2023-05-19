@@ -23,7 +23,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace cb_explore_adf
 {
@@ -40,7 +40,7 @@ public:
   Eigen::SparseMatrix<float> Y;
   Eigen::MatrixXf Z;
 
-  two_pass_svd_impl(VW::workspace* all, uint64_t d, uint64_t seed, size_t total_size, size_t thread_pool_size,
+  two_pass_svd_impl(VW980::workspace* all, uint64_t d, uint64_t seed, size_t total_size, size_t thread_pool_size,
       size_t block_size, size_t action_cache_slack, bool use_explicit_simd);
   void run(const multi_ex& examples, const std::vector<float>& shrink_factors, Eigen::MatrixXf& U, Eigen::VectorXf& S,
       Eigen::MatrixXf& _V);
@@ -52,7 +52,7 @@ public:
   bool _set_testing_components = false;
 
 private:
-  VW::workspace* _all;
+  VW980::workspace* _all;
   uint64_t _d;
   uint64_t _seed;
   std::vector<Eigen::Triplet<float>> _triplets;
@@ -64,7 +64,7 @@ public:
   Eigen::MatrixXf AOmega;
   std::unordered_map<uint64_t, Eigen::VectorXf> cached_example_hashes;
 
-  one_pass_svd_impl(VW::workspace* all, uint64_t d, uint64_t seed, size_t total_size, size_t thread_pool_size,
+  one_pass_svd_impl(VW980::workspace* all, uint64_t d, uint64_t seed, size_t total_size, size_t thread_pool_size,
       size_t block_size, size_t action_cache_slack, bool use_explicit_simd);
   void run(const multi_ex& examples, const std::vector<float>& shrink_factors, Eigen::MatrixXf& U, Eigen::VectorXf& S,
       Eigen::MatrixXf& _V);
@@ -78,7 +78,7 @@ public:
 #endif
 
 private:
-  VW::workspace* _all;
+  VW980::workspace* _all;
   uint64_t _d;
   uint64_t _seed;
   thread_pool _thread_pool;
@@ -104,7 +104,7 @@ public:
   shrink_factor_config(bool apply_shrink_factor);
 
   void calculate_shrink_factor(
-      float gamma, size_t max_actions, const VW::action_scores& preds, std::vector<float>& shrink_factors);
+      float gamma, size_t max_actions, const VW980::action_scores& preds, std::vector<float>& shrink_factors);
 };
 
 class one_rank_spanner_state
@@ -137,7 +137,7 @@ class cb_explore_adf_large_action_space
 {
 private:
   uint64_t _d;
-  VW::workspace* _all;
+  VW980::workspace* _all;
   uint64_t _seed;
   implementation_type _impl_type;
   size_t _non_degenerate_singular_values;
@@ -155,15 +155,15 @@ public:
   Eigen::SparseMatrix<float> _A;
   Eigen::MatrixXf _V;
 
-  cb_explore_adf_large_action_space(uint64_t d, float c, bool apply_shrink_factor, VW::workspace* all, uint64_t seed,
+  cb_explore_adf_large_action_space(uint64_t d, float c, bool apply_shrink_factor, VW980::workspace* all, uint64_t seed,
       size_t total_size, size_t thread_pool_size, size_t block_size, size_t action_cache_slack, bool use_explicit_simd,
       implementation_type impl_type);
 
   ~cb_explore_adf_large_action_space() = default;
 
   void save_load(io_buf& io, bool read, bool text);
-  void predict(VW::LEARNER::learner& base, multi_ex& examples);
-  void learn(VW::LEARNER::learner& base, multi_ex& examples);
+  void predict(VW980::LEARNER::learner& base, multi_ex& examples);
+  void learn(VW980::LEARNER::learner& base, multi_ex& examples);
 
   void randomized_SVD(const multi_ex& examples);
 
@@ -184,7 +184,7 @@ public:
   }
 
 private:
-  void update_example_prediction(VW::multi_ex& examples);
+  void update_example_prediction(VW980::multi_ex& examples);
 };
 
 template <typename TripletType>
@@ -195,8 +195,8 @@ void triplet_construction(TripletType& tc, float feature_value, uint64_t feature
 
 void generate_Z(const multi_ex& examples, Eigen::MatrixXf& Z, Eigen::MatrixXf& B, uint64_t d, uint64_t seed);
 // the below methods are used only during unit testing and are not called otherwise
-bool _test_only_generate_A(VW::workspace* _all, const multi_ex& examples, std::vector<Eigen::Triplet<float>>& _triplets,
+bool _test_only_generate_A(VW980::workspace* _all, const multi_ex& examples, std::vector<Eigen::Triplet<float>>& _triplets,
     Eigen::SparseMatrix<float>& _A);
 
 }  // namespace cb_explore_adf
-}  // namespace VW
+}  // namespace VW980

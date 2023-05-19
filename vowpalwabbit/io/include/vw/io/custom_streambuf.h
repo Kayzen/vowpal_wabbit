@@ -9,7 +9,7 @@
 #include <sstream>
 #include <streambuf>
 
-namespace VW
+namespace VW980
 {
 namespace io
 {
@@ -22,7 +22,7 @@ public:
 class writer_stream_buf : public std::stringbuf
 {
 public:
-  writer_stream_buf(std::unique_ptr<VW::io::writer>&& writer) : _writer(std::move(writer)) {}
+  writer_stream_buf(std::unique_ptr<VW980::io::writer>&& writer) : _writer(std::move(writer)) {}
 
   virtual int sync() override
   {
@@ -43,8 +43,8 @@ public:
   }
 
 private:
-  std::unique_ptr<VW::io::writer> _writer;
+  std::unique_ptr<VW980::io::writer> _writer;
 };
 
 }  // namespace io
-}  // namespace VW
+}  // namespace VW980

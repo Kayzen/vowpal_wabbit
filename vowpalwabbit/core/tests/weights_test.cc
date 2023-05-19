@@ -16,12 +16,12 @@ class WeightTests : public ::testing::Test
 {
 };
 
-using weight_types = ::testing::Types<VW::sparse_parameters, VW::dense_parameters>;
+using weight_types = ::testing::Types<VW980::sparse_parameters, VW980::dense_parameters>;
 TYPED_TEST_SUITE(WeightTests, weight_types, );
 TYPED_TEST(WeightTests, TestDefaultFunctionWeightInitializationStridedIndex)
 {
   TypeParam w(LENGTH, STRIDE_SHIFT);
-  auto weight_initializer = [](VW::weight* weights, uint64_t index) { weights[0] = 1.f * index; };
+  auto weight_initializer = [](VW980::weight* weights, uint64_t index) { weights[0] = 1.f * index; };
   w.set_default(weight_initializer);
   for (size_t i = 0; i < LENGTH; i++) { EXPECT_FLOAT_EQ(w.strided_index(i), 1.f * (i * w.stride())); }
 }

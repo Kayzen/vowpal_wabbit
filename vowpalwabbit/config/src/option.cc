@@ -6,7 +6,7 @@
 
 #include <regex>
 
-void VW::config::base_option::set_tags(std::vector<std::string> tags)
+void VW980::config::base_option::set_tags(std::vector<std::string> tags)
 {
   std::sort(tags.begin(), tags.end());
   auto last = std::unique(tags.begin(), tags.end());

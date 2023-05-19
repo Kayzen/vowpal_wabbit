@@ -12,7 +12,7 @@
 
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -50,8 +50,8 @@ class generate_interactions_object_cache
 {
 public:
   std::vector<feature_gen_data> state_data;
-  VW::moved_object_pool<extent_interaction_expansion_stack_item> frame_pool;
+  VW980::moved_object_pool<extent_interaction_expansion_stack_item> frame_pool;
   std::stack<extent_interaction_expansion_stack_item> in_process_frames;
 };
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980

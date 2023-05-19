@@ -27,30 +27,30 @@
 #undef VW_DEBUG_LOG
 #define VW_DEBUG_LOG vw_dbg::LEARNER
 
-namespace VW
+namespace VW980
 {
 template <typename DataT, typename ExampleT>
 using learner_update_stats_func = void(
-    const VW::workspace& all, shared_data& sd, const DataT&, const ExampleT&, VW::io::logger& logger);
+    const VW980::workspace& all, shared_data& sd, const DataT&, const ExampleT&, VW980::io::logger& logger);
 
 template <typename DataT, typename ExampleT>
 using learner_output_example_prediction_func = void(
-    VW::workspace& all, const DataT&, const ExampleT&, VW::io::logger& logger);
+    VW980::workspace& all, const DataT&, const ExampleT&, VW980::io::logger& logger);
 
 template <typename DataT, typename ExampleT>
 using learner_print_update_func = void(
-    VW::workspace& all, shared_data&, const DataT&, const ExampleT&, VW::io::logger& logger);
+    VW980::workspace& all, shared_data&, const DataT&, const ExampleT&, VW980::io::logger& logger);
 
 template <typename DataT, typename ExampleT>
 using learner_cleanup_example_func = void(DataT&, ExampleT&);
 
-/// \brief Contains the VW::LEARNER::learner object and utilities for
+/// \brief Contains the VW980::LEARNER::learner object and utilities for
 /// interacting with it.
 namespace LEARNER
 {
-void generic_driver(VW::workspace& all);
-void generic_driver(const std::vector<VW::workspace*>& alls);
-void generic_driver_onethread(VW::workspace& all);
+void generic_driver(VW980::workspace& all);
+void generic_driver(const std::vector<VW980::workspace*>& alls);
+void generic_driver_onethread(VW980::workspace& all);
 bool ec_is_example_header(example const& ec, label_type_t label_type);
 
 // Check that a learner is multiline or singleline.
@@ -70,36 +70,36 @@ using multipredict_func =
 
 using sensitivity_func = std::function<float(example& ex)>;
 using save_load_func = std::function<void(io_buf&, bool read, bool text)>;
-using pre_save_load_func = std::function<void(VW::workspace& all)>;
+using pre_save_load_func = std::function<void(VW980::workspace& all)>;
 using save_metric_func = std::function<void(metric_sink& metrics)>;
 
-using finish_example_func = std::function<void(VW::workspace&, polymorphic_ex ex)>;
+using finish_example_func = std::function<void(VW980::workspace&, polymorphic_ex ex)>;
 using update_stats_func =
-    std::function<void(const VW::workspace&, VW::shared_data& sd, const polymorphic_ex ex, VW::io::logger& logger)>;
+    std::function<void(const VW980::workspace&, VW980::shared_data& sd, const polymorphic_ex ex, VW980::io::logger& logger)>;
 using output_example_prediction_func =
-    std::function<void(VW::workspace&, const polymorphic_ex ex, VW::io::logger& logger)>;
+    std::function<void(VW980::workspace&, const polymorphic_ex ex, VW980::io::logger& logger)>;
 using print_update_func =
-    std::function<void(VW::workspace&, VW::shared_data& sd, const polymorphic_ex ex, VW::io::logger& logger)>;
+    std::function<void(VW980::workspace&, VW980::shared_data& sd, const polymorphic_ex ex, VW980::io::logger& logger)>;
 using cleanup_example_func = std::function<void(polymorphic_ex ex)>;
 
-// Merge functions come in two variants, with or without the `all` VW::workspace reference
+// Merge functions come in two variants, with or without the `all` VW980::workspace reference
 // Use the version without all for reduction learners, where the workspace reference is not needed
 // Use the version with all for bottom learners
 using merge_func = std::function<void(
     const std::vector<float>& per_model_weighting, const std::vector<const void*>& all_data, void* output_data)>;
 using merge_with_all_func = std::function<void(const std::vector<float>& per_model_weighting,
-    const std::vector<const VW::workspace*>& all_workspaces, const std::vector<const void*>& all_data,
-    VW::workspace& output_workspace, void* output_data)>;
+    const std::vector<const VW980::workspace*>& all_workspaces, const std::vector<const void*>& all_data,
+    VW980::workspace& output_workspace, void* output_data)>;
 using add_subtract_func = std::function<void(const void* data1, const void* data2, void* data_out)>;
-using add_subtract_with_all_func = std::function<void(const VW::workspace& ws1, const void* data1,
-    const VW::workspace& ws2, const void* data2, VW::workspace& ws_out, void* data_out)>;
+using add_subtract_with_all_func = std::function<void(const VW980::workspace& ws1, const void* data1,
+    const VW980::workspace& ws2, const void* data2, VW980::workspace& ws_out, void* data_out)>;
 
 void debug_increment_depth(polymorphic_ex ex);
 void debug_decrement_depth(polymorphic_ex ex);
 void increment_offset(polymorphic_ex ex, const size_t feature_width_below, const size_t i);
 void decrement_offset(polymorphic_ex ex, const size_t feature_width_below, const size_t i);
 
-void learner_build_diagnostic(VW::string_view this_name, VW::string_view base_name, prediction_type_t in_pred_type,
+void learner_build_diagnostic(VW980::string_view this_name, VW980::string_view base_name, prediction_type_t in_pred_type,
     prediction_type_t base_out_pred_type, label_type_t out_label_type, label_type_t base_in_label_type,
     details::merge_func merge_f, details::merge_with_all_func merge_with_all_f);
 }  // namespace details
@@ -185,7 +185,7 @@ public:
   void save_load(io_buf& io, const bool read, const bool text);
 
   // Called to edit the command-line from a learner. Autorecursive
-  void pre_save_load(VW::workspace& all);
+  void pre_save_load(VW980::workspace& all);
 
   // Called when metrics is enabled.  Autorecursive.
   void persist_metrics(metric_sink& metrics);
@@ -203,16 +203,16 @@ public:
   void init_driver();
 
   // Called after learn example for each example.  Explicitly not recursive.
-  void finish_example(VW::workspace& all, polymorphic_ex ec);
+  void finish_example(VW980::workspace& all, polymorphic_ex ec);
 
-  void update_stats(const VW::workspace& all, VW::shared_data& sd, const polymorphic_ex ec, VW::io::logger& logger);
-  void update_stats(VW::workspace& all, const polymorphic_ex ec);
+  void update_stats(const VW980::workspace& all, VW980::shared_data& sd, const polymorphic_ex ec, VW980::io::logger& logger);
+  void update_stats(VW980::workspace& all, const polymorphic_ex ec);
 
-  void output_example_prediction(VW::workspace& all, const polymorphic_ex ec, VW::io::logger& logger);
-  void output_example_prediction(VW::workspace& all, const polymorphic_ex ec);
+  void output_example_prediction(VW980::workspace& all, const polymorphic_ex ec, VW980::io::logger& logger);
+  void output_example_prediction(VW980::workspace& all, const polymorphic_ex ec);
 
-  void print_update(VW::workspace& all, VW::shared_data& sd, const polymorphic_ex ec, VW::io::logger& logger);
-  void print_update(VW::workspace& all, const polymorphic_ex ec);
+  void print_update(VW980::workspace& all, VW980::shared_data& sd, const polymorphic_ex ec, VW980::io::logger& logger);
+  void print_update(VW980::workspace& all, const polymorphic_ex ec);
 
   void cleanup_example(polymorphic_ex ec);
 
@@ -221,12 +221,12 @@ public:
 
   // The functions merge/add/subtract are NOT auto recursive
   // They are effectively static implementing a trait for this learner type.
-  void merge(const std::vector<float>& per_model_weighting, const std::vector<const VW::workspace*>& all_workspaces,
-      const std::vector<const learner*>& all_learners, VW::workspace& output_workspace, learner& output_learner);
-  void add(const VW::workspace& base_ws, const VW::workspace& delta_ws, const learner* base_l, const learner* delta_l,
-      VW::workspace& output_ws, learner* output_l);
-  void subtract(const VW::workspace& ws1, const VW::workspace& ws2, const learner* l1, const learner* l2,
-      VW::workspace& output_ws, learner* output_l);
+  void merge(const std::vector<float>& per_model_weighting, const std::vector<const VW980::workspace*>& all_workspaces,
+      const std::vector<const learner*>& all_learners, VW980::workspace& output_workspace, learner& output_learner);
+  void add(const VW980::workspace& base_ws, const VW980::workspace& delta_ws, const learner* base_l, const learner* delta_l,
+      VW980::workspace& output_ws, learner* output_l);
+  void subtract(const VW980::workspace& ws1, const VW980::workspace& ws2, const learner* l1, const learner* l2,
+      VW980::workspace& output_ws, learner* output_l);
 
   // Get properties of this learner
   VW_ATTR(nodiscard) bool has_legacy_finish() const { return _finish_example_f != nullptr; }
@@ -293,7 +293,7 @@ private:
   details::save_metric_func _persist_metrics_f;
   details::void_func _finisher_f;
 
-  // Functions for model merging. Each comes in two variants, with or without the VW::workspace* all pointer.
+  // Functions for model merging. Each comes in two variants, with or without the VW980::workspace* all pointer.
   // There should only ever be either none or one of these two variants set. Never both.
   details::merge_with_all_func _merge_with_all_f;
   details::merge_func _merge_f;
@@ -352,7 +352,7 @@ void multiline_learn_or_predict(learner& base, multi_ex& examples, const uint64_
   }
 
   // Guard example state restore against throws
-  auto restore_guard = VW::scope_exit(
+  auto restore_guard = VW980::scope_exit(
       [&saved_offsets, &examples]
       {
         for (size_t i = 0; i < examples.size(); i++) { examples[i]->ft_offset = saved_offsets[i]; }
@@ -387,7 +387,7 @@ class common_learner_builder
 {
   // Compile time check for valid ExampleT
   static_assert(
-      VW::is_example_type<ExampleT>::value, "Learner builder can only be used with VW example or multi_ex types");
+      VW980::is_example_type<ExampleT>::value, "Learner builder can only be used with VW example or multi_ex types");
 
 public:
   // The learner being created by this builder
@@ -400,7 +400,7 @@ public:
     learner_data = std::move(data);
     learner_ptr = std::move(input_learner);
     learner_ptr->_name = name;
-    learner_ptr->_is_multiline = VW::is_multiline_type<ExampleT>::value;
+    learner_ptr->_is_multiline = VW980::is_multiline_type<ExampleT>::value;
     learner_ptr->_learner_data = learner_data;
   }
 
@@ -448,10 +448,10 @@ public:
     this->learner_ptr->_init_f = [fn_ptr, data]() { fn_ptr(*data); };
   )
 
-  LEARNER_BUILDER_DEFINE(set_finish_example(void (*fn_ptr)(VW::workspace& all, DataT&, ExampleT&)),
+  LEARNER_BUILDER_DEFINE(set_finish_example(void (*fn_ptr)(VW980::workspace& all, DataT&, ExampleT&)),
     assert(fn_ptr != nullptr);
     DataT* data = this->learner_data.get();
-    this->learner_ptr->_finish_example_f = [fn_ptr, data](VW::workspace& all, polymorphic_ex ex)
+    this->learner_ptr->_finish_example_f = [fn_ptr, data](VW980::workspace& all, polymorphic_ex ex)
     { fn_ptr(all, *data, ex); };
   )
 
@@ -461,7 +461,7 @@ public:
     assert(fn_ptr != nullptr);
     DataT* data = this->learner_data.get();
     this->learner_ptr->_update_stats_f =
-        [fn_ptr, data](const VW::workspace& all, VW::shared_data& sd, const polymorphic_ex ex, VW::io::logger& logger)
+        [fn_ptr, data](const VW980::workspace& all, VW980::shared_data& sd, const polymorphic_ex ex, VW980::io::logger& logger)
     { fn_ptr(all, sd, *data, ex, logger); };
   )
 
@@ -470,8 +470,8 @@ public:
   LEARNER_BUILDER_DEFINE(set_output_example_prediction(learner_output_example_prediction_func<DataT, ExampleT>* fn_ptr),
     assert(fn_ptr != nullptr);
     DataT* data = this->learner_data.get();
-    this->learner_ptr->_output_example_prediction_f = [fn_ptr, data](VW::workspace& all, const polymorphic_ex ex,
-        VW::io::logger& logger) { fn_ptr(all, *data, ex, logger); };
+    this->learner_ptr->_output_example_prediction_f = [fn_ptr, data](VW980::workspace& all, const polymorphic_ex ex,
+        VW980::io::logger& logger) { fn_ptr(all, *data, ex, logger); };
   )
 
   // Responsibilities of output example prediction:
@@ -481,7 +481,7 @@ public:
     assert(fn_ptr != nullptr);
     DataT* data = this->learner_data.get();
     this->learner_ptr->_print_update_f =
-        [fn_ptr, data](VW::workspace& all, VW::shared_data& sd, const polymorphic_ex ex, VW::io::logger& logger)
+        [fn_ptr, data](VW980::workspace& all, VW980::shared_data& sd, const polymorphic_ex ex, VW980::io::logger& logger)
     { fn_ptr(all, sd, *data, ex, logger); };
   )
 
@@ -499,10 +499,10 @@ public:
     this->learner_ptr->_persist_metrics_f = [fn_ptr, data](metric_sink& metrics) { fn_ptr(*data, metrics); };
   )
 
-  LEARNER_BUILDER_DEFINE(set_pre_save_load(void (*fn_ptr)(VW::workspace& all, DataT&)),
+  LEARNER_BUILDER_DEFINE(set_pre_save_load(void (*fn_ptr)(VW980::workspace& all, DataT&)),
     assert(fn_ptr != nullptr);
     DataT* data = this->learner_data.get();
-    this->learner_ptr->_pre_save_load_f = [fn_ptr, data](VW::workspace& all) { fn_ptr(all, *data); };
+    this->learner_ptr->_pre_save_load_f = [fn_ptr, data](VW980::workspace& all) { fn_ptr(all, *data); };
   )
 
   // This is the label type of the example passed into the learn function. This
@@ -657,7 +657,7 @@ public:
 
       // For the no data reduction, allocate a placeholder char as its data to avoid nullptr issues
       : common_learner_builder<reduction_learner_builder<char, ExampleT>, char, ExampleT>(
-            base->create_learner_above_this(), VW::make_unique<char>(0), name)
+            base->create_learner_above_this(), VW980::make_unique<char>(0), name)
   {
     // Default sensitivity calls base learner's sensitivity recursively
     this->set_sensitivity(details::recur_sensitivity);
@@ -770,11 +770,11 @@ public:
   )
 
   LEARNER_BUILDER_DEFINE(set_merge_with_all(void (*fn_ptr)(const std::vector<float>&,
-      const std::vector<const VW::workspace*>&, const std::vector<const DataT*>&, VW::workspace&, DataT&)),
+      const std::vector<const VW980::workspace*>&, const std::vector<const DataT*>&, VW980::workspace&, DataT&)),
     assert(fn_ptr != nullptr);
     this->learner_ptr->_merge_with_all_f =
-        [fn_ptr](const std::vector<float>& per_model_weighting, const std::vector<const VW::workspace*>& all_workspaces,
-            const std::vector<const void*>& all_data, VW::workspace& output_workspace, void* output_data)
+        [fn_ptr](const std::vector<float>& per_model_weighting, const std::vector<const VW980::workspace*>& all_workspaces,
+            const std::vector<const void*>& all_data, VW980::workspace& output_workspace, void* output_data)
     {
       fn_ptr(per_model_weighting, all_workspaces, reinterpret_cast<const std::vector<const DataT*>&>(all_data),
           output_workspace, *static_cast<DataT*>(output_data));
@@ -782,11 +782,11 @@ public:
   )
 
   LEARNER_BUILDER_DEFINE(set_add_with_all(
-      void (*fn_ptr)(const VW::workspace&, const DataT&, const VW::workspace&, const DataT&, VW::workspace&, DataT&)),
+      void (*fn_ptr)(const VW980::workspace&, const DataT&, const VW980::workspace&, const DataT&, VW980::workspace&, DataT&)),
     assert(fn_ptr != nullptr);
     this->learner_ptr->_add_with_all_f =
-        [fn_ptr](const VW::workspace& ws1, const void* data1, const VW::workspace& ws2, const void* data2,
-            VW::workspace& ws_out, void* data_out)
+        [fn_ptr](const VW980::workspace& ws1, const void* data1, const VW980::workspace& ws2, const void* data2,
+            VW980::workspace& ws_out, void* data_out)
     {
       fn_ptr(ws1, *static_cast<const DataT*>(data1), ws2, *static_cast<const DataT*>(data2), ws_out,
           *static_cast<DataT*>(data_out));
@@ -794,11 +794,11 @@ public:
   )
 
   LEARNER_BUILDER_DEFINE(set_subtract_with_all(
-      void (*fn_ptr)(const VW::workspace&, const DataT&, const VW::workspace&, const DataT&, VW::workspace&, DataT&)),
+      void (*fn_ptr)(const VW980::workspace&, const DataT&, const VW980::workspace&, const DataT&, VW980::workspace&, DataT&)),
     assert(fn_ptr != nullptr);
     this->learner_ptr->_subtract_with_all_f =
-        [fn_ptr](const VW::workspace& ws1, const void* data1, const VW::workspace& ws2, const void* data2,
-            VW::workspace& ws_out, void* data_out)
+        [fn_ptr](const VW980::workspace& ws1, const void* data1, const VW980::workspace& ws2, const void* data2,
+            VW980::workspace& ws_out, void* data_out)
     {
       fn_ptr(ws1, *static_cast<const DataT*>(data1), ws2, *static_cast<const DataT*>(data2), ws_out,
           *static_cast<DataT*>(data_out));
@@ -858,8 +858,8 @@ bottom_learner_builder<char, ExampleT> make_no_data_bottom_learner(void (*learn_
 {
   // For the no data bottom learner, allocate a placeholder char as its data to avoid nullptr issues
   return make_bottom_learner<char, ExampleT>(
-      VW::make_unique<char>(0), learn_fn, predict_fn, name, out_pred_type, in_label_type);
+      VW980::make_unique<char>(0), learn_fn, predict_fn, name, out_pred_type, in_label_type);
 }
 
 }  // namespace LEARNER
-}  // namespace VW
+}  // namespace VW980

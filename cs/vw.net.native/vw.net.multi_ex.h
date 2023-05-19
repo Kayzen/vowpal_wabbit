@@ -5,8 +5,8 @@
 
 extern "C"
 {
-  API VW::multi_ex* CreateMultiEx();
-  API void DeleteMultiEx(VW::multi_ex* multi_ex);
+  API VW980::multi_ex* CreateMultiEx();
+  API void DeleteMultiEx(VW980::multi_ex* multi_ex);
 
-  API void MultiExAddExample(VW::multi_ex* multi_ex, VW::example* ex);
+  API void MultiExAddExample(VW980::multi_ex* multi_ex, VW980::example* ex);
 }

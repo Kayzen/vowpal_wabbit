@@ -11,7 +11,7 @@ TEST(ScopeExit, ExecuteOnScopeEnd)
 {
   int calls = 0;
   {
-    auto guard = VW::scope_exit([&calls]() { calls++; });
+    auto guard = VW980::scope_exit([&calls]() { calls++; });
   }
   EXPECT_EQ(calls, 1);
 }
@@ -20,7 +20,7 @@ TEST(ScopeExit, Cancel)
 {
   int calls = 0;
   {
-    auto guard = VW::scope_exit([&calls]() { calls++; });
+    auto guard = VW980::scope_exit([&calls]() { calls++; });
     guard.cancel();
   }
   EXPECT_EQ(calls, 0);
@@ -30,7 +30,7 @@ TEST(ScopeExit, ExplicitCall)
 {
   int calls = 0;
   {
-    auto guard = VW::scope_exit([&calls]() { calls++; });
+    auto guard = VW980::scope_exit([&calls]() { calls++; });
     EXPECT_EQ(calls, 0);
 
     guard.call();

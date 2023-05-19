@@ -16,10 +16,10 @@
 #include <climits>
 #include <iomanip>
 
-VW::shared_data::shared_data() = default;
-VW::shared_data::~shared_data() = default;
+VW980::shared_data::shared_data() = default;
+VW980::shared_data::~shared_data() = default;
 
-VW::shared_data::shared_data(const shared_data& other)
+VW980::shared_data::shared_data(const shared_data& other)
 {
   queries = other.queries;
   example_number = other.example_number;
@@ -36,7 +36,7 @@ VW::shared_data::shared_data(const shared_data& other)
   contraction = other.contraction;
   min_label = other.min_label;
   max_label = other.max_label;
-  if (other.ldict) { ldict = VW::make_unique<VW::named_labels>(*other.ldict); }
+  if (other.ldict) { ldict = VW980::make_unique<VW980::named_labels>(*other.ldict); }
   weighted_holdout_examples = other.weighted_holdout_examples;
   weighted_holdout_examples_since_last_dump = other.weighted_holdout_examples_since_last_dump;
   holdout_sum_loss_since_last_dump = other.holdout_sum_loss_since_last_dump;
@@ -53,7 +53,7 @@ VW::shared_data::shared_data(const shared_data& other)
   second_observed_label = other.second_observed_label;
 }
 
-VW::shared_data& VW::shared_data::operator=(const shared_data& other)
+VW980::shared_data& VW980::shared_data::operator=(const shared_data& other)
 {
   if (this == &other) { return *this; }
   queries = other.queries;
@@ -71,7 +71,7 @@ VW::shared_data& VW::shared_data::operator=(const shared_data& other)
   contraction = other.contraction;
   min_label = other.min_label;
   max_label = other.max_label;
-  if (other.ldict) { ldict = VW::make_unique<VW::named_labels>(*other.ldict); }
+  if (other.ldict) { ldict = VW980::make_unique<VW980::named_labels>(*other.ldict); }
   weighted_holdout_examples = other.weighted_holdout_examples;
   weighted_holdout_examples_since_last_dump = other.weighted_holdout_examples_since_last_dump;
   holdout_sum_loss_since_last_dump = other.holdout_sum_loss_since_last_dump;
@@ -89,7 +89,7 @@ VW::shared_data& VW::shared_data::operator=(const shared_data& other)
   return *this;
 }
 
-VW::shared_data::shared_data(shared_data&& other) noexcept
+VW980::shared_data::shared_data(shared_data&& other) noexcept
 {
   queries = other.queries;
   example_number = other.example_number;
@@ -123,7 +123,7 @@ VW::shared_data::shared_data(shared_data&& other) noexcept
   second_observed_label = other.second_observed_label;
 }
 
-VW::shared_data& VW::shared_data::operator=(shared_data&& other) noexcept
+VW980::shared_data& VW980::shared_data::operator=(shared_data&& other) noexcept
 {
   queries = other.queries;
   example_number = other.example_number;
@@ -158,9 +158,9 @@ VW::shared_data& VW::shared_data::operator=(shared_data&& other) noexcept
   return *this;
 }
 
-double VW::shared_data::weighted_examples() const { return weighted_labeled_examples + weighted_unlabeled_examples; }
+double VW980::shared_data::weighted_examples() const { return weighted_labeled_examples + weighted_unlabeled_examples; }
 
-void VW::shared_data::update(bool test_example, bool labeled_example, float loss, float weight, size_t num_features)
+void VW980::shared_data::update(bool test_example, bool labeled_example, float loss, float weight, size_t num_features)
 {
   t += weight;
   if (test_example && labeled_example)
@@ -183,7 +183,7 @@ void VW::shared_data::update(bool test_example, bool labeled_example, float loss
   }
 }
 
-void VW::shared_data::update_dump_interval()
+void VW980::shared_data::update_dump_interval()
 {
   sum_loss_since_last_dump = 0.0;
   old_weighted_labeled_examples = weighted_labeled_examples;
@@ -206,31 +206,31 @@ static constexpr int PREC_CURRENT_PREDICT = 4;
 static constexpr int COL_CURRENT_FEATURES = 8;
 
 static constexpr size_t NUM_COLS = 7;
-static constexpr std::array<VW::column_definition, NUM_COLS> SD_HEADER_COLUMNS = {
-    VW::column_definition(COL_AVG_LOSS, VW::align_type::left, VW::wrap_type::wrap_space),           // average loss
-    VW::column_definition(COL_SINCE_LAST, VW::align_type::left, VW::wrap_type::wrap_space),         // since last
-    VW::column_definition(COL_EXAMPLE_COUNTER, VW::align_type::right, VW::wrap_type::wrap_space),   // example counter
-    VW::column_definition(COL_EXAMPLE_WEIGHT, VW::align_type::right, VW::wrap_type::wrap_space),    // example weight
-    VW::column_definition(COL_CURRENT_LABEL, VW::align_type::right, VW::wrap_type::wrap_space),     // current label
-    VW::column_definition(COL_CURRENT_PREDICT, VW::align_type::right, VW::wrap_type::wrap_space),   // current predict
-    VW::column_definition(COL_CURRENT_FEATURES, VW::align_type::right, VW::wrap_type::wrap_space),  // current features
+static constexpr std::array<VW980::column_definition, NUM_COLS> SD_HEADER_COLUMNS = {
+    VW980::column_definition(COL_AVG_LOSS, VW980::align_type::left, VW980::wrap_type::wrap_space),           // average loss
+    VW980::column_definition(COL_SINCE_LAST, VW980::align_type::left, VW980::wrap_type::wrap_space),         // since last
+    VW980::column_definition(COL_EXAMPLE_COUNTER, VW980::align_type::right, VW980::wrap_type::wrap_space),   // example counter
+    VW980::column_definition(COL_EXAMPLE_WEIGHT, VW980::align_type::right, VW980::wrap_type::wrap_space),    // example weight
+    VW980::column_definition(COL_CURRENT_LABEL, VW980::align_type::right, VW980::wrap_type::wrap_space),     // current label
+    VW980::column_definition(COL_CURRENT_PREDICT, VW980::align_type::right, VW980::wrap_type::wrap_space),   // current predict
+    VW980::column_definition(COL_CURRENT_FEATURES, VW980::align_type::right, VW980::wrap_type::wrap_space),  // current features
 };
-static constexpr std::array<VW::column_definition, NUM_COLS> VALUE_COLUMNS = {
-    VW::column_definition(COL_AVG_LOSS, VW::align_type::left, VW::wrap_type::truncate),          // average loss
-    VW::column_definition(COL_SINCE_LAST, VW::align_type::left, VW::wrap_type::truncate),        // since last
-    VW::column_definition(COL_EXAMPLE_COUNTER, VW::align_type::right, VW::wrap_type::truncate),  // example counter
-    VW::column_definition(COL_EXAMPLE_WEIGHT, VW::align_type::right, VW::wrap_type::truncate),   // example weight
-    VW::column_definition(
-        COL_CURRENT_LABEL, VW::align_type::right, VW::wrap_type::truncate_with_ellipsis),  // current label
-    VW::column_definition(
-        COL_CURRENT_PREDICT, VW::align_type::right, VW::wrap_type::truncate_with_ellipsis),       // current predict
-    VW::column_definition(COL_CURRENT_FEATURES, VW::align_type::right, VW::wrap_type::truncate),  // current features
+static constexpr std::array<VW980::column_definition, NUM_COLS> VALUE_COLUMNS = {
+    VW980::column_definition(COL_AVG_LOSS, VW980::align_type::left, VW980::wrap_type::truncate),          // average loss
+    VW980::column_definition(COL_SINCE_LAST, VW980::align_type::left, VW980::wrap_type::truncate),        // since last
+    VW980::column_definition(COL_EXAMPLE_COUNTER, VW980::align_type::right, VW980::wrap_type::truncate),  // example counter
+    VW980::column_definition(COL_EXAMPLE_WEIGHT, VW980::align_type::right, VW980::wrap_type::truncate),   // example weight
+    VW980::column_definition(
+        COL_CURRENT_LABEL, VW980::align_type::right, VW980::wrap_type::truncate_with_ellipsis),  // current label
+    VW980::column_definition(
+        COL_CURRENT_PREDICT, VW980::align_type::right, VW980::wrap_type::truncate_with_ellipsis),       // current predict
+    VW980::column_definition(COL_CURRENT_FEATURES, VW980::align_type::right, VW980::wrap_type::truncate),  // current features
 };
 static const std::array<std::string, NUM_COLS> SD_HEADER_TITLES = {"average loss", "since last", "example counter",
     "example\nweight", "current\nlabel", "current\npredict", "current features"};
 
 // progressive validation header
-void VW::shared_data::print_update_header(std::ostream& trace_message)
+void VW980::shared_data::print_update_header(std::ostream& trace_message)
 {
   format_row(SD_HEADER_TITLES, SD_HEADER_COLUMNS, 1, trace_message);
   trace_message << "\n";
@@ -242,7 +242,7 @@ std::string num_to_fixed_string(T num, int decimal_precision)
   return fmt::format("{:.{}f}", num, decimal_precision);
 }
 
-void VW::shared_data::print_update(std::ostream& output_stream, bool holdout_set_off, size_t current_pass, float label,
+void VW980::shared_data::print_update(std::ostream& output_stream, bool holdout_set_off, size_t current_pass, float label,
     float prediction, size_t num_features)
 {
   std::ostringstream label_buf, pred_buf;
@@ -255,7 +255,7 @@ void VW::shared_data::print_update(std::ostream& output_stream, bool holdout_set
   print_update(output_stream, holdout_set_off, current_pass, label_buf.str(), pred_buf.str(), num_features);
 }
 
-void VW::shared_data::print_update(std::ostream& output_stream, bool holdout_set_off, size_t current_pass,
+void VW980::shared_data::print_update(std::ostream& output_stream, bool holdout_set_off, size_t current_pass,
     uint32_t label, uint32_t prediction, size_t num_features)
 {
   std::ostringstream label_buf, pred_buf;
@@ -268,7 +268,7 @@ void VW::shared_data::print_update(std::ostream& output_stream, bool holdout_set
   print_update(output_stream, holdout_set_off, current_pass, label_buf.str(), pred_buf.str(), num_features);
 }
 
-void VW::shared_data::print_update(std::ostream& output_stream, bool holdout_set_off, size_t current_pass,
+void VW980::shared_data::print_update(std::ostream& output_stream, bool holdout_set_off, size_t current_pass,
     const std::string& label, uint32_t prediction, size_t num_features)
 {
   std::ostringstream pred_buf;
@@ -278,7 +278,7 @@ void VW::shared_data::print_update(std::ostream& output_stream, bool holdout_set
   print_update(output_stream, holdout_set_off, current_pass, label, pred_buf.str(), num_features);
 }
 
-void VW::shared_data::print_update(std::ostream& output_stream, bool holdout_set_off, size_t current_pass,
+void VW980::shared_data::print_update(std::ostream& output_stream, bool holdout_set_off, size_t current_pass,
     const std::string& label, const std::string& prediction, size_t num_features)
 {
   bool holding_out = false;
@@ -331,7 +331,7 @@ void VW::shared_data::print_update(std::ostream& output_stream, bool holdout_set
   update_dump_interval();
 }
 
-void VW::shared_data::print_summary(std::ostream& output, const shared_data& sd, const VW::loss_function& loss_func,
+void VW980::shared_data::print_summary(std::ostream& output, const shared_data& sd, const VW980::loss_function& loss_func,
     uint64_t current_pass, bool holdout_set_off) const
 {
   auto saved_precision = output.precision();
@@ -373,7 +373,7 @@ void VW::shared_data::print_summary(std::ostream& output, const shared_data& sd,
 
   float best_constant;
   float best_constant_loss;
-  if (VW::get_best_constant(loss_func, sd, best_constant, best_constant_loss))
+  if (VW980::get_best_constant(loss_func, sd, best_constant, best_constant_loss))
   {
     output << std::endl << "best constant = " << best_constant;
     if (best_constant_loss != FLT_MIN) { output << std::endl << "best constant's loss = " << best_constant_loss; }

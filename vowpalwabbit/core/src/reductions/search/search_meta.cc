@@ -12,15 +12,15 @@
 #include <cerrno>
 #include <cfloat>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 namespace DebugMT
 {
-void run(Search::search& sch, VW::multi_ex& ec);
+void run(Search::search& sch, VW980::multi_ex& ec);
 Search::search_metatask metatask = {"debug", run, nullptr, nullptr, nullptr, nullptr};
 
 // TODO: which logger should this be using?
-void run(Search::search& sch, VW::multi_ex& ec)
+void run(Search::search& sch, VW980::multi_ex& ec)
 {
   // Can't do a lambda capture of the output since it changes the signature of the lambda function
   sch.base_task(ec)
@@ -55,7 +55,7 @@ void run(Search::search& sch, VW::multi_ex& ec)
 
 namespace SelectiveBranchingMT
 {
-void run(Search::search& sch, VW::multi_ex& ec);
+void run(Search::search& sch, VW980::multi_ex& ec);
 void initialize(Search::search& sch, size_t& num_actions, options_i& options);
 Search::search_metatask metatask = {"selective_branching", run, initialize, nullptr, nullptr, nullptr};
 
@@ -106,11 +106,11 @@ void initialize(Search::search& sch, size_t& /*num_actions*/, options_i& options
                .help("Number of best items to output (0=just like non-selectional-branching, default)"));
   options.add_and_parse(new_options);
 
-  task_data* d = new task_data(VW::cast_to_smaller_type<size_t>(max_branches), VW::cast_to_smaller_type<size_t>(kbest));
+  task_data* d = new task_data(VW980::cast_to_smaller_type<size_t>(max_branches), VW980::cast_to_smaller_type<size_t>(kbest));
   sch.set_metatask_data(d);
 }
 
-void run(Search::search& sch, VW::multi_ex& ec)
+void run(Search::search& sch, VW980::multi_ex& ec)
 {
   task_data& d = *sch.get_metatask_data<task_data>();
 

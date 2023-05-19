@@ -16,15 +16,15 @@
 #include <cfloat>
 #include <string>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
 class lrqfa_state
 {
 public:
-  VW::workspace* all = nullptr;
+  VW980::workspace* all = nullptr;
   std::string field_name = "";
   int k = 0;
   int field_id[256];
@@ -41,18 +41,18 @@ inline float cheesyrand(uint64_t x)
 {
   uint64_t seed = x;
 
-  return VW::details::merand48(seed);
+  return VW980::details::merand48(seed);
 }
 
-constexpr inline bool example_is_test(VW::example& ec) { return ec.l.simple.label == FLT_MAX; }
+constexpr inline bool example_is_test(VW980::example& ec) { return ec.l.simple.label == FLT_MAX; }
 
 template <bool is_learn>
-void predict_or_learn(lrqfa_state& lrq, learner& base, VW::example& ec)
+void predict_or_learn(lrqfa_state& lrq, learner& base, VW980::example& ec)
 {
-  VW::workspace& all = *lrq.all;
+  VW980::workspace& all = *lrq.all;
 
   memset(lrq.orig_size, 0, sizeof(lrq.orig_size));
-  for (VW::namespace_index i : ec.indices) { lrq.orig_size[i] = ec.feature_space[i].size(); }
+  for (VW980::namespace_index i : ec.indices) { lrq.orig_size[i] = ec.feature_space[i].size(); }
 
   size_t which = (is_learn && !example_is_test(ec)) ? ec.example_counter : 0;
   float first_prediction = 0;
@@ -131,7 +131,7 @@ void predict_or_learn(lrqfa_state& lrq, learner& base, VW::example& ec)
 
     for (char i : lrq.field_name)
     {
-      VW::namespace_index right = i;
+      VW980::namespace_index right = i;
       auto& rfs = ec.feature_space[right];
       rfs.values.resize(lrq.orig_size[right]);
       if (all.audit || all.hash_inv) { rfs.space_names.resize(lrq.orig_size[right]); }
@@ -140,10 +140,10 @@ void predict_or_learn(lrqfa_state& lrq, learner& base, VW::example& ec)
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::lrqfa_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::lrqfa_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   std::string lrqfa;
   option_group_definition new_options("[Reduction] Low Rank Quadratics FA");
   new_options.add(
@@ -151,12 +151,12 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::lrqfa_setup(VW::setup_base
 
   if (!options.add_parse_and_check_necessary(new_options)) { return nullptr; }
 
-  auto lrq = VW::make_unique<lrqfa_state>();
+  auto lrq = VW980::make_unique<lrqfa_state>();
   lrq->all = &all;
 
   if (lrqfa.find(':') != std::string::npos) { THROW("--lrqfa does not support wildcards ':'"); }
 
-  std::string lrqopt = VW::decode_inline_hex(lrqfa, all.logger);
+  std::string lrqopt = VW980::decode_inline_hex(lrqfa, all.logger);
   size_t last_index = lrqopt.find_last_not_of("0123456789");
   new (&lrq->field_name) std::string(lrqopt.substr(0, last_index + 1));  // make sure there is no duplicates
   lrq->k = atoi(lrqopt.substr(last_index + 1).c_str());

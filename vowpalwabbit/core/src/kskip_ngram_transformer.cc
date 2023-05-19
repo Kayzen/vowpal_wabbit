@@ -8,7 +8,7 @@
 
 #include <memory>
 
-void add_grams(size_t ngram, size_t skip_gram, VW::features& fs, size_t initial_length, std::vector<size_t>& gram_mask,
+void add_grams(size_t ngram, size_t skip_gram, VW980::features& fs, size_t initial_length, std::vector<size_t>& gram_mask,
     size_t skips)
 {
   if (ngram == 0 && gram_mask.back() < initial_length)
@@ -19,7 +19,7 @@ void add_grams(size_t ngram, size_t skip_gram, VW::features& fs, size_t initial_
       uint64_t new_index = fs.indices[i];
       for (size_t n = 1; n < gram_mask.size(); n++)
       {
-        new_index = new_index * VW::details::QUADRATIC_CONSTANT + fs.indices[i + gram_mask[n]];
+        new_index = new_index * VW980::details::QUADRATIC_CONSTANT + fs.indices[i + gram_mask[n]];
       }
 
       fs.push_back(1., new_index);
@@ -44,8 +44,8 @@ void add_grams(size_t ngram, size_t skip_gram, VW::features& fs, size_t initial_
   if (skip_gram > 0 && ngram > 0) { add_grams(ngram, skip_gram - 1, fs, initial_length, gram_mask, skips + 1); }
 }
 
-void compile_gram(const std::vector<std::string>& grams, std::array<uint32_t, VW::NUM_NAMESPACES>& dest,
-    const std::string& descriptor, bool /*quiet*/, VW::io::logger& logger)
+void compile_gram(const std::vector<std::string>& grams, std::array<uint32_t, VW980::NUM_NAMESPACES>& dest,
+    const std::string& descriptor, bool /*quiet*/, VW980::io::logger& logger)
 {
   for (const auto& gram : grams)
   {
@@ -53,7 +53,7 @@ void compile_gram(const std::vector<std::string>& grams, std::array<uint32_t, VW
     {
       int n = atoi(gram.c_str());
       logger.err_info("Generating {0}-{1} for all namespaces.", n, descriptor);
-      for (size_t j = 0; j < VW::NUM_NAMESPACES; j++) { dest[j] = n; }
+      for (size_t j = 0; j < VW980::NUM_NAMESPACES; j++) { dest[j] = n; }
     }
     else if (gram.size() == 1) { logger.out_error("The namespace index must be specified before the n"); }
     else
@@ -65,7 +65,7 @@ void compile_gram(const std::vector<std::string>& grams, std::array<uint32_t, VW
   }
 }
 
-void VW::kskip_ngram_transformer::generate_grams(example* ex)
+void VW980::kskip_ngram_transformer::generate_grams(example* ex)
 {
   for (namespace_index index : ex->indices)
   {
@@ -79,8 +79,8 @@ void VW::kskip_ngram_transformer::generate_grams(example* ex)
   }
 }
 
-VW::kskip_ngram_transformer VW::kskip_ngram_transformer::build(
-    const std::vector<std::string>& grams, const std::vector<std::string>& skips, bool quiet, VW::io::logger& logger)
+VW980::kskip_ngram_transformer VW980::kskip_ngram_transformer::build(
+    const std::vector<std::string>& grams, const std::vector<std::string>& skips, bool quiet, VW980::io::logger& logger)
 {
   kskip_ngram_transformer transformer(grams, skips);
 
@@ -89,7 +89,7 @@ VW::kskip_ngram_transformer VW::kskip_ngram_transformer::build(
   return transformer;
 }
 
-VW::kskip_ngram_transformer::kskip_ngram_transformer(std::vector<std::string> grams, std::vector<std::string> skips)
+VW980::kskip_ngram_transformer::kskip_ngram_transformer(std::vector<std::string> grams, std::vector<std::string> skips)
     : initial_ngram_definitions(std::move(grams)), initial_skip_definitions(std::move(skips))
 {
   ngram_definition.fill(0);

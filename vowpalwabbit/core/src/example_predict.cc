@@ -6,28 +6,28 @@
 
 #include <sstream>
 
-VW::example_predict::iterator::iterator(features* feature_space, namespace_index* index)
+VW980::example_predict::iterator::iterator(features* feature_space, namespace_index* index)
     : _feature_space(feature_space), _index(index)
 {
 }
 
-VW::features& VW::example_predict::iterator::operator*() { return _feature_space[*_index]; }
+VW980::features& VW980::example_predict::iterator::operator*() { return _feature_space[*_index]; }
 
-VW::example_predict::iterator& VW::example_predict::iterator::operator++()
+VW980::example_predict::iterator& VW980::example_predict::iterator::operator++()
 {
   _index++;
   return *this;
 }
 
-VW::namespace_index VW::example_predict::iterator::index() { return *_index; }
+VW980::namespace_index VW980::example_predict::iterator::index() { return *_index; }
 
-bool VW::example_predict::iterator::operator==(const iterator& rhs) const { return _index == rhs._index; }
-bool VW::example_predict::iterator::operator!=(const iterator& rhs) const { return _index != rhs._index; }
+bool VW980::example_predict::iterator::operator==(const iterator& rhs) const { return _index == rhs._index; }
+bool VW980::example_predict::iterator::operator!=(const iterator& rhs) const { return _index != rhs._index; }
 
-VW::example_predict::iterator VW::example_predict::begin() { return {feature_space.data(), indices.begin()}; }
-VW::example_predict::iterator VW::example_predict::end() { return {feature_space.data(), indices.end()}; }
+VW980::example_predict::iterator VW980::example_predict::begin() { return {feature_space.data(), indices.begin()}; }
+VW980::example_predict::iterator VW980::example_predict::end() { return {feature_space.data(), indices.end()}; }
 
-uint64_t VW::example_predict::get_or_calculate_order_independent_feature_space_hash()
+uint64_t VW980::example_predict::get_or_calculate_order_independent_feature_space_hash()
 {
   if (!is_set_feature_space_hash)
   {

@@ -19,9 +19,9 @@
 #include <cfloat>
 #include <random>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
-using VW::continuous_actions::probability_density_function;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
+using VW980::continuous_actions::probability_density_function;
 
 namespace
 {
@@ -32,7 +32,7 @@ class cbzo
 {
 public:
   float radius = 0.f;
-  VW::workspace* all = nullptr;
+  VW980::workspace* all = nullptr;
   bool min_prediction_supplied = false;
   bool max_prediction_supplied = false;
 };
@@ -42,32 +42,32 @@ class linear_update_data
 public:
   float mult = 0.f;
   float part_grad = 0.f;
-  VW::workspace* all = nullptr;
+  VW980::workspace* all = nullptr;
 };
 
-// uint64_t index variant of VW::get_weight
-inline float get_weight(VW::workspace& all, uint64_t index)
+// uint64_t index variant of VW980::get_weight
+inline float get_weight(VW980::workspace& all, uint64_t index)
 {
   return all.weights[(index) << all.weights.stride_shift()];
 }
 
-// uint64_t index variant of VW::set_weight
-inline void set_weight(VW::workspace& all, uint64_t index, float value)
+// uint64_t index variant of VW980::set_weight
+inline void set_weight(VW980::workspace& all, uint64_t index, float value)
 {
   all.weights[(index) << all.weights.stride_shift()] = value;
 }
 
-float l1_grad(VW::workspace& all, uint64_t fi)
+float l1_grad(VW980::workspace& all, uint64_t fi)
 {
-  if (all.no_bias && fi == VW::details::CONSTANT) { return 0.0f; }
+  if (all.no_bias && fi == VW980::details::CONSTANT) { return 0.0f; }
 
   float fw = get_weight(all, fi);
   return fw >= 0.0f ? all.l1_lambda : -all.l1_lambda;
 }
 
-float l2_grad(VW::workspace& all, uint64_t fi)
+float l2_grad(VW980::workspace& all, uint64_t fi)
 {
-  if (all.no_bias && fi == VW::details::CONSTANT) { return 0.0f; }
+  if (all.no_bias && fi == VW980::details::CONSTANT) { return 0.0f; }
 
   float fw = get_weight(all, fi);
   return all.l2_lambda * fw;
@@ -75,23 +75,23 @@ float l2_grad(VW::workspace& all, uint64_t fi)
 
 inline void accumulate_dotprod(float& dotprod, float x, float& fw) { dotprod += x * fw; }
 
-inline float constant_inference(VW::workspace& all)
+inline float constant_inference(VW980::workspace& all)
 {
-  float wt = get_weight(all, VW::details::CONSTANT);
+  float wt = get_weight(all, VW980::details::CONSTANT);
   return wt;
 }
 
-float linear_inference(VW::workspace& all, VW::example& ec)
+float linear_inference(VW980::workspace& all, VW980::example& ec)
 {
   float dotprod = 0;
-  VW::foreach_feature<float, accumulate_dotprod>(all, ec, dotprod);
+  VW980::foreach_feature<float, accumulate_dotprod>(all, ec, dotprod);
   return dotprod;
 }
 
 VW_WARNING_STATE_PUSH
 VW_WARNING_DISABLE_COND_CONST_EXPR
 template <uint8_t policy>
-float inference(VW::workspace& all, VW::example& ec)
+float inference(VW980::workspace& all, VW980::example& ec)
 {
   if VW_STD17_CONSTEXPR (policy == CONSTANT_POLICY) { return constant_inference(all); }
   else if VW_STD17_CONSTEXPR (policy == LINEAR_POLICY) { return linear_inference(all, ec); }
@@ -100,17 +100,17 @@ float inference(VW::workspace& all, VW::example& ec)
 }
 
 template <bool feature_mask_off>
-void constant_update(cbzo& data, VW::example& ec)
+void constant_update(cbzo& data, VW980::example& ec)
 {
-  float fw = get_weight(*data.all, VW::details::CONSTANT);
+  float fw = get_weight(*data.all, VW980::details::CONSTANT);
   if (feature_mask_off || fw != 0.0f)
   {
     float action_centroid = inference<CONSTANT_POLICY>(*data.all, ec);
     float grad = ec.l.cb_cont.costs[0].cost / (ec.l.cb_cont.costs[0].action - action_centroid);
     float update =
-        -data.all->eta * (grad + l1_grad(*data.all, VW::details::CONSTANT) + l2_grad(*data.all, VW::details::CONSTANT));
+        -data.all->eta * (grad + l1_grad(*data.all, VW980::details::CONSTANT) + l2_grad(*data.all, VW980::details::CONSTANT));
 
-    set_weight(*data.all, VW::details::CONSTANT, fw + update);
+    set_weight(*data.all, VW980::details::CONSTANT, fw + update);
   }
 }
 
@@ -127,7 +127,7 @@ void linear_per_feature_update(linear_update_data& upd_data, float x, uint64_t f
 }
 
 template <bool feature_mask_off>
-void linear_update(cbzo& data, VW::example& ec)
+void linear_update(cbzo& data, VW980::example& ec)
 {
   float mult = -data.all->eta;
 
@@ -139,12 +139,12 @@ void linear_update(cbzo& data, VW::example& ec)
   upd_data.part_grad = part_grad;
   upd_data.all = data.all;
 
-  VW::foreach_feature<linear_update_data, uint64_t, linear_per_feature_update<feature_mask_off>>(
+  VW980::foreach_feature<linear_update_data, uint64_t, linear_per_feature_update<feature_mask_off>>(
       *data.all, ec, upd_data);
 }
 
 template <uint8_t policy, bool feature_mask_off>
-void update_weights(cbzo& data, VW::example& ec)
+void update_weights(cbzo& data, VW980::example& ec)
 {
   if VW_STD17_CONSTEXPR (policy == CONSTANT_POLICY) { constant_update<feature_mask_off>(data, ec); }
   else if VW_STD17_CONSTEXPR (policy == LINEAR_POLICY) { linear_update<feature_mask_off>(data, ec); }
@@ -153,21 +153,21 @@ void update_weights(cbzo& data, VW::example& ec)
 }
 VW_WARNING_STATE_POP
 
-void set_minmax(VW::shared_data* sd, float label, bool min_fixed, bool max_fixed)
+void set_minmax(VW980::shared_data* sd, float label, bool min_fixed, bool max_fixed)
 {
   if (!min_fixed) { sd->min_label = std::min(label, sd->min_label); }
   if (!max_fixed) { sd->max_label = std::max(label, sd->max_label); }
 }
 
-void print_audit_features(VW::workspace& all, VW::example& ec)
+void print_audit_features(VW980::workspace& all, VW980::example& ec)
 {
   if (all.audit)
   {
     all.print_text_by_ref(all.stdout_adapter.get(),
-        VW::to_string(ec.pred.pdf, std::numeric_limits<float>::max_digits10), ec.tag, all.logger);
+        VW980::to_string(ec.pred.pdf, std::numeric_limits<float>::max_digits10), ec.tag, all.logger);
   }
 
-  VW::details::print_features(all, ec);
+  VW980::details::print_features(all, ec);
 }
 
 // Returns a value close to x and greater than it
@@ -203,13 +203,13 @@ void approx_pmf_to_pdf(float a, float b, probability_density_function& pdf)
 }
 
 template <uint8_t policy, bool audit_or_hash_inv>
-void predict(cbzo& data, VW::example& ec)
+void predict(cbzo& data, VW980::example& ec)
 {
   ec.pred.pdf.clear();
 
   float action_centroid = inference<policy>(*data.all, ec);
   set_minmax(data.all->sd.get(), action_centroid, data.min_prediction_supplied, data.max_prediction_supplied);
-  action_centroid = VW::math::clamp(action_centroid, data.all->sd->min_label, data.all->sd->max_label);
+  action_centroid = VW980::math::clamp(action_centroid, data.all->sd->min_label, data.all->sd->max_label);
 
   approx_pmf_to_pdf(action_centroid - data.radius, action_centroid + data.radius, ec.pred.pdf);
 
@@ -217,7 +217,7 @@ void predict(cbzo& data, VW::example& ec)
 }
 
 template <uint8_t policy, bool feature_mask_off, bool audit_or_hash_inv>
-void learn(cbzo& data, VW::example& ec)
+void learn(cbzo& data, VW980::example& ec)
 {
   // update_weights() doesn't require predict() to be called. It is called
   // to respect --audit, --invert_hash, --predictions for train examples
@@ -225,29 +225,29 @@ void learn(cbzo& data, VW::example& ec)
   update_weights<policy, feature_mask_off>(data, ec);
 }
 
-inline void save_load_regressor(VW::workspace& all, VW::io_buf& model_file, bool read, bool text)
+inline void save_load_regressor(VW980::workspace& all, VW980::io_buf& model_file, bool read, bool text)
 {
-  VW::details::save_load_regressor_gd(all, model_file, read, text);
+  VW980::details::save_load_regressor_gd(all, model_file, read, text);
 }
 
-void save_load(cbzo& data, VW::io_buf& model_file, bool read, bool text)
+void save_load(cbzo& data, VW980::io_buf& model_file, bool read, bool text)
 {
-  VW::workspace& all = *data.all;
+  VW980::workspace& all = *data.all;
   if (read)
   {
-    VW::details::initialize_regressor(all);
-    if (data.all->initial_constant != 0.0f) { set_weight(all, VW::details::CONSTANT, data.all->initial_constant); }
+    VW980::details::initialize_regressor(all);
+    if (data.all->initial_constant != 0.0f) { set_weight(all, VW980::details::CONSTANT, data.all->initial_constant); }
   }
   if (model_file.num_files() > 0) { save_load_regressor(all, model_file, read, text); }
 }
 
-bool is_labeled(const VW::example& ec)
+bool is_labeled(const VW980::example& ec)
 {
   return (!ec.l.cb_cont.costs.empty() && ec.l.cb_cont.costs[0].action != FLT_MAX);
 }
 
-void update_stats_cbzo(const VW::workspace& /* all */, VW::shared_data& sd, const cbzo& /* data */,
-    const VW::example& ec, VW::io::logger& /* logger */)
+void update_stats_cbzo(const VW980::workspace& /* all */, VW980::shared_data& sd, const cbzo& /* data */,
+    const VW980::example& ec, VW980::io::logger& /* logger */)
 {
   const auto& costs = ec.l.cb_cont.costs;
   sd.update(ec.test_only, is_labeled(ec), costs.empty() ? 0.0f : costs[0].cost, ec.weight, ec.get_num_features());
@@ -255,25 +255,25 @@ void update_stats_cbzo(const VW::workspace& /* all */, VW::shared_data& sd, cons
 }
 
 void output_example_prediction_cbzo(
-    VW::workspace& all, const cbzo& /* data */, const VW::example& ec, VW::io::logger& logger)
+    VW980::workspace& all, const cbzo& /* data */, const VW980::example& ec, VW980::io::logger& logger)
 {
-  auto pred_repr = VW::to_string(ec.pred.pdf, std::numeric_limits<float>::max_digits10);
+  auto pred_repr = VW980::to_string(ec.pred.pdf, std::numeric_limits<float>::max_digits10);
   for (auto& sink : all.final_prediction_sink) { all.print_text_by_ref(sink.get(), pred_repr, ec.tag, logger); }
 }
 
-void print_update_cbzo(VW::workspace& all, VW::shared_data& sd, const cbzo& /* data */, const VW::example& ec,
-    VW::io::logger& /* unused */)
+void print_update_cbzo(VW980::workspace& all, VW980::shared_data& sd, const cbzo& /* data */, const VW980::example& ec,
+    VW980::io::logger& /* unused */)
 {
   if (sd.weighted_examples() >= sd.dump_interval && !all.quiet)
   {
     const auto& costs = ec.l.cb_cont.costs;
     sd.print_update(*all.trace_message, all.holdout_set_off, all.current_pass,
-        ec.test_only ? "unknown" : VW::to_string(costs[0]),
-        VW::to_string(ec.pred.pdf, VW::details::DEFAULT_FLOAT_FORMATTING_DECIMAL_PRECISION), ec.get_num_features());
+        ec.test_only ? "unknown" : VW980::to_string(costs[0]),
+        VW980::to_string(ec.pred.pdf, VW980::details::DEFAULT_FLOAT_FORMATTING_DECIMAL_PRECISION), ec.get_num_features());
   }
 }
 
-void (*get_learn(VW::workspace& all, uint8_t policy, bool feature_mask_off))(cbzo&, VW::example&)
+void (*get_learn(VW980::workspace& all, uint8_t policy, bool feature_mask_off))(cbzo&, VW980::example&)
 {
   if (policy == CONSTANT_POLICY)
   {
@@ -299,7 +299,7 @@ void (*get_learn(VW::workspace& all, uint8_t policy, bool feature_mask_off))(cbz
     THROW("Unknown policy encountered: " << policy)
 }
 
-void (*get_predict(VW::workspace& all, uint8_t policy))(cbzo&, VW::example&)
+void (*get_predict(VW980::workspace& all, uint8_t policy))(cbzo&, VW980::example&)
 {
   if (policy == CONSTANT_POLICY)
   {
@@ -317,12 +317,12 @@ void (*get_predict(VW::workspace& all, uint8_t policy))(cbzo&, VW::example&)
 
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cbzo_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cbzo_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
 
-  auto data = VW::make_unique<cbzo>();
+  auto data = VW980::make_unique<cbzo>();
 
   std::string policy_str;
   bool cbzo_option = false;

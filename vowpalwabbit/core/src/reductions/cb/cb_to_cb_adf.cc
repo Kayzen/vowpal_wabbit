@@ -11,27 +11,27 @@
 #include "vw/core/vw.h"
 #include "vw/core/vw_versions.h"
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
 class cb_to_cb_adf
 {
 public:
-  VW::parameters* weights = nullptr;
-  VW::reductions::cbify_adf_data adf_data;
+  VW980::parameters* weights = nullptr;
+  VW980::reductions::cbify_adf_data adf_data;
   bool explore_mode = false;
   learner* adf_learner = nullptr;
 };
 
 template <bool is_learn>
-void predict_or_learn(cb_to_cb_adf& data, learner& base, VW::example& ec)
+void predict_or_learn(cb_to_cb_adf& data, learner& base, VW980::example& ec)
 {
   data.adf_data.copy_example_to_adf(*data.weights, ec);
 
-  VW::cb_label backup_ld;
-  VW::cb_label new_ld;
+  VW980::cb_label backup_ld;
+  VW980::cb_label new_ld;
   bool is_test_label = ec.l.cb.is_test_label();
 
   uint32_t chosen_action = 0;
@@ -70,7 +70,7 @@ void predict_or_learn(cb_to_cb_adf& data, learner& base, VW::example& ec)
     data.adf_data.ecs[chosen_action]->l.cb = std::move(new_ld);
   }
 
-  auto restore_guard = VW::scope_exit(
+  auto restore_guard = VW980::scope_exit(
       [&backup_ld, &data, &chosen_action, &is_test_label, &new_ld]
       {
         if (!is_test_label && chosen_action < data.adf_data.num_actions)
@@ -88,7 +88,7 @@ void predict_or_learn(cb_to_cb_adf& data, learner& base, VW::example& ec)
 }
 
 void update_stats_cb_to_cb_adf(
-    const VW::workspace& all, VW::shared_data& sd, const cb_to_cb_adf& c, const VW::example& ec, VW::io::logger& logger)
+    const VW980::workspace& all, VW980::shared_data& sd, const cb_to_cb_adf& c, const VW980::example& ec, VW980::io::logger& logger)
 {
   if (c.explore_mode) { c.adf_data.ecs[0]->pred.a_s = ec.pred.a_s; }
   else { c.adf_data.ecs[0]->pred.multiclass = ec.pred.multiclass; }
@@ -96,7 +96,7 @@ void update_stats_cb_to_cb_adf(
 }
 
 void print_update_cb_to_cb_adf(
-    VW::workspace& all, VW::shared_data& sd, const cb_to_cb_adf& c, const VW::example& ec, VW::io::logger& logger)
+    VW980::workspace& all, VW980::shared_data& sd, const cb_to_cb_adf& c, const VW980::example& ec, VW980::io::logger& logger)
 {
   if (c.explore_mode) { c.adf_data.ecs[0]->pred.a_s = ec.pred.a_s; }
   else { c.adf_data.ecs[0]->pred.multiclass = ec.pred.multiclass; }
@@ -104,7 +104,7 @@ void print_update_cb_to_cb_adf(
 }
 
 void output_example_prediction_cb_to_cb_adf(
-    VW::workspace& all, const cb_to_cb_adf& c, const VW::example& ec, VW::io::logger& logger)
+    VW980::workspace& all, const cb_to_cb_adf& c, const VW980::example& ec, VW980::io::logger& logger)
 {
   if (c.explore_mode) { c.adf_data.ecs[0]->pred.a_s = ec.pred.a_s; }
   else { c.adf_data.ecs[0]->pred.multiclass = ec.pred.multiclass; }
@@ -121,10 +121,10 @@ void output_example_prediction_cb_to_cb_adf(
 
     Related files: cb_algs.cc, cb_explore.cc, cbify.cc
 */
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_to_cb_adf_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_to_cb_adf_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   bool compat_old_cb = false;
   bool force_legacy = false;
   uint32_t num_actions;
@@ -157,9 +157,9 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_to_cb_adf_setup(VW::set
   if (options.was_supplied("eval")) { return nullptr; }
 
   // ANY model created with older version should default to --cb_force_legacy
-  if (all.model_file_ver != VW::version_definitions::EMPTY_VERSION_FILE)
+  if (all.model_file_ver != VW980::version_definitions::EMPTY_VERSION_FILE)
   {
-    compat_old_cb = !(all.model_file_ver >= VW::version_definitions::VERSION_FILE_WITH_CB_TO_CBADF);
+    compat_old_cb = !(all.model_file_ver >= VW980::version_definitions::VERSION_FILE_WITH_CB_TO_CBADF);
   }
 
   // not compatible with adf
@@ -209,7 +209,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_to_cb_adf_setup(VW::set
     options.insert("cb_adf", "");
   }
 
-  auto data = VW::make_unique<cb_to_cb_adf>();
+  auto data = VW980::make_unique<cb_to_cb_adf>();
   data->explore_mode = override_cb_explore;
   data->weights = &(all.weights);
 
@@ -221,26 +221,26 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_to_cb_adf_setup(VW::set
 
   // see csoaa.cc ~ line 894 / setup for csldf_setup
   all.example_parser->emptylines_separate_examples = false;
-  VW::prediction_type_t in_pred_type;
-  VW::prediction_type_t out_pred_type;
+  VW980::prediction_type_t in_pred_type;
+  VW980::prediction_type_t out_pred_type;
 
   if (data->explore_mode)
   {
     data->adf_learner = require_multiline(base->get_learner_by_name_prefix("cb_explore_adf_"));
-    in_pred_type = VW::prediction_type_t::ACTION_PROBS;
-    out_pred_type = VW::prediction_type_t::ACTION_PROBS;
+    in_pred_type = VW980::prediction_type_t::ACTION_PROBS;
+    out_pred_type = VW980::prediction_type_t::ACTION_PROBS;
   }
   else
   {
     data->adf_learner = require_multiline(base->get_learner_by_name_prefix("cb_adf"));
-    in_pred_type = VW::prediction_type_t::ACTION_SCORES;
-    out_pred_type = VW::prediction_type_t::MULTICLASS;
+    in_pred_type = VW980::prediction_type_t::ACTION_SCORES;
+    out_pred_type = VW980::prediction_type_t::MULTICLASS;
   }
 
   auto l = make_reduction_learner(std::move(data), base, predict_or_learn<true>, predict_or_learn<false>,
       stack_builder.get_setupfn_name(cb_to_cb_adf_setup))
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
                .set_input_prediction_type(in_pred_type)
                .set_output_prediction_type(out_pred_type)
                .set_learn_returns_prediction(true)

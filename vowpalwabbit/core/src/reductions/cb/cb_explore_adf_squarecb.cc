@@ -23,7 +23,7 @@
 #include <cfloat>
 #include <cmath>
 #include <vector>
-using namespace VW::cb_explore_adf;
+using namespace VW980::cb_explore_adf;
 
 /*
 This file implements the SquareCB algorithm/reduction (Foster and Rakhlin (2020), https://arxiv.org/abs/2002.04926),
@@ -35,7 +35,7 @@ with the VW learner as the base algorithm.
 
 #define B_SEARCH_MAX_ITER 20
 
-using namespace VW::LEARNER;
+using namespace VW980::LEARNER;
 
 namespace
 {
@@ -43,13 +43,13 @@ class cb_explore_adf_squarecb
 {
 public:
   cb_explore_adf_squarecb(float gamma_scale, float gamma_exponent, bool elim, float c0, float min_cb_cost,
-      float max_cb_cost, VW::version_struct model_file_version, float epsilon, bool store_gamma_in_reduction_features);
+      float max_cb_cost, VW980::version_struct model_file_version, float epsilon, bool store_gamma_in_reduction_features);
   ~cb_explore_adf_squarecb() = default;
 
   // Should be called through cb_explore_adf_base for pre/post-processing
-  void predict(learner& base, VW::multi_ex& examples);
-  void learn(learner& base, VW::multi_ex& examples);
-  void save_load(VW::io_buf& io, bool read, bool text);
+  void predict(learner& base, VW980::multi_ex& examples);
+  void learn(learner& base, VW980::multi_ex& examples);
+  void save_load(VW980::io_buf& io, bool read, bool text);
 
 private:
   size_t _counter;
@@ -66,19 +66,19 @@ private:
   std::vector<float> _min_costs;
   std::vector<float> _max_costs;
 
-  VW::version_struct _model_file_version;
+  VW980::version_struct _model_file_version;
 
   bool _store_gamma_in_reduction_features;
 
   // for backing up cb example data when computing sensitivities
-  std::vector<VW::action_scores> _ex_as;
-  std::vector<std::vector<VW::cb_class>> _ex_costs;
-  void get_cost_ranges(float delta, learner& base, VW::multi_ex& examples, bool min_only);
+  std::vector<VW980::action_scores> _ex_as;
+  std::vector<std::vector<VW980::cb_class>> _ex_costs;
+  void get_cost_ranges(float delta, learner& base, VW980::multi_ex& examples, bool min_only);
   float binary_search(float fhat, float delta, float sens, float tol = 1e-6);
 };
 
 cb_explore_adf_squarecb::cb_explore_adf_squarecb(float gamma_scale, float gamma_exponent, bool elim, float c0,
-    float min_cb_cost, float max_cb_cost, VW::version_struct model_file_version, float epsilon,
+    float min_cb_cost, float max_cb_cost, VW980::version_struct model_file_version, float epsilon,
     bool store_gamma_in_reduction_features)
     : _counter(0)
     , _gamma_scale(gamma_scale)
@@ -129,7 +129,7 @@ float cb_explore_adf_squarecb::binary_search(float fhat, float delta, float sens
 }
 
 // TODO: Same as cb_explore_adf_regcb.cc
-void cb_explore_adf_squarecb::get_cost_ranges(float delta, learner& base, VW::multi_ex& examples, bool min_only)
+void cb_explore_adf_squarecb::get_cost_ranges(float delta, learner& base, VW980::multi_ex& examples, bool min_only)
 {
   const size_t num_actions = examples[0]->pred.a_s.size();
   _min_costs.resize(num_actions);
@@ -188,20 +188,20 @@ void cb_explore_adf_squarecb::get_cost_ranges(float delta, learner& base, VW::mu
   }
 }
 
-void cb_explore_adf_squarecb::predict(learner& base, VW::multi_ex& examples)
+void cb_explore_adf_squarecb::predict(learner& base, VW980::multi_ex& examples)
 {
   // The actual parameter $\gamma$ used in the SquareCB.
   const float gamma = _gamma_scale * static_cast<float>(std::pow(_counter, _gamma_exponent));
   if (_store_gamma_in_reduction_features)
   {
     auto& red_features =
-        examples[0]->ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+        examples[0]->ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
     red_features.squarecb_gamma = gamma;
   }
 
   multiline_learn_or_predict<false>(base, examples, examples[0]->ft_offset);
 
-  VW::v_array<VW::action_score>& preds = examples[0]->pred.a_s;
+  VW980::v_array<VW980::action_score>& preds = examples[0]->pred.a_s;
   uint32_t num_actions = static_cast<uint32_t>(preds.size());
 
   // RegCB action set parameters
@@ -236,7 +236,7 @@ void cb_explore_adf_squarecb::predict(learner& base, VW::multi_ex& examples)
     }
     preds[a_min].score = 1.f - total_weight;
 
-    VW::explore::enforce_minimum_probability(_epsilon, true, begin_scores(preds), end_scores(preds));
+    VW980::explore::enforce_minimum_probability(_epsilon, true, begin_scores(preds), end_scores(preds));
   }
   else  // elimination variant
   {
@@ -279,12 +279,12 @@ void cb_explore_adf_squarecb::predict(learner& base, VW::multi_ex& examples)
   }
 }
 
-void cb_explore_adf_squarecb::learn(learner& base, VW::multi_ex& examples)
+void cb_explore_adf_squarecb::learn(learner& base, VW980::multi_ex& examples)
 {
-  VW::v_array<VW::action_score> preds = std::move(examples[0]->pred.a_s);
+  VW980::v_array<VW980::action_score> preds = std::move(examples[0]->pred.a_s);
   for (size_t i = 0; i < examples.size() - 1; ++i)
   {
-    VW::cb_label& ld = examples[i]->l.cb;
+    VW980::cb_label& ld = examples[i]->l.cb;
     if (ld.costs.size() == 1)
     {
       ld.costs[0].probability = 1.f;  // no importance weighting
@@ -296,23 +296,23 @@ void cb_explore_adf_squarecb::learn(learner& base, VW::multi_ex& examples)
   examples[0]->pred.a_s = std::move(preds);
 }
 
-void cb_explore_adf_squarecb::save_load(VW::io_buf& io, bool read, bool text)
+void cb_explore_adf_squarecb::save_load(VW980::io_buf& io, bool read, bool text)
 {
   if (io.num_files() == 0) { return; }
-  if (!read || _model_file_version >= VW::version_definitions::VERSION_FILE_WITH_SQUARE_CB_SAVE_RESUME)
+  if (!read || _model_file_version >= VW980::version_definitions::VERSION_FILE_WITH_SQUARE_CB_SAVE_RESUME)
   {
     std::stringstream msg;
     if (!read) { msg << "cb squarecb adf storing example counter:  = " << _counter << "\n"; }
-    VW::details::bin_text_read_write_fixed_validated(
+    VW980::details::bin_text_read_write_fixed_validated(
         io, reinterpret_cast<char*>(&_counter), sizeof(_counter), read, msg, text);
   }
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_squarecb_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_explore_adf_squarecb_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   using config::make_option;
   bool cb_explore_adf_option = false;
   bool squarecb = false;
@@ -395,14 +395,14 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_explore_adf_squarecb_se
   if (epsilon < 0.0 || epsilon > 1.0) { THROW("The value of epsilon must be in [0,1]"); }
 
   using explore_type = cb_explore_adf_base<cb_explore_adf_squarecb>;
-  auto data = VW::make_unique<explore_type>(all.global_metrics.are_metrics_enabled(), gamma_scale, gamma_exponent, elim,
+  auto data = VW980::make_unique<explore_type>(all.global_metrics.are_metrics_enabled(), gamma_scale, gamma_exponent, elim,
       c0, min_cb_cost, max_cb_cost, all.model_file_ver, epsilon, store_gamma_in_reduction_features);
   auto l = make_reduction_learner(std::move(data), base, explore_type::learn, explore_type::predict,
       stack_builder.get_setupfn_name(cb_explore_adf_squarecb_setup))
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
-               .set_input_prediction_type(VW::prediction_type_t::ACTION_SCORES)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_PROBS)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
+               .set_input_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
                .set_feature_width(feature_width)
                .set_output_example_prediction(explore_type::output_example_prediction)
                .set_update_stats(explore_type::update_stats)

@@ -9,7 +9,7 @@
 
 #include <cstddef>
 
-namespace VW
+namespace VW980
 {
 class simple_label
 {
@@ -41,38 +41,38 @@ public:
 
 namespace details
 {
-void return_simple_example(VW::workspace& all, void*, VW::example& ec);
-bool summarize_holdout_set(VW::workspace& all, size_t& no_win_counter);
-void print_update(VW::workspace& all, const VW::example& ec);
-void output_and_account_example(VW::workspace& all, const VW::example& ec);
+void return_simple_example(VW980::workspace& all, void*, VW980::example& ec);
+bool summarize_holdout_set(VW980::workspace& all, size_t& no_win_counter);
+void print_update(VW980::workspace& all, const VW980::example& ec);
+void output_and_account_example(VW980::workspace& all, const VW980::example& ec);
 void update_stats_simple_label(
-    const VW::workspace& all, shared_data& sd, const VW::example& ec, VW::io::logger& logger);
-void output_example_prediction_simple_label(VW::workspace& all, const VW::example& ec, VW::io::logger& logger);
-void print_update_simple_label(VW::workspace& all, shared_data& sd, const VW::example& ec, VW::io::logger& logger);
+    const VW980::workspace& all, shared_data& sd, const VW980::example& ec, VW980::io::logger& logger);
+void output_example_prediction_simple_label(VW980::workspace& all, const VW980::example& ec, VW980::io::logger& logger);
+void print_update_simple_label(VW980::workspace& all, shared_data& sd, const VW980::example& ec, VW980::io::logger& logger);
 
 template <typename UnusedDataT>
-void update_stats_simple_label(const VW::workspace& all, shared_data& sd, const UnusedDataT& /* unused */,
-    const VW::example& ec, VW::io::logger& logger)
+void update_stats_simple_label(const VW980::workspace& all, shared_data& sd, const UnusedDataT& /* unused */,
+    const VW980::example& ec, VW980::io::logger& logger)
 {
   update_stats_simple_label(all, sd, ec, logger);
 }
 template <typename UnusedDataT>
 void output_example_prediction_simple_label(
-    VW::workspace& all, const UnusedDataT& /* unused */, const VW::example& ec, VW::io::logger& logger)
+    VW980::workspace& all, const UnusedDataT& /* unused */, const VW980::example& ec, VW980::io::logger& logger)
 {
   output_example_prediction_simple_label(all, ec, logger);
 }
 template <typename UnusedDataT>
 void print_update_simple_label(
-    VW::workspace& all, shared_data& sd, const UnusedDataT& /* unused */, const VW::example& ec, VW::io::logger& logger)
+    VW980::workspace& all, shared_data& sd, const UnusedDataT& /* unused */, const VW980::example& ec, VW980::io::logger& logger)
 {
   print_update_simple_label(all, sd, ec, logger);
 }
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980
 
 using label_data VW_DEPRECATED(
-    "label_data renamed to VW::simple_label. label_data will be removed in VW 10.") = VW::simple_label;
+    "label_data renamed to VW980::simple_label. label_data will be removed in VW 10.") = VW980::simple_label;
 using simple_label_reduction_features VW_DEPRECATED(
-    "simple_label_reduction_features renamed to VW::simple_label_reduction_features. simple_label_reduction_features "
-    "will be removed in VW 10.") = VW::simple_label_reduction_features;
+    "simple_label_reduction_features renamed to VW980::simple_label_reduction_features. simple_label_reduction_features "
+    "will be removed in VW 10.") = VW980::simple_label_reduction_features;

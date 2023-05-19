@@ -11,8 +11,8 @@
 #include "vw/core/scope_exit.h"
 #include "vw/core/setup_base.h"
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
@@ -23,22 +23,22 @@ public:
 
   // array to cache w*x, (l^k * x_l) and (r^k * x_r)
   // [ w*(1,x_l,x_r) , l^1*x_l, r^1*x_r, l^2*x_l, r^2*x_2, ... ]
-  VW::v_array<float> sub_predictions;
+  VW980::v_array<float> sub_predictions;
 
   // array for temp storage of indices during prediction
-  VW::v_array<unsigned char> predict_indices;
+  VW980::v_array<unsigned char> predict_indices;
 
   // array for temp storage of indices
-  VW::v_array<unsigned char> indices;
+  VW980::v_array<unsigned char> indices;
 
   // array for temp storage of features
-  VW::features temp_features;
+  VW980::features temp_features;
 
-  VW::workspace* all = nullptr;  // for pairs? and finalize
+  VW980::workspace* all = nullptr;  // for pairs? and finalize
 };
 
 template <bool cache_sub_predictions>
-void predict(mf& data, learner& base, VW::example& ec)
+void predict(mf& data, learner& base, VW980::example& ec)
 {
   float prediction = 0;
   if (cache_sub_predictions) { data.sub_predictions.resize(2 * data.rank + 1); }
@@ -58,9 +58,9 @@ void predict(mf& data, learner& base, VW::example& ec)
   ec.indices.push_back(0);
 
   auto* saved_interactions = ec.interactions;
-  auto restore_guard = VW::scope_exit([saved_interactions, &ec] { ec.interactions = saved_interactions; });
+  auto restore_guard = VW980::scope_exit([saved_interactions, &ec] { ec.interactions = saved_interactions; });
 
-  std::vector<std::vector<VW::namespace_index>> empty_interactions;
+  std::vector<std::vector<VW980::namespace_index>> empty_interactions;
   ec.interactions = &empty_interactions;
 
   // add interaction terms to prediction
@@ -73,7 +73,7 @@ void predict(mf& data, learner& base, VW::example& ec)
     {
       for (size_t k = 1; k <= data.rank; k++)
       {
-        ec.indices[0] = static_cast<VW::namespace_index>(left_ns);
+        ec.indices[0] = static_cast<VW980::namespace_index>(left_ns);
 
         // compute l^k * x_l using base learner
         base.predict(ec, k);
@@ -81,7 +81,7 @@ void predict(mf& data, learner& base, VW::example& ec)
         if (cache_sub_predictions) { data.sub_predictions[2 * k - 1] = x_dot_l; }
 
         // set example to right namespace only
-        ec.indices[0] = static_cast<VW::namespace_index>(right_ns);
+        ec.indices[0] = static_cast<VW980::namespace_index>(right_ns);
 
         // compute r^k * x_r using base learner
         base.predict(ec, k + data.rank);
@@ -98,10 +98,10 @@ void predict(mf& data, learner& base, VW::example& ec)
 
   // finalize prediction
   ec.partial_prediction = prediction;
-  ec.pred.scalar = VW::details::finalize_prediction(*data.all->sd, data.all->logger, ec.partial_prediction);
+  ec.pred.scalar = VW980::details::finalize_prediction(*data.all->sd, data.all->logger, ec.partial_prediction);
 }
 
-void learn(mf& data, learner& base, VW::example& ec)
+void learn(mf& data, learner& base, VW980::example& ec)
 {
   // predict with current weights
   predict<true>(data, base, ec);
@@ -119,7 +119,7 @@ void learn(mf& data, learner& base, VW::example& ec)
   ec.indices.push_back(0);
 
   auto* saved_interactions = ec.interactions;
-  std::vector<std::vector<VW::namespace_index>> empty_interactions;
+  std::vector<std::vector<VW980::namespace_index>> empty_interactions;
   ec.interactions = &empty_interactions;
 
   // update interaction terms
@@ -132,7 +132,7 @@ void learn(mf& data, learner& base, VW::example& ec)
     if (ec.feature_space[left_ns].size() > 0 && ec.feature_space[right_ns].size() > 0)
     {
       // set example to left namespace only
-      ec.indices[0] = static_cast<VW::namespace_index>(left_ns);
+      ec.indices[0] = static_cast<VW980::namespace_index>(left_ns);
 
       // store feature values in left namespace
       data.temp_features = ec.feature_space[left_ns];
@@ -156,7 +156,7 @@ void learn(mf& data, learner& base, VW::example& ec)
       }
 
       // set example to right namespace only
-      ec.indices[0] = static_cast<VW::namespace_index>(right_ns);
+      ec.indices[0] = static_cast<VW980::namespace_index>(right_ns);
 
       // store feature values for right namespace
       data.temp_features = ec.feature_space[right_ns];
@@ -185,18 +185,18 @@ void learn(mf& data, learner& base, VW::example& ec)
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::mf_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::mf_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto data = VW::make_unique<mf>();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto data = VW980::make_unique<mf>();
   uint64_t rank;
   option_group_definition new_options("[Reduction] Matrix Factorization Reduction");
   new_options.add(make_option("new_mf", rank).keep().necessary().help("Rank for reduction-based matrix factorization"));
 
   if (!options.add_parse_and_check_necessary(new_options)) { return nullptr; }
 
-  data->rank = VW::cast_to_smaller_type<size_t>(rank);
+  data->rank = VW980::cast_to_smaller_type<size_t>(rank);
   data->all = &all;
   // store global pairs in local data structure and clear global pairs
   // for eventual calls to base learner
@@ -211,7 +211,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::mf_setup(VW::setup_base_i&
   auto l = make_reduction_learner(std::move(data), require_singleline(stack_builder.setup_base_learner(feature_width)),
       learn, predict<false>, stack_builder.get_setupfn_name(mf_setup))
                .set_feature_width(feature_width)
-               .set_output_prediction_type(VW::prediction_type_t::SCALAR)
+               .set_output_prediction_type(VW980::prediction_type_t::SCALAR)
                .build();
 
   return l;

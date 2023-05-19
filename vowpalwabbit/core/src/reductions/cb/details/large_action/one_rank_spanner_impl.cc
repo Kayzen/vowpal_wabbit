@@ -4,7 +4,7 @@
 
 #include "../large_action_space.h"
 
-namespace VW
+namespace VW980
 {
 namespace cb_explore_adf
 {
@@ -156,4 +156,4 @@ size_t one_rank_spanner_state::spanner_size() { return _spanner_bitvec.size(); }
 void one_rank_spanner_state::_test_only_set_rank(uint64_t rank) { _action_indices.resize(rank); }
 
 }  // namespace cb_explore_adf
-}  // namespace VW
+}  // namespace VW980

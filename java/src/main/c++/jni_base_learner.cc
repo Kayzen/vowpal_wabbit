@@ -3,7 +3,7 @@
 #include "vw/common/vw_exception.h"
 #include "vw/core/vw.h"
 
-example* read_example(JNIEnv* env, jstring example_string, VW::workspace* vwInstance)
+example* read_example(JNIEnv* env, jstring example_string, VW980::workspace* vwInstance)
 {
   const char* utf_string = env->GetStringUTFChars(example_string, NULL);
   example* ex = read_example(utf_string, vwInstance);
@@ -14,7 +14,7 @@ example* read_example(JNIEnv* env, jstring example_string, VW::workspace* vwInst
   return ex;
 }
 
-example* read_example(const char* example_string, VW::workspace* vwInstance)
+example* read_example(const char* example_string, VW980::workspace* vwInstance)
 {
-  return VW::read_example(*vwInstance, example_string);
+  return VW980::read_example(*vwInstance, example_string);
 }

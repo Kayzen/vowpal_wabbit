@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace VW
+namespace VW980
 {
 using weight = float;
 constexpr size_t NUM_NAMESPACES = 256;
@@ -60,9 +60,9 @@ static constexpr const int DEFAULT_FLOAT_FORMATTING_DECIMAL_PRECISION = 2;
 static constexpr const int AS_MANY_AS_NEEDED_FLOAT_FORMATTING_DECIMAL_PRECISION = -1;
 
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980
 
-using weight VW_DEPRECATED("weight renamed to VW::weight") = VW::weight;
+using weight VW_DEPRECATED("weight renamed to VW980::weight") = VW980::weight;
 
-VW_DEPRECATED("NUM_NAMESPACES renamed to VW::NUM_NAMESPACES")
+VW_DEPRECATED("NUM_NAMESPACES renamed to VW980::NUM_NAMESPACES")
 constexpr size_t NUM_NAMESPACES = 256;

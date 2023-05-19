@@ -15,7 +15,7 @@
 #  include <algorithm>
 #endif
 
-namespace VW
+namespace VW980
 {
 namespace math
 {
@@ -94,6 +94,6 @@ VW_STD14_CONSTEXPR T clamp(const T& num, const T& lower_bound, const T& upper_bo
 }
 
 }  // namespace math
-}  // namespace VW
+}  // namespace VW980
 
 #undef VW_DEFAULT_TOLERANCE

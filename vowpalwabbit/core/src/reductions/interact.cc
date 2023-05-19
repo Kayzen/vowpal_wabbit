@@ -12,7 +12,7 @@
 #include <cfloat>
 #include <sstream>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 namespace
 {
@@ -22,13 +22,13 @@ public:
   // namespaces to interact
   unsigned char n1 = static_cast<unsigned char>(0);
   unsigned char n2 = static_cast<unsigned char>(0);
-  VW::features feat_store;
-  VW::workspace* all = nullptr;
+  VW980::features feat_store;
+  VW980::workspace* all = nullptr;
   float n1_feat_sq = 0.f;
   size_t num_features = 0;
 };
 
-bool contains_valid_namespaces(VW::features& f_src1, VW::features& f_src2, interact& in, VW::io::logger& logger)
+bool contains_valid_namespaces(VW980::features& f_src1, VW980::features& f_src2, interact& in, VW980::io::logger& logger)
 {
   // first feature must be 1 so we're sure that the anchor feature is present
   if (f_src1.size() == 0 || f_src2.size() == 0) { return false; }
@@ -50,11 +50,11 @@ bool contains_valid_namespaces(VW::features& f_src1, VW::features& f_src2, inter
   return true;
 }
 
-void multiply(VW::features& f_dest, VW::features& f_src2, interact& in)
+void multiply(VW980::features& f_dest, VW980::features& f_src2, interact& in)
 {
   f_dest.clear();
-  VW::features& f_src1 = in.feat_store;
-  VW::workspace* all = in.all;
+  VW980::features& f_src1 = in.feat_store;
+  VW980::workspace* all = in.all;
   uint64_t weight_mask = all->weights.mask();
   uint64_t base_id1 = f_src1.indices[0] & weight_mask;
   uint64_t base_id2 = f_src2.indices[0] & weight_mask;
@@ -97,10 +97,10 @@ void multiply(VW::features& f_dest, VW::features& f_src2, interact& in)
 }
 
 template <bool is_learn, bool print_all>
-void predict_or_learn(interact& in, VW::LEARNER::learner& base, VW::example& ec)
+void predict_or_learn(interact& in, VW980::LEARNER::learner& base, VW980::example& ec)
 {
-  VW::features& f1 = ec.feature_space[in.n1];
-  VW::features& f2 = ec.feature_space[in.n2];
+  VW980::features& f1 = ec.feature_space[in.n1];
+  VW980::features& f2 = ec.feature_space[in.n2];
 
   if (!contains_valid_namespaces(f1, f2, in, in.all->logger))
   {
@@ -143,10 +143,10 @@ void predict_or_learn(interact& in, VW::LEARNER::learner& base, VW::example& ec)
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::interact_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::interact_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   std::string s;
   option_group_definition new_options("[Reduction] Interact via Elementwise Multiplication");
   new_options.add(make_option("interact", s)
@@ -162,7 +162,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::interact_setup(VW::setup_b
     return nullptr;
   }
 
-  auto data = VW::make_unique<interact>();
+  auto data = VW980::make_unique<interact>();
 
   data->n1 = static_cast<unsigned char>(s[0]);
   data->n2 = static_cast<unsigned char>(s[1]);

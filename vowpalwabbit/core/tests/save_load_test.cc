@@ -41,43 +41,43 @@ TEST(SaveLoad, SaveResumeBehavesAsIfDatasetConcatenated)
       "0.583484 |T EWU |f t1:-0.0221598 t5:-0.162901 r5:0.429709 t10:-0.0214379 r10:0.745645 t20:0.0748484 "
       "r20:0.880457 t40:0.0230047 r40:0.486719 t60:0.0319379 r60:0.619057 t90:0.0519471 r90:0.732452"};
 
-  auto vw_all_data_single_run = VW::initialize(vwtest::make_args("--no_stdin", "--quiet"));
+  auto vw_all_data_single_run = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet"));
 
   for (const auto& item : input_data)
   {
-    auto& ex = VW::get_unused_example(vw_all_data_single_run.get());
-    VW::parsers::text::read_line(*vw_all_data_single_run, &ex, item.c_str());
-    VW::setup_example(*vw_all_data_single_run, &ex);
+    auto& ex = VW980::get_unused_example(vw_all_data_single_run.get());
+    VW980::parsers::text::read_line(*vw_all_data_single_run, &ex, item.c_str());
+    VW980::setup_example(*vw_all_data_single_run, &ex);
     vw_all_data_single_run->learn(ex);
     vw_all_data_single_run->finish_example(ex);
   }
 
-  auto vw_first_half = VW::initialize(vwtest::make_args("--no_stdin", "--quiet"));
+  auto vw_first_half = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet"));
 
   for (size_t i = 0; i < 5; i++)
   {
-    auto& ex = VW::get_unused_example(vw_first_half.get());
-    VW::parsers::text::read_line(*vw_first_half, &ex, input_data[i].c_str());
-    VW::setup_example(*vw_first_half, &ex);
+    auto& ex = VW980::get_unused_example(vw_first_half.get());
+    VW980::parsers::text::read_line(*vw_first_half, &ex, input_data[i].c_str());
+    VW980::setup_example(*vw_first_half, &ex);
     vw_first_half->learn(ex);
     vw_first_half->finish_example(ex);
   }
 
   auto backing_vector = std::make_shared<std::vector<char>>();
-  VW::io_buf io_writer;
-  io_writer.add_file(VW::io::create_vector_writer(backing_vector));
-  VW::save_predictor(*vw_first_half, io_writer);
+  VW980::io_buf io_writer;
+  io_writer.add_file(VW980::io::create_vector_writer(backing_vector));
+  VW980::save_predictor(*vw_first_half, io_writer);
   io_writer.flush();
 
   auto vw_second_half_from_loaded =
-      VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--preserve_performance_counters"),
-          VW::io::create_buffer_view(backing_vector->data(), backing_vector->size()));
+      VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--preserve_performance_counters"),
+          VW980::io::create_buffer_view(backing_vector->data(), backing_vector->size()));
 
   for (size_t i = 5; i < 10; i++)
   {
-    auto& ex = VW::get_unused_example(vw_second_half_from_loaded.get());
-    VW::parsers::text::read_line(*vw_second_half_from_loaded, &ex, input_data[i].c_str());
-    VW::setup_example(*vw_second_half_from_loaded, &ex);
+    auto& ex = VW980::get_unused_example(vw_second_half_from_loaded.get());
+    VW980::parsers::text::read_line(*vw_second_half_from_loaded, &ex, input_data[i].c_str());
+    VW980::setup_example(*vw_second_half_from_loaded, &ex);
     vw_second_half_from_loaded->learn(ex);
     vw_second_half_from_loaded->finish_example(ex);
   }

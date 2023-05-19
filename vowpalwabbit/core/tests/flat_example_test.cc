@@ -13,41 +13,41 @@
 
 TEST(FlatExample, SansInteractionTest)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet", "--noconstant"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet", "--noconstant"));
 
-  auto* ex = VW::read_example(*vw, "1 |x a:2 |y b:3");
-  VW::features fs;
-  VW::flatten_features(*vw, *ex, fs);
+  auto* ex = VW980::read_example(*vw, "1 |x a:2 |y b:3");
+  VW980::features fs;
+  VW980::flatten_features(*vw, *ex, fs);
 
   EXPECT_THAT(fs.values, testing::UnorderedElementsAre(2, 3));
   EXPECT_EQ(fs.sum_feat_sq, 13);
 
-  VW::finish_example(*vw, *ex);
+  VW980::finish_example(*vw, *ex);
 }
 
 TEST(FlatExample, WithInteractionTest)
 {
-  auto vw = VW::initialize(vwtest::make_args("--interactions", "xy", "--quiet", "--noconstant"));
+  auto vw = VW980::initialize(vwtest::make_args("--interactions", "xy", "--quiet", "--noconstant"));
 
-  auto* ex = VW::read_example(*vw, "1 |x a:2 |y b:3");
-  VW::features fs;
-  VW::flatten_features(*vw, *ex, fs);
+  auto* ex = VW980::read_example(*vw, "1 |x a:2 |y b:3");
+  VW980::features fs;
+  VW980::flatten_features(*vw, *ex, fs);
 
   EXPECT_THAT(fs.values, testing::UnorderedElementsAre(2, 3, 6));
   EXPECT_EQ(fs.sum_feat_sq, 49);
 
-  VW::finish_example(*vw, *ex);
+  VW980::finish_example(*vw, *ex);
 }
 
 TEST(FlatExample, EmptyExampleTest)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet", "--noconstant"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet", "--noconstant"));
 
-  auto* ex = VW::read_example(*vw, "1 |x a:0");
-  VW::features fs;
-  VW::flatten_features(*vw, *ex, fs);
+  auto* ex = VW980::read_example(*vw, "1 |x a:0");
+  VW980::features fs;
+  VW980::flatten_features(*vw, *ex, fs);
 
   EXPECT_TRUE(fs.empty());
 
-  VW::finish_example(*vw, *ex);
+  VW980::finish_example(*vw, *ex);
 }

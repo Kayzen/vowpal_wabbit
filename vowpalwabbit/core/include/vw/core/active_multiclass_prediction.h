@@ -11,7 +11,7 @@
 #include <sstream>
 #include <string>
 
-namespace VW
+namespace VW980
 {
 class active_multiclass_prediction
 {
@@ -20,7 +20,7 @@ public:
   v_array<uint32_t> more_info_required_for_classes;
 };
 
-inline std::string to_string(const VW::active_multiclass_prediction& active_multiclass)
+inline std::string to_string(const VW980::active_multiclass_prediction& active_multiclass)
 {
   std::ostringstream ss;
   ss << active_multiclass.predicted_class;
@@ -35,4 +35,4 @@ inline std::string to_string(const VW::active_multiclass_prediction& active_mult
   return ss.str();
 }
 
-}  // namespace VW
+}  // namespace VW980

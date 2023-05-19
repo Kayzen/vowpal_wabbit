@@ -10,17 +10,17 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using namespace VW::reductions::cats;
+using namespace VW980::reductions::cats;
 
 TEST(Cats, GetLossZeroForBadPrediction)
 {
-  auto data = VW::make_unique<cats>(nullptr);
+  auto data = VW980::make_unique<cats>(nullptr);
   data->min_value = 0;
   data->max_value = 32;
   data->num_actions = 8;
   data->bandwidth = 3;
 
-  VW::cb_continuous::continuous_label cont_label;
+  VW980::cb_continuous::continuous_label cont_label;
   float action = 10.0f;
   float cost = 1.0f;
   float pdf_value = 0.166666672f;
@@ -35,13 +35,13 @@ TEST(Cats, GetLossZeroForBadPrediction)
 
 TEST(Cats, GetLossNotZeroForBadPredictionAndLargeB)
 {
-  auto data = VW::make_unique<cats>(nullptr);
+  auto data = VW980::make_unique<cats>(nullptr);
   data->min_value = 0;
   data->max_value = 32;
   data->num_actions = 8;
   data->bandwidth = 30;
 
-  VW::cb_continuous::continuous_label cont_label;
+  VW980::cb_continuous::continuous_label cont_label;
   float action = 10.0f;
   float cost = 1.0f;
   float pdf_value = 0.166666672f;
@@ -62,7 +62,7 @@ TEST(Cats, GetLossNotZeroForBadPredictionAndLargeB)
 
 TEST(Cats, GetLossForGoodPredictionAndSmallBNotCloseToRangeEdges)
 {
-  auto data = VW::make_unique<cats>(nullptr);
+  auto data = VW980::make_unique<cats>(nullptr);
   data->min_value = 1;
   data->max_value = 34;
   data->num_actions = 4;
@@ -71,7 +71,7 @@ TEST(Cats, GetLossForGoodPredictionAndSmallBNotCloseToRangeEdges)
   // continous_range = 34 - 1 = 33
   // unit_range = continuous_range / num_action = 33 / 4 = 8.25
 
-  VW::cb_continuous::continuous_label cont_label;
+  VW980::cb_continuous::continuous_label cont_label;
   float action = 17.0f;
   float cost = 1.0f;
   float pdf_value = 0.125f;
@@ -92,7 +92,7 @@ TEST(Cats, GetLossForGoodPredictionAndSmallBNotCloseToRangeEdges)
 
 TEST(Cats, GetLossForGoodPredictionAndSmallBCloseToRangeEdges)
 {
-  auto data = VW::make_unique<cats>(nullptr);
+  auto data = VW980::make_unique<cats>(nullptr);
   data->min_value = 1;
   data->max_value = 34;
   data->num_actions = 4;
@@ -101,7 +101,7 @@ TEST(Cats, GetLossForGoodPredictionAndSmallBCloseToRangeEdges)
   // continous_range = 34 - 1 = 33
   // unit_range = continuous_range / num_action = 33 / 4 = 8.25
 
-  VW::cb_continuous::continuous_label cont_label;
+  VW980::cb_continuous::continuous_label cont_label;
   float action = 33.0f;
   float cost = 1.0f;
   float pdf_value = 0.125f;
@@ -122,7 +122,7 @@ TEST(Cats, GetLossForGoodPredictionAndSmallBCloseToRangeEdges)
 
 TEST(Cats, GetLossWithDefaultBandwidth)
 {
-  auto data = VW::make_unique<cats>(nullptr);
+  auto data = VW980::make_unique<cats>(nullptr);
   data->min_value = 0;
   data->max_value = 32;
   data->num_actions = 8;
@@ -134,7 +134,7 @@ TEST(Cats, GetLossWithDefaultBandwidth)
   // continous_range = 32 - 0 = 32
   // unit_range = continuous_range / num_action = 32 / 8 = 4
 
-  VW::cb_continuous::continuous_label cont_label;
+  VW980::cb_continuous::continuous_label cont_label;
   float action = 32.0f;
   float cost = 1.0f;
   float pdf_value = 0.25f;

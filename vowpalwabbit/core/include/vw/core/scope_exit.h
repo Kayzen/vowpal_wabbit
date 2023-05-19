@@ -10,7 +10,7 @@
 // While it is a general concept this specific implementation of scope based cleanup was inspired by
 // https://github.com/microsoft/wil/blob/cd51fa9d3c24e9e9f5d4cdf1a9768d68f441fc48/include/wil/resource.h#L543
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -59,7 +59,7 @@ private:
 /// \code
 /// {
 ///   auto* resource = /* some_resource_that_needs_cleanup */;
-///   auto guard = VW::scope_exit([resource]() { /* cleanup_resource(resource); */ });
+///   auto guard = VW980::scope_exit([resource]() { /* cleanup_resource(resource); */ });
 /// }
 /// // Lambda has executed at this point.
 /// \endcode
@@ -70,4 +70,4 @@ inline details::scope_exit_caller<TScopeExitLambda> scope_exit(TScopeExitLambda&
   return details::scope_exit_caller<TScopeExitLambda>(std::forward<TScopeExitLambda>(lambda));
 }
 
-}  // namespace VW
+}  // namespace VW980

@@ -14,7 +14,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 using namespace_index = unsigned char;
 class example_predict
@@ -32,7 +32,7 @@ public:
 
   private:
     features* _feature_space;
-    VW::v_array<namespace_index>::iterator _index;
+    VW980::v_array<namespace_index>::iterator _index;
   };
 
   example_predict() = default;
@@ -51,7 +51,7 @@ public:
   /// If indices is modified this iterator is invalidated.
   iterator end();
 
-  VW::v_array<namespace_index> indices;
+  VW980::v_array<namespace_index> indices;
   std::array<features, NUM_NAMESPACES> feature_space;  // Groups of feature values.
   uint64_t ft_offset = 0;                              // An offset for all feature values.
   uint64_t feature_space_hash = 0;  // A unique hash of the feature space and namespaces of the example.
@@ -68,7 +68,7 @@ public:
   // Used for debugging reductions.  Keeps track of current reduction level.
   uint32_t debug_current_reduction_depth = 0;
 };
-}  // namespace VW
+}  // namespace VW980
 
-using namespace_index VW_DEPRECATED("namespace_index moved into VW namespace") = VW::namespace_index;
-using example_predict VW_DEPRECATED("example_predict moved into VW namespace") = VW::example_predict;
+using namespace_index VW_DEPRECATED("namespace_index moved into VW namespace") = VW980::namespace_index;
+using example_predict VW_DEPRECATED("example_predict moved into VW namespace") = VW980::example_predict;

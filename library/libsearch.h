@@ -18,11 +18,11 @@ template <class INPUT, class OUTPUT>
 class SearchTask  // NOLINT
 {
 public:
-  SearchTask(VW::workspace& vw_obj) : vw_obj(vw_obj), sch(*(Search::search*)vw_obj.searchstr)
+  SearchTask(VW980::workspace& vw_obj) : vw_obj(vw_obj), sch(*(Search::search*)vw_obj.searchstr)
   {
-    _bogus_example = new VW::example;
-    VW::parsers::text::read_line(vw_obj, _bogus_example, (char*)"1 | x");
-    VW::setup_example(vw_obj, _bogus_example);
+    _bogus_example = new VW980::example;
+    VW980::parsers::text::read_line(vw_obj, _bogus_example, (char*)"1 | x");
+    VW980::setup_example(vw_obj, _bogus_example);
 
     _trigger.push_back(_bogus_example);
 
@@ -55,12 +55,12 @@ public:
   }
 
 protected:
-  VW::workspace& vw_obj;  // NOLINT
+  VW980::workspace& vw_obj;  // NOLINT
   Search::search& sch;    // NOLINT
 
 private:
-  VW::example* _bogus_example;
-  VW::multi_ex _trigger;
+  VW980::example* _bogus_example;
+  VW980::multi_ex _trigger;
   INPUT _input;
   OUTPUT _output;
 
@@ -96,11 +96,11 @@ private:
   }
 };
 
-class BuiltInTask : public SearchTask<VW::multi_ex, std::vector<uint32_t>>  // NOLINT
+class BuiltInTask : public SearchTask<VW980::multi_ex, std::vector<uint32_t>>  // NOLINT
 {
 public:
-  BuiltInTask(VW::workspace& vw_obj, Search::search_task* task)
-      : SearchTask<VW::multi_ex, std::vector<uint32_t>>(vw_obj)
+  BuiltInTask(VW980::workspace& vw_obj, Search::search_task* task)
+      : SearchTask<VW980::multi_ex, std::vector<uint32_t>>(vw_obj)
   {
     HookTask::task_data* d = sch.get_task_data<HookTask::task_data>();
     size_t num_actions = d->num_actions;
@@ -113,7 +113,7 @@ public:
     if (my_task->finish) my_task->finish(sch);
   }
 
-  void _run(Search::search& sch, VW::multi_ex& input_example, std::vector<uint32_t>& output)
+  void _run(Search::search& sch, VW980::multi_ex& input_example, std::vector<uint32_t>& output)
   {
     my_task->run(sch, input_example);
     sch.get_test_action_sequence(output);

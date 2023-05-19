@@ -57,7 +57,7 @@ public:
 #endif
 
     // calculate checksum
-    if (compute_checksum && str_len > 0) { _checksum = (uint32_t)VW::uniform_hash(data, str_len, _checksum); }
+    if (compute_checksum && str_len > 0) { _checksum = (uint32_t)VW980::uniform_hash(data, str_len, _checksum); }
 
     return S_VW_PREDICT_OK;
   }
@@ -78,7 +78,7 @@ public:
     // avoid alignment issues for 32/64bit types on e.g. Android/ARM
     memcpy(&val, data, sizeof(T));
 
-    if (compute_checksum) { _checksum = VW::uniform_hash(reinterpret_cast<const char*>(&val), sizeof(T), _checksum); }
+    if (compute_checksum) { _checksum = VW980::uniform_hash(reinterpret_cast<const char*>(&val), sizeof(T), _checksum); }
 
 #ifdef MODEL_PARSER_DEBUG
     log << " '" << val << '\'' << std::endl;

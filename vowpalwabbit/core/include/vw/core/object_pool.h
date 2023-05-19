@@ -25,7 +25,7 @@
 #  include <mutex>
 #endif
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -147,4 +147,4 @@ public:
 private:
   std::stack<T> _pool;
 };
-}  // namespace VW
+}  // namespace VW980

@@ -5,7 +5,7 @@
 #include "vw/core/metrics_collector.h"
 
 #include "vw/core/learner.h"
-namespace VW
+namespace VW980
 {
 metrics_collector::metrics_collector(bool enabled) : _are_metrics_enabled(enabled) {}
 
@@ -18,10 +18,10 @@ void metrics_collector::register_metrics_callback(const metrics_callback_fn& cal
 
 metric_sink metrics_collector::collect_metrics(LEARNER::learner* l) const
 {
-  VW::metric_sink sink;
+  VW980::metric_sink sink;
   if (!_are_metrics_enabled) { THROW("Metrics must be enabled to call collect_metrics"); }
   if (l) { l->persist_metrics(sink); }
   for (const auto& callback : _metrics_callbacks) { callback(sink); }
   return sink;
 }
-}  // namespace VW
+}  // namespace VW980

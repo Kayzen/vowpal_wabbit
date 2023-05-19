@@ -9,7 +9,7 @@
 
 #include <cmath>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -34,4 +34,4 @@ T correctedExp(T exponent)
 #endif
 
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980

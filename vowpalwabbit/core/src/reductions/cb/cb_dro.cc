@@ -11,9 +11,9 @@
 #include "vw/explore/explore.h"
 #include "vw/io/logger.h"
 
-using namespace VW::LEARNER;
-using namespace VW;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980;
+using namespace VW980::config;
 
 namespace
 {
@@ -25,7 +25,7 @@ public:
   bool is_valid() { return _chisq.is_valid(); }
 
   template <bool is_learn, bool is_explore>
-  inline void learn_or_predict(learner& base, VW::multi_ex& examples)
+  inline void learn_or_predict(learner& base, VW980::multi_ex& examples)
   {
     // Some explanation required.
     //
@@ -44,11 +44,11 @@ public:
     if (is_learn)
     {
       const auto it = std::find_if(
-          examples.begin(), examples.end(), [](const VW::example* item) { return !item->l.cb.costs.empty(); });
+          examples.begin(), examples.end(), [](const VW980::example* item) { return !item->l.cb.costs.empty(); });
 
       if (it != examples.end())
       {
-        const VW::cb_class logged = (*it)->l.cb.costs[0];
+        const VW980::cb_class logged = (*it)->l.cb.costs[0];
         const uint32_t labelled_action = static_cast<uint32_t>(std::distance(examples.begin(), it));
 
         const auto& action_scores = examples[0]->pred.a_s;
@@ -74,8 +74,8 @@ public:
         _save_weight.clear();
         _save_weight.reserve(examples.size());
         std::transform(examples.cbegin(), examples.cend(), std::back_inserter(_save_weight),
-            [](const VW::example* item) { return item->weight; });
-        std::for_each(examples.begin(), examples.end(), [qlb](VW::example* item) { item->weight *= qlb; });
+            [](const VW980::example* item) { return item->weight; });
+        std::for_each(examples.begin(), examples.end(), [qlb](VW980::example* item) { item->weight *= qlb; });
 
         // TODO: make sure descendants "do the right thing" with example->weight
         multiline_learn_or_predict<true>(base, examples, examples[0]->ft_offset);
@@ -83,26 +83,26 @@ public:
         // restore the original weights
         auto save_weight_it = _save_weight.begin();
         std::for_each(examples.begin(), examples.end(),
-            [&save_weight_it](VW::example* item) { item->weight = *save_weight_it++; });
+            [&save_weight_it](VW980::example* item) { item->weight = *save_weight_it++; });
       }
     }
   }
 
 private:
-  VW::estimators::chi_squared _chisq;
+  VW980::estimators::chi_squared _chisq;
   std::vector<float> _save_weight;
 };
 template <bool is_learn, bool is_explore>
-void learn_or_predict(cb_dro_data& data, learner& base, VW::multi_ex& examples)
+void learn_or_predict(cb_dro_data& data, learner& base, VW980::multi_ex& examples)
 {
   data.learn_or_predict<is_learn, is_explore>(base, examples);
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_dro_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_dro_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   float alpha;
   float tau;
   float wmax;
@@ -112,7 +112,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_dro_setup(VW::setup_bas
   new_options.add(make_option("cb_dro", cb_dro_option).keep().necessary().help("Use DRO for cb learning"))
       .add(make_option("cb_dro_alpha", alpha).default_value(0.05f).keep().help("Confidence level for cb dro"))
       .add(make_option("cb_dro_tau", tau)
-               .default_value(VW::details::BASELINE_DEFAULT_TAU)
+               .default_value(VW980::details::BASELINE_DEFAULT_TAU)
                .keep()
                .help("Time constant for count decay for cb dro"))
       .add(make_option("cb_dro_wmax", wmax)
@@ -143,35 +143,35 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_dro_setup(VW::setup_bas
     *(all.trace_message) << "cb_dro_wmax = " << wmax << std::endl;
   }
 
-  auto data = VW::make_unique<cb_dro_data>(alpha, tau, wmax);
+  auto data = VW980::make_unique<cb_dro_data>(alpha, tau, wmax);
 
   if (!data->is_valid()) { THROW("invalid cb_dro parameter values supplied"); }
 
-  void (*learn_ptr)(cb_dro_data&, learner&, VW::multi_ex&);
-  void (*pred_ptr)(cb_dro_data&, learner&, VW::multi_ex&);
+  void (*learn_ptr)(cb_dro_data&, learner&, VW980::multi_ex&);
+  void (*pred_ptr)(cb_dro_data&, learner&, VW980::multi_ex&);
   std::string name_addition;
-  VW::prediction_type_t pred_type;
+  VW980::prediction_type_t pred_type;
   if (options.was_supplied("cb_explore_adf"))
   {
     learn_ptr = learn_or_predict<true, true>;
     pred_ptr = learn_or_predict<false, true>;
     name_addition = "-cb_explore_adf";
-    pred_type = VW::prediction_type_t::ACTION_PROBS;
+    pred_type = VW980::prediction_type_t::ACTION_PROBS;
   }
   else
   {
     learn_ptr = learn_or_predict<true, false>;
     pred_ptr = learn_or_predict<false, false>;
     name_addition = "";
-    pred_type = VW::prediction_type_t::ACTION_SCORES;
+    pred_type = VW980::prediction_type_t::ACTION_SCORES;
   }
 
   auto base = stack_builder.setup_base_learner();
   auto l = make_reduction_learner(std::move(data), require_multiline(base), learn_ptr, pred_ptr,
       stack_builder.get_setupfn_name(cb_dro_setup) + name_addition)
                .set_learn_returns_prediction(base->learn_returns_prediction)
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
                .set_input_prediction_type(pred_type)
                .set_output_prediction_type(pred_type)
                .build();

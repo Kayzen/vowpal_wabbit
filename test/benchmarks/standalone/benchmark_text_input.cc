@@ -23,22 +23,22 @@ static void bench_text(benchmark::State& state, ExtraArgs&&... extra_args)
   auto example_string = res[0];
 
   auto es = const_cast<char*>(example_string.c_str());
-  auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(std::vector<std::string>{"--cb", "2", "--quiet"}));
-  VW::multi_ex examples;
-  examples.push_back(&VW::get_unused_example(vw.get()));
+  auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(std::vector<std::string>{"--cb", "2", "--quiet"}));
+  VW980::multi_ex examples;
+  examples.push_back(&VW980::get_unused_example(vw.get()));
   for (auto _ : state)
   {
-    VW::parsers::text::read_line(*vw, examples[0], es);
-    VW::empty_example(*vw, *examples[0]);
+    VW980::parsers::text::read_line(*vw, examples[0], es);
+    VW980::empty_example(*vw, *examples[0]);
     benchmark::ClobberMemory();
   }
 }
 
 static void benchmark_learn_simple(benchmark::State& state, std::string example_string)
 {
-  auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(std::vector<std::string>{"--quiet"}));
+  auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(std::vector<std::string>{"--quiet"}));
 
-  auto* example = VW::read_example(*vw, example_string);
+  auto* example = VW980::read_example(*vw, example_string);
 
   for (auto _ : state)
   {
@@ -50,13 +50,13 @@ static void benchmark_learn_simple(benchmark::State& state, std::string example_
 
 static void benchmark_cb_adf_learn(benchmark::State& state, int feature_count)
 {
-  auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(
+  auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(
       std::vector<std::string>{"--cb_explore_adf", "--epsilon", "0.1", "--quiet", "-q", "::"}));
   multi_ex examples;
-  examples.push_back(VW::read_example(*vw, std::string("shared tag1| s_1 s_2")));
-  examples.push_back(VW::read_example(*vw, get_x_string_fts(feature_count)));
-  examples.push_back(VW::read_example(*vw, get_x_string_fts_no_label(feature_count)));
-  examples.push_back(VW::read_example(*vw, get_x_string_fts_no_label(feature_count)));
+  examples.push_back(VW980::read_example(*vw, std::string("shared tag1| s_1 s_2")));
+  examples.push_back(VW980::read_example(*vw, get_x_string_fts(feature_count)));
+  examples.push_back(VW980::read_example(*vw, get_x_string_fts_no_label(feature_count)));
+  examples.push_back(VW980::read_example(*vw, get_x_string_fts_no_label(feature_count)));
 
   for (auto _ : state)
   {
@@ -68,19 +68,19 @@ static void benchmark_cb_adf_learn(benchmark::State& state, int feature_count)
 
 static void benchmark_ccb_adf_learn(benchmark::State& state, std::string feature_string, std::string cmd = "")
 {
-  auto args = VW::split_command_line("--ccb_explore_adf --quiet" + cmd);
-  auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(args));
+  auto args = VW980::split_command_line("--ccb_explore_adf --quiet" + cmd);
+  auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args));
 
   multi_ex examples;
-  examples.push_back(VW::read_example(*vw, std::string("ccb shared |User " + feature_string)));
-  examples.push_back(VW::read_example(*vw, std::string("ccb action |Action1 " + feature_string)));
-  examples.push_back(VW::read_example(*vw, std::string("ccb action |Action2 " + feature_string)));
-  examples.push_back(VW::read_example(*vw, std::string("ccb action |Action3 " + feature_string)));
-  examples.push_back(VW::read_example(*vw, std::string("ccb action |Action4 " + feature_string)));
-  examples.push_back(VW::read_example(*vw, std::string("ccb action |Action5 " + feature_string)));
-  examples.push_back(VW::read_example(*vw, std::string("ccb slot 0:0:0.2 |Slot h")));
-  examples.push_back(VW::read_example(*vw, std::string("ccb slot 1:0:0.25 |Slot i")));
-  examples.push_back(VW::read_example(*vw, std::string("ccb slot 2:0:0.333333 |Slot j")));
+  examples.push_back(VW980::read_example(*vw, std::string("ccb shared |User " + feature_string)));
+  examples.push_back(VW980::read_example(*vw, std::string("ccb action |Action1 " + feature_string)));
+  examples.push_back(VW980::read_example(*vw, std::string("ccb action |Action2 " + feature_string)));
+  examples.push_back(VW980::read_example(*vw, std::string("ccb action |Action3 " + feature_string)));
+  examples.push_back(VW980::read_example(*vw, std::string("ccb action |Action4 " + feature_string)));
+  examples.push_back(VW980::read_example(*vw, std::string("ccb action |Action5 " + feature_string)));
+  examples.push_back(VW980::read_example(*vw, std::string("ccb slot 0:0:0.2 |Slot h")));
+  examples.push_back(VW980::read_example(*vw, std::string("ccb slot 1:0:0.25 |Slot i")));
+  examples.push_back(VW980::read_example(*vw, std::string("ccb slot 2:0:0.333333 |Slot j")));
 
   for (auto _ : state)
   {
@@ -196,13 +196,13 @@ static std::vector<std::vector<std::string>> gen_ccb_examples(size_t num_example
   return examples_vec;
 }
 
-static std::vector<multi_ex> load_examples(VW::workspace* vw, const std::vector<std::vector<std::string>>& ex_strs)
+static std::vector<multi_ex> load_examples(VW980::workspace* vw, const std::vector<std::vector<std::string>>& ex_strs)
 {
   std::vector<multi_ex> examples_vec;
   for (const auto& ex_str : ex_strs)
   {
     multi_ex mxs;
-    for (const auto& example : ex_str) { mxs.push_back(VW::read_example(*vw, example)); }
+    for (const auto& example : ex_str) { mxs.push_back(VW980::read_example(*vw, example)); }
     examples_vec.push_back(mxs);
   }
   return examples_vec;
@@ -211,8 +211,8 @@ static std::vector<multi_ex> load_examples(VW::workspace* vw, const std::vector<
 static void benchmark_multi(
     benchmark::State& state, const std::vector<std::vector<std::string>>& examples_str, const std::string& cmd)
 {
-  auto args = VW::split_command_line(cmd);
-  auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(args));
+  auto args = VW980::split_command_line(cmd);
+  auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args));
   std::vector<multi_ex> examples_vec = load_examples(vw.get(), examples_str);
 
   for (auto _ : state)
@@ -226,8 +226,8 @@ static void benchmark_multi(
 static void benchmark_multi_predict(
     benchmark::State& state, const std::vector<std::vector<std::string>>& examples_str, const std::string& cmd)
 {
-  auto args = VW::split_command_line(cmd);
-  auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(args));
+  auto args = VW980::split_command_line(cmd);
+  auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(args));
   std::vector<multi_ex> examples_vec = load_examples(vw.get(), examples_str);
 
   for (multi_ex examples : examples_vec) { vw->learn(examples); }

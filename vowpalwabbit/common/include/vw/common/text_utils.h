@@ -9,17 +9,17 @@
 #include <sstream>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
-// chop up the string into a v_array or any compatible container of VW::string_view.
+// chop up the string into a v_array or any compatible container of VW980::string_view.
 template <typename ContainerT>
-void tokenize(char delim, VW::string_view s, ContainerT& ret, bool allow_empty = false)
+void tokenize(char delim, VW980::string_view s, ContainerT& ret, bool allow_empty = false)
 {
   ret.clear();
   size_t end_pos = 0;
   bool last_space = false;
 
-  while (!s.empty() && ((end_pos = s.find(delim)) != VW::string_view::npos))
+  while (!s.empty() && ((end_pos = s.find(delim)) != VW980::string_view::npos))
   {
     last_space = end_pos == 0;
     if (allow_empty || end_pos > 0) { ret.emplace_back(s.substr(0, end_pos)); }
@@ -34,7 +34,7 @@ void tokenize(char delim, VW::string_view s, ContainerT& ret, bool allow_empty =
  * \param ending Ending value to check
  * \return true if full_string ends with ending, otherwise false.
  */
-inline bool ends_with(VW::string_view full_string, VW::string_view ending)
+inline bool ends_with(VW980::string_view full_string, VW980::string_view ending)
 {
   return full_string.size() >= ending.size() &&
       0 == full_string.compare(full_string.size() - ending.size(), ending.size(), ending);
@@ -46,7 +46,7 @@ inline bool ends_with(VW::string_view full_string, VW::string_view ending)
  * \param starting Starting value to check
  * \return true if full_string starts with starting, otherwise false.
  */
-inline bool starts_with(VW::string_view full_string, VW::string_view starting)
+inline bool starts_with(VW980::string_view full_string, VW980::string_view starting)
 {
   return full_string.size() >= starting.size() && 0 == full_string.compare(0, starting.size(), starting);
 }
@@ -60,11 +60,11 @@ inline bool starts_with(VW::string_view full_string, VW::string_view starting)
  * to the next line.
  * @return std::string copy of string with required newlines
  */
-inline std::string wrap_text(VW::string_view text, size_t width, bool wrap_after = true)
+inline std::string wrap_text(VW980::string_view text, size_t width, bool wrap_after = true)
 {
   std::stringstream ss;
-  std::vector<VW::string_view> words;
-  VW::tokenize(' ', text, words);
+  std::vector<VW980::string_view> words;
+  VW980::tokenize(' ', text, words);
   size_t current_line_size = 0;
   std::string space = "";
   for (const auto& word : words)
@@ -81,4 +81,4 @@ inline std::string wrap_text(VW::string_view text, size_t width, bool wrap_after
   }
   return ss.str();
 }
-}  // namespace VW
+}  // namespace VW980

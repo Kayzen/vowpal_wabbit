@@ -11,7 +11,7 @@
 
 #include <unordered_map>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 namespace
 {
@@ -49,15 +49,15 @@ public:
   }
 };
 
-template <VW::prediction_type_t pred_type>
-void update_example_weight(classweights& cweights, VW::example& ec)
+template <VW980::prediction_type_t pred_type>
+void update_example_weight(classweights& cweights, VW980::example& ec)
 {
   switch (pred_type)
   {
-    case VW::prediction_type_t::SCALAR:
+    case VW980::prediction_type_t::SCALAR:
       ec.weight *= cweights.get_class_weight(static_cast<uint32_t>(ec.l.simple.label));
       break;
-    case VW::prediction_type_t::MULTICLASS:
+    case VW980::prediction_type_t::MULTICLASS:
       ec.weight *= cweights.get_class_weight(ec.l.multi.label);
       break;
     default:
@@ -66,8 +66,8 @@ void update_example_weight(classweights& cweights, VW::example& ec)
   }
 }
 
-template <bool is_learn, VW::prediction_type_t pred_type>
-void predict_or_learn(classweights& cweights, VW::LEARNER::learner& base, VW::example& ec)
+template <bool is_learn, VW980::prediction_type_t pred_type>
+void predict_or_learn(classweights& cweights, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   if (is_learn)
   {
@@ -78,12 +78,12 @@ void predict_or_learn(classweights& cweights, VW::LEARNER::learner& base, VW::ex
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::classweight_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::classweight_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   std::vector<std::string> classweight_array;
-  auto cweights = VW::make_unique<classweights>();
+  auto cweights = VW980::make_unique<classweights>();
   option_group_definition new_options("[Reduction]  Importance Weight Classes");
   new_options.add(
       make_option("classweight", classweight_array).necessary().help("Importance weight multiplier for class"));
@@ -96,23 +96,23 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::classweight_setup(VW::setu
   auto base = require_singleline(stack_builder.setup_base_learner());
 
   std::string name_addition;
-  void (*learn_ptr)(classweights&, VW::LEARNER::learner&, VW::example&);
-  void (*pred_ptr)(classweights&, VW::LEARNER::learner&, VW::example&);
-  VW::prediction_type_t pred_type;
+  void (*learn_ptr)(classweights&, VW980::LEARNER::learner&, VW980::example&);
+  void (*pred_ptr)(classweights&, VW980::LEARNER::learner&, VW980::example&);
+  VW980::prediction_type_t pred_type;
 
-  if (base->get_output_prediction_type() == VW::prediction_type_t::SCALAR)
+  if (base->get_output_prediction_type() == VW980::prediction_type_t::SCALAR)
   {
     name_addition = "-scalar";
-    learn_ptr = predict_or_learn<true, VW::prediction_type_t::SCALAR>;
-    pred_ptr = predict_or_learn<false, VW::prediction_type_t::SCALAR>;
-    pred_type = VW::prediction_type_t::SCALAR;
+    learn_ptr = predict_or_learn<true, VW980::prediction_type_t::SCALAR>;
+    pred_ptr = predict_or_learn<false, VW980::prediction_type_t::SCALAR>;
+    pred_type = VW980::prediction_type_t::SCALAR;
   }
-  else if (base->get_output_prediction_type() == VW::prediction_type_t::MULTICLASS)
+  else if (base->get_output_prediction_type() == VW980::prediction_type_t::MULTICLASS)
   {
     name_addition = "-multi";
-    learn_ptr = predict_or_learn<true, VW::prediction_type_t::MULTICLASS>;
-    pred_ptr = predict_or_learn<false, VW::prediction_type_t::MULTICLASS>;
-    pred_type = VW::prediction_type_t::MULTICLASS;
+    learn_ptr = predict_or_learn<true, VW980::prediction_type_t::MULTICLASS>;
+    pred_ptr = predict_or_learn<false, VW980::prediction_type_t::MULTICLASS>;
+    pred_type = VW980::prediction_type_t::MULTICLASS;
   }
   else { THROW("--classweight not implemented for this type of prediction"); }
 

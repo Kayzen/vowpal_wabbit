@@ -11,7 +11,7 @@
 #include <functional>
 #include <queue>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
@@ -68,27 +68,27 @@ enum class config_type
   Interaction,
 };
 
-using set_ns_list_t = std::set<std::vector<VW::namespace_index>>;
+using set_ns_list_t = std::set<std::vector<VW980::namespace_index>>;
 
 class ns_based_config
 {
 public:
   set_ns_list_t elements;
   uint64_t lease;
-  config_state state = VW::reductions::automl::config_state::New;
-  config_type conf_type = VW::reductions::automl::config_type::Exclusion;
+  config_state state = VW980::reductions::automl::config_state::New;
+  config_type conf_type = VW980::reductions::automl::config_type::Exclusion;
 
   ns_based_config(uint64_t lease = 10) : lease(lease) {}
   ns_based_config(set_ns_list_t&& ns_list, uint64_t lease, config_type conf_type)
       : elements(std::move(ns_list)), lease(lease), conf_type(conf_type)
   {
-    this->state = VW::reductions::automl::config_state::New;
+    this->state = VW980::reductions::automl::config_state::New;
   }
   void reset(set_ns_list_t&& ns_list, uint64_t lease, config_type conf_type)
   {
     this->elements = std::move(ns_list);
     this->lease = lease;
-    this->state = VW::reductions::automl::config_state::New;
+    this->state = VW980::reductions::automl::config_state::New;
     this->conf_type = conf_type;
   }
   static interaction_vec_t gen_quadratic_interactions(
@@ -120,11 +120,11 @@ public:
   oracle_impl _impl;
 
   config_oracle(uint64_t default_lease, priority_func calc_priority, const std::string& interaction_type,
-      const std::string& oracle_type, std::shared_ptr<VW::rand_state>& rand_state, config_type conf_type);
+      const std::string& oracle_type, std::shared_ptr<VW980::rand_state>& rand_state, config_type conf_type);
 
   void gen_configs(const interaction_vec_t& champ_interactions, const std::map<namespace_index, uint64_t>& ns_counter);
   bool insert_config(set_ns_list_t&& new_elements, const std::map<namespace_index, uint64_t>& ns_counter,
-      VW::reductions::automl::config_type conf_type, bool allow_dups = false);
+      VW980::reductions::automl::config_type conf_type, bool allow_dups = false);
   bool repopulate_index_queue(const std::map<namespace_index, uint64_t>& ns_counter);
   void insert_starting_configuration();
   void keep_best_two(uint64_t winner_config_index);
@@ -157,9 +157,9 @@ class oracle_rand_impl
 {
 public:
   size_t last_seen_ns_count = 0;
-  VW::reductions::automl::interaction_vec_t total_space;
-  std::shared_ptr<VW::rand_state> random_state;
-  oracle_rand_impl(std::shared_ptr<VW::rand_state> random_state) : random_state(std::move(random_state)) {}
+  VW980::reductions::automl::interaction_vec_t total_space;
+  std::shared_ptr<VW980::rand_state> random_state;
+  oracle_rand_impl(std::shared_ptr<VW980::rand_state> random_state) : random_state(std::move(random_state)) {}
   void gen_ns_groupings_at(const interaction_vec_t& all_interactions, const size_t num, set_ns_list_t& copy_champ);
 };
 class one_diff_impl
@@ -192,9 +192,9 @@ class qbase_cubic
 {
 public:
   size_t last_seen_ns_count = 0;
-  VW::reductions::automl::interaction_vec_t total_space;
-  std::shared_ptr<VW::rand_state> random_state;
-  qbase_cubic(std::shared_ptr<VW::rand_state> random_state) : random_state(std::move(random_state)) {}
+  VW980::reductions::automl::interaction_vec_t total_space;
+  std::shared_ptr<VW980::rand_state> random_state;
+  qbase_cubic(std::shared_ptr<VW980::rand_state> random_state) : random_state(std::move(random_state)) {}
   void gen_ns_groupings_at(const interaction_vec_t& all_interactions, const size_t num, set_ns_list_t& copy_champ);
 };
 
@@ -210,7 +210,7 @@ public:
   uint64_t priority_challengers;
   dense_parameters& weights;
   double automl_significance_level;
-  VW::io::logger* logger;
+  VW980::io::logger* logger;
   uint32_t& feature_width;
   const bool _ccb_on;
   config_oracle_impl _config_oracle;
@@ -229,12 +229,12 @@ public:
   std::unique_ptr<std::ofstream> inputlabel_log_file;
 
   interaction_config_manager(uint64_t global_lease, uint64_t max_live_configs,
-      std::shared_ptr<VW::rand_state> rand_state, uint64_t priority_challengers, const std::string& interaction_type,
+      std::shared_ptr<VW980::rand_state> rand_state, uint64_t priority_challengers, const std::string& interaction_type,
       const std::string& oracle_type, dense_parameters& weights, priority_func calc_priority,
-      double automl_significance_level, VW::io::logger* logger, uint32_t& feature_width, bool ccb_on,
+      double automl_significance_level, VW980::io::logger* logger, uint32_t& feature_width, bool ccb_on,
       config_type conf_type, std::string trace_prefix, bool reward_as_cost, double tol_x, bool is_brentq);
 
-  void do_learning(VW::LEARNER::learner& base, multi_ex& ec, uint64_t live_slot);
+  void do_learning(VW980::LEARNER::learner& base, multi_ex& ec, uint64_t live_slot);
   void persist(metric_sink& metrics, bool verbose);
 
   // Public Chacha functions
@@ -272,91 +272,91 @@ class automl
 public:
   automl_state current_state = automl_state::Experimenting;
   std::unique_ptr<CMType> cm;
-  VW::io::logger* logger;
+  VW980::io::logger* logger;
   LEARNER::learner* adf_learner = nullptr;  //  re-use print from cb_explore_adf
   bool debug_reverse_learning_order = false;
   const bool should_save_predict_only_model;
   std::unique_ptr<std::ofstream> log_file;
 
-  automl(std::unique_ptr<CMType> cm, VW::io::logger* logger, bool predict_only_model, std::string trace_prefix)
+  automl(std::unique_ptr<CMType> cm, VW980::io::logger* logger, bool predict_only_model, std::string trace_prefix)
       : cm(std::move(cm)), logger(logger), should_save_predict_only_model(predict_only_model)
   {
     if (trace_prefix != "")
     {
-      log_file = VW::make_unique<std::ofstream>(trace_prefix + ".automl.cs.csv");
+      log_file = VW980::make_unique<std::ofstream>(trace_prefix + ".automl.cs.csv");
       *log_file << "example_count, slot_id, champ_switch_count, lower_bound, upper_bound, champ_lower_bound, "
                    "champ_upper_bound"
                 << std::endl;
     }
   }
   // This fn gets called before learning any example
-  void one_step(VW::LEARNER::learner& base, multi_ex& ec, VW::cb_class& logged, uint64_t labelled_action);
-  void offset_learn(VW::LEARNER::learner& base, multi_ex& ec, VW::cb_class& logged, uint64_t labelled_action);
+  void one_step(VW980::LEARNER::learner& base, multi_ex& ec, VW980::cb_class& logged, uint64_t labelled_action);
+  void offset_learn(VW980::LEARNER::learner& base, multi_ex& ec, VW980::cb_class& logged, uint64_t labelled_action);
 };
 }  // namespace automl
 
 namespace util
 {
-void fail_if_enabled(VW::workspace& all, const std::set<std::string>& not_compat);
-std::string interaction_vec_t_to_string(const VW::reductions::automl::interaction_vec_t& interactions);
+void fail_if_enabled(VW980::workspace& all, const std::set<std::string>& not_compat);
+std::string interaction_vec_t_to_string(const VW980::reductions::automl::interaction_vec_t& interactions);
 std::string elements_to_string(const automl::set_ns_list_t& elements, const char* const delim = ", ");
 }  // namespace util
 }  // namespace reductions
 namespace model_utils
 {
 template <typename CMType>
-size_t write_model_field(io_buf&, const VW::reductions::automl::automl<CMType>&, const std::string&, bool);
-size_t read_model_field(io_buf&, VW::reductions::automl::ns_based_config&);
+size_t write_model_field(io_buf&, const VW980::reductions::automl::automl<CMType>&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::reductions::automl::ns_based_config&);
 template <typename estimator_impl>
-size_t read_model_field(io_buf&, VW::reductions::automl::aml_estimator<estimator_impl>&);
+size_t read_model_field(io_buf&, VW980::reductions::automl::aml_estimator<estimator_impl>&);
 template <typename config_oracle_impl, typename estimator_impl>
 size_t read_model_field(
-    io_buf&, VW::reductions::automl::interaction_config_manager<config_oracle_impl, estimator_impl>&);
+    io_buf&, VW980::reductions::automl::interaction_config_manager<config_oracle_impl, estimator_impl>&);
 template <typename CMType>
-size_t read_model_field(io_buf&, VW::reductions::automl::automl<CMType>&);
-size_t write_model_field(io_buf&, const VW::reductions::automl::ns_based_config&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::reductions::automl::automl<CMType>&);
+size_t write_model_field(io_buf&, const VW980::reductions::automl::ns_based_config&, const std::string&, bool);
 template <typename estimator_impl>
 size_t write_model_field(
-    io_buf&, const VW::reductions::automl::aml_estimator<estimator_impl>&, const std::string&, bool);
+    io_buf&, const VW980::reductions::automl::aml_estimator<estimator_impl>&, const std::string&, bool);
 template <typename config_oracle_impl, typename estimator_impl>
 size_t write_model_field(io_buf&,
-    const VW::reductions::automl::interaction_config_manager<config_oracle_impl, estimator_impl>&, const std::string&,
+    const VW980::reductions::automl::interaction_config_manager<config_oracle_impl, estimator_impl>&, const std::string&,
     bool);
 }  // namespace model_utils
-VW::string_view to_string(reductions::automl::automl_state state);
-VW::string_view to_string(reductions::automl::config_state state);
-VW::string_view to_string(reductions::automl::config_type state);
-}  // namespace VW
+VW980::string_view to_string(reductions::automl::automl_state state);
+VW980::string_view to_string(reductions::automl::config_state state);
+VW980::string_view to_string(reductions::automl::config_type state);
+}  // namespace VW980
 
 namespace fmt
 {
 template <>
-class formatter<VW::reductions::automl::automl_state> : public formatter<std::string>
+class formatter<VW980::reductions::automl::automl_state> : public formatter<std::string>
 {
 public:
-  auto format(VW::reductions::automl::automl_state c, format_context& ctx) -> decltype(ctx.out())
+  auto format(VW980::reductions::automl::automl_state c, format_context& ctx) -> decltype(ctx.out())
   {
-    return formatter<std::string>::format(std::string{VW::to_string(c)}, ctx);
+    return formatter<std::string>::format(std::string{VW980::to_string(c)}, ctx);
   }
 };
 
 template <>
-class formatter<VW::reductions::automl::config_state> : public formatter<std::string>
+class formatter<VW980::reductions::automl::config_state> : public formatter<std::string>
 {
 public:
-  auto format(VW::reductions::automl::config_state c, format_context& ctx) -> decltype(ctx.out())
+  auto format(VW980::reductions::automl::config_state c, format_context& ctx) -> decltype(ctx.out())
   {
-    return formatter<std::string>::format(std::string{VW::to_string(c)}, ctx);
+    return formatter<std::string>::format(std::string{VW980::to_string(c)}, ctx);
   }
 };
 
 template <>
-class formatter<VW::reductions::automl::config_type> : public formatter<std::string>
+class formatter<VW980::reductions::automl::config_type> : public formatter<std::string>
 {
 public:
-  auto format(VW::reductions::automl::config_type c, format_context& ctx) -> decltype(ctx.out())
+  auto format(VW980::reductions::automl::config_type c, format_context& ctx) -> decltype(ctx.out())
   {
-    return formatter<std::string>::format(std::string{VW::to_string(c)}, ctx);
+    return formatter<std::string>::format(std::string{VW980::to_string(c)}, ctx);
   }
 };
 }  // namespace fmt

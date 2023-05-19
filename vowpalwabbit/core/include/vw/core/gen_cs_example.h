@@ -8,7 +8,7 @@
 
 #include <cfloat>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -22,42 +22,42 @@ public:
 class cb_to_cs
 {
 public:
-  VW::cb_type_t cb_type = VW::cb_type_t::DM;
+  VW980::cb_type_t cb_type = VW980::cb_type_t::DM;
   uint32_t num_actions = 0;
-  VW::cs_label pred_scores;
-  VW::LEARNER::learner* scorer = nullptr;
+  VW980::cs_label pred_scores;
+  VW980::LEARNER::learner* scorer = nullptr;
   float avg_loss_regressors = 0.f;
   size_t nb_ex_regressors = 0;
   float last_pred_reg = 0.f;
   float last_correct_cost = 0.f;
 
-  VW::cb_class known_cost;
+  VW980::cb_class known_cost;
 };
 
 class cb_to_cs_adf
 {
 public:
   cb_to_cs_adf(size_t feature_width = 1) : per_model_state(feature_width) {}
-  VW::cb_type_t cb_type = VW::cb_type_t::DM;
+  VW980::cb_type_t cb_type = VW980::cb_type_t::DM;
 
   // for MTR
   std::vector<cb_to_cs_per_model_state> per_model_state;
   uint32_t mtr_example = 0;
-  VW::multi_ex mtr_ec_seq;  // shared + the one example.
+  VW980::multi_ex mtr_ec_seq;  // shared + the one example.
 
   // for DR
-  VW::cs_label pred_scores;
-  VW::cb_class known_cost;
-  VW::LEARNER::learner* scorer = nullptr;
+  VW980::cs_label pred_scores;
+  VW980::cb_class known_cost;
+  VW980::LEARNER::learner* scorer = nullptr;
 };
 
-float safe_probability(float prob, VW::io::logger& logger);
+float safe_probability(float prob, VW980::io::logger& logger);
 
 void gen_cs_example_ips(
-    cb_to_cs& c, const VW::cb_label& ld, VW::cs_label& cs_ld, VW::io::logger& logger, float clip_p = 0.f);
+    cb_to_cs& c, const VW980::cb_label& ld, VW980::cs_label& cs_ld, VW980::io::logger& logger, float clip_p = 0.f);
 
 template <bool is_learn>
-void gen_cs_example_dm(cb_to_cs& c, VW::example& ec, const VW::cb_label& ld, VW::cs_label& cs_ld)
+void gen_cs_example_dm(cb_to_cs& c, VW980::example& ec, const VW980::cb_label& ld, VW980::cs_label& cs_ld)
 {  // this implements the direct estimation method, where costs are directly specified by the learned regressor.
 
   float min = FLT_MAX;
@@ -72,9 +72,9 @@ void gen_cs_example_dm(cb_to_cs& c, VW::example& ec, const VW::cb_label& ld, VW:
   {                                      // in this case generate cost-sensitive example with all actions
     for (uint32_t i = 1; i <= c.num_actions; i++)
     {
-      VW::cs_class wc = {0., i, 0., 0.};
+      VW980::cs_class wc = {0., i, 0., 0.};
       // get cost prediction for this action
-      wc.x = VW::get_cost_pred<is_learn>(c.scorer, c.known_cost, ec, i, 0);
+      wc.x = VW980::get_cost_pred<is_learn>(c.scorer, c.known_cost, ec, i, 0);
       if (wc.x < min)
       {
         min = wc.x;
@@ -99,10 +99,10 @@ void gen_cs_example_dm(cb_to_cs& c, VW::example& ec, const VW::cb_label& ld, VW:
   {     // in this case generate cost-sensitive example with only allowed actions
     for (const auto& cl : ld.costs)
     {
-      VW::cs_class wc = {0., cl.action, 0., 0.};
+      VW980::cs_class wc = {0., cl.action, 0., 0.};
 
       // get cost prediction for this action
-      wc.x = VW::get_cost_pred<is_learn>(c.scorer, c.known_cost, ec, cl.action, 0);
+      wc.x = VW980::get_cost_pred<is_learn>(c.scorer, c.known_cost, ec, cl.action, 0);
       if (wc.x < min || (wc.x == min && cl.action < argmin))
       {
         min = wc.x;
@@ -127,12 +127,12 @@ void gen_cs_example_dm(cb_to_cs& c, VW::example& ec, const VW::cb_label& ld, VW:
 }
 
 template <bool is_learn>
-void gen_cs_label(cb_to_cs& c, VW::example& ec, VW::cs_label& cs_ld, uint32_t action, float clip_p = 0.f)
+void gen_cs_label(cb_to_cs& c, VW980::example& ec, VW980::cs_label& cs_ld, uint32_t action, float clip_p = 0.f)
 {
-  VW::cs_class wc = {0., action, 0., 0.};
+  VW980::cs_class wc = {0., action, 0., 0.};
 
   // get cost prediction for this action
-  wc.x = VW::get_cost_pred<is_learn>(c.scorer, c.known_cost, ec, action, c.num_actions);
+  wc.x = VW980::get_cost_pred<is_learn>(c.scorer, c.known_cost, ec, action, c.num_actions);
 
   c.pred_scores.costs.push_back(wc);
   // add correction if we observed cost for this action and regressor is wrong
@@ -151,7 +151,7 @@ void gen_cs_label(cb_to_cs& c, VW::example& ec, VW::cs_label& cs_ld, uint32_t ac
 
 template <bool is_learn>
 void gen_cs_example_dr(
-    cb_to_cs& c, VW::example& ec, const VW::cb_label& ld, VW::cs_label& cs_ld, float /*clip_p*/ = 0.f)
+    cb_to_cs& c, VW980::example& ec, const VW980::cb_label& ld, VW980::cs_label& cs_ld, float /*clip_p*/ = 0.f)
 {
   // this implements the doubly robust method
   VW_DBG(ec) << "gen_cs_example_dr:" << is_learn << std::endl;
@@ -161,7 +161,7 @@ void gen_cs_example_dr(
   {  // a test example
     for (uint32_t i = 1; i <= c.num_actions; i++)
     {  // Explicit declaration for a weak compiler.
-      VW::cs_class temp = {FLT_MAX, i, 0., 0.};
+      VW980::cs_class temp = {FLT_MAX, i, 0., 0.};
       cs_ld.costs.push_back(temp);
     }
   }
@@ -179,38 +179,38 @@ void gen_cs_example_dr(
 }
 
 template <bool is_learn>
-void gen_cs_example(cb_to_cs& c, VW::example& ec, const VW::cb_label& ld, VW::cs_label& cs_ld, VW::io::logger& logger)
+void gen_cs_example(cb_to_cs& c, VW980::example& ec, const VW980::cb_label& ld, VW980::cs_label& cs_ld, VW980::io::logger& logger)
 {
   switch (c.cb_type)
   {
-    case VW::cb_type_t::IPS:
+    case VW980::cb_type_t::IPS:
       gen_cs_example_ips(c, ld, cs_ld, logger);
       break;
-    case VW::cb_type_t::DM:
+    case VW980::cb_type_t::DM:
       gen_cs_example_dm<is_learn>(c, ec, ld, cs_ld);
       break;
-    case VW::cb_type_t::DR:
+    case VW980::cb_type_t::DR:
       gen_cs_example_dr<is_learn>(c, ec, ld, cs_ld);
       break;
     default:
-      THROW("Unknown cb_type specified for contextual bandit learning: " << VW::to_string(c.cb_type));
+      THROW("Unknown cb_type specified for contextual bandit learning: " << VW980::to_string(c.cb_type));
   }
 }
 
-void gen_cs_test_example(const VW::multi_ex& examples, VW::cs_label& cs_labels);
+void gen_cs_test_example(const VW980::multi_ex& examples, VW980::cs_label& cs_labels);
 
 void gen_cs_example_ips(
-    const VW::multi_ex& examples, VW::cs_label& cs_labels, VW::io::logger& logger, float clip_p = 0.f);
+    const VW980::multi_ex& examples, VW980::cs_label& cs_labels, VW980::io::logger& logger, float clip_p = 0.f);
 
-void gen_cs_example_dm(const VW::multi_ex& examples, VW::cs_label& cs_labels);
+void gen_cs_example_dm(const VW980::multi_ex& examples, VW980::cs_label& cs_labels);
 
-void gen_cs_example_mtr(cb_to_cs_adf& c, VW::multi_ex& ec_seq, VW::cs_label& cs_labels, uint64_t offset_index);
+void gen_cs_example_mtr(cb_to_cs_adf& c, VW980::multi_ex& ec_seq, VW980::cs_label& cs_labels, uint64_t offset_index);
 
-void gen_cs_example_sm(VW::multi_ex& examples, uint32_t chosen_action, float sign_offset,
-    const VW::action_scores& action_vals, VW::cs_label& cs_labels);
+void gen_cs_example_sm(VW980::multi_ex& examples, uint32_t chosen_action, float sign_offset,
+    const VW980::action_scores& action_vals, VW980::cs_label& cs_labels);
 
 template <bool is_learn>
-void gen_cs_example_dr(cb_to_cs_adf& c, VW::multi_ex& examples, VW::cs_label& cs_labels, float clip_p = 0.f)
+void gen_cs_example_dr(cb_to_cs_adf& c, VW980::multi_ex& examples, VW980::cs_label& cs_labels, float clip_p = 0.f)
 {  // size_t mysize = examples.size();
   VW_DBG(*examples[0]) << "gen_cs_example_dr-adf:" << is_learn << std::endl;
   c.pred_scores.costs.clear();
@@ -218,9 +218,9 @@ void gen_cs_example_dr(cb_to_cs_adf& c, VW::multi_ex& examples, VW::cs_label& cs
   cs_labels.costs.clear();
   for (size_t i = 0; i < examples.size(); i++)
   {
-    if (VW::example_is_newline_not_header_cb(*examples[i])) { continue; }
+    if (VW980::example_is_newline_not_header_cb(*examples[i])) { continue; }
 
-    VW::cs_class wc = {0., static_cast<uint32_t>(i), 0., 0.};
+    VW980::cs_class wc = {0., static_cast<uint32_t>(i), 0., 0.};
 
     if (c.known_cost.action == i)
     {
@@ -229,10 +229,10 @@ void gen_cs_example_dr(cb_to_cs_adf& c, VW::multi_ex& examples, VW::cs_label& cs
       // get cost prediction for this label
       // num_actions should be 1 effectively.
       // my get_cost_pred function will use 1 for 'index-1+base'
-      wc.x = VW::get_cost_pred<is_learn>(c.scorer, c.known_cost, *(examples[i]), 0, 2);
+      wc.x = VW980::get_cost_pred<is_learn>(c.scorer, c.known_cost, *(examples[i]), 0, 2);
       c.known_cost.action = known_index;
     }
-    else { wc.x = VW::get_cost_pred<is_learn>(c.scorer, VW::cb_class{}, *(examples[i]), 0, 2); }
+    else { wc.x = VW980::get_cost_pred<is_learn>(c.scorer, VW980::cb_class{}, *(examples[i]), 0, 2); }
 
     c.pred_scores.costs.push_back(wc);  // done
 
@@ -247,31 +247,31 @@ void gen_cs_example_dr(cb_to_cs_adf& c, VW::multi_ex& examples, VW::cs_label& cs
 
 template <bool is_learn>
 void gen_cs_example(
-    cb_to_cs_adf& c, VW::multi_ex& ec_seq, VW::cs_label& cs_labels, VW::io::logger& logger, uint64_t offset_index)
+    cb_to_cs_adf& c, VW980::multi_ex& ec_seq, VW980::cs_label& cs_labels, VW980::io::logger& logger, uint64_t offset_index)
 {
   VW_DBG(*ec_seq[0]) << "gen_cs_example:" << is_learn << std::endl;
   switch (c.cb_type)
   {
-    case VW::cb_type_t::IPS:
+    case VW980::cb_type_t::IPS:
       gen_cs_example_ips(ec_seq, cs_labels, logger);
       break;
-    case VW::cb_type_t::DR:
+    case VW980::cb_type_t::DR:
       gen_cs_example_dr<is_learn>(c, ec_seq, cs_labels);
       break;
-    case VW::cb_type_t::MTR:
+    case VW980::cb_type_t::MTR:
       gen_cs_example_mtr(c, ec_seq, cs_labels, offset_index);
       break;
     default:
-      THROW("Unknown cb_type specified for contextual bandit learning: " << VW::to_string(c.cb_type));
+      THROW("Unknown cb_type specified for contextual bandit learning: " << VW980::to_string(c.cb_type));
   }
 }
 
-void cs_prep_labels(VW::multi_ex& examples, std::vector<VW::cb_label>& cb_labels, VW::cs_label& cs_labels,
-    std::vector<VW::cs_label>& prepped_cs_labels, uint64_t offset);
+void cs_prep_labels(VW980::multi_ex& examples, std::vector<VW980::cb_label>& cb_labels, VW980::cs_label& cs_labels,
+    std::vector<VW980::cs_label>& prepped_cs_labels, uint64_t offset);
 
 template <bool is_learn>
-void cs_ldf_learn_or_predict(VW::LEARNER::learner& base, VW::multi_ex& examples, std::vector<VW::cb_label>& cb_labels,
-    VW::cs_label& cs_labels, std::vector<VW::cs_label>& prepped_cs_labels, bool predict_first, uint64_t offset,
+void cs_ldf_learn_or_predict(VW980::LEARNER::learner& base, VW980::multi_ex& examples, std::vector<VW980::cb_label>& cb_labels,
+    VW980::cs_label& cs_labels, std::vector<VW980::cs_label>& prepped_cs_labels, bool predict_first, uint64_t offset,
     size_t id = 0)
 {
   VW_DBG(*examples[0]) << "cs_ldf_" << (is_learn ? "<learn>" : "<predict>") << ": ex=" << examples[0]->example_counter
@@ -284,7 +284,7 @@ void cs_ldf_learn_or_predict(VW::LEARNER::learner& base, VW::multi_ex& examples,
   uint64_t saved_offset = examples[0]->ft_offset;
 
   // Guard example state restore against throws
-  auto restore_guard = VW::scope_exit(
+  auto restore_guard = VW980::scope_exit(
       [&cb_labels, &prepped_cs_labels, saved_offset, &examples]
       {
         // 3rd: restore cb_label for each example
@@ -308,4 +308,4 @@ void cs_ldf_learn_or_predict(VW::LEARNER::learner& base, VW::multi_ex& examples,
 }
 
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980

@@ -13,8 +13,8 @@
 
 #include <utility>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 #undef VW_DEBUG_LOG
 #define VW_DEBUG_LOG vw_dbg::CSOAA
@@ -26,16 +26,16 @@ class csoaa
 public:
   uint32_t num_classes = 0;
   bool search = false;
-  VW::polyprediction* pred = nullptr;
-  VW::io::logger logger;
+  VW980::polyprediction* pred = nullptr;
+  VW980::io::logger logger;
   // Default value of 2 follows behavior of 1-indexing and can change to 0-indexing if detected
   uint32_t& indexing;  // for 0 or 1 indexing
-  csoaa(VW::io::logger logger, uint32_t& indexing) : logger(std::move(logger)), indexing(indexing) {}
+  csoaa(VW980::io::logger logger, uint32_t& indexing) : logger(std::move(logger)), indexing(indexing) {}
   ~csoaa() { free(pred); }
 };
 
 template <bool is_learn>
-inline void inner_loop(learner& base, VW::example& ec, uint32_t i, float cost, uint32_t& prediction, float& score,
+inline void inner_loop(learner& base, VW980::example& ec, uint32_t i, float cost, uint32_t& prediction, float& score,
     float& partial_prediction, uint32_t& indexing)
 {
   if (is_learn)
@@ -63,7 +63,7 @@ inline void inner_loop(learner& base, VW::example& ec, uint32_t i, float cost, u
 #define DO_MULTIPREDICT true
 
 template <bool is_learn>
-void predict_or_learn(csoaa& c, learner& base, VW::example& ec)
+void predict_or_learn(csoaa& c, learner& base, VW980::example& ec)
 {
   if (!c.search)
   {
@@ -97,16 +97,16 @@ void predict_or_learn(csoaa& c, learner& base, VW::example& ec)
     }
   }
 
-  VW::cs_label ld = std::move(ec.l.cs);
+  VW980::cs_label ld = std::move(ec.l.cs);
 
-  // Guard VW::example state restore against throws
-  auto restore_guard = VW::scope_exit([&ld, &ec] { ec.l.cs = std::move(ld); });
+  // Guard VW980::example state restore against throws
+  auto restore_guard = VW980::scope_exit([&ld, &ec] { ec.l.cs = std::move(ld); });
 
   uint32_t prediction = (c.indexing == 0) ? 0 : 1;
   float score = FLT_MAX;
   size_t pt_start = ec.passthrough ? ec.passthrough->size() : 0;
   ec.l.simple = {0.};
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
 
   bool dont_learn = DO_MULTIPREDICT && !is_learn;
 
@@ -121,7 +121,7 @@ void predict_or_learn(csoaa& c, learner& base, VW::example& ec)
   else if (dont_learn)
   {
     ec.l.simple = {FLT_MAX};
-    ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+    ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
 
     base.multipredict(ec, 0, c.num_classes, c.pred, false);
     if (c.indexing == 0)
@@ -168,21 +168,21 @@ void predict_or_learn(csoaa& c, learner& base, VW::example& ec)
     if (second_best_cost < FLT_MAX)
     {
       float margin = second_best_cost - ec.partial_prediction;
-      VW_ADD_PASSTHROUGH_FEATURE(ec, VW::details::CONSTANT * 2, margin);
-      VW_ADD_PASSTHROUGH_FEATURE(ec, VW::details::CONSTANT * 2 + 1 + second_best, 1.);
+      VW_ADD_PASSTHROUGH_FEATURE(ec, VW980::details::CONSTANT * 2, margin);
+      VW_ADD_PASSTHROUGH_FEATURE(ec, VW980::details::CONSTANT * 2 + 1 + second_best, 1.);
     }
-    else { VW_ADD_PASSTHROUGH_FEATURE(ec, VW::details::CONSTANT * 3, 1.); }
+    else { VW_ADD_PASSTHROUGH_FEATURE(ec, VW980::details::CONSTANT * 3, 1.); }
   }
 
   ec.pred.multiclass = prediction;
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::csoaa_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::csoaa_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto c = VW::make_unique<csoaa>(all.logger, all.indexing);
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto c = VW980::make_unique<csoaa>(all.logger, all.indexing);
   option_group_definition new_options("[Reduction] Cost Sensitive One Against All");
   new_options
       .add(make_option("csoaa", c->num_classes).keep().necessary().help("One-against-all multiclass with <k> costs"))
@@ -196,20 +196,20 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::csoaa_setup(VW::setup_base
   }
   c->search = options.was_supplied("search");
 
-  c->pred = VW::details::calloc_or_throw<VW::polyprediction>(c->num_classes);
+  c->pred = VW980::details::calloc_or_throw<VW980::polyprediction>(c->num_classes);
   size_t feature_width = c->num_classes;
   auto l = make_reduction_learner(std::move(c), require_singleline(stack_builder.setup_base_learner(feature_width)),
       predict_or_learn<true>, predict_or_learn<false>, stack_builder.get_setupfn_name(csoaa_setup))
                .set_learn_returns_prediction(
                    true) /* csoaa.learn calls gd.learn. nothing to be gained by calling csoaa.predict first */
                .set_feature_width(feature_width)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
-               .set_output_prediction_type(VW::prediction_type_t::MULTICLASS)
-               .set_input_label_type(VW::label_type_t::CS)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
-               .set_update_stats(VW::details::update_stats_cs_label<csoaa>)
-               .set_output_example_prediction(VW::details::output_example_prediction_cs_label<csoaa>)
-               .set_print_update(VW::details::print_update_cs_label<csoaa>)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
+               .set_output_prediction_type(VW980::prediction_type_t::MULTICLASS)
+               .set_input_label_type(VW980::label_type_t::CS)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
+               .set_update_stats(VW980::details::update_stats_cs_label<csoaa>)
+               .set_output_example_prediction(VW980::details::output_example_prediction_cs_label<csoaa>)
+               .set_print_update(VW980::details::print_update_cs_label<csoaa>)
                .build();
   return l;
 }

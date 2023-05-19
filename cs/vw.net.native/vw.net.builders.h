@@ -18,7 +18,7 @@ struct builder_context
 
 extern "C"
 {
-  API int SetupExample(vw_net_native::workspace_context* vw, example* ex, VW::experimental::api_status* status);
+  API int SetupExample(vw_net_native::workspace_context* vw, example* ex, VW980::experimental::api_status* status);
 
   API vw_net_native::builder_context* CreateBuilder(
       vw_net_native::workspace_context* vw, example* ex, unsigned char feature_group);

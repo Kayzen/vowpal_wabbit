@@ -29,7 +29,7 @@ struct io_reader_vtable
   bool is_resettable;
 };
 
-class stream_io_writer : public VW::io::writer
+class stream_io_writer : public VW980::io::writer
 {
 private:
   io_writer_vtable vtable;
@@ -42,7 +42,7 @@ public:
   void flush() override;
 };
 
-class stream_io_reader : public VW::io::reader
+class stream_io_reader : public VW980::io::reader
 {
 private:
   io_reader_vtable vtable;

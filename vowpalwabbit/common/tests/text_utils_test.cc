@@ -9,18 +9,18 @@
 
 TEST(WrapText, WrapText)
 {
-  auto result = VW::wrap_text("test", 10);
+  auto result = VW980::wrap_text("test", 10);
   auto expected = R"(test)";
   EXPECT_EQ(expected, result);
 
-  result = VW::wrap_text("test another word with", 1);
+  result = VW980::wrap_text("test another word with", 1);
   expected = R"(test
 another
 word
 with)";
   EXPECT_EQ(expected, result);
 
-  result = VW::wrap_text(
+  result = VW980::wrap_text(
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer non neque massa. In placerat ligula placerat "
       "ullamcorper egestas.",
       25);

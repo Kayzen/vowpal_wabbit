@@ -7,7 +7,7 @@
 #include "vw/core/array_parameters_dense.h"
 #include "vw/core/array_parameters_sparse.h"
 
-namespace VW
+namespace VW980
 {
 class parameters
 {
@@ -19,7 +19,7 @@ public:
   dense_parameters dense_weights;
   sparse_parameters sparse_weights;
 
-  inline VW::weight& operator[](size_t i)
+  inline VW980::weight& operator[](size_t i)
   {
     if (sparse) { return sparse_weights[i]; }
     else { return dense_weights[i]; }
@@ -53,7 +53,7 @@ public:
   inline void shallow_copy(const parameters& input)
   {
     if (sparse) { sparse_weights.shallow_copy(input.sparse_weights); }
-    else { dense_weights = VW::dense_parameters::shallow_copy(input.dense_weights); }
+    else { dense_weights = VW980::dense_parameters::shallow_copy(input.dense_weights); }
   }
 
   inline void set_zero(size_t offset)
@@ -77,7 +77,7 @@ public:
     else { dense_weights.stride_shift(stride_shift); }
   }
 
-  inline VW::weight& strided_index(size_t index)
+  inline VW980::weight& strided_index(size_t index)
   {
     if (sparse) { return sparse_weights.strided_index(index); }
     else { return dense_weights.strided_index(index); }
@@ -89,6 +89,6 @@ public:
     else { return dense_weights.not_null(); }
   }
 };
-}  // namespace VW
+}  // namespace VW980
 
-using parameters VW_DEPRECATED("parameters moved into VW namespace") = VW::parameters;
+using parameters VW_DEPRECATED("parameters moved into VW namespace") = VW980::parameters;

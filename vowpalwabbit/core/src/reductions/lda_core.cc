@@ -46,8 +46,8 @@ VW_WARNING_STATE_POP
 #include <queue>
 #include <vector>
 
-using namespace VW::config;
-using namespace VW::LEARNER;
+using namespace VW980::config;
+using namespace VW980::LEARNER;
 
 namespace
 {
@@ -62,7 +62,7 @@ class index_feature
 {
 public:
   uint32_t document;
-  VW::feature f;
+  VW980::feature f;
   bool operator<(const index_feature b) const { return f.weight_index < b.f.weight_index; }
 };
 
@@ -77,18 +77,18 @@ public:
   size_t minibatch = 0;
   lda_math_mode mmode;
 
-  VW::v_array<float> Elogtheta;  // NOLINT
-  VW::v_array<float> decay_levels;
-  VW::v_array<float> total_new;
-  VW::v_array<float> total_lambda;
-  VW::v_array<int> doc_lengths;
-  VW::v_array<float> digammas;
-  VW::v_array<float> v;
+  VW980::v_array<float> Elogtheta;  // NOLINT
+  VW980::v_array<float> decay_levels;
+  VW980::v_array<float> total_new;
+  VW980::v_array<float> total_lambda;
+  VW980::v_array<int> doc_lengths;
+  VW980::v_array<float> digammas;
+  VW980::v_array<float> v;
   std::vector<index_feature> sorted_features;
 
-  std::vector<VW::example*> batch_buffer;
+  std::vector<VW980::example*> batch_buffer;
   // If the epoch size is greater than 1, the examples in the batch need to be saved somewhere.
-  std::vector<std::unique_ptr<VW::example>> saved_batch_examples;
+  std::vector<std::unique_ptr<VW980::example>> saved_batch_examples;
 
   bool compute_coherence_metrics = false;
 
@@ -99,14 +99,14 @@ public:
   bool total_lambda_init = false;
 
   double example_t;
-  VW::workspace* all = nullptr;  // regressor, lda
+  VW980::workspace* all = nullptr;  // regressor, lda
 
   static constexpr float UNDERFLOW_THRESHOLD = 1.0e-10f;
   inline float digamma(float x);
   inline float lgamma(float x);
   inline float powf(float x, float p);
-  inline void expdigammify(VW::workspace& all, float* gamma);
-  inline void expdigammify_2(VW::workspace& all, float* gamma, float* norm);
+  inline void expdigammify(VW980::workspace& all, float* gamma);
+  inline void expdigammify_2(VW980::workspace& all, float* gamma, float* norm);
 };
 
 // #define VW_NO_INLINE_SIMD
@@ -305,7 +305,7 @@ inline v4sf vfastdigamma(v4sf x)
       logterm;
 }
 
-void vexpdigammify(VW::workspace& all, float* gamma, const float underflow_threshold)
+void vexpdigammify(VW980::workspace& all, float* gamma, const float underflow_threshold)
 {
   float extra_sum = 0.0f;
   v4sf sum = v4sfl(0.0f);
@@ -364,7 +364,7 @@ void vexpdigammify(VW::workspace& all, float* gamma, const float underflow_thres
   for (; fp < fpend; ++fp) { *fp = std::fmax(underflow_threshold, fastexp(*fp - extra_sum)); }
 }
 
-void vexpdigammify_2(VW::workspace& all, float* gamma, const float* norm, const float underflow_threshold)
+void vexpdigammify_2(VW980::workspace& all, float* gamma, const float* norm, const float underflow_threshold)
 {
   float* fp = gamma;
   const float* np;
@@ -450,7 +450,7 @@ inline float digamma<float, lda_math_mode::USE_PRECISE>(float x)
 template <>
 inline float exponential<float, lda_math_mode::USE_PRECISE>(float x)
 {
-  return VW::details::correctedExp(x);
+  return VW980::details::correctedExp(x);
 }
 template <>
 inline float powf<float, lda_math_mode::USE_PRECISE>(float x, float p)
@@ -508,7 +508,7 @@ inline float powf<float, lda_math_mode::USE_SIMD>(float x, float p)
 }
 
 template <typename T, const lda_math_mode mtype>
-inline void expdigammify(VW::workspace& all, T* gamma, T threshold, T initial)
+inline void expdigammify(VW980::workspace& all, T* gamma, T threshold, T initial)
 {
   T sum = digamma<T, mtype>(std::accumulate(gamma, gamma + all.lda, initial));
 
@@ -516,7 +516,7 @@ inline void expdigammify(VW::workspace& all, T* gamma, T threshold, T initial)
       [sum, threshold](T g) { return std::fmax(threshold, exponential<T, mtype>(digamma<T, mtype>(g) - sum)); });
 }
 template <>
-inline void expdigammify<float, lda_math_mode::USE_SIMD>(VW::workspace& all, float* gamma, float threshold, float)
+inline void expdigammify<float, lda_math_mode::USE_SIMD>(VW980::workspace& all, float* gamma, float threshold, float)
 {
 #if defined(HAVE_SIMD_MATHMODE)
   vexpdigammify(all, gamma, threshold);
@@ -527,14 +527,14 @@ inline void expdigammify<float, lda_math_mode::USE_SIMD>(VW::workspace& all, flo
 }
 
 template <typename T, const lda_math_mode mtype>
-inline void expdigammify_2(VW::workspace& all, float* gamma, T* norm, const T threshold)
+inline void expdigammify_2(VW980::workspace& all, float* gamma, T* norm, const T threshold)
 {
   std::transform(gamma, gamma + all.lda, norm, gamma,
       [threshold](float g, float n) { return std::fmax(threshold, exponential<T, mtype>(digamma<T, mtype>(g) - n)); });
 }
 template <>
 inline void expdigammify_2<float, lda_math_mode::USE_SIMD>(
-    VW::workspace& all, float* gamma, float* norm, const float threshold)
+    VW980::workspace& all, float* gamma, float* norm, const float threshold)
 {
 #if defined(HAVE_SIMD_MATHMODE)
   vexpdigammify_2(all, gamma, norm, threshold);
@@ -595,7 +595,7 @@ float lda::powf(float x, float p)
   }
 }
 
-void lda::expdigammify(VW::workspace& all_, float* gamma)
+void lda::expdigammify(VW980::workspace& all_, float* gamma)
 {
   switch (mmode)
   {
@@ -614,7 +614,7 @@ void lda::expdigammify(VW::workspace& all_, float* gamma)
   }
 }
 
-void lda::expdigammify_2(VW::workspace& all_, float* gamma, float* norm)
+void lda::expdigammify_2(VW980::workspace& all_, float* gamma, float* norm)
 {
   switch (mmode)
   {
@@ -633,7 +633,7 @@ void lda::expdigammify_2(VW::workspace& all_, float* gamma, float* norm)
   }
 }
 
-static inline float average_diff(VW::workspace& all, float* oldgamma, float* newgamma)
+static inline float average_diff(VW980::workspace& all, float* oldgamma, float* newgamma)
 {
   float sum;
   float normalizer;
@@ -650,7 +650,7 @@ static inline float average_diff(VW::workspace& all, float* oldgamma, float* new
 }
 
 // Returns E_q[log p(\theta)] - E_q[log q(\theta)].
-float theta_kl(lda& l, VW::v_array<float>& Elogtheta, float* gamma)
+float theta_kl(lda& l, VW980::v_array<float>& Elogtheta, float* gamma)
 {
   float gammasum = 0;
   Elogtheta.clear();
@@ -681,8 +681,8 @@ static inline float find_cw(lda& l, float* u_for_w, float* v)
 namespace
 {
 // Effectively, these are static and not visible outside the compilation unit.
-VW::v_array<float> new_gamma;
-VW::v_array<float> old_gamma;
+VW980::v_array<float> new_gamma;
+VW980::v_array<float> old_gamma;
 }  // namespace
 
 // Returns an estimate of the part of the variational bound that
@@ -690,7 +690,7 @@ VW::v_array<float> old_gamma;
 // setting of lambda based on the document passed in. The value is
 // divided by the total number of words in the document This can be
 // used as a (possibly very noisy) estimate of held-out likelihood.
-float lda_loop(lda& l, VW::v_array<float>& Elogtheta, float* v, VW::example* ec, float)
+float lda_loop(lda& l, VW980::v_array<float>& Elogtheta, float* v, VW980::example* ec, float)
 {
   parameters& weights = l.all->weights;
   new_gamma.clear();
@@ -714,9 +714,9 @@ float lda_loop(lda& l, VW::v_array<float>& Elogtheta, float* v, VW::example* ec,
 
     score = 0;
     doc_length = 0;
-    for (VW::features& fs : *ec)
+    for (VW980::features& fs : *ec)
     {
-      for (VW::features::iterator& f : fs)
+      for (VW980::features::iterator& f : fs)
       {
         float* u_for_w = &(weights[f.index()]) + l.topics + 1;
         float c_w = find_cw(l, u_for_w, v);
@@ -761,17 +761,17 @@ public:
   uint64_t stride;
 };
 
-void save_load(lda& l, VW::io_buf& model_file, bool read, bool text)
+void save_load(lda& l, VW980::io_buf& model_file, bool read, bool text)
 {
-  VW::workspace& all = *(l.all);
+  VW980::workspace& all = *(l.all);
   uint64_t length = static_cast<uint64_t>(1) << all.num_bits;
   if (read)
   {
-    VW::details::initialize_regressor(all);
+    VW980::details::initialize_regressor(all);
     initial_weights init{all.initial_t, static_cast<float>(l.lda_D / all.lda / all.length() * 200.f),
         all.random_weights, all.lda, all.weights.stride()};
 
-    auto initial_lda_weight_initializer = [init](VW::weight* weights, uint64_t index)
+    auto initial_lda_weight_initializer = [init](VW980::weight* weights, uint64_t index)
     {
       uint32_t lda = init.lda;
       weight initial_random = init.initial_random;
@@ -779,7 +779,7 @@ void save_load(lda& l, VW::io_buf& model_file, bool read, bool text)
       {
         for (size_t i = 0; i != lda; ++i, ++index)
         {
-          weights[i] = static_cast<float>(-std::log(VW::details::merand48(index) + 1e-6) + 1.0f) * initial_random;
+          weights[i] = static_cast<float>(-std::log(VW980::details::merand48(index) + 1e-6) + 1.0f) * initial_random;
         }
       }
       weights[lda] = init.initial;
@@ -798,35 +798,35 @@ void save_load(lda& l, VW::io_buf& model_file, bool read, bool text)
       size_t K = all.lda;  // NOLINT
       if (!read && text) { msg << i << " "; }
 
-      if (!read || all.model_file_ver >= VW::version_definitions::VERSION_FILE_WITH_HEADER_ID)
+      if (!read || all.model_file_ver >= VW980::version_definitions::VERSION_FILE_WITH_HEADER_ID)
       {
         brw +=
-            VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&i), sizeof(i), read, msg, text);
+            VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&i), sizeof(i), read, msg, text);
       }
       else
       {
         // support 32bit build models
         uint32_t j;
         brw +=
-            VW::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&j), sizeof(j), read, msg, text);
+            VW980::details::bin_text_read_write_fixed(model_file, reinterpret_cast<char*>(&j), sizeof(j), read, msg, text);
         i = j;
       }
 
       if (brw != 0)
       {
-        VW::weight* w = &(all.weights.strided_index(i));
+        VW980::weight* w = &(all.weights.strided_index(i));
         for (uint64_t k = 0; k < K; k++)
         {
-          VW::weight* v = w + k;
+          VW980::weight* v = w + k;
           if (!read && text) { msg << *v + l.lda_rho << " "; }
-          brw += VW::details::bin_text_read_write_fixed(
+          brw += VW980::details::bin_text_read_write_fixed(
               model_file, reinterpret_cast<char*>(v), sizeof(*v), read, msg, text);
         }
       }
       if (text)
       {
         if (!read) { msg << "\n"; }
-        brw += VW::details::bin_text_read_write_fixed(model_file, nullptr, 0, read, msg, text);
+        brw += VW980::details::bin_text_read_write_fixed(model_file, nullptr, 0, read, msg, text);
       }
       if (!read) { ++i; }
     } while ((!read && i < length) || (read && brw > 0));
@@ -857,7 +857,7 @@ void learn_batch(lda& l, std::vector<example*>& batch)
     size_t stride = weights.stride();
     for (size_t i = 0; i <= weights.mask(); i += stride)
     {
-      VW::weight* w = &(weights[i]);
+      VW980::weight* w = &(weights[i]);
       for (size_t k = 0; k < l.all->lda; k++) { l.total_lambda[k] += w[k]; }
     }
   }
@@ -888,7 +888,7 @@ void learn_batch(lda& l, std::vector<example*>& batch)
     float* weights_for_w = &(weights[s->f.weight_index & weights.mask()]);
     float decay_component = l.decay_levels.end()[-2] -
         l.decay_levels.end()[static_cast<int>(-1 - l.example_t + *(weights_for_w + l.all->lda))];
-    float decay = std::fmin(1.0f, VW::details::correctedExp(decay_component));
+    float decay = std::fmin(1.0f, VW980::details::correctedExp(decay_component));
     float* u_for_w = weights_for_w + l.all->lda + 1;
 
     *(weights_for_w + l.all->lda) = static_cast<float>(l.example_t);
@@ -904,7 +904,7 @@ void learn_batch(lda& l, std::vector<example*>& batch)
   for (size_t d = 0; d < batch_size; d++)
   {
     float score = lda_loop(l, l.Elogtheta, &(l.v[d * l.all->lda]), batch[d], l.all->power_t);
-    if (l.all->audit) { VW::details::print_audit_features(*l.all, *batch[d]); }
+    if (l.all->audit) { VW980::details::print_audit_features(*l.all, *batch[d]); }
     // If the doc is empty, give it loss of 0.
     if (l.doc_lengths[d] > 0)
     {
@@ -953,12 +953,12 @@ void learn_batch(lda& l, std::vector<example*>& batch)
   l.doc_lengths.clear();
 }
 
-void learn(lda& l, VW::example& ec)
+void learn(lda& l, VW980::example& ec)
 {
   // Test if there was a completed batch that now needs to be cleared before we start the next one.
   if (l.batch_buffer.size() == l.minibatch) { l.batch_buffer.clear(); }
 
-  VW::example* next_in_batch = nullptr;
+  VW980::example* next_in_batch = nullptr;
   // If the size is 1, we can just use the example directly.
   if (l.minibatch == 1) { next_in_batch = &ec; }
   else
@@ -966,7 +966,7 @@ void learn(lda& l, VW::example& ec)
     // If the batch size is greater than 1, we must make a copy of the example as its lifetime doesn't go beyond this
     // function.
     next_in_batch = l.saved_batch_examples[l.batch_buffer.size()].get();
-    VW::copy_example_data_with_label(next_in_batch, &ec);
+    VW980::copy_example_data_with_label(next_in_batch, &ec);
   }
   assert(next_in_batch != nullptr);
   l.batch_buffer.push_back(next_in_batch);
@@ -977,7 +977,7 @@ void learn(lda& l, VW::example& ec)
   {
     for (const auto& f : fs)
     {
-      index_feature temp = {new_example_batch_index, VW::feature(f.value(), f.index())};
+      index_feature temp = {new_example_batch_index, VW980::feature(f.value(), f.index())};
       l.sorted_features.push_back(temp);
       l.doc_lengths[new_example_batch_index] += static_cast<int>(f.value());
     }
@@ -985,7 +985,7 @@ void learn(lda& l, VW::example& ec)
   if ((new_example_batch_index + 1) == l.minibatch) { learn_batch(l, l.batch_buffer); }
 }
 
-void learn_with_metrics(lda& l, VW::example& ec)
+void learn_with_metrics(lda& l, VW980::example& ec)
 {
   if (l.all->passes_complete == 0)
   {
@@ -993,9 +993,9 @@ void learn_with_metrics(lda& l, VW::example& ec)
     uint64_t stride_shift = l.all->weights.stride_shift();
     uint64_t weight_mask = l.all->weights.mask();
 
-    for (VW::features& fs : ec)
+    for (VW980::features& fs : ec)
     {
-      for (VW::features::iterator& f : fs)
+      for (VW980::features::iterator& f : fs)
       {
         uint64_t idx = (f.index() & weight_mask) >> stride_shift;
         l.feature_counts[idx] += static_cast<uint32_t>(f.value());
@@ -1008,8 +1008,8 @@ void learn_with_metrics(lda& l, VW::example& ec)
 }
 
 // placeholder
-void predict(lda& l, VW::example& ec) { learn(l, ec); }
-void predict_with_metrics(lda& l, VW::example& ec) { learn_with_metrics(l, ec); }
+void predict(lda& l, VW980::example& ec) { learn(l, ec); }
+void predict_with_metrics(lda& l, VW980::example& ec) { learn_with_metrics(l, ec); }
 
 class word_doc_frequency
 {
@@ -1033,13 +1033,13 @@ public:
 };
 
 template <class T>
-void get_top_weights(VW::workspace* all, int top_words_count, int topic, std::vector<VW::feature>& output, T& weights)
+void get_top_weights(VW980::workspace* all, int top_words_count, int topic, std::vector<VW980::feature>& output, T& weights)
 {
   uint64_t length = static_cast<uint64_t>(1) << all->num_bits;
 
   // get top features for this topic
-  auto cmp = [](VW::feature left, VW::feature right) { return left.x > right.x; };
-  std::priority_queue<VW::feature, std::vector<VW::feature>, decltype(cmp)> top_features(cmp);
+  auto cmp = [](VW980::feature left, VW980::feature right) { return left.x > right.x; };
+  std::priority_queue<VW980::feature, std::vector<VW980::feature>, decltype(cmp)> top_features(cmp);
   typename T::iterator iter = weights.begin();
 
   for (uint64_t i = 0; i < std::min(static_cast<uint64_t>(top_words_count), length); i++, ++iter)
@@ -1079,12 +1079,12 @@ void compute_coherence_metrics(lda& l, T& weights)
   for (size_t topic = 0; topic < l.topics; topic++)
   {
     // get top features for this topic
-    auto cmp = [](VW::feature& left, VW::feature& right) { return left.x > right.x; };
-    std::priority_queue<VW::feature, std::vector<VW::feature>, decltype(cmp)> top_features(cmp);
+    auto cmp = [](VW980::feature& left, VW980::feature& right) { return left.x > right.x; };
+    std::priority_queue<VW980::feature, std::vector<VW980::feature>, decltype(cmp)> top_features(cmp);
     typename T::iterator iter = weights.begin();
     for (uint64_t i = 0; i < std::min(static_cast<uint64_t>(top_words_count), length); i++, ++iter)
     {
-      top_features.push(VW::feature((&(*iter))[topic], iter.index()));
+      top_features.push(VW980::feature((&(*iter))[topic], iter.index()));
     }
 
     for (typename T::iterator v = weights.begin(); v != weights.end(); ++v)
@@ -1092,7 +1092,7 @@ void compute_coherence_metrics(lda& l, T& weights)
       if ((&(*v))[topic] > top_features.top().x)
       {
         top_features.pop();
-        top_features.push(VW::feature((&(*v))[topic], v.index()));
+        top_features.push(VW980::feature((&(*v))[topic], v.index()));
       }
     }
 
@@ -1226,9 +1226,9 @@ void end_examples(lda& l, T& weights)
   {
     float decay_component =
         l.decay_levels.back() - l.decay_levels.end()[(int)(-1 - l.example_t + (&(*iter))[l.all->lda])];
-    float decay = std::fmin(1.f, VW::details::correctedExp(decay_component));
+    float decay = std::fmin(1.f, VW980::details::correctedExp(decay_component));
 
-    VW::weight* wp = &(*iter);
+    VW980::weight* wp = &(*iter);
     for (size_t i = 0; i < l.all->lda; ++i) { wp[i] *= decay; }
   }
 }
@@ -1239,8 +1239,8 @@ void end_examples(lda& l)
   else { end_examples(l, l.all->weights.dense_weights); }
 }
 
-void update_stats_lda(const VW::workspace& /* all */, VW::shared_data& sd, const lda& data,
-    const VW::example& /* unused_example */, VW::io::logger& /* logger */)
+void update_stats_lda(const VW980::workspace& /* all */, VW980::shared_data& sd, const lda& data,
+    const VW980::example& /* unused_example */, VW980::io::logger& /* logger */)
 {
   if (data.minibatch == data.batch_buffer.size())
   {
@@ -1249,7 +1249,7 @@ void update_stats_lda(const VW::workspace& /* all */, VW::shared_data& sd, const
 }
 
 void output_example_prediction_lda(
-    VW::workspace& all, const lda& data, const VW::example& /* unused_example */, VW::io::logger& logger)
+    VW980::workspace& all, const lda& data, const VW980::example& /* unused_example */, VW980::io::logger& logger)
 {
   if (data.minibatch == data.batch_buffer.size())
   {
@@ -1257,14 +1257,14 @@ void output_example_prediction_lda(
     {
       for (auto& sink : all.final_prediction_sink)
       {
-        VW::details::print_scalars(sink.get(), ex->pred.scalars, ex->tag, logger);
+        VW980::details::print_scalars(sink.get(), ex->pred.scalars, ex->tag, logger);
       }
     }
   }
 }
 
-void print_update_lda(VW::workspace& all, VW::shared_data& sd, const lda& data, const VW::example& /* unused_example */,
-    VW::io::logger& /* unused */)
+void print_update_lda(VW980::workspace& all, VW980::shared_data& sd, const lda& data, const VW980::example& /* unused_example */,
+    VW980::io::logger& /* unused */)
 {
   if (data.minibatch == data.batch_buffer.size())
   {
@@ -1277,19 +1277,19 @@ void print_update_lda(VW::workspace& all, VW::shared_data& sd, const lda& data, 
 }
 }  // namespace
 
-void VW::reductions::lda::get_top_weights(
-    VW::workspace* all, int top_words_count, int topic, std::vector<feature>& output)
+void VW980::reductions::lda::get_top_weights(
+    VW980::workspace* all, int top_words_count, int topic, std::vector<feature>& output)
 {
   if (all->weights.sparse) { ::get_top_weights(all, top_words_count, topic, output, all->weights.sparse_weights); }
   else { ::get_top_weights(all, top_words_count, topic, output, all->weights.dense_weights); }
 }
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::lda_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::lda_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
 
-  auto ld = VW::make_unique<::lda>();
+  auto ld = VW980::make_unique<::lda>();
   option_group_definition new_options("[Reduction] Latent Dirichlet Allocation");
   int64_t math_mode;
   uint64_t topics;
@@ -1316,8 +1316,8 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::lda_setup(VW::setup_base_i
 
   // Convert from int to corresponding enum value.
   ld->mmode = static_cast<lda_math_mode>(math_mode);
-  ld->topics = VW::cast_to_smaller_type<size_t>(topics);
-  ld->minibatch = VW::cast_to_smaller_type<size_t>(minibatch);
+  ld->topics = VW980::cast_to_smaller_type<size_t>(topics);
+  ld->minibatch = VW980::cast_to_smaller_type<size_t>(minibatch);
 
   all.lda = static_cast<uint32_t>(ld->topics);
   ld->sorted_features = std::vector<index_feature>();
@@ -1326,8 +1326,8 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::lda_setup(VW::setup_base_i
   ld->example_t = all.initial_t;
   if (ld->compute_coherence_metrics)
   {
-    ld->feature_counts.resize(static_cast<uint32_t>(VW::details::UINT64_ONE << all.num_bits));
-    ld->feature_to_example_map.resize(static_cast<uint32_t>(VW::details::UINT64_ONE << all.num_bits));
+    ld->feature_counts.resize(static_cast<uint32_t>(VW980::details::UINT64_ONE << all.num_bits));
+    ld->feature_to_example_map.resize(static_cast<uint32_t>(VW980::details::UINT64_ONE << all.num_bits));
   }
 
   float temp = ceilf(logf(static_cast<float>(all.lda * 2 + 1)) / logf(2.f));
@@ -1346,7 +1346,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::lda_setup(VW::setup_base_i
   if (minibatch2 > all.example_parser->example_queue_limit)
   {
     bool previous_strict_parse = all.example_parser->strict_parse;
-    all.example_parser = VW::make_unique<VW::parser>(minibatch2, previous_strict_parse);
+    all.example_parser = VW980::make_unique<VW980::parser>(minibatch2, previous_strict_parse);
   }
 
   if (ld->minibatch > 1)
@@ -1354,7 +1354,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::lda_setup(VW::setup_base_i
     ld->saved_batch_examples.reserve(ld->minibatch);
     for (uint64_t i = 0; i < ld->minibatch; i++)
     {
-      ld->saved_batch_examples.emplace_back(VW::make_unique<VW::example>());
+      ld->saved_batch_examples.emplace_back(VW980::make_unique<VW980::example>());
     }
   }
 
@@ -1363,12 +1363,12 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::lda_setup(VW::setup_base_i
   ld->decay_levels.push_back(0.f);
 
   // If minibatch is > 1, then the predict function does not actually produce predictions.
-  const auto pred_type = ld->minibatch > 1 ? VW::prediction_type_t::NOPRED : VW::prediction_type_t::SCALARS;
+  const auto pred_type = ld->minibatch > 1 ? VW980::prediction_type_t::NOPRED : VW980::prediction_type_t::SCALARS;
 
   // FIXME: lda with batch size > 1 doesnt produce predictions.
   auto l = make_bottom_learner(std::move(ld), ld->compute_coherence_metrics ? learn_with_metrics : learn,
       ld->compute_coherence_metrics ? predict_with_metrics : predict, stack_builder.get_setupfn_name(lda_setup),
-      pred_type, VW::label_type_t::NOLABEL)
+      pred_type, VW980::label_type_t::NOLABEL)
                .set_learn_returns_prediction(true)
                .set_save_load(save_load)
                .set_end_examples(end_examples)

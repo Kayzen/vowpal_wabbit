@@ -15,12 +15,12 @@
 #include "vw/core/setup_base.h"
 
 // Aliases
-using VW::cb_continuous::continuous_label;
-using VW::cb_continuous::continuous_label_elm;
-using VW::config::make_option;
-using VW::config::option_group_definition;
-using VW::config::options_i;
-using VW::LEARNER::learner;
+using VW980::cb_continuous::continuous_label;
+using VW980::cb_continuous::continuous_label_elm;
+using VW980::config::make_option;
+using VW980::config::option_group_definition;
+using VW980::config::options_i;
+using VW980::LEARNER::learner;
 
 // Enable/Disable indented debug statements
 #undef VW_DEBUG_LOG
@@ -33,8 +33,8 @@ namespace
 class get_pmf
 {
 public:
-  int learn(VW::example& ec, VW::experimental::api_status* status);
-  int predict(VW::example& ec, VW::experimental::api_status* status);
+  int learn(VW980::example& ec, VW980::experimental::api_status* status);
+  int predict(VW980::example& ec, VW980::experimental::api_status* status);
 
   void init(learner* p_base, float epsilon);
 
@@ -43,18 +43,18 @@ private:
   float _epsilon = 0.f;
 };
 
-int get_pmf::learn(VW::example& ec, VW::experimental::api_status* /*unused*/)
+int get_pmf::learn(VW980::example& ec, VW980::experimental::api_status* /*unused*/)
 {
   _base->learn(ec);
-  return VW::experimental::error_code::success;
+  return VW980::experimental::error_code::success;
 }
 
-int get_pmf::predict(VW::example& ec, VW::experimental::api_status* /*unused*/)
+int get_pmf::predict(VW980::example& ec, VW980::experimental::api_status* /*unused*/)
 {
   uint32_t base_prediction;
 
   {  // predict & restore prediction
-    auto restore = VW::stash_guard(ec.pred);
+    auto restore = VW980::stash_guard(ec.pred);
     _base->predict(ec);
     base_prediction = ec.pred.multiclass - 1;
   }
@@ -63,7 +63,7 @@ int get_pmf::predict(VW::example& ec, VW::experimental::api_status* /*unused*/)
   ec.pred.a_s.clear();
   ec.pred.a_s.push_back({base_prediction, 1.0f});
 
-  return VW::experimental::error_code::success;
+  return VW980::experimental::error_code::success;
 }
 
 void get_pmf::init(learner* p_base, float epsilon)
@@ -74,13 +74,13 @@ void get_pmf::init(learner* p_base, float epsilon)
 
 // Free function to tie function pointers to reduction class methods
 template <bool is_learn>
-void predict_or_learn(get_pmf& reduction, learner& /*unused*/, VW::example& ec)
+void predict_or_learn(get_pmf& reduction, learner& /*unused*/, VW980::example& ec)
 {
-  VW::experimental::api_status status;
+  VW980::experimental::api_status status;
   if (is_learn) { reduction.learn(ec, &status); }
   else { reduction.predict(ec, &status); }
 
-  if (status.get_error_code() != VW::experimental::error_code::success)
+  if (status.get_error_code() != VW980::experimental::error_code::success)
   {
     VW_DBG(ec) << status.get_error_msg() << std::endl;
   }
@@ -91,7 +91,7 @@ void predict_or_learn(get_pmf& reduction, learner& /*unused*/, VW::example& ec)
 ////////////////////////////////////////////////////
 
 // Setup reduction in stack
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::get_pmf_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::get_pmf_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
   option_group_definition new_options("[Reduction] Continuous Actions: Convert to Pmf");
@@ -105,15 +105,15 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::get_pmf_setup(VW::setup_ba
   if (!options.add_parse_and_check_necessary(new_options)) { return nullptr; }
 
   auto p_base = stack_builder.setup_base_learner();
-  auto p_reduction = VW::make_unique<get_pmf>();
+  auto p_reduction = VW980::make_unique<get_pmf>();
   p_reduction->init(require_singleline(p_base).get(), epsilon);
 
   auto l = make_reduction_learner(std::move(p_reduction), require_singleline(p_base), predict_or_learn<true>,
       predict_or_learn<false>, stack_builder.get_setupfn_name(get_pmf_setup))
                .set_input_label_type(p_base->get_input_label_type())
                .set_output_label_type(p_base->get_input_label_type())
-               .set_input_prediction_type(VW::prediction_type_t::MULTICLASS)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_SCORES)
+               .set_input_prediction_type(VW980::prediction_type_t::MULTICLASS)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_SCORES)
                .build();
 
   return l;

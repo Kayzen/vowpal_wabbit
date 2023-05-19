@@ -12,7 +12,7 @@
 TEST(ErrNo, CheckStrerrCanRetrieveErrorMessage)
 {
   // EIO is just a randomly chosen error to test with.
-  auto message = VW::io::strerror_to_string(EIO);
+  auto message = VW980::io::strerror_to_string(EIO);
   // If the error message contains unknown, then the error retrieval failed and it returned a generic message.
   EXPECT_EQ(message.find("unknown"), std::string::npos);
 }

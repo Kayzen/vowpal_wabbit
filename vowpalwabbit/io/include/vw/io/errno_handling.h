@@ -9,18 +9,18 @@
 #include <sstream>
 #include <string>
 
-namespace VW
+namespace VW980
 {
 namespace io
 {
 std::string strerror_to_string(int error_number);
 }  // namespace io
-}  // namespace VW
+}  // namespace VW980
 
 #define THROWERRNO(args)                                        \
   {                                                             \
     std::ostringstream __msg;                                   \
     __msg << args;                                              \
-    __msg << ", errno = " << VW::io::strerror_to_string(errno); \
-    throw VW::vw_exception(VW_FILENAME, __LINE__, __msg.str()); \
+    __msg << ", errno = " << VW980::io::strerror_to_string(errno); \
+    throw VW980::vw_exception(VW_FILENAME, __LINE__, __msg.str()); \
   }

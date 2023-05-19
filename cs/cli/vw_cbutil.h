@@ -6,7 +6,7 @@
 
 #include "vw_clr.h"
 
-namespace VW
+namespace VW980
 {
 public ref class VowpalWabbitContextualBanditUtil abstract sealed
 {

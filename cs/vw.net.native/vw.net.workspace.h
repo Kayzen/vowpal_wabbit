@@ -14,7 +14,7 @@ namespace vw_net_native
 {
 struct workspace_context
 {
-  VW::workspace* vw;
+  VW980::workspace* vw;
 
   trace_message_t trace_listener;
   void* trace_listener_context;
@@ -40,22 +40,22 @@ extern "C"
 {
   API vw_net_native::workspace_context* CreateWorkspaceWithSeedVwModel(vw_net_native::workspace_context* seed,
       char* arguments, size_t arguments_size, trace_message_t trace_listener, void* trace_context,
-      VW::experimental::api_status* status);
+      VW980::experimental::api_status* status);
   API vw_net_native::workspace_context* CreateWorkspaceWithModelData(char* arguments, size_t arguments_size,
       vw_net_native::io_reader_vtable model_reader, trace_message_t trace_listener, void* trace_context,
-      VW::experimental::api_status* status);
+      VW980::experimental::api_status* status);
   API vw_net_native::workspace_context* CreateWorkspace(char* arguments, size_t arguments_size,
-      trace_message_t trace_listener, void* trace_context, VW::experimental::api_status* status);
+      trace_message_t trace_listener, void* trace_context, VW980::experimental::api_status* status);
   API vw_net_native::ERROR_CODE DeleteWorkspace(
-      vw_net_native::workspace_context* workspace, VW::experimental::api_status* status);
+      vw_net_native::workspace_context* workspace, VW980::experimental::api_status* status);
 
-  API VW::prediction_type_t WorkspaceGetOutputPredictionType(vw_net_native::workspace_context* workspace);
+  API VW980::prediction_type_t WorkspaceGetOutputPredictionType(vw_net_native::workspace_context* workspace);
   API vw_net_native::ERROR_CODE WorkspaceReload(vw_net_native::workspace_context* workspace, char* arguments,
-      size_t arguments_size, VW::experimental::api_status* status);
+      size_t arguments_size, VW980::experimental::api_status* status);
   API vw_net_native::ERROR_CODE WorkspaceSavePredictorToFile(vw_net_native::workspace_context* workspace,
-      char* filename, size_t filename_size, VW::experimental::api_status* status);
+      char* filename, size_t filename_size, VW980::experimental::api_status* status);
   API vw_net_native::ERROR_CODE WorkspaceSavePredictorToWriter(vw_net_native::workspace_context* workspace,
-      vw_net_native::io_writer_vtable writer, VW::experimental::api_status* status);
+      vw_net_native::io_writer_vtable writer, VW980::experimental::api_status* status);
 
   API void WorkspaceGetPerformanceStatistics(
       vw_net_native::workspace_context* workspace, vw_net_native::performance_statistics_t* statistics);
@@ -69,32 +69,32 @@ extern "C"
       vw_net_native::workspace_context* root_workspace);
 
   API vw_net_native::ERROR_CODE WorkspaceRunMultiPass(
-      vw_net_native::workspace_context* workspace, VW::experimental::api_status* status);
+      vw_net_native::workspace_context* workspace, VW980::experimental::api_status* status);
   API vw_net_native::ERROR_CODE WorkspaceNotifyEndOfPass(
-      vw_net_native::workspace_context* workspace, VW::experimental::api_status* status);
+      vw_net_native::workspace_context* workspace, VW980::experimental::api_status* status);
 
   API vw_net_native::ERROR_CODE WorkspaceParseJson(vw_net_native::workspace_context* workspace, char* json,
       size_t length, vw_net_native::example_pool_get_example_fn get_example, void* example_pool_context,
-      VW::experimental::api_status* status);
+      VW980::experimental::api_status* status);
   API vw_net_native::ERROR_CODE WorkspaceParseDecisionServiceJson(vw_net_native::workspace_context* workspace,
       char* json, size_t length, size_t offset, bool copy_json, vw_net_native::example_pool_get_example_fn get_example,
-      void* example_pool_context, VW::parsers::json::decision_service_interaction* interaction,
-      VW::experimental::api_status* status);
+      void* example_pool_context, VW980::parsers::json::decision_service_interaction* interaction,
+      VW980::experimental::api_status* status);
 
-  API vw_net_native::ERROR_CODE WorkspaceParseSingleLine(vw_net_native::workspace_context* workspace, VW::example* ex,
-      char* line, size_t length, VW::experimental::api_status* status);
+  API vw_net_native::ERROR_CODE WorkspaceParseSingleLine(vw_net_native::workspace_context* workspace, VW980::example* ex,
+      char* line, size_t length, VW980::experimental::api_status* status);
 
-  API vw_net_native::ERROR_CODE WorkspacePredict(vw_net_native::workspace_context* workspace, VW::example* example,
-      vw_net_native::create_prediction_callback_fn, VW::experimental::api_status* status);
-  API vw_net_native::ERROR_CODE WorkspaceLearn(vw_net_native::workspace_context* workspace, VW::example* example,
-      vw_net_native::create_prediction_callback_fn, VW::experimental::api_status* status);
+  API vw_net_native::ERROR_CODE WorkspacePredict(vw_net_native::workspace_context* workspace, VW980::example* example,
+      vw_net_native::create_prediction_callback_fn, VW980::experimental::api_status* status);
+  API vw_net_native::ERROR_CODE WorkspaceLearn(vw_net_native::workspace_context* workspace, VW980::example* example,
+      vw_net_native::create_prediction_callback_fn, VW980::experimental::api_status* status);
   API vw_net_native::ERROR_CODE WorkspacePredictMulti(vw_net_native::workspace_context* workspace,
-      VW::multi_ex* example, vw_net_native::create_prediction_callback_fn, VW::experimental::api_status* status);
-  API vw_net_native::ERROR_CODE WorkspaceLearnMulti(vw_net_native::workspace_context* workspace, VW::multi_ex* example,
-      vw_net_native::create_prediction_callback_fn, VW::experimental::api_status* status);
+      VW980::multi_ex* example, vw_net_native::create_prediction_callback_fn, VW980::experimental::api_status* status);
+  API vw_net_native::ERROR_CODE WorkspaceLearnMulti(vw_net_native::workspace_context* workspace, VW980::multi_ex* example,
+      vw_net_native::create_prediction_callback_fn, VW980::experimental::api_status* status);
 
   API char* WorkspaceGetIdDup(vw_net_native::workspace_context* workspace);
   API void WorkspaceSetId(vw_net_native::workspace_context* workspace, char* id, size_t id_length);
 
-  API VW::label_type_t WorkspaceGetLabelType(vw_net_native::workspace_context* workspace);
+  API VW980::label_type_t WorkspaceGetLabelType(vw_net_native::workspace_context* workspace);
 }

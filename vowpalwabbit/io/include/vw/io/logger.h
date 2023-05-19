@@ -11,7 +11,7 @@
 #include <functional>
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace io
 {
@@ -38,7 +38,7 @@ enum class log_level
 
 log_level get_log_level(const std::string& level);
 
-using logger_output_func_t = void (*)(void*, VW::io::log_level, const std::string&);
+using logger_output_func_t = void (*)(void*, VW980::io::log_level, const std::string&);
 using logger_legacy_output_func_t = void (*)(void*, const std::string&);
 
 namespace details
@@ -310,4 +310,4 @@ logger create_null_logger();
 logger create_custom_sink_logger(void* context, logger_output_func_t func);
 logger create_custom_sink_logger_legacy(void* context, logger_legacy_output_func_t func);
 }  // namespace io
-}  // namespace VW
+}  // namespace VW980

@@ -97,18 +97,18 @@ extern "C"
 }
 
 #define FILL_ERROR_LS(status, code)                                                         \
-  VW::experimental::status_builder sb(nullptr, status, VW::experimental::error_code::code); \
-  sb << VW::experimental::error_code::code##_s
+  VW980::experimental::status_builder sb(nullptr, status, VW980::experimental::error_code::code); \
+  sb << VW980::experimental::error_code::code##_s
 
 #define CATCH_FILL_STATUS                                                                                       \
-  catch (VW::vw_exception const& ex)                                                                            \
+  catch (VW980::vw_exception const& ex)                                                                            \
   {                                                                                                             \
     FILL_ERROR_LS(status, vw_exception) << ex.what() << "(" << ex.filename() << ":" << ex.line_number() << ")"; \
   }                                                                                                             \
   catch (std::exception const& ex) { FILL_ERROR_LS(status, native_exception) << ex.what(); }
 
 #define CATCH_RETURN_STATUS                                                                                       \
-  catch (VW::vw_exception const& ex)                                                                              \
+  catch (VW980::vw_exception const& ex)                                                                              \
   {                                                                                                               \
     RETURN_ERROR_LS(status, vw_exception) << ex.what() << "(" << ex.filename() << ":" << ex.line_number() << ")"; \
   }                                                                                                               \

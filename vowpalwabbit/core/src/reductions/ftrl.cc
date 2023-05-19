@@ -21,9 +21,9 @@
 #include <cmath>
 #include <string>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
-using namespace VW::math;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
+using namespace VW980::math;
 
 #define W_XT 0  // current parameter
 #define W_ZT 1  // in proximal is "accumulated z(t) = z(t-1) + g(t) + sigma*w(t)", in general is the dual weight vector
@@ -50,14 +50,14 @@ public:
 class ftrl
 {
 public:
-  VW::workspace* all = nullptr;  // features, finalize, l1, l2,
+  VW980::workspace* all = nullptr;  // features, finalize, l1, l2,
   float ftrl_alpha = 0.f;
   float ftrl_beta = 0.f;
   ftrl_update_data data;
   size_t no_win_counter = 0;
   size_t early_stop_thres = 0;
   uint32_t ftrl_size = 0;
-  std::vector<VW::reductions::details::gd_per_model_state> gd_per_model_states;
+  std::vector<VW980::reductions::details::gd_per_model_state> gd_per_model_states;
 };
 
 class uncertainty
@@ -81,47 +81,47 @@ inline void predict_with_confidence(uncertainty& d, const float fx, float& fw)
   float uncertain = ((d.b.data.ftrl_beta + sqrtf_ng2) / d.b.data.ftrl_alpha + d.b.data.l2_lambda);
   d.score += (1 / uncertain) * sign(fx);
 }
-float sensitivity(ftrl& b, VW::example& ec)
+float sensitivity(ftrl& b, VW980::example& ec)
 {
   uncertainty uncetain(b);
-  VW::foreach_feature<uncertainty, predict_with_confidence>(*(b.all), ec, uncetain);
+  VW980::foreach_feature<uncertainty, predict_with_confidence>(*(b.all), ec, uncetain);
   return uncetain.score;
 }
 
 template <bool audit>
-void predict(ftrl& b, VW::example& ec)
+void predict(ftrl& b, VW980::example& ec)
 {
   size_t num_features_from_interactions = 0;
-  ec.partial_prediction = VW::inline_predict(*b.all, ec, num_features_from_interactions);
+  ec.partial_prediction = VW980::inline_predict(*b.all, ec, num_features_from_interactions);
   ec.num_features_from_interactions = num_features_from_interactions;
-  ec.pred.scalar = VW::details::finalize_prediction(*b.all->sd, b.all->logger, ec.partial_prediction);
-  if (audit) { VW::details::print_audit_features(*(b.all), ec); }
+  ec.pred.scalar = VW980::details::finalize_prediction(*b.all->sd, b.all->logger, ec.partial_prediction);
+  if (audit) { VW980::details::print_audit_features(*(b.all), ec); }
 }
 
 template <bool audit>
 void multipredict(
-    ftrl& b, VW::example& ec, size_t count, size_t step, VW::polyprediction* pred, bool finalize_predictions)
+    ftrl& b, VW980::example& ec, size_t count, size_t step, VW980::polyprediction* pred, bool finalize_predictions)
 {
-  VW::workspace& all = *b.all;
+  VW980::workspace& all = *b.all;
   for (size_t c = 0; c < count; c++)
   {
-    const auto& simple_red_features = ec.ex_reduction_features.template get<VW::simple_label_reduction_features>();
+    const auto& simple_red_features = ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>();
     pred[c].scalar = simple_red_features.initial;
   }
   size_t num_features_from_interactions = 0;
   if (b.all->weights.sparse)
   {
-    VW::details::multipredict_info<VW::sparse_parameters> mp = {
+    VW980::details::multipredict_info<VW980::sparse_parameters> mp = {
         count, step, pred, all.weights.sparse_weights, static_cast<float>(all.sd->gravity)};
-    VW::foreach_feature<VW::details::multipredict_info<VW::sparse_parameters>, uint64_t,
-        VW::details::vec_add_multipredict>(all, ec, mp, num_features_from_interactions);
+    VW980::foreach_feature<VW980::details::multipredict_info<VW980::sparse_parameters>, uint64_t,
+        VW980::details::vec_add_multipredict>(all, ec, mp, num_features_from_interactions);
   }
   else
   {
-    VW::details::multipredict_info<VW::dense_parameters> mp = {
+    VW980::details::multipredict_info<VW980::dense_parameters> mp = {
         count, step, pred, all.weights.dense_weights, static_cast<float>(all.sd->gravity)};
-    VW::foreach_feature<VW::details::multipredict_info<VW::dense_parameters>, uint64_t,
-        VW::details::vec_add_multipredict>(all, ec, mp, num_features_from_interactions);
+    VW980::foreach_feature<VW980::details::multipredict_info<VW980::dense_parameters>, uint64_t,
+        VW980::details::vec_add_multipredict>(all, ec, mp, num_features_from_interactions);
   }
   ec.num_features_from_interactions = num_features_from_interactions;
   if (all.sd->contraction != 1.)
@@ -132,7 +132,7 @@ void multipredict(
   {
     for (size_t c = 0; c < count; c++)
     {
-      pred[c].scalar = VW::details::finalize_prediction(*all.sd, all.logger, pred[c].scalar);
+      pred[c].scalar = VW980::details::finalize_prediction(*all.sd, all.logger, pred[c].scalar);
     }
   }
   if (audit)
@@ -140,7 +140,7 @@ void multipredict(
     for (size_t c = 0; c < count; c++)
     {
       ec.pred.scalar = pred[c].scalar;
-      VW::details::print_audit_features(all, ec);
+      VW980::details::print_audit_features(all, ec);
       ec.ft_offset += static_cast<uint64_t>(step);
     }
     ec.ft_offset -= static_cast<uint64_t>(step * count);
@@ -177,7 +177,7 @@ void inner_update_pistol_state_and_predict(ftrl_update_data& d, float x, float& 
 
   float squared_theta = w[W_ZT] * w[W_ZT];
   float tmp = 1.f / (d.ftrl_alpha * w[W_MX] * (w[W_G2] + w[W_MX]));
-  w[W_XT] = std::sqrt(w[W_G2]) * d.ftrl_beta * w[W_ZT] * VW::details::correctedExp(squared_theta / 2.f * tmp) * tmp;
+  w[W_XT] = std::sqrt(w[W_G2]) * d.ftrl_beta * w[W_ZT] * VW980::details::correctedExp(squared_theta / 2.f * tmp) * tmp;
 
   d.predict += w[W_XT] * x;
 }
@@ -248,13 +248,13 @@ void inner_coin_betting_update_after_prediction(ftrl_update_data& d, float x, fl
   w[W_XT] /= d.average_squared_norm_x;
 }
 
-void coin_betting_predict(ftrl& b, VW::example& ec)
+void coin_betting_predict(ftrl& b, VW980::example& ec)
 {
   b.data.predict = 0;
   b.data.normalized_squared_norm_x = 0;
 
   size_t num_features_from_interactions = 0;
-  VW::foreach_feature<ftrl_update_data, inner_coin_betting_predict>(*b.all, ec, b.data, num_features_from_interactions);
+  VW980::foreach_feature<ftrl_update_data, inner_coin_betting_predict>(*b.all, ec, b.data, num_features_from_interactions);
   ec.num_features_from_interactions = num_features_from_interactions;
 
   b.gd_per_model_states[0].normalized_sum_norm_x += (static_cast<double>(ec.weight)) * b.data.normalized_squared_norm_x;
@@ -264,42 +264,42 @@ void coin_betting_predict(ftrl& b, VW::example& ec)
 
   ec.partial_prediction = b.data.predict / b.data.average_squared_norm_x;
 
-  ec.pred.scalar = VW::details::finalize_prediction(*b.all->sd, b.all->logger, ec.partial_prediction);
+  ec.pred.scalar = VW980::details::finalize_prediction(*b.all->sd, b.all->logger, ec.partial_prediction);
 }
 
-void update_state_and_predict_pistol(ftrl& b, VW::example& ec)
+void update_state_and_predict_pistol(ftrl& b, VW980::example& ec)
 {
   b.data.predict = 0;
 
   size_t num_features_from_interactions = 0;
-  VW::foreach_feature<ftrl_update_data, inner_update_pistol_state_and_predict>(
+  VW980::foreach_feature<ftrl_update_data, inner_update_pistol_state_and_predict>(
       *b.all, ec, b.data, num_features_from_interactions);
   ec.num_features_from_interactions = num_features_from_interactions;
 
   ec.partial_prediction = b.data.predict;
-  ec.pred.scalar = VW::details::finalize_prediction(*b.all->sd, b.all->logger, ec.partial_prediction);
+  ec.pred.scalar = VW980::details::finalize_prediction(*b.all->sd, b.all->logger, ec.partial_prediction);
 }
 
-void update_after_prediction_proximal(ftrl& b, VW::example& ec)
+void update_after_prediction_proximal(ftrl& b, VW980::example& ec)
 {
   b.data.update = b.all->loss->first_derivative(b.all->sd.get(), ec.pred.scalar, ec.l.simple.label) * ec.weight;
-  VW::foreach_feature<ftrl_update_data, inner_update_proximal>(*b.all, ec, b.data);
+  VW980::foreach_feature<ftrl_update_data, inner_update_proximal>(*b.all, ec, b.data);
 }
 
-void update_after_prediction_pistol(ftrl& b, VW::example& ec)
+void update_after_prediction_pistol(ftrl& b, VW980::example& ec)
 {
   b.data.update = b.all->loss->first_derivative(b.all->sd.get(), ec.pred.scalar, ec.l.simple.label) * ec.weight;
-  VW::foreach_feature<ftrl_update_data, inner_update_pistol_post>(*b.all, ec, b.data);
+  VW980::foreach_feature<ftrl_update_data, inner_update_pistol_post>(*b.all, ec, b.data);
 }
 
-void coin_betting_update_after_prediction(ftrl& b, VW::example& ec)
+void coin_betting_update_after_prediction(ftrl& b, VW980::example& ec)
 {
   b.data.update = b.all->loss->first_derivative(b.all->sd.get(), ec.pred.scalar, ec.l.simple.label) * ec.weight;
-  VW::foreach_feature<ftrl_update_data, inner_coin_betting_update_after_prediction>(*b.all, ec, b.data);
+  VW980::foreach_feature<ftrl_update_data, inner_coin_betting_update_after_prediction>(*b.all, ec, b.data);
 }
 
 template <bool audit>
-void learn_proximal(ftrl& a, VW::example& ec)
+void learn_proximal(ftrl& a, VW980::example& ec)
 {
   // predict with confidence
   predict<audit>(a, ec);
@@ -309,70 +309,70 @@ void learn_proximal(ftrl& a, VW::example& ec)
 }
 
 template <bool audit>
-void learn_pistol(ftrl& a, VW::example& ec)
+void learn_pistol(ftrl& a, VW980::example& ec)
 {
   // update state based on the example and predict
   update_state_and_predict_pistol(a, ec);
-  if (audit) { VW::details::print_audit_features(*(a.all), ec); }
+  if (audit) { VW980::details::print_audit_features(*(a.all), ec); }
   // update state based on the prediction
   update_after_prediction_pistol(a, ec);
 }
 
 template <bool audit>
-void learn_coin_betting(ftrl& a, VW::example& ec)
+void learn_coin_betting(ftrl& a, VW980::example& ec)
 {
   // update state based on the example and predict
   coin_betting_predict(a, ec);
-  if (audit) { VW::details::print_audit_features(*(a.all), ec); }
+  if (audit) { VW980::details::print_audit_features(*(a.all), ec); }
   // update state based on the prediction
   coin_betting_update_after_prediction(a, ec);
 }
 
-void save_load(ftrl& b, VW::io_buf& model_file, bool read, bool text)
+void save_load(ftrl& b, VW980::io_buf& model_file, bool read, bool text)
 {
-  VW::workspace* all = b.all;
-  if (read) { VW::details::initialize_regressor(*all); }
+  VW980::workspace* all = b.all;
+  if (read) { VW980::details::initialize_regressor(*all); }
 
   if (model_file.num_files() != 0)
   {
     bool resume = all->save_resume;
     std::stringstream msg;
     msg << ":" << resume << "\n";
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&resume), sizeof(resume), read, msg, text);
 
     if (resume)
     {
-      VW::details::save_load_online_state_gd(*all, model_file, read, text, b.gd_per_model_states, nullptr, b.ftrl_size);
+      VW980::details::save_load_online_state_gd(*all, model_file, read, text, b.gd_per_model_states, nullptr, b.ftrl_size);
     }
-    else { VW::details::save_load_regressor_gd(*all, model_file, read, text); }
+    else { VW980::details::save_load_regressor_gd(*all, model_file, read, text); }
   }
 }
 
 void end_pass(ftrl& g)
 {
-  VW::workspace& all = *g.all;
+  VW980::workspace& all = *g.all;
 
   if (!all.holdout_set_off)
   {
-    if (VW::details::summarize_holdout_set(all, g.no_win_counter))
+    if (VW980::details::summarize_holdout_set(all, g.no_win_counter))
     {
-      VW::details::finalize_regressor(all, all.final_regressor_name);
+      VW980::details::finalize_regressor(all, all.final_regressor_name);
     }
     if ((g.early_stop_thres == g.no_win_counter) &&
         ((all.check_holdout_every_n_passes <= 1) || ((all.current_pass % all.check_holdout_every_n_passes) == 0)))
     {
-      VW::details::set_done(all);
+      VW980::details::set_done(all);
     }
   }
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::ftrl_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::ftrl_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto b = VW::make_unique<ftrl>();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto b = VW980::make_unique<ftrl>();
 
   bool ftrl_option_no_not_use = false;
   bool pistol_no_not_use = false;
@@ -415,13 +415,13 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::ftrl_setup(VW::setup_base_
 
   b->all = &all;
   b->no_win_counter = 0;
-  auto single_model_state = VW::reductions::details::gd_per_model_state();
+  auto single_model_state = VW980::reductions::details::gd_per_model_state();
   single_model_state.normalized_sum_norm_x = 0;
   single_model_state.total_weight = 0.;
   b->gd_per_model_states.emplace_back(single_model_state);
 
   std::string algorithm_name;
-  void (*learn_ptr)(ftrl&, VW::example&) = nullptr;
+  void (*learn_ptr)(ftrl&, VW980::example&) = nullptr;
   bool learn_returns_prediction = false;
 
   // Defaults that are specific to the mode that was chosen.
@@ -478,17 +478,17 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::ftrl_setup(VW::setup_base_
   auto multipredict_ptr = (all.audit || all.hash_inv) ? multipredict<true> : multipredict<false>;
   std::string name_addition = (all.audit || all.hash_inv) ? "-audit" : "";
 
-  auto l = VW::LEARNER::make_bottom_learner(std::move(b), learn_ptr, predict_ptr,
-      stack_builder.get_setupfn_name(ftrl_setup) + "-" + algorithm_name + name_addition, VW::prediction_type_t::SCALAR,
-      VW::label_type_t::SIMPLE)
+  auto l = VW980::LEARNER::make_bottom_learner(std::move(b), learn_ptr, predict_ptr,
+      stack_builder.get_setupfn_name(ftrl_setup) + "-" + algorithm_name + name_addition, VW980::prediction_type_t::SCALAR,
+      VW980::label_type_t::SIMPLE)
                .set_learn_returns_prediction(learn_returns_prediction)
                .set_sensitivity(sensitivity)
                .set_multipredict(multipredict_ptr)
                .set_save_load(save_load)
                .set_end_pass(end_pass)
-               .set_output_example_prediction(VW::details::output_example_prediction_simple_label<ftrl>)
-               .set_update_stats(VW::details::update_stats_simple_label<ftrl>)
-               .set_print_update(VW::details::print_update_simple_label<ftrl>)
+               .set_output_example_prediction(VW980::details::output_example_prediction_simple_label<ftrl>)
+               .set_update_stats(VW980::details::update_stats_simple_label<ftrl>)
+               .set_print_update(VW980::details::print_update_simple_label<ftrl>)
                .build();
   return l;
 }

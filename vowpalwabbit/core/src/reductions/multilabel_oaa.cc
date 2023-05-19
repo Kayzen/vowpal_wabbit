@@ -17,7 +17,7 @@
 #include <cfloat>
 #include <sstream>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 namespace
 {
@@ -27,20 +27,20 @@ public:
   size_t k = 0;
   bool probabilities = false;
   std::string link = "";
-  VW::io::logger logger;
+  VW980::io::logger logger;
 
-  explicit multi_oaa(VW::io::logger logger) : logger(std::move(logger)) {}
+  explicit multi_oaa(VW980::io::logger logger) : logger(std::move(logger)) {}
 };
 
 template <bool is_learn>
-void predict_or_learn(multi_oaa& o, VW::LEARNER::learner& base, VW::example& ec)
+void predict_or_learn(multi_oaa& o, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   auto multilabels = ec.l.multilabels;
   auto preds = ec.pred.multilabels;
   preds.label_v.clear();
 
   ec.l.simple = {FLT_MAX};
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
   uint32_t multilabel_index = 0;
   for (uint32_t i = 0; i < o.k; i++)
   {
@@ -77,13 +77,13 @@ void predict_or_learn(multi_oaa& o, VW::LEARNER::learner& base, VW::example& ec)
 }
 
 void update_stats_multilabel_oaa(
-    const VW::workspace& all, VW::shared_data&, const multi_oaa&, const VW::example& ec, VW::io::logger&)
+    const VW980::workspace& all, VW980::shared_data&, const multi_oaa&, const VW980::example& ec, VW980::io::logger&)
 {
-  VW::details::update_stats_multilabel(all, ec);
+  VW980::details::update_stats_multilabel(all, ec);
 }
 
 void output_example_prediction_multilabel_oaa(
-    VW::workspace& all, const multi_oaa& o, const VW::example& ec, VW::io::logger&)
+    VW980::workspace& all, const multi_oaa& o, const VW980::example& ec, VW980::io::logger&)
 {
   if (o.probabilities)
   {
@@ -99,22 +99,22 @@ void output_example_prediction_multilabel_oaa(
     const auto ss_str = output_string_stream.str();
     for (auto& sink : all.final_prediction_sink) { all.print_text_by_ref(sink.get(), ss_str, ec.tag, all.logger); }
   }
-  VW::details::output_example_prediction_multilabel(all, ec);
+  VW980::details::output_example_prediction_multilabel(all, ec);
 }
 
 void print_update_multilabel_oaa(
-    VW::workspace& all, VW::shared_data&, const multi_oaa&, const VW::example& ec, VW::io::logger&)
+    VW980::workspace& all, VW980::shared_data&, const multi_oaa&, const VW980::example& ec, VW980::io::logger&)
 {
-  VW::details::print_update_multilabel(all, ec);
+  VW980::details::print_update_multilabel(all, ec);
 }
 
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::multilabel_oaa_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::multilabel_oaa_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto data = VW::make_unique<multi_oaa>(all.logger);
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto data = VW980::make_unique<multi_oaa>(all.logger);
   option_group_definition new_options("[Reduction] Multilabel One Against All");
   uint64_t k;
   new_options
@@ -128,9 +128,9 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::multilabel_oaa_setup(VW::s
 
   if (!options.add_parse_and_check_necessary(new_options)) { return nullptr; }
 
-  data->k = VW::cast_to_smaller_type<size_t>(k);
+  data->k = VW980::cast_to_smaller_type<size_t>(k);
   std::string name_addition;
-  VW::prediction_type_t pred_type;
+  VW980::prediction_type_t pred_type;
   size_t feature_width = data->k;
 
   if (data->probabilities)
@@ -142,7 +142,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::multilabel_oaa_setup(VW::s
       options.replace("link", "logistic");
       data->link = "logistic";
     }
-    pred_type = VW::prediction_type_t::SCALARS;
+    pred_type = VW980::prediction_type_t::SCALARS;
     auto loss_function_type = all.loss->get_type();
     if (loss_function_type != "logistic")
     {
@@ -155,7 +155,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::multilabel_oaa_setup(VW::s
   else
   {
     name_addition = "";
-    pred_type = VW::prediction_type_t::MULTILABELS;
+    pred_type = VW980::prediction_type_t::MULTILABELS;
   }
 
   auto l = make_reduction_learner(std::move(data), require_singleline(stack_builder.setup_base_learner(feature_width)),
@@ -163,9 +163,9 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::multilabel_oaa_setup(VW::s
       stack_builder.get_setupfn_name(multilabel_oaa_setup) + name_addition)
                .set_feature_width(feature_width)
                .set_learn_returns_prediction(true)
-               .set_input_label_type(VW::label_type_t::MULTILABEL)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
+               .set_input_label_type(VW980::label_type_t::MULTILABEL)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
                .set_output_prediction_type(pred_type)
                .set_update_stats(update_stats_multilabel_oaa)
                .set_output_example_prediction(output_example_prediction_multilabel_oaa)

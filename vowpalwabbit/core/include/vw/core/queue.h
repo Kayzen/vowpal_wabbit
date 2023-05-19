@@ -20,7 +20,7 @@
 #  include <mutex>
 #endif
 
-namespace VW
+namespace VW980
 {
 template <typename T>
 class thread_safe_queue
@@ -77,4 +77,4 @@ private:
   std::condition_variable _is_not_full;
   std::condition_variable _is_not_empty;
 };
-}  // namespace VW
+}  // namespace VW980

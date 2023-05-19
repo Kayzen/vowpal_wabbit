@@ -22,7 +22,7 @@ static void bench_epsilon_decay(benchmark::State& state, bool use_decay, ExtraAr
   std::string tolerance = res[2];
 
   using callback_map =
-      typename std::map<size_t, std::function<bool(simulator::cb_sim&, VW::workspace&, VW::multi_ex&)>>;
+      typename std::map<size_t, std::function<bool(simulator::cb_sim&, VW980::workspace&, VW980::multi_ex&)>>;
   callback_map test_hooks;
 
   for (auto _ : state)

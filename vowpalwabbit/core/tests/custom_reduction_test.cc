@@ -32,7 +32,7 @@ bool called_learn_predict = false;
 
 // minimal predict/learn fn for test_reduction_setup
 template <bool is_learn>
-void predict_or_learn(VW::LEARNER::learner& base, VW::example& ec)
+void predict_or_learn(VW980::LEARNER::learner& base, VW980::example& ec)
 {
   EXPECT_TRUE(added_to_learner);
   called_learn_predict = true;
@@ -48,12 +48,12 @@ void predict_or_learn(VW::LEARNER::learner& base, VW::example& ec)
 
 // minimal setup function for reduction
 template <bool test_stack>
-std::shared_ptr<VW::LEARNER::learner> test_reduction_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> test_reduction_setup(VW980::setup_base_i& stack_builder)
 {
   EXPECT_TRUE(added_to_learner == false);
   EXPECT_TRUE(called_learn_predict == false);
 
-  VW::config::options_i& options = *stack_builder.get_options();
+  VW980::config::options_i& options = *stack_builder.get_options();
 
   // do not add when ksvm is present
   // see custom_reduction_builder_check_throw
@@ -62,7 +62,7 @@ std::shared_ptr<VW::LEARNER::learner> test_reduction_setup(VW::setup_base_i& sta
   auto base = stack_builder.setup_base_learner();
   EXPECT_TRUE(base->is_multiline() == false);
 
-  auto ret = VW::LEARNER::make_no_data_reduction_learner(require_singleline(base), predict_or_learn<true>,
+  auto ret = VW980::LEARNER::make_no_data_reduction_learner(require_singleline(base), predict_or_learn<true>,
       predict_or_learn<false>, stack_builder.get_setupfn_name(test_reduction_setup<test_stack>))
                  .set_learn_returns_prediction(base->learn_returns_prediction)
                  .build();
@@ -105,7 +105,7 @@ void reset_test_state()
 //
 // custom_builder can be augmented to do heavier edits (reorder/remove)
 // on reduction_stack
-class custom_builder : public VW::default_reduction_stack_setup
+class custom_builder : public VW980::default_reduction_stack_setup
 {
 public:
   custom_builder()
@@ -146,18 +146,18 @@ TEST(CustomReduction, General)
   const std::vector<std::string> sgd_args = {"--quiet", "--sgd", "--noconstant", "--learning_rate", "0.1"};
   float prediction_one;
   {
-    auto learner_builder = VW::make_unique<custom_builder>();
+    auto learner_builder = VW980::make_unique<custom_builder>();
 
     EXPECT_TRUE(toy_reduction::added_to_learner == false);
     EXPECT_TRUE(toy_reduction::called_learn_predict == false);
-    auto vw = VW::initialize_experimental(VW::make_unique<VW::config::options_cli>(sgd_args), nullptr, nullptr, nullptr,
+    auto vw = VW980::initialize_experimental(VW980::make_unique<VW980::config::options_cli>(sgd_args), nullptr, nullptr, nullptr,
         nullptr, std::move(learner_builder));
     EXPECT_TRUE(toy_reduction::added_to_learner);
     EXPECT_TRUE(toy_reduction::called_learn_predict == false);
 
-    auto& pre_learn_predict_example = *VW::read_example(*vw, "0.19574759682114784 | 1:1.430");
-    auto& learn_example = *VW::read_example(*vw, "0.19574759682114784 | 1:1.430");
-    auto& predict_example = *VW::read_example(*vw, "| 1:1.0");
+    auto& pre_learn_predict_example = *VW980::read_example(*vw, "0.19574759682114784 | 1:1.430");
+    auto& learn_example = *VW980::read_example(*vw, "0.19574759682114784 | 1:1.430");
+    auto& predict_example = *VW980::read_example(*vw, "| 1:1.0");
 
     EXPECT_TRUE(toy_reduction::called_learn_predict == false);
     vw->predict(pre_learn_predict_example);
@@ -181,10 +181,10 @@ TEST(CustomReduction, General)
   {
     EXPECT_TRUE(toy_reduction::added_to_learner == false);
     EXPECT_TRUE(toy_reduction::called_learn_predict == false);
-    auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(sgd_args));
+    auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(sgd_args));
 
-    auto& learn_example = *VW::read_example(*vw, "0.19574759682114784 | 1:1.430");
-    auto& predict_example = *VW::read_example(*vw, "| 1:1.0");
+    auto& learn_example = *VW980::read_example(*vw, "0.19574759682114784 | 1:1.430");
+    auto& predict_example = *VW980::read_example(*vw, "| 1:1.0");
 
     vw->learn(learn_example);
     vw->finish_example(learn_example);
@@ -211,11 +211,11 @@ TEST(CustomReduction, BuilderCheckThrow)
   // since custom_builder deleted that setup function
   // and that fn registers that cmd option
   {
-    auto learner_builder = VW::make_unique<custom_builder>();
+    auto learner_builder = VW980::make_unique<custom_builder>();
 
-    EXPECT_THROW(VW::initialize_experimental(VW::make_unique<VW::config::options_cli>(ksvm_args), nullptr, nullptr,
+    EXPECT_THROW(VW980::initialize_experimental(VW980::make_unique<VW980::config::options_cli>(ksvm_args), nullptr, nullptr,
                      nullptr, nullptr, std::move(learner_builder)),
-        VW::vw_exception);
+        VW980::vw_exception);
 
     // check that toy_reduction didn't get added to learner
     EXPECT_TRUE(toy_reduction::added_to_learner == false);
@@ -226,6 +226,6 @@ TEST(CustomReduction, BuilderCheckThrow)
   // --ksvm'
   // since its using the default builder that has --ksvm
   {
-    EXPECT_NO_THROW(VW::initialize(VW::make_unique<VW::config::options_cli>(ksvm_args)));
+    EXPECT_NO_THROW(VW980::initialize(VW980::make_unique<VW980::config::options_cli>(ksvm_args)));
   }
 }

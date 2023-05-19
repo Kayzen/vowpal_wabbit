@@ -7,7 +7,7 @@
 #include "vw/experimental/types.h"
 #include "vw/io/io_adapter.h"
 
-struct c_reader : public VW::io::reader
+struct c_reader : public VW980::io::reader
 {
   c_reader(void* context, VWReadFunc* read);
   ssize_t read(char* buffer, size_t num_bytes) override;
@@ -17,7 +17,7 @@ private:
   VWReadFunc* _read_func = nullptr;
 };
 
-struct c_writer : public VW::io::writer
+struct c_writer : public VW980::io::writer
 {
   c_writer(void* context, VWWriteFunc* write);
   ssize_t write(const char* buffer, size_t num_bytes) override;

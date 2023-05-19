@@ -5,7 +5,7 @@
 
 #include "vw/spanning_tree/spanning_tree.h"
 
-namespace VW
+namespace VW980
 {
 /// <summary>
 /// Managed wrapper for AllReduce spanning tree implementation.

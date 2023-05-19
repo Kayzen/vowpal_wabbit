@@ -16,7 +16,7 @@
 // thread pool based off of the simple pool implementation from ccia:
 // https://github.com/anthonywilliams/ccia_code_samples
 
-namespace VW
+namespace VW980
 {
 class threads_joiner
 {
@@ -98,8 +98,8 @@ private:
   }
 
   std::atomic_bool _done;
-  VW::thread_safe_queue<std::function<void()>> _task_queue;
+  VW980::thread_safe_queue<std::function<void()>> _task_queue;
   std::vector<std::thread> _threads;
   threads_joiner _joiner;
 };
-}  // namespace VW
+}  // namespace VW980

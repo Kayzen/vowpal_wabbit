@@ -12,7 +12,7 @@
 #include <iterator>
 #include <string>
 
-namespace VW
+namespace VW980
 {
 class action_score
 {
@@ -20,7 +20,7 @@ public:
   uint32_t action;
   float score;
 };
-using action_scores = VW::v_array<action_score>;
+using action_scores = VW980::v_array<action_score>;
 
 constexpr inline bool operator<(const action_score& left, const action_score& right)
 {
@@ -35,7 +35,7 @@ std::ostream& operator<<(std::ostream& os, const action_score& a_s);
 namespace details
 {
 void print_action_score(
-    VW::io::writer* f, const VW::v_array<action_score>& a_s, const VW::v_array<char>&, VW::io::logger& logger);
+    VW980::io::writer* f, const VW980::v_array<action_score>& a_s, const VW980::v_array<char>&, VW980::io::logger& logger);
 }
 
 std::string to_string(
@@ -83,25 +83,25 @@ size_t read_model_field(io_buf& io, action_score& a_s);
 
 size_t write_model_field(io_buf& io, const action_score a_s, const std::string& upstream_name, bool text);
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980
 
 namespace ACTION_SCORE  // NOLINT
 {
 using action_score VW_DEPRECATED(
-    "ACTION_SCORE::action_score renamed to VW::action_score. ACTION_SCORE::action_score will be removed in VW 10.") =
-    VW::action_score;
+    "ACTION_SCORE::action_score renamed to VW980::action_score. ACTION_SCORE::action_score will be removed in VW 10.") =
+    VW980::action_score;
 
 using action_scores VW_DEPRECATED(
-    "ACTION_SCORE::action_scores renamed to VW::action_scores. ACTION_SCORE::action_scores will be removed in VW 10.") =
-    VW::v_array<VW::action_score>;
+    "ACTION_SCORE::action_scores renamed to VW980::action_scores. ACTION_SCORE::action_scores will be removed in VW 10.") =
+    VW980::v_array<VW980::action_score>;
 using score_iterator VW_DEPRECATED(
-    "ACTION_SCORE::score_iterator renamed to VW::action_scores_score_iterator. ACTION_SCORE::score_iterator will be "
-    "removed in VW 10.") = VW::action_scores_score_iterator;
+    "ACTION_SCORE::score_iterator renamed to VW980::action_scores_score_iterator. ACTION_SCORE::score_iterator will be "
+    "removed in VW 10.") = VW980::action_scores_score_iterator;
 
 VW_DEPRECATED(
-    "ACTION_SCORE::begin_scores renamed to VW::begin_scores. ACTION_SCORE::begin_scores will be removed in VW 10.")
-inline VW::action_scores_score_iterator begin_scores(VW::action_scores& a_s) { return VW::begin_scores(a_s); }
+    "ACTION_SCORE::begin_scores renamed to VW980::begin_scores. ACTION_SCORE::begin_scores will be removed in VW 10.")
+inline VW980::action_scores_score_iterator begin_scores(VW980::action_scores& a_s) { return VW980::begin_scores(a_s); }
 
-VW_DEPRECATED("ACTION_SCORE::end_scores renamed to VW::end_scores. ACTION_SCORE::end_scores will be removed in VW 10.")
-inline VW::action_scores_score_iterator end_scores(VW::action_scores& a_s) { return VW::end_scores(a_s); }
+VW_DEPRECATED("ACTION_SCORE::end_scores renamed to VW980::end_scores. ACTION_SCORE::end_scores will be removed in VW 10.")
+inline VW980::action_scores_score_iterator end_scores(VW980::action_scores& a_s) { return VW980::end_scores(a_s); }
 }  // namespace ACTION_SCORE

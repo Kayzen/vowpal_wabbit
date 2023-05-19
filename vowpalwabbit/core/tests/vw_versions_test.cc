@@ -13,11 +13,11 @@
 
 TEST(Version, VerifyVwVersions)
 {
-  using namespace VW::version_definitions;
+  using namespace VW980::version_definitions;
 
   // check default vw version value
-  auto null_logger = VW::io::create_null_logger();
-  VW::workspace dummy_vw(null_logger);
+  auto null_logger = VW980::io::create_null_logger();
+  VW980::workspace dummy_vw(null_logger);
   EXPECT_TRUE(dummy_vw.model_file_ver == EMPTY_VERSION_FILE);
   EXPECT_TRUE(dummy_vw.model_file_ver < VERSION_FILE_WITH_CB_ADF_SAVE);
 
@@ -28,45 +28,45 @@ TEST(Version, VerifyVwVersions)
 
 TEST(Version, VerifyVwVersionOperators)
 {
-  EXPECT_TRUE((VW::version_struct{0, 0, 0} == VW::version_struct{0, 0, 0}));
-  EXPECT_TRUE((VW::version_struct{1, 1, 1} == VW::version_struct{1, 1, 1}));
-  EXPECT_TRUE((VW::version_struct{1, 1, 0} != VW::version_struct{1, 1, 1}));
-  EXPECT_TRUE((VW::version_struct{0, 0, 0} < VW::version_struct{0, 0, 1}));
-  EXPECT_TRUE((VW::version_struct{0, 0, 1} > VW::version_struct{0, 0, 0}));
-  EXPECT_TRUE((VW::version_struct{1, 0, 1} > VW::version_struct{0, 5, 0}));
-  EXPECT_TRUE((VW::version_struct{1, 2, 3} <= VW::version_struct{1, 2, 3}));
-  EXPECT_TRUE((VW::version_struct{1, 2, 2} <= VW::version_struct{1, 2, 3}));
-  EXPECT_TRUE((VW::version_struct{1, 2, 3} >= VW::version_struct{1, 2, 3}));
-  EXPECT_TRUE((VW::version_struct{1, 2, 4} >= VW::version_struct{1, 2, 3}));
-  EXPECT_TRUE((VW::version_struct{5, 70, 80} < VW::version_struct{11, 1, 1}));
+  EXPECT_TRUE((VW980::version_struct{0, 0, 0} == VW980::version_struct{0, 0, 0}));
+  EXPECT_TRUE((VW980::version_struct{1, 1, 1} == VW980::version_struct{1, 1, 1}));
+  EXPECT_TRUE((VW980::version_struct{1, 1, 0} != VW980::version_struct{1, 1, 1}));
+  EXPECT_TRUE((VW980::version_struct{0, 0, 0} < VW980::version_struct{0, 0, 1}));
+  EXPECT_TRUE((VW980::version_struct{0, 0, 1} > VW980::version_struct{0, 0, 0}));
+  EXPECT_TRUE((VW980::version_struct{1, 0, 1} > VW980::version_struct{0, 5, 0}));
+  EXPECT_TRUE((VW980::version_struct{1, 2, 3} <= VW980::version_struct{1, 2, 3}));
+  EXPECT_TRUE((VW980::version_struct{1, 2, 2} <= VW980::version_struct{1, 2, 3}));
+  EXPECT_TRUE((VW980::version_struct{1, 2, 3} >= VW980::version_struct{1, 2, 3}));
+  EXPECT_TRUE((VW980::version_struct{1, 2, 4} >= VW980::version_struct{1, 2, 3}));
+  EXPECT_TRUE((VW980::version_struct{5, 70, 80} < VW980::version_struct{11, 1, 1}));
 }
 
 TEST(Version, VerifyVwVersionTostring)
 {
-  EXPECT_EQ((VW::version_struct{0, 0, 0}.to_string()), "0.0.0");
-  EXPECT_EQ((VW::version_struct{1, 1, 1}.to_string()), "1.1.1");
-  EXPECT_EQ((VW::version_struct{1, 1, 0}.to_string()), "1.1.0");
-  EXPECT_EQ((VW::version_struct{0, 0, 0}.to_string()), "0.0.0");
-  EXPECT_EQ((VW::version_struct{0, 0, 1}.to_string()), "0.0.1");
-  EXPECT_EQ((VW::version_struct{1, 0, 1}.to_string()), "1.0.1");
-  EXPECT_EQ((VW::version_struct{1, 2, 3}.to_string()), "1.2.3");
-  EXPECT_EQ((VW::version_struct{1, 2, 2}.to_string()), "1.2.2");
-  EXPECT_EQ((VW::version_struct{1, 2, 3}.to_string()), "1.2.3");
-  EXPECT_EQ((VW::version_struct{1, 2, 4}.to_string()), "1.2.4");
-  EXPECT_EQ((VW::version_struct{5, 70, 80}.to_string()), "5.70.80");
+  EXPECT_EQ((VW980::version_struct{0, 0, 0}.to_string()), "0.0.0");
+  EXPECT_EQ((VW980::version_struct{1, 1, 1}.to_string()), "1.1.1");
+  EXPECT_EQ((VW980::version_struct{1, 1, 0}.to_string()), "1.1.0");
+  EXPECT_EQ((VW980::version_struct{0, 0, 0}.to_string()), "0.0.0");
+  EXPECT_EQ((VW980::version_struct{0, 0, 1}.to_string()), "0.0.1");
+  EXPECT_EQ((VW980::version_struct{1, 0, 1}.to_string()), "1.0.1");
+  EXPECT_EQ((VW980::version_struct{1, 2, 3}.to_string()), "1.2.3");
+  EXPECT_EQ((VW980::version_struct{1, 2, 2}.to_string()), "1.2.2");
+  EXPECT_EQ((VW980::version_struct{1, 2, 3}.to_string()), "1.2.3");
+  EXPECT_EQ((VW980::version_struct{1, 2, 4}.to_string()), "1.2.4");
+  EXPECT_EQ((VW980::version_struct{5, 70, 80}.to_string()), "5.70.80");
 }
 
 TEST(Version, VerifyVwVersionFromstring)
 {
-  EXPECT_TRUE((VW::version_struct{0, 0, 0} == VW::version_struct{"0.0.0"}));
-  EXPECT_TRUE((VW::version_struct{1, 1, 1} == VW::version_struct{"1.1.1"}));
-  EXPECT_TRUE((VW::version_struct{1, 1, 0} == VW::version_struct{"1.1.0"}));
-  EXPECT_TRUE((VW::version_struct{0, 0, 0} == VW::version_struct{"0.0.0"}));
-  EXPECT_TRUE((VW::version_struct{0, 0, 1} == VW::version_struct{"0.0.1"}));
-  EXPECT_TRUE((VW::version_struct{1, 0, 1} == VW::version_struct{"1.0.1"}));
-  EXPECT_TRUE((VW::version_struct{1, 2, 3} == VW::version_struct{"1.2.3"}));
-  EXPECT_TRUE((VW::version_struct{1, 2, 2} == VW::version_struct{"1.2.2"}));
-  EXPECT_TRUE((VW::version_struct{1, 2, 3} == VW::version_struct{"1.2.3"}));
-  EXPECT_TRUE((VW::version_struct{1, 2, 4} == VW::version_struct{"1.2.4"}));
-  EXPECT_TRUE((VW::version_struct{5, 70, 80} == VW::version_struct{"5.70.80"}));
+  EXPECT_TRUE((VW980::version_struct{0, 0, 0} == VW980::version_struct{"0.0.0"}));
+  EXPECT_TRUE((VW980::version_struct{1, 1, 1} == VW980::version_struct{"1.1.1"}));
+  EXPECT_TRUE((VW980::version_struct{1, 1, 0} == VW980::version_struct{"1.1.0"}));
+  EXPECT_TRUE((VW980::version_struct{0, 0, 0} == VW980::version_struct{"0.0.0"}));
+  EXPECT_TRUE((VW980::version_struct{0, 0, 1} == VW980::version_struct{"0.0.1"}));
+  EXPECT_TRUE((VW980::version_struct{1, 0, 1} == VW980::version_struct{"1.0.1"}));
+  EXPECT_TRUE((VW980::version_struct{1, 2, 3} == VW980::version_struct{"1.2.3"}));
+  EXPECT_TRUE((VW980::version_struct{1, 2, 2} == VW980::version_struct{"1.2.2"}));
+  EXPECT_TRUE((VW980::version_struct{1, 2, 3} == VW980::version_struct{"1.2.3"}));
+  EXPECT_TRUE((VW980::version_struct{1, 2, 4} == VW980::version_struct{"1.2.4"}));
+  EXPECT_TRUE((VW980::version_struct{5, 70, 80} == VW980::version_struct{"5.70.80"}));
 }

@@ -7,10 +7,10 @@
 #include "vw/core/object_pool.h"
 #include "vw/core/v_array.h"
 
-namespace VW
+namespace VW980
 {
 template <typename T>
-using v_array_pool = VW::moved_object_pool<v_array<T>>;
+using v_array_pool = VW980::moved_object_pool<v_array<T>>;
 template <typename T>
-using vector_pool = VW::moved_object_pool<std::vector<T>>;
-}  // namespace VW
+using vector_pool = VW980::moved_object_pool<std::vector<T>>;
+}  // namespace VW980

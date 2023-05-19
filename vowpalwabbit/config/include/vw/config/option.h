@@ -15,7 +15,7 @@
 #include <typeinfo>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace config
 {
@@ -194,4 +194,4 @@ inline bool operator==(const base_option& lhs, const base_option& rhs)
 inline bool operator!=(const base_option& lhs, const base_option& rhs) { return !(lhs == rhs); }
 
 }  // namespace config
-}  // namespace VW
+}  // namespace VW980

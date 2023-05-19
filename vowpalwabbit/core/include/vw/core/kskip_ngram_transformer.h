@@ -10,13 +10,13 @@
 #include <string>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 class kskip_ngram_transformer
 {
 public:
   static kskip_ngram_transformer build(
-      const std::vector<std::string>& grams, const std::vector<std::string>& skips, bool quiet, VW::io::logger& logger);
+      const std::vector<std::string>& grams, const std::vector<std::string>& skips, bool quiet, VW980::io::logger& logger);
 
   /**
    * This function adds k-skip-n-grams to the feature vector.
@@ -48,4 +48,4 @@ private:
   std::vector<std::string> initial_ngram_definitions;
   std::vector<std::string> initial_skip_definitions;
 };
-}  // namespace VW
+}  // namespace VW980

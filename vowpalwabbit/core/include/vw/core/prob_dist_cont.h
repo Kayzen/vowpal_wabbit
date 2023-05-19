@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace continuous_actions
 {
@@ -42,4 +42,4 @@ std::string to_string(const continuous_actions::probability_density_function_val
     int decimal_precision = details::DEFAULT_FLOAT_PRECISION);
 std::string to_string(const continuous_actions::probability_density_function& pdf,
     int decimal_precision = details::DEFAULT_FLOAT_PRECISION);
-}  // namespace VW
+}  // namespace VW980

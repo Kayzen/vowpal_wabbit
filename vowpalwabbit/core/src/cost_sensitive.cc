@@ -20,7 +20,7 @@
 #include <cfloat>
 #include <cmath>
 
-bool VW::is_cs_example_header(const VW::example& ec)  // example headers look like "shared"
+bool VW980::is_cs_example_header(const VW980::example& ec)  // example headers look like "shared"
 {
   const auto& costs = ec.l.cs.costs;
   if (costs.size() != 1) { return false; }
@@ -31,9 +31,9 @@ bool VW::is_cs_example_header(const VW::example& ec)  // example headers look li
 
 namespace
 {
-void name_value(VW::string_view s, std::vector<VW::string_view>& name, float& v, VW::io::logger& logger)
+void name_value(VW980::string_view s, std::vector<VW980::string_view>& name, float& v, VW980::io::logger& logger)
 {
-  VW::tokenize(':', s, name);
+  VW980::tokenize(':', s, name);
 
   switch (name.size())
   {
@@ -42,7 +42,7 @@ void name_value(VW::string_view s, std::vector<VW::string_view>& name, float& v,
       v = 1.;
       break;
     case 2:
-      v = VW::details::float_of_string(name[1], logger);
+      v = VW980::details::float_of_string(name[1], logger);
       if (std::isnan(v)) THROW("error NaN value for: " << name[0]);
       break;
     default:
@@ -50,10 +50,10 @@ void name_value(VW::string_view s, std::vector<VW::string_view>& name, float& v,
   }
 }
 
-float cs_weight(const VW::cs_label&) { return 1.; }
+float cs_weight(const VW980::cs_label&) { return 1.; }
 
-void parse_label(VW::cs_label& ld, VW::label_parser_reuse_mem& reuse_mem, const VW::named_labels* ldict,
-    const std::vector<VW::string_view>& words, VW::io::logger& logger)
+void parse_label(VW980::cs_label& ld, VW980::label_parser_reuse_mem& reuse_mem, const VW980::named_labels* ldict,
+    const std::vector<VW980::string_view>& words, VW980::io::logger& logger)
 {
   ld.reset_to_default();
 
@@ -79,7 +79,7 @@ void parse_label(VW::cs_label& ld, VW::label_parser_reuse_mem& reuse_mem, const 
         }
         else
         {
-          VW::cs_class f = {-FLT_MAX, 0, 0., 0.};
+          VW980::cs_class f = {-FLT_MAX, 0, 0., 0.};
           ld.costs.push_back(f);
         }
       }
@@ -91,7 +91,7 @@ void parse_label(VW::cs_label& ld, VW::label_parser_reuse_mem& reuse_mem, const 
         }
         else
         {
-          VW::cs_class f = {VW::details::float_of_string(reuse_mem.tokens[1], logger), 0, 0., 0.};
+          VW980::cs_class f = {VW980::details::float_of_string(reuse_mem.tokens[1], logger), 0, 0., 0.};
           ld.costs.push_back(f);
         }
       }
@@ -102,7 +102,7 @@ void parse_label(VW::cs_label& ld, VW::label_parser_reuse_mem& reuse_mem, const 
   // otherwise this is a "real" example
   for (auto word : words)
   {
-    VW::cs_class f = {0., 0, 0., 0.};
+    VW980::cs_class f = {0., 0, 0., 0.};
     name_value(word, reuse_mem.tokens, f.x, logger);
 
     if (reuse_mem.tokens.empty()) THROW(" invalid cost: specification -- no names on: " << word);
@@ -111,7 +111,7 @@ void parse_label(VW::cs_label& ld, VW::label_parser_reuse_mem& reuse_mem, const 
     {
       f.class_index = ldict
           ? ldict->get(reuse_mem.tokens[0], logger)
-          : static_cast<uint32_t>(VW::details::hashstring(reuse_mem.tokens[0].data(), reuse_mem.tokens[0].length(), 0));
+          : static_cast<uint32_t>(VW980::details::hashstring(reuse_mem.tokens[0].data(), reuse_mem.tokens[0].length(), 0));
       if (reuse_mem.tokens.size() == 1 && f.x >= 0)
       {  // test examples are specified just by un-valued class #s
         f.x = FLT_MAX;
@@ -125,7 +125,7 @@ void parse_label(VW::cs_label& ld, VW::label_parser_reuse_mem& reuse_mem, const 
 }
 }  // namespace
 
-void VW::details::print_cs_update_multiclass(VW::workspace& all, bool is_test, size_t num_features, uint32_t prediction)
+void VW980::details::print_cs_update_multiclass(VW980::workspace& all, bool is_test, size_t num_features, uint32_t prediction)
 {
   if (all.sd->weighted_examples() >= all.sd->dump_interval && !all.quiet && !all.bfgs)
   {
@@ -149,8 +149,8 @@ void VW::details::print_cs_update_multiclass(VW::workspace& all, bool is_test, s
   }
 }
 
-void VW::details::print_cs_update_action_scores(
-    VW::workspace& all, bool is_test, size_t num_features, const VW::action_scores& action_scores)
+void VW980::details::print_cs_update_action_scores(
+    VW980::workspace& all, bool is_test, size_t num_features, const VW980::action_scores& action_scores)
 {
   if (all.sd->weighted_examples() >= all.sd->dump_interval && !all.quiet && !all.bfgs)
   {
@@ -167,7 +167,7 @@ void VW::details::print_cs_update_action_scores(
   }
 }
 
-void VW::details::print_cs_update(VW::workspace& all, bool is_test, const VW::example& ec, const VW::multi_ex* ec_seq,
+void VW980::details::print_cs_update(VW980::workspace& all, bool is_test, const VW980::example& ec, const VW980::multi_ex* ec_seq,
     bool action_scores, uint32_t prediction)
 {
   if (all.sd->weighted_examples() >= all.sd->dump_interval && !all.quiet && !all.bfgs)
@@ -180,10 +180,10 @@ void VW::details::print_cs_update(VW::workspace& all, bool is_test, const VW::ex
       num_current_features = 0;
       for (const auto& ecc : *ec_seq)
       {
-        if (VW::is_cs_example_header(*ecc))
+        if (VW980::is_cs_example_header(*ecc))
         {
           num_current_features += (ec_seq->size() - 1) *
-              (ecc->get_num_features() - ecc->feature_space[VW::details::CONSTANT_NAMESPACE].size());
+              (ecc->get_num_features() - ecc->feature_space[VW980::details::CONSTANT_NAMESPACE].size());
         }
         else { num_current_features += ecc->get_num_features(); }
       }
@@ -215,8 +215,8 @@ void VW::details::print_cs_update(VW::workspace& all, bool is_test, const VW::ex
   }
 }
 
-void VW::details::output_cs_example(
-    VW::workspace& all, const VW::example& ec, const VW::cs_label& label, uint32_t multiclass_prediction)
+void VW980::details::output_cs_example(
+    VW980::workspace& all, const VW980::example& ec, const VW980::cs_label& label, uint32_t multiclass_prediction)
 {
   float loss = 0.;
   if (!label.is_test_label())
@@ -251,7 +251,7 @@ void VW::details::output_cs_example(
     }
     else
     {
-      VW::string_view sv_pred = all.sd->ldict->get(multiclass_prediction);
+      VW980::string_view sv_pred = all.sd->ldict->get(multiclass_prediction);
       all.print_text_by_ref(sink.get(), std::string{sv_pred}, ec.tag, all.logger);
     }
   }
@@ -261,7 +261,7 @@ void VW::details::output_cs_example(
     std::stringstream output_string_stream;
     for (unsigned int i = 0; i < label.costs.size(); i++)
     {
-      VW::cs_class cl = label.costs[i];
+      VW980::cs_class cl = label.costs[i];
       if (i > 0) { output_string_stream << ' '; }
       output_string_stream << cl.class_index << ':' << cl.partial_prediction;
     }
@@ -271,19 +271,19 @@ void VW::details::output_cs_example(
   print_cs_update(all, label.is_test_label(), ec, nullptr, false, multiclass_prediction);
 }
 
-void VW::details::output_cs_example(VW::workspace& all, const VW::example& ec)
+void VW980::details::output_cs_example(VW980::workspace& all, const VW980::example& ec)
 {
   output_cs_example(all, ec, ec.l.cs, ec.pred.multiclass);
 }
 
-void VW::details::finish_cs_example(VW::workspace& all, VW::example& ec)
+void VW980::details::finish_cs_example(VW980::workspace& all, VW980::example& ec)
 {
   output_cs_example(all, ec, ec.l.cs, ec.pred.multiclass);
-  VW::finish_example(all, ec);
+  VW980::finish_example(all, ec);
 }
 
-void VW::details::update_stats_cs_label(
-    const VW::workspace& /* all */, shared_data& sd, const VW::example& ec, VW::io::logger& logger)
+void VW980::details::update_stats_cs_label(
+    const VW980::workspace& /* all */, shared_data& sd, const VW980::example& ec, VW980::io::logger& logger)
 {
   const auto& label = ec.l.cs;
   const auto multiclass_prediction = ec.pred.multiclass;
@@ -312,8 +312,8 @@ void VW::details::update_stats_cs_label(
 
   sd.update(ec.test_only, !label.is_test_label(), loss, ec.weight, ec.get_num_features());
 }
-void VW::details::output_example_prediction_cs_label(
-    VW::workspace& all, const VW::example& ec, VW::io::logger& /* logger */)
+void VW980::details::output_example_prediction_cs_label(
+    VW980::workspace& all, const VW980::example& ec, VW980::io::logger& /* logger */)
 {
   const auto& label = ec.l.cs;
   const auto multiclass_prediction = ec.pred.multiclass;
@@ -326,7 +326,7 @@ void VW::details::output_example_prediction_cs_label(
     }
     else
     {
-      VW::string_view sv_pred = all.sd->ldict->get(multiclass_prediction);
+      VW980::string_view sv_pred = all.sd->ldict->get(multiclass_prediction);
       all.print_text_by_ref(sink.get(), std::string{sv_pred}, ec.tag, all.logger);
     }
   }
@@ -336,15 +336,15 @@ void VW::details::output_example_prediction_cs_label(
     std::stringstream output_string_stream;
     for (unsigned int i = 0; i < label.costs.size(); i++)
     {
-      VW::cs_class cl = label.costs[i];
+      VW980::cs_class cl = label.costs[i];
       if (i > 0) { output_string_stream << ' '; }
       output_string_stream << cl.class_index << ':' << cl.partial_prediction;
     }
     all.print_text_by_ref(all.raw_prediction.get(), output_string_stream.str(), ec.tag, all.logger);
   }
 }
-void VW::details::print_update_cs_label(
-    VW::workspace& all, shared_data& /* sd */, const VW::example& ec, VW::io::logger& /* logger */)
+void VW980::details::print_update_cs_label(
+    VW980::workspace& all, shared_data& /* sd */, const VW980::example& ec, VW980::io::logger& /* logger */)
 {
   const auto& label = ec.l.cs;
   const auto multiclass_prediction = ec.pred.multiclass;
@@ -352,28 +352,28 @@ void VW::details::print_update_cs_label(
   print_cs_update(all, label.is_test_label(), ec, nullptr, false, multiclass_prediction);
 }
 
-namespace VW
+namespace VW980
 {
-VW::label_parser cs_label_parser_global = {
+VW980::label_parser cs_label_parser_global = {
     // default_label
-    [](VW::polylabel& label) { label.cs.reset_to_default(); },
+    [](VW980::polylabel& label) { label.cs.reset_to_default(); },
     // parse_label
-    [](VW::polylabel& label, VW::reduction_features& /* red_features */, VW::label_parser_reuse_mem& reuse_mem,
-        const VW::named_labels* ldict, const std::vector<VW::string_view>& words, VW::io::logger& logger)
+    [](VW980::polylabel& label, VW980::reduction_features& /* red_features */, VW980::label_parser_reuse_mem& reuse_mem,
+        const VW980::named_labels* ldict, const std::vector<VW980::string_view>& words, VW980::io::logger& logger)
     { parse_label(label.cs, reuse_mem, ldict, words, logger); },
     // cache_label
-    [](const VW::polylabel& label, const VW::reduction_features& /* red_features */, io_buf& cache,
+    [](const VW980::polylabel& label, const VW980::reduction_features& /* red_features */, io_buf& cache,
         const std::string& upstream_name, bool text)
-    { return VW::model_utils::write_model_field(cache, label.cs, upstream_name, text); },
+    { return VW980::model_utils::write_model_field(cache, label.cs, upstream_name, text); },
     // read_cached_label
-    [](VW::polylabel& label, VW::reduction_features& /* red_features */, io_buf& cache)
-    { return VW::model_utils::read_model_field(cache, label.cs); },
+    [](VW980::polylabel& label, VW980::reduction_features& /* red_features */, io_buf& cache)
+    { return VW980::model_utils::read_model_field(cache, label.cs); },
     // get_weight
-    [](const VW::polylabel& label, const VW::reduction_features& /* red_features */) { return cs_weight(label.cs); },
+    [](const VW980::polylabel& label, const VW980::reduction_features& /* red_features */) { return cs_weight(label.cs); },
     // test_label
-    [](const VW::polylabel& label) { return label.cs.is_test_label(); },
+    [](const VW980::polylabel& label) { return label.cs.is_test_label(); },
     // label type
-    VW::label_type_t::CS};
+    VW980::label_type_t::CS};
 
 namespace model_utils
 {
@@ -397,14 +397,14 @@ size_t write_model_field(io_buf& io, const cs_class& wc, const std::string& upst
   return bytes;
 }
 
-size_t read_model_field(io_buf& io, VW::cs_label& cs)
+size_t read_model_field(io_buf& io, VW980::cs_label& cs)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, cs.costs);
   return bytes;
 }
 
-size_t write_model_field(io_buf& io, const VW::cs_label& cs, const std::string& upstream_name, bool text)
+size_t write_model_field(io_buf& io, const VW980::cs_label& cs, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, cs.costs, upstream_name + "_costs", text);
@@ -421,4 +421,4 @@ bool cs_label::is_test_label() const
   return true;
 }
 void cs_label::reset_to_default() { costs.clear(); }
-}  // namespace VW
+}  // namespace VW980

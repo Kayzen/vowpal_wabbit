@@ -6,9 +6,9 @@
 
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 class example;
 
-using multi_ex = std::vector<VW::example*>;
-}  // namespace VW
+using multi_ex = std::vector<VW980::example*>;
+}  // namespace VW980

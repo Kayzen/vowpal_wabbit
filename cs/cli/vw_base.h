@@ -11,7 +11,7 @@
 
 using namespace System::Collections::Generic;
 
-namespace VW
+namespace VW980
 {
 ref class VowpalWabbitPrediction;
 ref class VowpalWabbitModel;
@@ -55,7 +55,7 @@ private:
       /// <summary>
       /// The native vowpal wabbit data structure.
       /// </summary>
-      VW::workspace* m_vw;
+      VW980::workspace* m_vw;
 
   /// <summary>
   /// Thread-safe increment of reference count.

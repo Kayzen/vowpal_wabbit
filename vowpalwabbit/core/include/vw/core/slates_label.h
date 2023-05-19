@@ -12,7 +12,7 @@
 
 #include <cstdint>
 
-namespace VW
+namespace VW980
 {
 namespace slates
 {
@@ -44,7 +44,7 @@ public:
 
   // For slot examples
   // Only valid if labeled
-  VW::action_scores probabilities;
+  VW980::action_scores probabilities;
 
   label() { reset_to_default(); }
 
@@ -59,31 +59,31 @@ public:
   }
 };
 
-void default_label(VW::slates::label& v);
-void parse_label(slates::label& ld, VW::label_parser_reuse_mem& reuse_mem, const std::vector<VW::string_view>& words,
-    VW::io::logger& logger);
+void default_label(VW980::slates::label& v);
+void parse_label(slates::label& ld, VW980::label_parser_reuse_mem& reuse_mem, const std::vector<VW980::string_view>& words,
+    VW980::io::logger& logger);
 
-extern VW::label_parser slates_label_parser;
+extern VW980::label_parser slates_label_parser;
 }  // namespace slates
 
-VW::string_view to_string(VW::slates::example_type);
+VW980::string_view to_string(VW980::slates::example_type);
 
 namespace model_utils
 {
-size_t read_model_field(io_buf&, VW::slates::label&);
-size_t write_model_field(io_buf&, const VW::slates::label&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::slates::label&);
+size_t write_model_field(io_buf&, const VW980::slates::label&, const std::string&, bool);
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980
 
 namespace fmt
 {
 template <>
-class formatter<VW::slates::example_type> : public formatter<std::string>
+class formatter<VW980::slates::example_type> : public formatter<std::string>
 {
 public:
-  auto format(VW::slates::example_type c, format_context& ctx) -> decltype(ctx.out())
+  auto format(VW980::slates::example_type c, format_context& ctx) -> decltype(ctx.out())
   {
-    return formatter<std::string>::format(std::string{VW::to_string(c)}, ctx);
+    return formatter<std::string>::format(std::string{VW980::to_string(c)}, ctx);
   }
 };
 }  // namespace fmt

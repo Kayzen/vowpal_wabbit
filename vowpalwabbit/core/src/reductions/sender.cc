@@ -20,23 +20,23 @@
 
 #include <vector>
 
-using namespace VW::config;
-using namespace VW::LEARNER;
+using namespace VW980::config;
+using namespace VW980::LEARNER;
 
 namespace
 {
 struct sent_example_info
 {
-  VW::simple_label label;
+  VW980::simple_label label;
   float weight{};
   bool test_only{};
   // Note: this will not include counts of interacted features.
   // This info is not sent back.
   uint64_t num_features{};
-  VW::v_array<char> tag;
+  VW980::v_array<char> tag;
 
   sent_example_info() = default;
-  sent_example_info(VW::simple_label l, float w, bool t, uint64_t n, VW::v_array<char> tg)
+  sent_example_info(VW980::simple_label l, float w, bool t, uint64_t n, VW980::v_array<char> tg)
       : label(l), weight(w), test_only(t), num_features(n), tag(std::move(tg))
   {
   }
@@ -45,24 +45,24 @@ struct sent_example_info
 class sender
 {
 public:
-  VW::io_buf socket_output_buffer;
-  std::unique_ptr<VW::io::socket> socket;
-  std::unique_ptr<VW::io::reader> socket_reader;
-  VW::workspace* all = nullptr;  // loss example_queue_limit others
+  VW980::io_buf socket_output_buffer;
+  std::unique_ptr<VW980::io::socket> socket;
+  std::unique_ptr<VW980::io::reader> socket_reader;
+  VW980::workspace* all = nullptr;  // loss example_queue_limit others
   std::vector<sent_example_info> delay_ring;
   size_t sent_index = 0;
   size_t received_index = 0;
-  VW::parsers::cache::details::cache_temp_buffer cache_buffer;
+  VW980::parsers::cache::details::cache_temp_buffer cache_buffer;
 };
 
 void open_sockets(sender& s, const std::string& host)
 {
-  s.socket = VW::details::open_vw_binary_socket(host, s.all->logger);
+  s.socket = VW980::details::open_vw_binary_socket(host, s.all->logger);
   s.socket_reader = s.socket->get_reader();
   s.socket_output_buffer.add_file(s.socket->get_writer());
 }
 
-void update_stats_sender(VW::shared_data& sd, const sent_example_info& info, float loss)
+void update_stats_sender(VW980::shared_data& sd, const sent_example_info& info, float loss)
 {
   sd.update(info.test_only, info.label.label != FLT_MAX, loss, info.weight, info.num_features);
   if (info.label.label != FLT_MAX && !info.test_only)
@@ -72,12 +72,12 @@ void update_stats_sender(VW::shared_data& sd, const sent_example_info& info, flo
 }
 
 void output_example_prediction_sender(
-    VW::workspace& all, const sent_example_info& info, float prediction, VW::io::logger& logger)
+    VW980::workspace& all, const sent_example_info& info, float prediction, VW980::io::logger& logger)
 {
   for (auto& f : all.final_prediction_sink) { all.print_by_ref(f.get(), prediction, 0, info.tag, logger); }
 }
 
-void print_update_sender(VW::workspace& all, VW::shared_data& sd, const sent_example_info& info, float prediction)
+void print_update_sender(VW980::workspace& all, VW980::shared_data& sd, const sent_example_info& info, float prediction)
 {
   const bool should_print_driver_update = sd.weighted_examples() >= sd.dump_interval && !all.quiet;
 
@@ -93,7 +93,7 @@ void receive_result(sender& s)
   float prediction{};
   float weight{};
 
-  VW::details::get_prediction(s.socket_reader.get(), prediction, weight);
+  VW980::details::get_prediction(s.socket_reader.get(), prediction, weight);
   const auto& sent_info = s.delay_ring[s.received_index++ % s.all->example_parser->example_queue_limit];
 
   const auto& ld = sent_info.label;
@@ -104,12 +104,12 @@ void receive_result(sender& s)
   print_update_sender(*s.all, *(s.all->sd), sent_info, prediction);
 }
 
-void send_example(sender& s, VW::example& ec)
+void send_example(sender& s, VW980::example& ec)
 {
   if (s.received_index + s.all->example_parser->example_queue_limit / 2 - 1 == s.sent_index) { receive_result(s); }
 
   if (s.all->set_minmax) { s.all->set_minmax(ec.l.simple.label); }
-  VW::parsers::cache::write_example_to_cache(
+  VW980::parsers::cache::write_example_to_cache(
       s.socket_output_buffer, &ec, s.all->example_parser->lbl_parser, s.all->parse_mask, s.cache_buffer);
   s.socket_output_buffer.flush();
   s.delay_ring[s.sent_index++ % s.all->example_parser->example_queue_limit] =
@@ -126,10 +126,10 @@ void end_examples(sender& s)
 
 // This reduction does not actually produce a prediction despite claiming it
 // does, since it waits to receive the result and then outputs it.
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::sender_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::sender_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   std::string host;
 
   option_group_definition sender_options("[Reduction] Network sending");
@@ -140,17 +140,17 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::sender_setup(VW::setup_bas
 
   if (!options.add_parse_and_check_necessary(sender_options)) { return nullptr; }
 
-  auto s = VW::make_unique<sender>();
+  auto s = VW980::make_unique<sender>();
   s->all = &all;
   s->delay_ring.resize(all.example_parser->example_queue_limit);
   open_sockets(*s, host);
 
   auto l = make_bottom_learner(std::move(s), send_example, send_example, stack_builder.get_setupfn_name(sender_setup),
-      VW::prediction_type_t::SCALAR, VW::label_type_t::SIMPLE)
+      VW980::prediction_type_t::SCALAR, VW980::label_type_t::SIMPLE)
                // Set at least one of update_stats, output_example_prediction or print_update so that the old finish
                // has an implementation.
                .set_update_stats(
-                   [](const VW::workspace&, VW::shared_data&, const sender&, const VW::example&, VW::io::logger&) {})
+                   [](const VW980::workspace&, VW980::shared_data&, const sender&, const VW980::example&, VW980::io::logger&) {})
                .set_end_examples(end_examples)
                .build();
   return l;

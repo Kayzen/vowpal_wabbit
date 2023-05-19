@@ -46,7 +46,7 @@ using socket_t = int;
 
 #include "vw/common/future_compat.h"
 
-namespace VW  // NOLINT
+namespace VW980  // NOLINT
 {
 class spanning_tree
 {
@@ -55,7 +55,7 @@ public:
   ~spanning_tree();
 
   VW_DEPRECATED(
-      "VW::SpanningTree::BoundPort renamed to VW::spanning_tree::bound_port. VW::SpanningTree::BoundPort will be "
+      "VW980::SpanningTree::BoundPort renamed to VW980::spanning_tree::bound_port. VW980::SpanningTree::BoundPort will be "
       "removed in VW 10.")
   inline short unsigned int BoundPort()  // NOLINT
   {
@@ -64,7 +64,7 @@ public:
   short unsigned int bound_port();
 
   VW_DEPRECATED(
-      "VW::SpanningTree::Start renamed to VW::spanning_tree::start. VW::SpanningTree::Start will be removed in VW 10.")
+      "VW980::SpanningTree::Start renamed to VW980::spanning_tree::start. VW980::SpanningTree::Start will be removed in VW 10.")
   inline void Start()  // NOLINT
   {
     return start();
@@ -72,7 +72,7 @@ public:
   void start();
 
   VW_DEPRECATED(
-      "VW::SpanningTree::Run renamed to VW::spanning_tree::run. VW::SpanningTree::Run will be removed in VW 10.")
+      "VW980::SpanningTree::Run renamed to VW980::spanning_tree::run. VW980::SpanningTree::Run will be removed in VW 10.")
   inline void Run()  // NOLINT
   {
     return run();
@@ -80,7 +80,7 @@ public:
   void run();
 
   VW_DEPRECATED(
-      "VW::SpanningTree::Stop renamed to VW::spanning_tree::stop. VW::SpanningTree::Stop will be removed in VW 10.")
+      "VW980::SpanningTree::Stop renamed to VW980::spanning_tree::stop. VW980::SpanningTree::Stop will be removed in VW 10.")
   inline void Stop()  // NOLINT
   {
     return stop();
@@ -100,5 +100,5 @@ private:
 };
 
 using SpanningTree VW_DEPRECATED(
-    "VW::SpanningTree renamed to VW::spanning_tree. VW::SpanningTree will be removed in VW 10.") = spanning_tree;
-}  // namespace VW
+    "VW980::SpanningTree renamed to VW980::spanning_tree. VW980::SpanningTree will be removed in VW 10.") = spanning_tree;
+}  // namespace VW980

@@ -8,18 +8,18 @@
 
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> baseline_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> baseline_setup(VW980::setup_base_i& stack_builder);
 
 namespace baseline
 {
 // utility functions for disabling baseline on a given example
-void set_baseline_enabled(VW::example* ec);
-void reset_baseline_disabled(VW::example* ec);
-bool baseline_enabled(const VW::example* ec);
+void set_baseline_enabled(VW980::example* ec);
+void reset_baseline_disabled(VW980::example* ec);
+bool baseline_enabled(const VW980::example* ec);
 }  // namespace baseline
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
@@ -16,8 +16,8 @@ namespace reductions
  * https://github.com/VowpalWabbit/vowpal_wabbit/wiki/Interaction-Grounded-Learning
  *
  * @param stack_builder Stack builder to use for setup.
- * @return VW::LEARNER::learner* learner if this reduction is active, nullptr otherwise
+ * @return VW980::LEARNER::learner* learner if this reduction is active, nullptr otherwise
  */
-std::shared_ptr<VW::LEARNER::learner> interaction_ground_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> interaction_ground_setup(VW980::setup_base_i& stack_builder);
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

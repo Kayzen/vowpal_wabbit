@@ -10,11 +10,11 @@
 #include <cstdint>
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> offset_tree_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> offset_tree_setup(VW980::setup_base_i& stack_builder);
 
 namespace offset_tree
 {
@@ -68,4 +68,4 @@ private:
 };
 }  // namespace offset_tree
 }  // namespace reductions
-}  // namespace VW
+}  // namespace VW980

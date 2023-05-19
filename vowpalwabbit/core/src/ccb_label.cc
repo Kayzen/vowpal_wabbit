@@ -28,19 +28,19 @@
 #include <numeric>
 #include <unordered_set>
 
-using namespace VW::LEARNER;
-using namespace VW;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980;
+using namespace VW980::config;
 
 namespace
 {
-float ccb_weight(const VW::ccb_label& ld) { return ld.weight; }
+float ccb_weight(const VW980::ccb_label& ld) { return ld.weight; }
 
-VW::action_score convert_to_score(
-    const VW::string_view& action_id_str, const VW::string_view& probability_str, VW::io::logger& logger)
+VW980::action_score convert_to_score(
+    const VW980::string_view& action_id_str, const VW980::string_view& probability_str, VW980::io::logger& logger)
 {
-  auto action_id = static_cast<uint32_t>(VW::details::int_of_string(action_id_str, logger));
-  auto probability = VW::details::float_of_string(probability_str, logger);
+  auto action_id = static_cast<uint32_t>(VW980::details::int_of_string(action_id_str, logger));
+  auto probability = VW980::details::float_of_string(probability_str, logger);
   if (std::isnan(probability)) THROW("error NaN probability: " << probability_str);
 
   if (probability > 1.0)
@@ -58,28 +58,28 @@ VW::action_score convert_to_score(
 }
 
 //<action>:<cost>:<probability>,<action>:<probability>,<action>:<probability>,…
-VW::ccb_outcome* parse_outcome(VW::string_view outcome, VW::io::logger& logger)
+VW980::ccb_outcome* parse_outcome(VW980::string_view outcome, VW980::io::logger& logger)
 {
-  auto& ccb_outcome = *(new VW::ccb_outcome());
+  auto& ccb_outcome = *(new VW980::ccb_outcome());
 
-  std::vector<VW::string_view> split_commas;
-  VW::tokenize(',', outcome, split_commas);
+  std::vector<VW980::string_view> split_commas;
+  VW980::tokenize(',', outcome, split_commas);
 
-  std::vector<VW::string_view> split_colons;
-  VW::tokenize(':', split_commas[0], split_colons);
+  std::vector<VW980::string_view> split_colons;
+  VW980::tokenize(':', split_commas[0], split_colons);
 
   if (split_colons.size() != 3) THROW("Malformed ccb label");
 
   ccb_outcome.probabilities.push_back(convert_to_score(split_colons[0], split_colons[2], logger));
 
-  ccb_outcome.cost = VW::details::float_of_string(split_colons[1], logger);
+  ccb_outcome.cost = VW980::details::float_of_string(split_colons[1], logger);
   if (std::isnan(ccb_outcome.cost)) THROW("error NaN cost: " << split_colons[1]);
 
   split_colons.clear();
 
   for (size_t i = 1; i < split_commas.size(); i++)
   {
-    VW::tokenize(':', split_commas[i], split_colons);
+    VW980::tokenize(':', split_commas[i], split_colons);
     if (split_colons.size() != 2) THROW("Must be action probability pairs");
     ccb_outcome.probabilities.push_back(convert_to_score(split_colons[0], split_colons[1], logger));
   }
@@ -88,68 +88,68 @@ VW::ccb_outcome* parse_outcome(VW::string_view outcome, VW::io::logger& logger)
 }
 
 void parse_explicit_inclusions(
-    VW::ccb_label& ld, const std::vector<VW::string_view>& split_inclusions, VW::io::logger& logger)
+    VW980::ccb_label& ld, const std::vector<VW980::string_view>& split_inclusions, VW980::io::logger& logger)
 {
   for (const auto& inclusion : split_inclusions)
   {
-    ld.explicit_included_actions.push_back(VW::details::int_of_string(inclusion, logger));
+    ld.explicit_included_actions.push_back(VW980::details::int_of_string(inclusion, logger));
   }
 }
 }  // namespace
 
-namespace VW
+namespace VW980
 {
-VW::label_parser ccb_label_parser_global = {
+VW980::label_parser ccb_label_parser_global = {
     // default_label
-    [](VW::polylabel& label) { label.conditional_contextual_bandit.reset_to_default(); },
+    [](VW980::polylabel& label) { label.conditional_contextual_bandit.reset_to_default(); },
     // parse_label
-    [](VW::polylabel& label, ::VW::reduction_features& /*red_features*/, VW::label_parser_reuse_mem& reuse_mem,
-        const VW::named_labels* /*ldict*/, const std::vector<VW::string_view>& words, VW::io::logger& logger)
+    [](VW980::polylabel& label, ::VW980::reduction_features& /*red_features*/, VW980::label_parser_reuse_mem& reuse_mem,
+        const VW980::named_labels* /*ldict*/, const std::vector<VW980::string_view>& words, VW980::io::logger& logger)
     { parse_ccb_label(label.conditional_contextual_bandit, reuse_mem, words, logger); },
     // cache_label
-    [](const VW::polylabel& label, const ::VW::reduction_features& /*red_features*/, io_buf& cache,
+    [](const VW980::polylabel& label, const ::VW980::reduction_features& /*red_features*/, io_buf& cache,
         const std::string& upstream_name, bool text)
-    { return VW::model_utils::write_model_field(cache, label.conditional_contextual_bandit, upstream_name, text); },
+    { return VW980::model_utils::write_model_field(cache, label.conditional_contextual_bandit, upstream_name, text); },
     // read_cached_label
-    [](VW::polylabel& label, ::VW::reduction_features& /*red_features*/, io_buf& cache)
-    { return VW::model_utils::read_model_field(cache, label.conditional_contextual_bandit); },
+    [](VW980::polylabel& label, ::VW980::reduction_features& /*red_features*/, io_buf& cache)
+    { return VW980::model_utils::read_model_field(cache, label.conditional_contextual_bandit); },
     // get_weight
-    [](const VW::polylabel& label, const ::VW::reduction_features& /*red_features*/)
+    [](const VW980::polylabel& label, const ::VW980::reduction_features& /*red_features*/)
     { return ccb_weight(label.conditional_contextual_bandit); },
     // test_label
-    [](const VW::polylabel& label) { return label.conditional_contextual_bandit.is_test_label(); },
+    [](const VW980::polylabel& label) { return label.conditional_contextual_bandit.is_test_label(); },
     // label type
-    VW::label_type_t::CCB};
+    VW980::label_type_t::CCB};
 
-void parse_ccb_label(ccb_label& ld, VW::label_parser_reuse_mem& reuse_mem, const std::vector<VW::string_view>& words,
-    VW::io::logger& logger)
+void parse_ccb_label(ccb_label& ld, VW980::label_parser_reuse_mem& reuse_mem, const std::vector<VW980::string_view>& words,
+    VW980::io::logger& logger)
 {
   ld.weight = 1.0;
 
   if (words.size() < 2) THROW("ccb labels may not be empty");
-  if (!(words[0] == VW::details::CCB_LABEL)) { THROW("ccb labels require the first word to be ccb"); }
+  if (!(words[0] == VW980::details::CCB_LABEL)) { THROW("ccb labels require the first word to be ccb"); }
 
   auto type = words[1];
-  if (type == VW::details::SHARED_TYPE)
+  if (type == VW980::details::SHARED_TYPE)
   {
     if (words.size() > 2) THROW("shared labels may not have a cost");
-    ld.type = VW::ccb_example_type::SHARED;
+    ld.type = VW980::ccb_example_type::SHARED;
   }
-  else if (type == VW::details::ACTION_TYPE)
+  else if (type == VW980::details::ACTION_TYPE)
   {
     if (words.size() > 2) THROW("action labels may not have a cost");
-    ld.type = VW::ccb_example_type::ACTION;
+    ld.type = VW980::ccb_example_type::ACTION;
   }
-  else if (type == VW::details::SLOT_TYPE)
+  else if (type == VW980::details::SLOT_TYPE)
   {
     if (words.size() > 4) THROW("ccb slot label can only have a type cost and exclude list");
-    ld.type = VW::ccb_example_type::SLOT;
+    ld.type = VW980::ccb_example_type::SLOT;
 
     // Skip the first two words "ccb <type>"
     for (size_t i = 2; i < words.size(); i++)
     {
       auto is_outcome = words[i].find(':');
-      if (is_outcome != VW::string_view::npos)
+      if (is_outcome != VW980::string_view::npos)
       {
         if (ld.outcome != nullptr) { THROW("There may be only 1 outcome associated with a slot.") }
 
@@ -157,7 +157,7 @@ void parse_ccb_label(ccb_label& ld, VW::label_parser_reuse_mem& reuse_mem, const
       }
       else
       {
-        VW::tokenize(',', words[i], reuse_mem.tokens);
+        VW980::tokenize(',', words[i], reuse_mem.tokens);
         parse_explicit_inclusions(ld, reuse_mem.tokens, logger);
       }
     }
@@ -166,10 +166,10 @@ void parse_ccb_label(ccb_label& ld, VW::label_parser_reuse_mem& reuse_mem, const
     if ((ld.outcome != nullptr) && ld.outcome->probabilities.size() > 1)
     {
       float total_pred = std::accumulate(ld.outcome->probabilities.begin(), ld.outcome->probabilities.end(), 0.f,
-          [](float result_so_far, VW::action_score action_pred) { return result_so_far + action_pred.score; });
+          [](float result_so_far, VW980::action_score action_pred) { return result_so_far + action_pred.score; });
 
       // TODO do a proper comparison here.
-      if (!VW::math::are_same(total_pred, 1.f))
+      if (!VW980::math::are_same(total_pred, 1.f))
       {
         THROW("When providing all prediction probabilities they must add up to 1.f, instead summed to " << total_pred);
       }
@@ -180,7 +180,7 @@ void parse_ccb_label(ccb_label& ld, VW::label_parser_reuse_mem& reuse_mem, const
 
 namespace model_utils
 {
-size_t read_model_field(io_buf& io, VW::ccb_outcome& ccbo)
+size_t read_model_field(io_buf& io, VW980::ccb_outcome& ccbo)
 {
   size_t bytes = 0;
   bytes += read_model_field(io, ccbo.cost);
@@ -188,7 +188,7 @@ size_t read_model_field(io_buf& io, VW::ccb_outcome& ccbo)
   return bytes;
 }
 
-size_t write_model_field(io_buf& io, const VW::ccb_outcome& ccbo, const std::string& upstream_name, bool text)
+size_t write_model_field(io_buf& io, const VW980::ccb_outcome& ccbo, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, ccbo.cost, upstream_name + "_cost", text);
@@ -196,7 +196,7 @@ size_t write_model_field(io_buf& io, const VW::ccb_outcome& ccbo, const std::str
   return bytes;
 }
 
-size_t read_model_field(io_buf& io, VW::ccb_label& ccb)
+size_t read_model_field(io_buf& io, VW980::ccb_label& ccb)
 {
   size_t bytes = 0;
   // Since read_cached_features doesn't default the label we must do it here.
@@ -207,7 +207,7 @@ size_t read_model_field(io_buf& io, VW::ccb_label& ccb)
   bytes += read_model_field(io, outcome_is_present);
   if (outcome_is_present)
   {
-    ccb.outcome = new VW::ccb_outcome();
+    ccb.outcome = new VW980::ccb_outcome();
     bytes += read_model_field(io, *ccb.outcome);
   }
   bytes += read_model_field(io, ccb.explicit_included_actions);
@@ -215,7 +215,7 @@ size_t read_model_field(io_buf& io, VW::ccb_label& ccb)
   return bytes;
 }
 
-size_t write_model_field(io_buf& io, const VW::ccb_label& ccb, const std::string& upstream_name, bool text)
+size_t write_model_field(io_buf& io, const VW980::ccb_label& ccb, const std::string& upstream_name, bool text)
 {
   size_t bytes = 0;
   bytes += write_model_field(io, ccb.type, upstream_name + "_type", text);
@@ -301,4 +301,4 @@ ccb_label::ccb_label(ccb_label&& other) noexcept
   std::swap(explicit_included_actions, other.explicit_included_actions);
   std::swap(weight, other.weight);
 }
-}  // namespace VW
+}  // namespace VW980

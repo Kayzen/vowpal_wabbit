@@ -47,8 +47,8 @@
 #  include "vw/fb_parser/parse_example_flatbuffer.h"
 #endif
 
-void VW::details::print_result_by_ref(
-    VW::io::writer* f, float res, float, const VW::v_array<char>& tag, VW::io::logger& logger)
+void VW980::details::print_result_by_ref(
+    VW980::io::writer* f, float res, float, const VW980::v_array<char>& tag, VW980::io::logger& logger)
 {
   if (f != nullptr)
   {
@@ -56,42 +56,42 @@ void VW::details::print_result_by_ref(
     auto saved_precision = ss.precision();
     if (floorf(res) == res) { ss << std::setprecision(0); }
     ss << std::fixed << res << std::setprecision(saved_precision);
-    if (!tag.empty()) { ss << " " << VW::string_view{tag.begin(), tag.size()}; }
+    if (!tag.empty()) { ss << " " << VW980::string_view{tag.begin(), tag.size()}; }
     ss << '\n';
     ssize_t len = ss.str().size();
     ssize_t t = f->write(ss.str().c_str(), static_cast<unsigned int>(len));
-    if (t != len) { logger.err_error("write error: {}", VW::io::strerror_to_string(errno)); }
+    if (t != len) { logger.err_error("write error: {}", VW980::io::strerror_to_string(errno)); }
   }
 }
 
 void print_raw_text_by_ref(
-    VW::io::writer* f, const std::string& s, const VW::v_array<char>& tag, VW::io::logger& logger)
+    VW980::io::writer* f, const std::string& s, const VW980::v_array<char>& tag, VW980::io::logger& logger)
 {
   if (f == nullptr) { return; }
 
   std::stringstream ss;
   ss << s;
-  if (!tag.empty()) { ss << " " << VW::string_view{tag.begin(), tag.size()}; }
+  if (!tag.empty()) { ss << " " << VW980::string_view{tag.begin(), tag.size()}; }
   ss << '\n';
   ssize_t len = ss.str().size();
   ssize_t t = f->write(ss.str().c_str(), static_cast<unsigned int>(len));
-  if (t != len) { logger.err_error("write error: {}", VW::io::strerror_to_string(errno)); }
+  if (t != len) { logger.err_error("write error: {}", VW980::io::strerror_to_string(errno)); }
 }
 
-namespace VW
+namespace VW980
 {
 void workspace::learn(example& ec)
 {
   if (l->is_multiline()) THROW("This learner does not support single-line examples.");
 
-  if (ec.test_only || !training) { VW::LEARNER::require_singleline(l)->predict(ec); }
+  if (ec.test_only || !training) { VW980::LEARNER::require_singleline(l)->predict(ec); }
   else
   {
-    if (l->learn_returns_prediction) { VW::LEARNER::require_singleline(l)->learn(ec); }
+    if (l->learn_returns_prediction) { VW980::LEARNER::require_singleline(l)->learn(ec); }
     else
     {
-      VW::LEARNER::require_singleline(l)->predict(ec);
-      VW::LEARNER::require_singleline(l)->learn(ec);
+      VW980::LEARNER::require_singleline(l)->predict(ec);
+      VW980::LEARNER::require_singleline(l)->learn(ec);
     }
   }
 }
@@ -100,14 +100,14 @@ void workspace::learn(multi_ex& ec)
 {
   if (!l->is_multiline()) THROW("This learner does not support multi-line example.");
 
-  if (!training) { VW::LEARNER::require_multiline(l)->predict(ec); }
+  if (!training) { VW980::LEARNER::require_multiline(l)->predict(ec); }
   else
   {
-    if (l->learn_returns_prediction) { VW::LEARNER::require_multiline(l)->learn(ec); }
+    if (l->learn_returns_prediction) { VW980::LEARNER::require_multiline(l)->learn(ec); }
     else
     {
-      VW::LEARNER::require_multiline(l)->predict(ec);
-      VW::LEARNER::require_multiline(l)->learn(ec);
+      VW980::LEARNER::require_multiline(l)->predict(ec);
+      VW980::LEARNER::require_multiline(l)->learn(ec);
     }
   }
 }
@@ -119,7 +119,7 @@ void workspace::predict(example& ec)
   // be called directly in library mode, test_only must be explicitly set here. If the example has a label but is passed
   // to predict it would otherwise be incorrectly labelled as test_only = false.
   ec.test_only = true;
-  VW::LEARNER::require_singleline(l)->predict(ec);
+  VW980::LEARNER::require_singleline(l)->predict(ec);
 }
 
 void workspace::predict(multi_ex& ec)
@@ -130,26 +130,26 @@ void workspace::predict(multi_ex& ec)
   // to predict it would otherwise be incorrectly labelled as test_only = false.
   for (auto& ex : ec) { ex->test_only = true; }
 
-  VW::LEARNER::require_multiline(l)->predict(ec);
+  VW980::LEARNER::require_multiline(l)->predict(ec);
 }
 
 void workspace::finish_example(example& ec)
 {
   if (l->is_multiline()) THROW("This learner does not support single-line examples.");
 
-  VW::LEARNER::require_singleline(l)->finish_example(*this, ec);
+  VW980::LEARNER::require_singleline(l)->finish_example(*this, ec);
 }
 
 void workspace::finish_example(multi_ex& ec)
 {
   if (!l->is_multiline()) THROW("This learner does not support multi-line example.");
 
-  VW::LEARNER::require_multiline(l)->finish_example(*this, ec);
+  VW980::LEARNER::require_multiline(l)->finish_example(*this, ec);
 }
 
 template <typename WeightsT>
 std::string dump_weights_to_json_weight_typed(const WeightsT& weights,
-    const std::map<uint64_t, VW::details::invert_hash_info>& index_name_map, const parameters& parameter_holder,
+    const std::map<uint64_t, VW980::details::invert_hash_info>& index_name_map, const parameters& parameter_holder,
     bool include_feature_names, bool include_online_state)
 {
   rapidjson::Document doc;
@@ -169,7 +169,7 @@ std::string dump_weights_to_json_weight_typed(const WeightsT& weights,
       const auto map_it = index_name_map.find(idx);
       if (include_feature_names && map_it != index_name_map.end())
       {
-        const VW::details::invert_hash_info& info = map_it->second;
+        const VW980::details::invert_hash_info& info = map_it->second;
         rapidjson::Value terms_array(rapidjson::kArrayType);
         for (const auto& component : info.weight_components)
         {
@@ -277,10 +277,10 @@ std::string workspace::dump_weights_to_json_experimental()
                         : dump_weights_to_json_weight_typed(weights.dense_weights, index_name_map, weights,
                               dump_json_weights_include_feature_names, dump_json_weights_include_extra_online_state);
 }
-}  // namespace VW
+}  // namespace VW980
 
-void VW::details::compile_limits(std::vector<std::string> limits, std::array<uint32_t, VW::NUM_NAMESPACES>& dest,
-    bool /*quiet*/, VW::io::logger& logger)
+void VW980::details::compile_limits(std::vector<std::string> limits, std::array<uint32_t, VW980::NUM_NAMESPACES>& dest,
+    bool /*quiet*/, VW980::io::logger& logger)
 {
   for (size_t i = 0; i < limits.size(); i++)
   {
@@ -304,11 +304,11 @@ void VW::details::compile_limits(std::vector<std::string> limits, std::array<uin
 VW_WARNING_STATE_PUSH
 VW_WARNING_DISABLE_DEPRECATED_USAGE
 
-namespace VW
+namespace VW980
 {
-workspace::workspace(VW::io::logger logger) : options(nullptr, nullptr), logger(std::move(logger))
+workspace::workspace(VW980::io::logger logger) : options(nullptr, nullptr), logger(std::move(logger))
 {
-  _random_state_sp = std::make_shared<VW::rand_state>();
+  _random_state_sp = std::make_shared<VW980::rand_state>();
   sd = std::make_shared<shared_data>();
   // Default is stderr.
   trace_message = std::make_shared<std::ostream>(std::cout.rdbuf());
@@ -343,7 +343,7 @@ workspace::workspace(VW::io::logger logger) : options(nullptr, nullptr), logger(
                // updates (see parse_args.cc)
   numpasses = 1;
 
-  print_by_ref = VW::details::print_result_by_ref;
+  print_by_ref = VW980::details::print_result_by_ref;
   print_text_by_ref = print_raw_text_by_ref;
   lda = 0;
   random_weights = false;
@@ -353,7 +353,7 @@ workspace::workspace(VW::io::logger logger) : options(nullptr, nullptr), logger(
   per_feature_regularizer_output = "";
   per_feature_regularizer_text = "";
 
-  stdout_adapter = VW::io::open_stdout();
+  stdout_adapter = VW980::io::open_stdout();
 
   searchstr = nullptr;
 
@@ -377,7 +377,7 @@ workspace::workspace(VW::io::logger logger) : options(nullptr, nullptr), logger(
 
   add_constant = true;
   audit = false;
-  audit_writer = VW::io::open_stdout();
+  audit_writer = VW980::io::open_stdout();
 
   pass_length = std::numeric_limits<size_t>::max();
   passes_complete = 0;
@@ -410,10 +410,10 @@ void workspace::finish()
   if (options->was_supplied("dump_json_weights_experimental"))
   {
     auto content = dump_weights_to_json_experimental();
-    auto writer = VW::io::open_file_writer(json_weights_file_name);
+    auto writer = VW980::io::open_file_writer(json_weights_file_name);
     writer->write(content.c_str(), content.length());
   }
-  VW::reductions::output_metrics(*this);
+  VW980::reductions::output_metrics(*this);
   logger.log_summary();
 
   if (l != nullptr) { l->finish(); }
@@ -422,7 +422,7 @@ void workspace::finish()
 workspace::~workspace()
 {
   // TODO: migrate all finalization into parser destructor
-  if (example_parser != nullptr) { VW::details::free_parser(*this); }
+  if (example_parser != nullptr) { VW980::details::free_parser(*this); }
 }
 
-}  // namespace VW
+}  // namespace VW980

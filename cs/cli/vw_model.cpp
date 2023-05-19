@@ -8,7 +8,7 @@
 #include "vw/core/parse_args.h"
 #include "clr_io.h"
 
-namespace VW
+namespace VW980
 {
 VowpalWabbitSettings^ AddTestOnly(VowpalWabbitSettings^ settings)
 { // VowpalWabbitModel and VowpalWabbit instances seeded from VowpalWabbitModel

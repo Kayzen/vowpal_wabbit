@@ -15,21 +15,21 @@
 #include <string>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 class metrics_collector
 {
 public:
   metrics_collector(bool enabled = false);
 
-  using metrics_callback_fn = std::function<void(VW::metric_sink&)>;
+  using metrics_callback_fn = std::function<void(VW980::metric_sink&)>;
 
   bool are_metrics_enabled() const;
   void register_metrics_callback(const metrics_callback_fn& callback);
-  VW::metric_sink collect_metrics(LEARNER::learner* l = nullptr) const;
+  VW980::metric_sink collect_metrics(LEARNER::learner* l = nullptr) const;
 
 private:
   bool _are_metrics_enabled;
   std::vector<metrics_callback_fn> _metrics_callbacks;
 };
-}  // namespace VW
+}  // namespace VW980

@@ -21,7 +21,7 @@ struct wt
 class SequenceLabelerTask : public SearchTask<std::vector<wt>, std::vector<uint32_t> >  // NOLINT
 {
 public:
-  SequenceLabelerTask(VW::workspace& vw_obj)
+  SequenceLabelerTask(VW980::workspace& vw_obj)
       : SearchTask<std::vector<wt>, std::vector<uint32_t> >(vw_obj)  // must run parent constructor!
   {
     sch.set_options(Search::AUTO_HAMMING_LOSS | Search::AUTO_CONDITION_FEATURES);
@@ -36,10 +36,10 @@ public:
     // ptag currently uint32_t
     for (ptag i = 0; i < input_example.size(); i++)
     {
-      VW::example* ex = VW::read_example(vw_obj, std::string("1 |w ") + input_example[i].word);
+      VW980::example* ex = VW980::read_example(vw_obj, std::string("1 |w ") + input_example[i].word);
       action p =
           Search::predictor(sch, i + 1).set_input(*ex).set_oracle(input_example[i].tag).set_condition(i, 'p').predict();
-      VW::finish_example(vw_obj, *ex);
+      VW980::finish_example(vw_obj, *ex);
       output.push_back(p);
     }
   }
@@ -51,24 +51,24 @@ public:
     // ptag currently uint32_t
     for (ptag i = 0; i < input_example.size(); i++)
     {
-      VW::example ex;
-      auto ns_hash_w = VW::hash_space(vw_obj, "w");
+      VW980::example ex;
+      auto ns_hash_w = VW980::hash_space(vw_obj, "w");
       auto& fs_w = ex.feature_space['w'];
       ex.indices.push_back('w');
-      fs_w.push_back(1.f, VW::hash_feature(vw_obj, input_example[i].word, ns_hash_w));
-      VW::setup_example(vw_obj, &ex);
+      fs_w.push_back(1.f, VW980::hash_feature(vw_obj, input_example[i].word, ns_hash_w));
+      VW980::setup_example(vw_obj, &ex);
       action p =
           Search::predictor(sch, i + 1).set_input(ex).set_oracle(input_example[i].tag).set_condition(i, 'p').predict();
       output.push_back(p);
-      VW::finish_example(vw_obj, ex);
+      VW980::finish_example(vw_obj, ex);
     }
   }
 };
 
-void run(VW::workspace& vw_obj)
+void run(VW980::workspace& vw_obj)
 {
   // we put this in its own scope so that its destructor on
-  // SequenceLabelerTask gets called *before* VW::finish gets called;
+  // SequenceLabelerTask gets called *before* VW980::finish gets called;
   // otherwise we'll get a segfault :(. i'm not sure what to do about
   // this :(.
   SequenceLabelerTask task(vw_obj);
@@ -98,7 +98,7 @@ void train()
 {
   // initialize VW as usual, but use 'hook' as the search_task
   cerr << endl << endl << "##### train() #####" << endl << endl;
-  auto vw_obj = VW::initialize(VW::make_unique<VW::config::options_cli>(std::vector<std::string>{
+  auto vw_obj = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(std::vector<std::string>{
       "--search", "4", "--quiet", "--search_task", "hook", "--example_queue_limit", "1024", "-f", "my_model"}));
   run(*vw_obj);
   vw_obj->finish();
@@ -107,7 +107,7 @@ void train()
 void predict()
 {
   cerr << endl << endl << "##### predict() #####" << endl << endl;
-  auto vw_obj = VW::initialize(VW::make_unique<VW::config::options_cli>(
+  auto vw_obj = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(
       std::vector<std::string>{"--quiet", "-t", "--example_queue_limit", "1024", "-i", "my_model"}));
   run(*vw_obj);
   vw_obj->finish();
@@ -127,21 +127,21 @@ void test_buildin_task()
   cerr << endl << endl << "##### test BuiltInTask #####" << endl << endl;
 
   auto vw_obj =
-      VW::initialize(VW::make_unique<VW::config::options_cli>(std::vector<std::string>{"-t", "--search_task", "hook"}));
+      VW980::initialize(VW980::make_unique<VW980::config::options_cli>(std::vector<std::string>{"-t", "--search_task", "hook"}));
   {  // create a new scope for the task object
     BuiltInTask task(*vw_obj, &SequenceTask::task);
-    VW::multi_ex mult_ex;
-    mult_ex.push_back(VW::read_example(*vw_obj, (char*)"1 | a"));
-    mult_ex.push_back(VW::read_example(*vw_obj, (char*)"1 | a"));
-    mult_ex.push_back(VW::read_example(*vw_obj, (char*)"1 | a"));
-    mult_ex.push_back(VW::read_example(*vw_obj, (char*)"1 | a"));
-    mult_ex.push_back(VW::read_example(*vw_obj, (char*)"1 | a"));
+    VW980::multi_ex mult_ex;
+    mult_ex.push_back(VW980::read_example(*vw_obj, (char*)"1 | a"));
+    mult_ex.push_back(VW980::read_example(*vw_obj, (char*)"1 | a"));
+    mult_ex.push_back(VW980::read_example(*vw_obj, (char*)"1 | a"));
+    mult_ex.push_back(VW980::read_example(*vw_obj, (char*)"1 | a"));
+    mult_ex.push_back(VW980::read_example(*vw_obj, (char*)"1 | a"));
     std::vector<action> out;
     task.predict(mult_ex, out);
     cerr << "out (should be 1 2 3 4 3) =";
     for (size_t i = 0; i < out.size(); i++) { cerr << " " << out[i]; }
     cerr << endl;
-    for (size_t i = 0; i < mult_ex.size(); i++) { VW::finish_example(*vw_obj, *mult_ex[i]); }
+    for (size_t i = 0; i < mult_ex.size(); i++) { VW980::finish_example(*vw_obj, *mult_ex[i]); }
   }
 
   vw_obj->finish();

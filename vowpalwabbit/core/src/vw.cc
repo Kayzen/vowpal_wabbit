@@ -28,16 +28,16 @@
 namespace
 {
 
-std::unique_ptr<VW::workspace> initialize_internal(
-    std::unique_ptr<VW::config::options_i, VW::options_deleter_type> options, VW::io_buf* model, bool skip_model_load,
-    VW::trace_message_t trace_listener, void* trace_context, VW::io::logger* custom_logger,
-    std::unique_ptr<VW::setup_base_i> setup_base = nullptr)
+std::unique_ptr<VW980::workspace> initialize_internal(
+    std::unique_ptr<VW980::config::options_i, VW980::options_deleter_type> options, VW980::io_buf* model, bool skip_model_load,
+    VW980::trace_message_t trace_listener, void* trace_context, VW980::io::logger* custom_logger,
+    std::unique_ptr<VW980::setup_base_i> setup_base = nullptr)
 {
   // Set up logger as early as possible
-  auto all = VW::details::parse_args(std::move(options), trace_listener, trace_context, custom_logger);
+  auto all = VW980::details::parse_args(std::move(options), trace_listener, trace_context, custom_logger);
 
   // if user doesn't pass in a model, read from options
-  VW::io_buf local_model;
+  VW980::io_buf local_model;
   if (model == nullptr)
   {
     std::vector<std::string> all_initial_regressor_files(all->initial_regressors);
@@ -45,7 +45,7 @@ std::unique_ptr<VW::workspace> initialize_internal(
     {
       all_initial_regressor_files.push_back(all->per_feature_regularizer_input);
     }
-    VW::details::read_regressor_file(*all, all_initial_regressor_files, local_model);
+    VW980::details::read_regressor_file(*all, all_initial_regressor_files, local_model);
     model = &local_model;
   }
 
@@ -54,16 +54,16 @@ std::unique_ptr<VW::workspace> initialize_internal(
   {
     // Loads header of model files and loads the command line options into the options object.
     bool interactions_settings_duplicated{};
-    VW::details::load_header_merge_options(*all->options, *all, *model, interactions_settings_duplicated);
+    VW980::details::load_header_merge_options(*all->options, *all, *model, interactions_settings_duplicated);
 
-    VW::details::parse_modules(*all->options, *all, interactions_settings_duplicated, dictionary_namespaces);
-    VW::details::instantiate_learner(*all, std::move(setup_base));
-    VW::details::parse_sources(*all->options, *all, *model, skip_model_load);
+    VW980::details::parse_modules(*all->options, *all, interactions_settings_duplicated, dictionary_namespaces);
+    VW980::details::instantiate_learner(*all, std::move(setup_base));
+    VW980::details::parse_sources(*all->options, *all, *model, skip_model_load);
   }
-  catch (VW::save_load_model_exception& e)
+  catch (VW980::save_load_model_exception& e)
   {
     auto msg = fmt::format("{}, model files = {}", e.what(), fmt::join(all->initial_regressors, ", "));
-    throw VW::save_load_model_exception(e.filename(), e.line_number(), msg);
+    throw VW980::save_load_model_exception(e.filename(), e.line_number(), msg);
   }
 
   if (!all->quiet)
@@ -81,7 +81,7 @@ std::unique_ptr<VW::workspace> initialize_internal(
   }
 
   // we must delay so parse_mask is fully defined.
-  for (const auto& name_space : dictionary_namespaces) { VW::details::parse_dictionary_argument(*all, name_space); }
+  for (const auto& name_space : dictionary_namespaces) { VW980::details::parse_dictionary_argument(*all, name_space); }
 
   std::vector<std::string> enabled_learners;
   if (all->l != nullptr) { all->l->get_enabled_learners(enabled_learners); }
@@ -97,12 +97,12 @@ std::unique_ptr<VW::workspace> initialize_internal(
 
     auto option_groups = all->options->get_all_option_group_definitions();
     std::sort(option_groups.begin(), option_groups.end(),
-        [](const VW::config::option_group_definition& a, const VW::config::option_group_definition& b)
+        [](const VW980::config::option_group_definition& a, const VW980::config::option_group_definition& b)
         { return a.m_name < b.m_name; });
     // Help is added as help and h. So greater than 2 means there is more command line there.
     if (num_supplied > 2) { option_groups = remove_disabled_necessary_options(*all->options, option_groups); }
 
-    VW::config::cli_help_formatter formatter;
+    VW980::config::cli_help_formatter formatter;
     std::cout << formatter.format_help(option_groups);
     std::exit(0);
   }
@@ -116,16 +116,16 @@ std::unique_ptr<VW::workspace> initialize_internal(
       THROW("error: --aml_predict_only_model has to be non-zero string representing filename to write");
     }
 
-    VW::details::finalize_regressor(*all, automl_predict_only_filename);
+    VW980::details::finalize_regressor(*all, automl_predict_only_filename);
     std::exit(0);
   }
 
-  VW::details::print_enabled_learners(*all, enabled_learners);
+  VW980::details::print_enabled_learners(*all, enabled_learners);
 
   if (!all->quiet)
   {
-    *(all->trace_message) << "Input label = " << VW::to_string(all->l->get_input_label_type()).substr(14) << std::endl;
-    *(all->trace_message) << "Output pred = " << VW::to_string(all->l->get_output_prediction_type()).substr(19)
+    *(all->trace_message) << "Input label = " << VW980::to_string(all->l->get_input_label_type()).substr(14) << std::endl;
+    *(all->trace_message) << "Output pred = " << VW980::to_string(all->l->get_output_prediction_type()).substr(19)
                           << std::endl;
   }
 
@@ -140,22 +140,22 @@ std::unique_ptr<VW::workspace> initialize_internal(
 
   return all;
 }
-VW::workspace* initialize_with_builder(std::unique_ptr<VW::config::options_i, VW::options_deleter_type> options,
-    VW::io_buf* model, bool skip_model_load, VW::trace_message_t trace_listener, void* trace_context,
+VW980::workspace* initialize_with_builder(std::unique_ptr<VW980::config::options_i, VW980::options_deleter_type> options,
+    VW980::io_buf* model, bool skip_model_load, VW980::trace_message_t trace_listener, void* trace_context,
 
-    std::unique_ptr<VW::setup_base_i> setup_base = nullptr)
+    std::unique_ptr<VW980::setup_base_i> setup_base = nullptr)
 {
   return initialize_internal(
       std::move(options), model, skip_model_load, trace_listener, trace_context, nullptr, std::move(setup_base))
       .release();
 }
 
-VW::workspace* initialize_with_builder(int argc, char* argv[], VW::io_buf* model, bool skip_model_load,
-    VW::trace_message_t trace_listener, void* trace_context, std::unique_ptr<VW::setup_base_i> setup_base)
+VW980::workspace* initialize_with_builder(int argc, char* argv[], VW980::io_buf* model, bool skip_model_load,
+    VW980::trace_message_t trace_listener, void* trace_context, std::unique_ptr<VW980::setup_base_i> setup_base)
 {
-  std::unique_ptr<VW::config::options_i, VW::options_deleter_type> options(
-      new VW::config::options_cli(std::vector<std::string>(argv + 1, argv + argc)),
-      [](VW::config::options_i* ptr) { delete ptr; });
+  std::unique_ptr<VW980::config::options_i, VW980::options_deleter_type> options(
+      new VW980::config::options_cli(std::vector<std::string>(argv + 1, argv + argc)),
+      [](VW980::config::options_i* ptr) { delete ptr; });
   VW_WARNING_STATE_PUSH
   VW_WARNING_DISABLE_DEPRECATED_USAGE
   return initialize_with_builder(
@@ -164,39 +164,39 @@ VW::workspace* initialize_with_builder(int argc, char* argv[], VW::io_buf* model
 }
 }  // namespace
 
-VW::workspace* VW::initialize(std::unique_ptr<config::options_i, options_deleter_type> options, io_buf* model,
-    bool skip_model_load, VW::trace_message_t trace_listener, void* trace_context)
+VW980::workspace* VW980::initialize(std::unique_ptr<config::options_i, options_deleter_type> options, io_buf* model,
+    bool skip_model_load, VW980::trace_message_t trace_listener, void* trace_context)
 {
   return ::initialize_with_builder(std::move(options), model, skip_model_load, trace_listener, trace_context, nullptr);
 }
 
-VW::workspace* VW::initialize(config::options_i& options, io_buf* model, bool skip_model_load,
-    VW::trace_message_t trace_listener, void* trace_context)
+VW980::workspace* VW980::initialize(config::options_i& options, io_buf* model, bool skip_model_load,
+    VW980::trace_message_t trace_listener, void* trace_context)
 {
-  std::unique_ptr<config::options_i, options_deleter_type> opts(&options, [](VW::config::options_i*) {});
+  std::unique_ptr<config::options_i, options_deleter_type> opts(&options, [](VW980::config::options_i*) {});
   VW_WARNING_STATE_PUSH
   VW_WARNING_DISABLE_DEPRECATED_USAGE
   return initialize(std::move(opts), model, skip_model_load, trace_listener, trace_context);
   VW_WARNING_STATE_POP
 }
-VW::workspace* VW::initialize(
-    const std::string& s, io_buf* model, bool skip_model_load, VW::trace_message_t trace_listener, void* trace_context)
+VW980::workspace* VW980::initialize(
+    const std::string& s, io_buf* model, bool skip_model_load, VW980::trace_message_t trace_listener, void* trace_context)
 {
   VW_WARNING_STATE_PUSH
   VW_WARNING_DISABLE_DEPRECATED_USAGE
   return initialize_with_builder(s, model, skip_model_load, trace_listener, trace_context, nullptr);
   VW_WARNING_STATE_POP
 }
-VW::workspace* VW::initialize(int argc, char* argv[], io_buf* model, bool skip_model_load,
-    VW::trace_message_t trace_listener, void* trace_context)
+VW980::workspace* VW980::initialize(int argc, char* argv[], io_buf* model, bool skip_model_load,
+    VW980::trace_message_t trace_listener, void* trace_context)
 {
   return ::initialize_with_builder(argc, argv, model, skip_model_load, trace_listener, trace_context, nullptr);
 }
 
 // Create a new VW instance while sharing the model with another instance
 // The extra arguments will be appended to those of the other VW instance
-VW::workspace* VW::seed_vw_model(
-    VW::workspace* vw_model, const std::string& extra_args, VW::trace_message_t trace_listener, void* trace_context)
+VW980::workspace* VW980::seed_vw_model(
+    VW980::workspace* vw_model, const std::string& extra_args, VW980::trace_message_t trace_listener, void* trace_context)
 {
   config::cli_options_serializer serializer;
   for (auto const& option : vw_model->options->get_all_options())
@@ -216,8 +216,8 @@ VW::workspace* VW::seed_vw_model(
 
   VW_WARNING_STATE_PUSH
   VW_WARNING_DISABLE_DEPRECATED_USAGE
-  VW::workspace* new_model =
-      VW::initialize(serialized_options, nullptr, true /* skip_model_load */, trace_listener, trace_context);
+  VW980::workspace* new_model =
+      VW980::initialize(serialized_options, nullptr, true /* skip_model_load */, trace_listener, trace_context);
   VW_WARNING_STATE_POP
 
   // reference model states stored in the specified VW instance
@@ -227,8 +227,8 @@ VW::workspace* VW::seed_vw_model(
   return new_model;
 }
 
-VW::workspace* VW::initialize_escaped(
-    std::string const& s, io_buf* model, bool skip_model_load, VW::trace_message_t trace_listener, void* trace_context)
+VW980::workspace* VW980::initialize_escaped(
+    std::string const& s, io_buf* model, bool skip_model_load, VW980::trace_message_t trace_listener, void* trace_context)
 {
   int argc = 0;
   VW_WARNING_STATE_PUSH
@@ -236,7 +236,7 @@ VW::workspace* VW::initialize_escaped(
   char** argv = to_argv_escaped(s, argc);
   VW_WARNING_STATE_POP
 
-  VW::workspace* ret = nullptr;
+  VW980::workspace* ret = nullptr;
 
   try
   {
@@ -263,46 +263,46 @@ VW::workspace* VW::initialize_escaped(
   return ret;
 }
 
-std::unique_ptr<VW::workspace> VW::initialize_experimental(std::unique_ptr<config::options_i> options,
-    std::unique_ptr<VW::io::reader> model_override_reader, driver_output_func_t driver_output_func,
-    void* driver_output_func_context, VW::io::logger* custom_logger, std::unique_ptr<VW::setup_base_i> setup_base)
+std::unique_ptr<VW980::workspace> VW980::initialize_experimental(std::unique_ptr<config::options_i> options,
+    std::unique_ptr<VW980::io::reader> model_override_reader, driver_output_func_t driver_output_func,
+    void* driver_output_func_context, VW980::io::logger* custom_logger, std::unique_ptr<VW980::setup_base_i> setup_base)
 {
   auto* released_options = options.release();
   std::unique_ptr<config::options_i, options_deleter_type> options_custom_deleter(
-      released_options, [](VW::config::options_i* ptr) { delete ptr; });
+      released_options, [](VW980::config::options_i* ptr) { delete ptr; });
 
   // Skip model load should be implemented by a caller not passing model loading args.
   std::unique_ptr<io_buf> model(nullptr);
   if (model_override_reader != nullptr)
   {
-    model = VW::make_unique<io_buf>();
+    model = VW980::make_unique<io_buf>();
     model->add_file(std::move(model_override_reader));
   }
   return initialize_internal(std::move(options_custom_deleter), model.get(), false /* skip model load */,
       driver_output_func, driver_output_func_context, custom_logger, std::move(setup_base));
 }
 
-std::unique_ptr<VW::workspace> VW::initialize(std::unique_ptr<config::options_i> options,
-    std::unique_ptr<VW::io::reader> model_override_reader, driver_output_func_t driver_output_func,
-    void* driver_output_func_context, VW::io::logger* custom_logger)
+std::unique_ptr<VW980::workspace> VW980::initialize(std::unique_ptr<config::options_i> options,
+    std::unique_ptr<VW980::io::reader> model_override_reader, driver_output_func_t driver_output_func,
+    void* driver_output_func_context, VW980::io::logger* custom_logger)
 {
   auto* released_options = options.release();
   std::unique_ptr<config::options_i, options_deleter_type> options_custom_deleter(
-      released_options, [](VW::config::options_i* ptr) { delete ptr; });
+      released_options, [](VW980::config::options_i* ptr) { delete ptr; });
 
   // Skip model load should be implemented by a caller not passing model loading args.
   std::unique_ptr<io_buf> model(nullptr);
   if (model_override_reader != nullptr)
   {
-    model = VW::make_unique<io_buf>();
+    model = VW980::make_unique<io_buf>();
     model->add_file(std::move(model_override_reader));
   }
   return initialize_internal(std::move(options_custom_deleter), model.get(), false /* skip model load */,
       driver_output_func, driver_output_func_context, custom_logger, nullptr);
 }
 
-std::unique_ptr<VW::workspace> VW::seed_vw_model(VW::workspace& vw_model, const std::vector<std::string>& extra_args,
-    driver_output_func_t driver_output_func, void* driver_output_func_context, VW::io::logger* custom_logger)
+std::unique_ptr<VW980::workspace> VW980::seed_vw_model(VW980::workspace& vw_model, const std::vector<std::string>& extra_args,
+    driver_output_func_t driver_output_func, void* driver_output_func_context, VW980::io::logger* custom_logger)
 {
   config::cli_options_serializer serializer;
   for (auto const& option : vw_model.options->get_all_options())
@@ -317,13 +317,13 @@ std::unique_ptr<VW::workspace> VW::seed_vw_model(VW::workspace& vw_model, const 
     }
   }
 
-  auto serialized_options = VW::split_command_line(serializer.str());
+  auto serialized_options = VW980::split_command_line(serializer.str());
   serialized_options.insert(serialized_options.end(), extra_args.begin(), extra_args.end());
 
-  auto options = VW::make_unique<config::options_cli>(serialized_options);
+  auto options = VW980::make_unique<config::options_cli>(serialized_options);
 
   std::unique_ptr<config::options_i, options_deleter_type> options_custom_deleter(
-      new VW::config::options_cli(serialized_options), [](VW::config::options_i* ptr) { delete ptr; });
+      new VW980::config::options_cli(serialized_options), [](VW980::config::options_i* ptr) { delete ptr; });
 
   auto new_model = initialize_internal(std::move(options_custom_deleter), nullptr, false /* skip model load */,
       driver_output_func, driver_output_func_context, custom_logger, nullptr);
@@ -335,8 +335,8 @@ std::unique_ptr<VW::workspace> VW::seed_vw_model(VW::workspace& vw_model, const 
   return new_model;
 }
 
-VW::workspace* VW::initialize_with_builder(const std::string& s, io_buf* model, bool skip_model_load,
-    VW::trace_message_t trace_listener, void* trace_context, std::unique_ptr<VW::setup_base_i> setup_base)
+VW980::workspace* VW980::initialize_with_builder(const std::string& s, io_buf* model, bool skip_model_load,
+    VW980::trace_message_t trace_listener, void* trace_context, std::unique_ptr<VW980::setup_base_i> setup_base)
 {
   int argc = 0;
   VW_WARNING_STATE_PUSH
@@ -344,7 +344,7 @@ VW::workspace* VW::initialize_with_builder(const std::string& s, io_buf* model, 
   char** argv = to_argv(s, argc);
   VW_WARNING_STATE_POP
 
-  VW::workspace* ret = nullptr;
+  VW980::workspace* ret = nullptr;
 
   try
   {
@@ -369,7 +369,7 @@ VW::workspace* VW::initialize_with_builder(const std::string& s, io_buf* model, 
   return ret;
 }
 
-void VW::cmd_string_replace_value(std::stringstream*& ss, std::string flag_to_replace, const std::string& new_value)
+void VW980::cmd_string_replace_value(std::stringstream*& ss, std::string flag_to_replace, const std::string& new_value)
 {
   flag_to_replace.append(
       " ");  // add a space to make sure we obtain the right flag in case 2 flags start with the same set of characters
@@ -405,17 +405,17 @@ void VW::cmd_string_replace_value(std::stringstream*& ss, std::string flag_to_re
   }
 }
 
-char** VW::to_argv_escaped(std::string const& s, int& argc)
+char** VW980::to_argv_escaped(std::string const& s, int& argc)
 {
-  std::vector<std::string> tokens = VW::details::escaped_tokenize(' ', s);
-  char** argv = VW::details::calloc_or_throw<char*>(tokens.size() + 1);
-  argv[0] = VW::details::calloc_or_throw<char>(2);
+  std::vector<std::string> tokens = VW980::details::escaped_tokenize(' ', s);
+  char** argv = VW980::details::calloc_or_throw<char*>(tokens.size() + 1);
+  argv[0] = VW980::details::calloc_or_throw<char>(2);
   argv[0][0] = 'b';
   argv[0][1] = '\0';
 
   for (size_t i = 0; i < tokens.size(); i++)
   {
-    argv[i + 1] = VW::details::calloc_or_throw<char>(tokens[i].length() + 1);
+    argv[i + 1] = VW980::details::calloc_or_throw<char>(tokens[i].length() + 1);
     sprintf_s(argv[i + 1], (tokens[i].length() + 1), "%s", tokens[i].data());
   }
 
@@ -423,21 +423,21 @@ char** VW::to_argv_escaped(std::string const& s, int& argc)
   return argv;
 }
 
-char** VW::to_argv(std::string const& s, int& argc)
+char** VW980::to_argv(std::string const& s, int& argc)
 {
-  const VW::string_view strview(s);
-  std::vector<VW::string_view> foo;
-  VW::tokenize(' ', strview, foo);
+  const VW980::string_view strview(s);
+  std::vector<VW980::string_view> foo;
+  VW980::tokenize(' ', strview, foo);
 
-  char** argv = VW::details::calloc_or_throw<char*>(foo.size() + 1);
+  char** argv = VW980::details::calloc_or_throw<char*>(foo.size() + 1);
   // small optimization to avoid a string copy before tokenizing
-  argv[0] = VW::details::calloc_or_throw<char>(2);
+  argv[0] = VW980::details::calloc_or_throw<char>(2);
   argv[0][0] = 'b';
   argv[0][1] = '\0';
   for (size_t i = 0; i < foo.size(); i++)
   {
     const size_t len = foo[i].length();
-    argv[i + 1] = VW::details::calloc_or_throw<char>(len + 1);
+    argv[i + 1] = VW980::details::calloc_or_throw<char>(len + 1);
     memcpy(argv[i + 1], foo[i].data(), len);
     // copy() is supported with boost::string_view, not with string_ref
     // foo[i].copy(argv[i], len);
@@ -449,13 +449,13 @@ char** VW::to_argv(std::string const& s, int& argc)
   return argv;
 }
 
-void VW::free_args(int argc, char* argv[])
+void VW980::free_args(int argc, char* argv[])
 {
   for (int i = 0; i < argc; i++) { free(argv[i]); }
   free(argv);
 }
 
-const char* VW::are_features_compatible(const VW::workspace& vw1, const VW::workspace& vw2)
+const char* VW980::are_features_compatible(const VW980::workspace& vw1, const VW980::workspace& vw2)
 {
   if (vw1.example_parser->hasher != vw2.example_parser->hasher) { return "hasher"; }
 
@@ -531,9 +531,9 @@ const char* VW::are_features_compatible(const VW::workspace& vw1, const VW::work
   return nullptr;
 }
 
-void VW::finish(VW::workspace& all, bool delete_all)
+void VW980::finish(VW980::workspace& all, bool delete_all)
 {
-  auto deleter = VW::scope_exit(
+  auto deleter = VW980::scope_exit(
       [&]
       {
         if (delete_all) { delete &all; }
@@ -542,41 +542,41 @@ void VW::finish(VW::workspace& all, bool delete_all)
   all.finish();
 }
 
-void VW::sync_stats(VW::workspace& all)
+void VW980::sync_stats(VW980::workspace& all)
 {
   if (all.all_reduce != nullptr)
   {
     const auto loss = static_cast<float>(all.sd->sum_loss);
-    all.sd->sum_loss = static_cast<double>(VW::details::accumulate_scalar(all, loss));
+    all.sd->sum_loss = static_cast<double>(VW980::details::accumulate_scalar(all, loss));
     const auto weighted_labeled_examples = static_cast<float>(all.sd->weighted_labeled_examples);
     all.sd->weighted_labeled_examples =
-        static_cast<double>(VW::details::accumulate_scalar(all, weighted_labeled_examples));
+        static_cast<double>(VW980::details::accumulate_scalar(all, weighted_labeled_examples));
     const auto weighted_labels = static_cast<float>(all.sd->weighted_labels);
-    all.sd->weighted_labels = static_cast<double>(VW::details::accumulate_scalar(all, weighted_labels));
+    all.sd->weighted_labels = static_cast<double>(VW980::details::accumulate_scalar(all, weighted_labels));
     const auto weighted_unlabeled_examples = static_cast<float>(all.sd->weighted_unlabeled_examples);
     all.sd->weighted_unlabeled_examples =
-        static_cast<double>(VW::details::accumulate_scalar(all, weighted_unlabeled_examples));
+        static_cast<double>(VW980::details::accumulate_scalar(all, weighted_unlabeled_examples));
     const auto example_number = static_cast<float>(all.sd->example_number);
-    all.sd->example_number = static_cast<uint64_t>(VW::details::accumulate_scalar(all, example_number));
+    all.sd->example_number = static_cast<uint64_t>(VW980::details::accumulate_scalar(all, example_number));
     const auto total_features = static_cast<float>(all.sd->total_features);
-    all.sd->total_features = static_cast<uint64_t>(VW::details::accumulate_scalar(all, total_features));
+    all.sd->total_features = static_cast<uint64_t>(VW980::details::accumulate_scalar(all, total_features));
   }
 }
 
 namespace
 {
 
-void thread_dispatch(VW::workspace& all, const VW::multi_ex& examples)
+void thread_dispatch(VW980::workspace& all, const VW980::multi_ex& examples)
 {
   for (auto* example : examples) { all.example_parser->ready_parsed_examples.push(example); }
 }
-void main_parse_loop(VW::workspace* all) { VW::details::parse_dispatch(*all, thread_dispatch); }
+void main_parse_loop(VW980::workspace* all) { VW980::details::parse_dispatch(*all, thread_dispatch); }
 }  // namespace
 
-void VW::start_parser(VW::workspace& all) { all.parse_thread = std::thread(main_parse_loop, &all); }
-void VW::end_parser(VW::workspace& all) { all.parse_thread.join(); }
+void VW980::start_parser(VW980::workspace& all) { all.parse_thread = std::thread(main_parse_loop, &all); }
+void VW980::end_parser(VW980::workspace& all) { all.parse_thread.join(); }
 
-bool VW::is_ring_example(const VW::workspace& all, const example* ae)
+bool VW980::is_ring_example(const VW980::workspace& all, const example* ae)
 {
   VW_WARNING_STATE_PUSH
   VW_WARNING_DISABLE_DEPRECATED_USAGE
@@ -584,26 +584,26 @@ bool VW::is_ring_example(const VW::workspace& all, const example* ae)
   VW_WARNING_STATE_POP
 }
 
-VW::example* VW::read_example(VW::workspace& all, const char* example_line)
+VW980::example* VW980::read_example(VW980::workspace& all, const char* example_line)
 {
-  VW::example* ret = &get_unused_example(&all);
+  VW980::example* ret = &get_unused_example(&all);
 
-  VW::parsers::text::read_line(all, ret, example_line);
+  VW980::parsers::text::read_line(all, ret, example_line);
   setup_example(all, ret);
 
   return ret;
 }
 
-VW::example* VW::read_example(VW::workspace& all, const std::string& example_line)
+VW980::example* VW980::read_example(VW980::workspace& all, const std::string& example_line)
 {
   return read_example(all, example_line.c_str());
 }
 // The more complex way to create an example.
 
-VW::example* VW::import_example(
-    VW::workspace& all, const std::string& label, primitive_feature_space* features, size_t len)
+VW980::example* VW980::import_example(
+    VW980::workspace& all, const std::string& label, primitive_feature_space* features, size_t len)
 {
-  VW::example* ret = &get_unused_example(&all);
+  VW980::example* ret = &get_unused_example(&all);
   all.example_parser->lbl_parser.default_label(ret->l);
 
   if (label.length() > 0) { parse_example_label(all, *ret, label); }
@@ -621,21 +621,21 @@ VW::example* VW::import_example(
   setup_example(all, ret);
   return ret;
 }
-VW::example* VW::alloc_examples(size_t count) { return new VW::example[count]; }
+VW980::example* VW980::alloc_examples(size_t count) { return new VW980::example[count]; }
 
-void VW::dealloc_examples(example* example_ptr, size_t /* count */) { delete[] example_ptr; }
+void VW980::dealloc_examples(example* example_ptr, size_t /* count */) { delete[] example_ptr; }
 
-void VW::parse_example_label(VW::workspace& all, example& ec, const std::string& label)
+void VW980::parse_example_label(VW980::workspace& all, example& ec, const std::string& label)
 {
-  std::vector<VW::string_view> words;
-  VW::tokenize(' ', label, words);
+  std::vector<VW980::string_view> words;
+  VW980::tokenize(' ', label, words);
   all.example_parser->lbl_parser.parse_label(ec.l, ec.ex_reduction_features, all.example_parser->parser_memory_to_reuse,
       all.sd->ldict.get(), words, all.logger);
 }
 
-void VW::setup_examples(VW::workspace& all, VW::multi_ex& examples)
+void VW980::setup_examples(VW980::workspace& all, VW980::multi_ex& examples)
 {
-  for (VW::example* ae : examples) { setup_example(all, ae); }
+  for (VW980::example* ae : examples) { setup_example(all, ae); }
 }
 
 namespace
@@ -654,33 +654,33 @@ bool is_test_only(uint32_t counter, uint32_t period, uint32_t after, bool holdou
   return (counter > after);
 }
 
-void feature_limit(VW::workspace& all, VW::example* ex)
+void feature_limit(VW980::workspace& all, VW980::example* ex)
 {
-  for (VW::namespace_index index : ex->indices)
+  for (VW980::namespace_index index : ex->indices)
   {
     if (all.limit[index] < ex->feature_space[index].size())
     {
       auto& fs = ex->feature_space[index];
       fs.sort(all.parse_mask);
-      VW::unique_features(fs, all.limit[index]);
+      VW980::unique_features(fs, all.limit[index]);
     }
   }
 }
 
 }  // namespace
 
-void VW::setup_example(VW::workspace& all, VW::example* ae)
+void VW980::setup_example(VW980::workspace& all, VW980::example* ae)
 {
   assert(ae != nullptr);
   if (all.example_parser->sort_features && !ae->sorted) { unique_sort_features(all.parse_mask, *ae); }
 
   if (all.example_parser->write_cache)
   {
-    VW::parsers::cache::write_example_to_cache(all.example_parser->output, ae, all.example_parser->lbl_parser,
+    VW980::parsers::cache::write_example_to_cache(all.example_parser->output, ae, all.example_parser->lbl_parser,
         all.parse_mask, all.example_parser->cache_temp_buffer_obj);
   }
 
-  // Require all extents to be complete in an VW::example.
+  // Require all extents to be complete in an VW980::example.
 #ifndef NDEBUG
   for (auto& fg : *ae) { assert(fg.validate_extents()); }
 #endif
@@ -704,7 +704,7 @@ void VW::setup_example(VW::workspace& all, VW::example* ae)
   if (all.example_parser->emptylines_separate_examples &&
       (example_is_newline(*ae) &&
           (all.example_parser->lbl_parser.label_type != label_type_t::CCB ||
-              VW::reductions::ccb::ec_is_example_unset(*ae))))
+              VW980::reductions::ccb::ec_is_example_unset(*ae))))
   {
     all.example_parser->in_pass_counter++;
   }
@@ -731,7 +731,7 @@ void VW::setup_example(VW::workspace& all, VW::example* ae)
 
   if (all.add_constant)
   {  // add constant feature
-    VW::add_constant_feature(all, ae);
+    VW980::add_constant_feature(all, ae);
   }
 
   if (!all.limit_strings.empty()) { feature_limit(all, ae); }
@@ -753,62 +753,62 @@ void VW::setup_example(VW::workspace& all, VW::example* ae)
   ae->extent_interactions = &all.extent_interactions;
 }
 
-VW::example* VW::new_unused_example(VW::workspace& all)
+VW980::example* VW980::new_unused_example(VW980::workspace& all)
 {
-  VW::example* ec = &get_unused_example(&all);
+  VW980::example* ec = &get_unused_example(&all);
   all.example_parser->lbl_parser.default_label(ec->l);
   return ec;
 }
 
-VW::example* VW::get_example(parser* p)
+VW980::example* VW980::get_example(parser* p)
 {
   example* ex = nullptr;
   p->ready_parsed_examples.try_pop(ex);
   return ex;
 }
 
-float VW::get_topic_prediction(example* ec, size_t i) { return ec->pred.scalars[i]; }
+float VW980::get_topic_prediction(example* ec, size_t i) { return ec->pred.scalars[i]; }
 
-float VW::get_label(example* ec) { return ec->l.simple.label; }
+float VW980::get_label(example* ec) { return ec->l.simple.label; }
 
-float VW::get_importance(example* ec) { return ec->weight; }
+float VW980::get_importance(example* ec) { return ec->weight; }
 
-float VW::get_initial(example* ec)
+float VW980::get_initial(example* ec)
 {
-  const auto& simple_red_features = ec->ex_reduction_features.template get<VW::simple_label_reduction_features>();
+  const auto& simple_red_features = ec->ex_reduction_features.template get<VW980::simple_label_reduction_features>();
   return simple_red_features.initial;
 }
 
-float VW::get_prediction(example* ec) { return ec->pred.scalar; }
+float VW980::get_prediction(example* ec) { return ec->pred.scalar; }
 
-float VW::get_cost_sensitive_prediction(example* ec) { return static_cast<float>(ec->pred.multiclass); }
+float VW980::get_cost_sensitive_prediction(example* ec) { return static_cast<float>(ec->pred.multiclass); }
 
-VW::v_array<float>& VW::get_cost_sensitive_prediction_confidence_scores(example* ec) { return ec->pred.scalars; }
+VW980::v_array<float>& VW980::get_cost_sensitive_prediction_confidence_scores(example* ec) { return ec->pred.scalars; }
 
-uint32_t* VW::get_multilabel_predictions(example* ec, size_t& len)
+uint32_t* VW980::get_multilabel_predictions(example* ec, size_t& len)
 {
   auto& labels = ec->pred.multilabels;
   len = labels.label_v.size();
   return labels.label_v.begin();
 }
 
-float VW::get_action_score(example* ec, size_t i)
+float VW980::get_action_score(example* ec, size_t i)
 {
-  VW::action_scores scores = ec->pred.a_s;
+  VW980::action_scores scores = ec->pred.a_s;
 
   if (i < scores.size()) { return scores[i].score; }
   return 0.0;
 }
 
-size_t VW::get_action_score_length(example* ec) { return ec->pred.a_s.size(); }
+size_t VW980::get_action_score_length(example* ec) { return ec->pred.a_s.size(); }
 
-size_t VW::get_tag_length(example* ec) { return ec->tag.size(); }
+size_t VW980::get_tag_length(example* ec) { return ec->tag.size(); }
 
-const char* VW::get_tag(example* ec) { return ec->tag.begin(); }
+const char* VW980::get_tag(example* ec) { return ec->tag.begin(); }
 
-size_t VW::get_feature_number(example* ec) { return ec->get_num_features(); }
+size_t VW980::get_feature_number(example* ec) { return ec->get_num_features(); }
 
-float VW::get_confidence(example* ec) { return ec->confidence; }
+float VW980::get_confidence(example* ec) { return ec->confidence; }
 
 namespace
 {
@@ -816,23 +816,23 @@ namespace
 class features_and_source
 {
 public:
-  VW::v_array<VW::feature> feature_map;  // map to store sparse feature vectors
+  VW980::v_array<VW980::feature> feature_map;  // map to store sparse feature vectors
   uint32_t stride_shift{};
   uint64_t mask{};
 };
 
 void vec_store(features_and_source& p, float fx, uint64_t fi)
 {
-  p.feature_map.push_back(VW::feature(fx, (fi >> p.stride_shift) & p.mask));
+  p.feature_map.push_back(VW980::feature(fx, (fi >> p.stride_shift) & p.mask));
 }
 }  // namespace
 
-VW::feature* VW::get_features(VW::workspace& all, example* ec, size_t& feature_number)
+VW980::feature* VW980::get_features(VW980::workspace& all, example* ec, size_t& feature_number)
 {
   features_and_source fs;
   fs.stride_shift = all.weights.stride_shift();
   fs.mask = all.weights.mask() >> all.weights.stride_shift();
-  VW::foreach_feature<::features_and_source, uint64_t, vec_store>(all, *ec, fs);
+  VW980::foreach_feature<::features_and_source, uint64_t, vec_store>(all, *ec, fs);
 
   auto* features_array = new feature[fs.feature_map.size()];
   std::memcpy(features_array, fs.feature_map.data(), fs.feature_map.size() * sizeof(feature));
@@ -840,29 +840,29 @@ VW::feature* VW::get_features(VW::workspace& all, example* ec, size_t& feature_n
   return features_array;
 }
 
-void VW::return_features(feature* f) { delete[] f; }
+void VW980::return_features(feature* f) { delete[] f; }
 
-void VW::add_constant_feature(const VW::workspace& all, VW::example* ec)
+void VW980::add_constant_feature(const VW980::workspace& all, VW980::example* ec)
 {
-  ec->indices.push_back(VW::details::CONSTANT_NAMESPACE);
-  ec->feature_space[VW::details::CONSTANT_NAMESPACE].push_back(
-      1, VW::details::CONSTANT, VW::details::CONSTANT_NAMESPACE);
+  ec->indices.push_back(VW980::details::CONSTANT_NAMESPACE);
+  ec->feature_space[VW980::details::CONSTANT_NAMESPACE].push_back(
+      1, VW980::details::CONSTANT, VW980::details::CONSTANT_NAMESPACE);
   ec->num_features++;
   if (all.audit || all.hash_inv)
   {
-    ec->feature_space[VW::details::CONSTANT_NAMESPACE].space_names.emplace_back("", "Constant");
+    ec->feature_space[VW980::details::CONSTANT_NAMESPACE].space_names.emplace_back("", "Constant");
   }
 }
-void VW::add_label(VW::example* ec, float label, float weight, float base)
+void VW980::add_label(VW980::example* ec, float label, float weight, float base)
 {
   ec->l.simple.label = label;
-  auto& simple_red_features = ec->ex_reduction_features.template get<VW::simple_label_reduction_features>();
+  auto& simple_red_features = ec->ex_reduction_features.template get<VW980::simple_label_reduction_features>();
   simple_red_features.initial = base;
   ec->weight = weight;
 }
 
 // notify VW that you are done with the example.
-void VW::finish_example(VW::workspace& all, example& ec)
+void VW980::finish_example(VW980::workspace& all, example& ec)
 {
   // only return examples to the pool that are from the pool and not externally allocated
   VW_WARNING_STATE_PUSH
@@ -879,12 +879,12 @@ void VW::finish_example(VW::workspace& all, example& ec)
   }
 }
 
-void VW::finish_example(VW::workspace& all, multi_ex& ec_seq)
+void VW980::finish_example(VW980::workspace& all, multi_ex& ec_seq)
 {
-  for (example* ecc : ec_seq) { VW::finish_example(all, *ecc); }
+  for (example* ecc : ec_seq) { VW980::finish_example(all, *ecc); }
 }
 
-void VW::empty_example(VW::workspace& /*all*/, example& ec)
+void VW980::empty_example(VW980::workspace& /*all*/, example& ec)
 {
   for (features& fs : ec) { fs.clear(); }
 
@@ -899,7 +899,7 @@ void VW::empty_example(VW::workspace& /*all*/, example& ec)
   ec.is_set_feature_space_hash = false;
 }
 
-void VW::move_feature_namespace(example* dst, example* src, namespace_index c)
+void VW980::move_feature_namespace(example* dst, example* src, namespace_index c)
 {
   if (std::find(src->indices.begin(), src->indices.end(), c) == src->indices.end())
   {
@@ -917,7 +917,7 @@ void VW::move_feature_namespace(example* dst, example* src, namespace_index c)
   dst->reset_total_sum_feat_sq();
 }
 
-void VW::copy_example_metadata(example* dst, const example* src)
+void VW980::copy_example_metadata(example* dst, const example* src)
 {
   dst->tag = src->tag;
   dst->example_counter = src->example_counter;
@@ -936,7 +936,7 @@ void VW::copy_example_metadata(example* dst, const example* src)
   dst->sorted = src->sorted;
 }
 
-void VW::copy_example_data(example* dst, const example* src)
+void VW980::copy_example_data(example* dst, const example* src)
 {
   copy_example_metadata(dst, src);
 
@@ -952,13 +952,13 @@ void VW::copy_example_data(example* dst, const example* src)
   dst->debug_current_reduction_depth = src->debug_current_reduction_depth;
 }
 
-void VW::copy_example_data_with_label(example* dst, const example* src)
+void VW980::copy_example_data_with_label(example* dst, const example* src)
 {
   copy_example_data(dst, src);
   dst->l = src->l;
 }
 
-VW::primitive_feature_space* VW::export_example(VW::workspace& all, VW::example* ec, size_t& len)
+VW980::primitive_feature_space* VW980::export_example(VW980::workspace& all, VW980::example* ec, size_t& len)
 {
   len = ec->indices.size();
   auto* fs_ptr = new primitive_feature_space[len];
@@ -986,15 +986,15 @@ VW::primitive_feature_space* VW::export_example(VW::workspace& all, VW::example*
   return fs_ptr;
 }
 
-void VW::release_feature_space(primitive_feature_space* features, size_t len)
+void VW980::release_feature_space(primitive_feature_space* features, size_t len)
 {
   for (size_t i = 0; i < len; i++) { delete[] features[i].fs; }
   delete (features);
 }
 
-void VW::save_predictor(VW::workspace& all, const std::string& reg_name)
+void VW980::save_predictor(VW980::workspace& all, const std::string& reg_name)
 {
-  VW::details::dump_regressor(all, reg_name, false);
+  VW980::details::dump_regressor(all, reg_name, false);
 }
 
-void VW::save_predictor(VW::workspace& all, io_buf& buf) { VW::details::dump_regressor(all, buf, false); }
+void VW980::save_predictor(VW980::workspace& all, io_buf& buf) { VW980::details::dump_regressor(all, buf, false); }

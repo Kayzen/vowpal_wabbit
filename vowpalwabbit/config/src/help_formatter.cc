@@ -7,7 +7,7 @@
 #include "vw/config/option_group_definition.h"
 #include "vw/config/options.h"
 
-std::vector<VW::config::option_group_definition> VW::config::remove_disabled_necessary_options(
+std::vector<VW980::config::option_group_definition> VW980::config::remove_disabled_necessary_options(
     options_i& options, const std::vector<option_group_definition>& groups)
 {
   std::vector<option_group_definition> result;

@@ -15,11 +15,11 @@
 #include <string>
 #include <vector>
 
-using namespace VW::reductions::eigen_memory_tree;
+using namespace VW980::reductions::eigen_memory_tree;
 
 namespace eigen_memory_tree_test
 {
-emt_tree* get_emt_tree(VW::workspace& all)
+emt_tree* get_emt_tree(VW980::workspace& all)
 {
   std::vector<std::string> e_r;
   all.l->get_enabled_learners(e_r);
@@ -28,14 +28,14 @@ emt_tree* get_emt_tree(VW::workspace& all)
     ADD_FAILURE() << "Eigen memory tree not found in enabled learners";
   }
 
-  VW::LEARNER::learner* emt = require_singleline(all.l->get_learner_by_name_prefix("emt"));
+  VW980::LEARNER::learner* emt = require_singleline(all.l->get_learner_by_name_prefix("emt"));
 
   return (emt_tree*)emt->get_internal_type_erased_data_pointer_test_use_only();
 }
 
 TEST(Emt, ParamsTest1)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet", "--emt"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet", "--emt"));
   auto* tree = get_emt_tree(*vw);
 
   EXPECT_EQ(tree->leaf_split, 100);
@@ -48,7 +48,7 @@ TEST(Emt, ParamsTest2)
 {
   auto args = vwtest::make_args(
       "--quiet", "--emt", "--emt_tree", "20", "--emt_scorer", "distance", "--emt_router", "random", "--emt_leaf", "50");
-  auto vw = VW::initialize(std::move(args));
+  auto vw = VW980::initialize(std::move(args));
   auto tree = get_emt_tree(*vw);
 
   EXPECT_EQ(tree->leaf_split, 50);
@@ -59,10 +59,10 @@ TEST(Emt, ParamsTest2)
 
 TEST(Emt, ExactMatchSansRouterTest)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet", "--emt"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet", "--emt"));
 
-  auto* ex1 = VW::read_example(*vw, "1 | 1 2 3");
-  auto* ex2 = VW::read_example(*vw, "2 | 2 3 4");
+  auto* ex1 = VW980::read_example(*vw, "1 | 1 2 3");
+  auto* ex2 = VW980::read_example(*vw, "2 | 2 3 4");
 
   vw->learn(*ex1);
   vw->learn(*ex2);
@@ -82,18 +82,18 @@ TEST(Emt, ExactMatchSansRouterTest)
 
 TEST(Emt, ExactMatchWithRouterTest)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet", "--emt", "--emt_leaf", "5"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet", "--emt", "--emt_leaf", "5"));
 
   for (int i = 0; i < 10; i++)
   {
-    auto* ex = VW::read_example(*vw, std::to_string(i) + " | " + std::to_string(i));
+    auto* ex = VW980::read_example(*vw, std::to_string(i) + " | " + std::to_string(i));
     vw->learn(*ex);
     vw->finish_example(*ex);
   }
 
   for (int i = 0; i < 10; i++)
   {
-    auto* ex = VW::read_example(*vw, " | " + std::to_string(i));
+    auto* ex = VW980::read_example(*vw, " | " + std::to_string(i));
     vw->predict(*ex);
     EXPECT_EQ(ex->pred.multiclass, i);
     vw->finish_example(*ex);
@@ -102,12 +102,12 @@ TEST(Emt, ExactMatchWithRouterTest)
 
 TEST(Emt, Bounding)
 {
-  auto vw = VW::initialize(vwtest::make_args("--quiet", "--emt", "--emt_tree", "5"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet", "--emt", "--emt_tree", "5"));
   auto* tree = get_emt_tree(*vw);
 
   for (int i = 0; i < 10; i++)
   {
-    auto* ex = VW::read_example(*vw, std::to_string(i) + " | " + std::to_string(i));
+    auto* ex = VW980::read_example(*vw, std::to_string(i) + " | " + std::to_string(i));
     vw->learn(*ex);
     vw->finish_example(*ex);
   }
@@ -120,12 +120,12 @@ TEST(Emt, Bounding)
 TEST(Emt, Split)
 {
   auto args = vwtest::make_args("--quiet", "--emt", "--emt_tree", "10", "--emt_leaf", "3");
-  auto vw = VW::initialize(std::move(args));
+  auto vw = VW980::initialize(std::move(args));
   auto* tree = get_emt_tree(*vw);
 
   for (int i = 0; i < 4; i++)
   {
-    auto* ex = VW::read_example(*vw, std::to_string(i) + " | " + std::to_string(i));
+    auto* ex = VW980::read_example(*vw, std::to_string(i) + " | " + std::to_string(i));
     vw->learn(*ex);
     vw->finish_example(*ex);
   }
@@ -262,7 +262,7 @@ TEST(Emt, Median)
 
 TEST(Emt, RouterEigen)
 {
-  VW::rand_state rng(1);
+  VW980::rand_state rng(1);
 
   emt_feats v1;
   emt_feats v2;
@@ -306,7 +306,7 @@ TEST(Emt, RouterEigen)
 
 TEST(Emt, Shuffle)
 {
-  VW::rand_state rng(2);
+  VW980::rand_state rng(2);
 
   std::vector<int> v1{1, 2, 3};
 
@@ -319,27 +319,27 @@ TEST(Emt, Shuffle)
 
 TEST(Emt, SaveLoad)
 {
-  auto vw_save = VW::initialize(vwtest::make_args("--quiet", "--emt", "--emt_leaf", "5"));
+  auto vw_save = VW980::initialize(vwtest::make_args("--quiet", "--emt", "--emt_leaf", "5"));
 
   for (int i = 0; i < 10; i++)
   {
-    auto* ex = VW::read_example(*vw_save, std::to_string(i) + " | " + std::to_string(i));
+    auto* ex = VW980::read_example(*vw_save, std::to_string(i) + " | " + std::to_string(i));
     vw_save->learn(*ex);
     vw_save->finish_example(*ex);
   }
 
   auto backing_vector = std::make_shared<std::vector<char>>();
-  VW::io_buf io_writer;
-  io_writer.add_file(VW::io::create_vector_writer(backing_vector));
-  VW::save_predictor(*vw_save, io_writer);
+  VW980::io_buf io_writer;
+  io_writer.add_file(VW980::io::create_vector_writer(backing_vector));
+  VW980::save_predictor(*vw_save, io_writer);
   io_writer.flush();
 
-  auto vw_load = VW::initialize(vwtest::make_args("--no_stdin", "--quiet", "--preserve_performance_counters"),
-      VW::io::create_buffer_view(backing_vector->data(), backing_vector->size()));
+  auto vw_load = VW980::initialize(vwtest::make_args("--no_stdin", "--quiet", "--preserve_performance_counters"),
+      VW980::io::create_buffer_view(backing_vector->data(), backing_vector->size()));
 
   for (int i = 0; i < 10; i++)
   {
-    auto* ex = VW::read_example(*vw_load, " | " + std::to_string(i));
+    auto* ex = VW980::read_example(*vw_load, " | " + std::to_string(i));
     vw_load->predict(*ex);
     EXPECT_EQ(ex->pred.multiclass, i);
     vw_load->finish_example(*ex);

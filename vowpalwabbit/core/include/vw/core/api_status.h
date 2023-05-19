@@ -11,7 +11,7 @@
 // of this will be updated once
 // https://github.com/VowpalWabbit/vowpal_wabbit/pull/2493 is merged.
 
-namespace VW
+namespace VW980
 {
 namespace experimental
 {
@@ -159,18 +159,18 @@ int report_error(api_status* status, int scode, const All&... all)
  * together.
  */
 template <typename T>
-VW::experimental::status_builder& operator<<(VW::experimental::status_builder& sb, const T& val)
+VW980::experimental::status_builder& operator<<(VW980::experimental::status_builder& sb, const T& val)
 {
   if (sb._status != nullptr) { sb._os << ", " << val; }
   return sb;
 }
 }  // namespace experimental
-}  // namespace VW
+}  // namespace VW980
 
 // This is weird, but we want these to be able to use the left-shift operator, but that is undesirable to
 // have in the experimental namespace because we want to avoid forcing consumers to import it. So temporarily
 // pop out of the namespace to define the leftshift operator, then pop back into it.
-namespace VW
+namespace VW980
 {
 namespace experimental
 {
@@ -213,7 +213,7 @@ int report_error(status_builder& sb, const First& first, const Rest&... rest)
   return report_error(sb, rest...);
 }
 }  // namespace experimental
-}  // namespace VW
+}  // namespace VW980
 
 #ifndef RETURN_ERROR
 /**
@@ -223,11 +223,11 @@ int report_error(status_builder& sb, const First& first, const Rest&... rest)
     do {                                                                                          \
       if (status != nullptr)                                                                      \
       {                                                                                           \
-        VW::experimental::status_builder sb(nullptr, status, VW::experimental::error_code::code); \
-        sb << VW::experimental::error_code::code##_s;                                             \
+        VW980::experimental::status_builder sb(nullptr, status, VW980::experimental::error_code::code); \
+        sb << VW980::experimental::error_code::code##_s;                                             \
         return report_error(sb);                                                                  \
       }                                                                                           \
-      return VW::experimental::error_code::code;                                                  \
+      return VW980::experimental::error_code::code;                                                  \
     } while (0);
 
 #endif  // RETURN_ERROR
@@ -240,11 +240,11 @@ int report_error(status_builder& sb, const First& first, const Rest&... rest)
     do {                                                                                          \
       if (status != nullptr)                                                                      \
       {                                                                                           \
-        VW::experimental::status_builder sb(nullptr, status, VW::experimental::error_code::code); \
-        sb << VW::experimental::error_code::code##_s;                                             \
+        VW980::experimental::status_builder sb(nullptr, status, VW980::experimental::error_code::code); \
+        sb << VW980::experimental::error_code::code##_s;                                             \
         return report_error(sb, __VA_ARGS__);                                                     \
       }                                                                                           \
-      return VW::experimental::error_code::code;                                                  \
+      return VW980::experimental::error_code::code;                                                  \
     } while (0);
 
 #endif  // RETURN_ERROR_ARG
@@ -254,7 +254,7 @@ int report_error(status_builder& sb, const First& first, const Rest&... rest)
  * @brief Error reporting macro used with left shift operator
  */
 #  define RETURN_ERROR_LS(status, code)                                                       \
-    VW::experimental::status_builder sb(nullptr, status, VW::experimental::error_code::code); \
-    return sb << VW::experimental::error_code::code##_s
+    VW980::experimental::status_builder sb(nullptr, status, VW980::experimental::error_code::code); \
+    return sb << VW980::experimental::error_code::code##_s
 
 #endif  // RETURN_ERROR_LS

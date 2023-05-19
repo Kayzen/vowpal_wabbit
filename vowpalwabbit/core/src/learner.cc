@@ -25,31 +25,31 @@
 #include "vw/core/reductions/conditional_contextual_bandit.h"
 #include "vw/core/vw.h"
 
-namespace VW
+namespace VW980
 {
 namespace LEARNER
 {
-void learn_ex(example& ec, VW::workspace& all)
+void learn_ex(example& ec, VW980::workspace& all)
 {
   all.learn(ec);
   require_singleline(all.l)->finish_example(all, ec);
 }
 
-void learn_multi_ex(multi_ex& ec_seq, VW::workspace& all)
+void learn_multi_ex(multi_ex& ec_seq, VW980::workspace& all)
 {
   all.learn(ec_seq);
   require_multiline(all.l)->finish_example(all, ec_seq);
 }
 
-void end_pass(example& ec, VW::workspace& all)
+void end_pass(example& ec, VW980::workspace& all)
 {
   all.current_pass++;
   all.l->end_pass();
 
-  VW::finish_example(all, ec);
+  VW980::finish_example(all, ec);
 }
 
-void save(example& ec, VW::workspace& all)
+void save(example& ec, VW980::workspace& all)
 {
   // save state command
   std::string final_regressor_name = all.final_regressor_name;
@@ -60,13 +60,13 @@ void save(example& ec, VW::workspace& all)
   }
 
   if (!all.quiet) { *(all.trace_message) << "saving regressor to " << final_regressor_name << std::endl; }
-  VW::details::save_predictor(all, final_regressor_name, 0);
+  VW980::details::save_predictor(all, final_regressor_name, 0);
 
-  VW::finish_example(all, ec);
+  VW980::finish_example(all, ec);
 }
 
 /* is this just a newline */
-inline bool example_is_newline_not_header(example& ec, VW::workspace& all)
+inline bool example_is_newline_not_header(example& ec, VW980::workspace& all)
 {
   // If we are using CCB, test against CCB implementation otherwise fallback to previous behavior.
   const bool is_header = ec_is_example_header(ec, all.example_parser->lbl_parser.label_type);
@@ -78,12 +78,12 @@ bool inline is_save_cmd(example* ec)
   return (ec->tag.size() >= 4) && (0 == strncmp((const char*)ec->tag.begin(), "save", 4));
 }
 
-void drain_examples(VW::workspace& all)
+void drain_examples(VW980::workspace& all)
 {
   if (all.early_terminate)
   {  // drain any extra examples from parser.
     example* ec = nullptr;
-    while ((ec = VW::get_example(all.example_parser.get())) != nullptr) { VW::finish_example(all, *ec); }
+    while ((ec = VW980::get_example(all.example_parser.get())) != nullptr) { VW980::finish_example(all, *ec); }
   }
   all.l->end_examples();
 }
@@ -94,28 +94,28 @@ void drain_examples(VW::workspace& all)
 class single_instance_context
 {
 public:
-  single_instance_context(VW::workspace& all) : _all(all) {}
+  single_instance_context(VW980::workspace& all) : _all(all) {}
 
-  VW::workspace& get_master() const { return _all; }
+  VW980::workspace& get_master() const { return _all; }
 
-  template <class T, void (*process_impl)(T&, VW::workspace&)>
+  template <class T, void (*process_impl)(T&, VW980::workspace&)>
   void process(T& ec)
   {
     process_impl(ec, _all);
   }
 
 private:
-  VW::workspace& _all;
+  VW980::workspace& _all;
 };
 
 class multi_instance_context
 {
 public:
-  multi_instance_context(const std::vector<VW::workspace*>& all) : _all(all) {}
+  multi_instance_context(const std::vector<VW980::workspace*>& all) : _all(all) {}
 
-  VW::workspace& get_master() const { return *_all.front(); }
+  VW980::workspace& get_master() const { return *_all.front(); }
 
-  template <class T, void (*process_impl)(T&, VW::workspace&)>
+  template <class T, void (*process_impl)(T&, VW980::workspace&)>
   void process(T& ec)
   {
     // start with last as the first instance will free the example as it is the owner
@@ -123,7 +123,7 @@ public:
   }
 
 private:
-  std::vector<VW::workspace*> _all;
+  std::vector<VW980::workspace*> _all;
 };
 
 // single_example_handler / multi_example_handler - consumer classes with on_example handle method, incapsulating
@@ -178,7 +178,7 @@ public:
       // Because the is_newline example is used to complete the in-flight multi_ex prior
       // to this call we should have no more in-flight multi_ex here.
       assert(_ec_seq.empty());
-      VW::finish_example(_context.get_master(), *ec);
+      VW980::finish_example(_context.get_master(), *ec);
     }
   }
 
@@ -226,18 +226,18 @@ private:
 class ready_examples_queue
 {
 public:
-  ready_examples_queue(VW::workspace& master) : _master(master) {}
+  ready_examples_queue(VW980::workspace& master) : _master(master) {}
 
-  example* pop() { return !_master.early_terminate ? VW::get_example(_master.example_parser.get()) : nullptr; }
+  example* pop() { return !_master.early_terminate ? VW980::get_example(_master.example_parser.get()) : nullptr; }
 
 private:
-  VW::workspace& _master;
+  VW980::workspace& _master;
 };
 
 class custom_examples_queue
 {
 public:
-  void reset_examples(const VW::multi_ex* examples)
+  void reset_examples(const VW980::multi_ex* examples)
   {
     assert(examples != nullptr);
     _examples = examples;
@@ -251,7 +251,7 @@ public:
   }
 
 private:
-  const VW::multi_ex* _examples;
+  const VW980::multi_ex* _examples;
   size_t _index{0};
 };
 
@@ -282,14 +282,14 @@ void generic_driver(ready_examples_queue& examples, context_type& context)
   drain_examples(context.get_master());
 }
 
-void generic_driver(VW::workspace& all)
+void generic_driver(VW980::workspace& all)
 {
   single_instance_context context(all);
   ready_examples_queue examples(all);
   generic_driver(examples, context);
 }
 
-void generic_driver(const std::vector<VW::workspace*>& all)
+void generic_driver(const std::vector<VW980::workspace*>& all)
 {
   multi_instance_context context(all);
   ready_examples_queue examples(context.get_master());
@@ -297,22 +297,22 @@ void generic_driver(const std::vector<VW::workspace*>& all)
 }
 
 template <typename handler_type>
-void generic_driver_onethread(VW::workspace& all)
+void generic_driver_onethread(VW980::workspace& all)
 {
   single_instance_context context(all);
   handler_type handler(context);
   custom_examples_queue examples_queue;
-  auto multi_ex_fptr = [&handler, &examples_queue](VW::workspace& /*all*/, const VW::multi_ex& examples)
+  auto multi_ex_fptr = [&handler, &examples_queue](VW980::workspace& /*all*/, const VW980::multi_ex& examples)
   {
     examples_queue.reset_examples(&examples);
     process_examples(examples_queue, handler);
   };
-  VW::details::parse_dispatch(all, multi_ex_fptr);
+  VW980::details::parse_dispatch(all, multi_ex_fptr);
   handler.process_remaining();
   all.l->end_examples();
 }
 
-void generic_driver_onethread(VW::workspace& all)
+void generic_driver_onethread(VW980::workspace& all)
 {
   if (all.l->is_multiline()) { generic_driver_onethread<multi_example_handler<single_instance_context>>(all); }
   else { generic_driver_onethread<single_example_handler<single_instance_context>>(all); }
@@ -320,9 +320,9 @@ void generic_driver_onethread(VW::workspace& all)
 
 bool ec_is_example_header(const example& ec, label_type_t label_type)
 {
-  if (label_type == VW::label_type_t::CB) { return VW::ec_is_example_header_cb(ec); }
-  else if (label_type == VW::label_type_t::CCB) { return reductions::ccb::ec_is_example_header(ec); }
-  else if (label_type == VW::label_type_t::CS) { return VW::is_cs_example_header(ec); }
+  if (label_type == VW980::label_type_t::CB) { return VW980::ec_is_example_header_cb(ec); }
+  else if (label_type == VW980::label_type_t::CCB) { return reductions::ccb::ec_is_example_header(ec); }
+  else if (label_type == VW980::label_type_t::CS) { return VW980::is_cs_example_header(ec); }
   return false;
 }
 
@@ -358,9 +358,9 @@ void learner::debug_log_message(polymorphic_ex ex, const std::string& msg)
 {
   if (ex.is_multiline())
   {
-    VW_DBG(*static_cast<VW::multi_ex&>(ex)[0]) << "[" << _name << "." << msg << "]" << std::endl;
+    VW_DBG(*static_cast<VW980::multi_ex&>(ex)[0]) << "[" << _name << "." << msg << "]" << std::endl;
   }
-  else { VW_DBG(static_cast<VW::example&>(ex)) << "[" << _name << "." << msg << "]" << std::endl; }
+  else { VW_DBG(static_cast<VW980::example&>(ex)) << "[" << _name << "." << msg << "]" << std::endl; }
 }
 
 void learner::learn(polymorphic_ex ec, size_t i)
@@ -393,10 +393,10 @@ void learner::multipredict(polymorphic_ex ec, size_t lo, size_t count, polypredi
       _predict_f(ec);
       if (finalize_predictions)
       {
-        pred[c] = std::move(static_cast<VW::example&>(ec).pred);  // TODO: this breaks for complex labels because =
+        pred[c] = std::move(static_cast<VW980::example&>(ec).pred);  // TODO: this breaks for complex labels because =
                                                                   // doesn't do deep copy! (XXX we "fix" this by moving)
       }
-      else { pred[c].scalar = static_cast<VW::example&>(ec).partial_prediction; }
+      else { pred[c].scalar = static_cast<VW980::example&>(ec).partial_prediction; }
       // pred[c].scalar = finalize_prediction ec.partial_prediction; // TODO: this breaks for complex labels because =
       // doesn't do deep copy! // note works if ec.partial_prediction, but only if finalize_prediction is run????
       details::increment_offset(ec, feature_width_below, 1);
@@ -438,17 +438,17 @@ void learner::save_load(io_buf& io, const bool read, const bool text)
     {
       _save_load_f(io, read, text);
     }
-    catch (VW::vw_exception& vwex)
+    catch (VW980::vw_exception& vwex)
     {
       std::stringstream better_msg;
       better_msg << "model " << std::string(read ? "load" : "save") << " failed. Error Details: " << vwex.what();
-      throw VW::save_load_model_exception(vwex.filename(), vwex.line_number(), better_msg.str());
+      throw VW980::save_load_model_exception(vwex.filename(), vwex.line_number(), better_msg.str());
     }
   }
   if (_base_learner) { _base_learner->save_load(io, read, text); }
 }
 
-void learner::pre_save_load(VW::workspace& all)
+void learner::pre_save_load(VW980::workspace& all)
 {
   if (_pre_save_load_f) { _pre_save_load_f(all); }
   if (_base_learner) { _base_learner->pre_save_load(all); }
@@ -485,7 +485,7 @@ void learner::init_driver()
   if (_init_f) { _init_f(); }
 }
 
-void learner::finish_example(VW::workspace& all, polymorphic_ex ec)
+void learner::finish_example(VW980::workspace& all, polymorphic_ex ec)
 {
   debug_log_message(ec, "finish_example");
   // If the current learner implements finish - that takes priority.
@@ -510,8 +510,8 @@ void learner::finish_example(VW::workspace& all, polymorphic_ex ec)
       has_update_stats() || has_output_example_prediction() || has_print_update() || has_cleanup_example();
   if (has_at_least_one_new_style_func)
   {
-    if (ec.is_multiline()) { VW::finish_example(all, static_cast<VW::multi_ex&>(ec)); }
-    else { VW::finish_example(all, static_cast<VW::example&>(ec)); }
+    if (ec.is_multiline()) { VW980::finish_example(all, static_cast<VW980::multi_ex&>(ec)); }
+    else { VW980::finish_example(all, static_cast<VW980::example&>(ec)); }
     return;
   }
 
@@ -529,32 +529,32 @@ void learner::finish_example(VW::workspace& all, polymorphic_ex ec)
 }
 
 void learner::update_stats(
-    const VW::workspace& all, VW::shared_data& sd, const polymorphic_ex ec, VW::io::logger& logger)
+    const VW980::workspace& all, VW980::shared_data& sd, const polymorphic_ex ec, VW980::io::logger& logger)
 {
   debug_log_message(ec, "update_stats");
   if (!has_update_stats()) { THROW("fatal: learner did not register update_stats fn: " + _name); }
   _update_stats_f(all, sd, ec, logger);
 }
-void learner::update_stats(VW::workspace& all, const polymorphic_ex ec) { update_stats(all, *all.sd, ec, all.logger); }
+void learner::update_stats(VW980::workspace& all, const polymorphic_ex ec) { update_stats(all, *all.sd, ec, all.logger); }
 
-void learner::output_example_prediction(VW::workspace& all, const polymorphic_ex ec, VW::io::logger& logger)
+void learner::output_example_prediction(VW980::workspace& all, const polymorphic_ex ec, VW980::io::logger& logger)
 {
   debug_log_message(ec, "output_example_prediction");
   if (!has_output_example_prediction()) { THROW("fatal: learner did not register output_example fn: " + _name); }
   _output_example_prediction_f(all, ec, logger);
 }
-void learner::output_example_prediction(VW::workspace& all, const polymorphic_ex ec)
+void learner::output_example_prediction(VW980::workspace& all, const polymorphic_ex ec)
 {
   output_example_prediction(all, ec, all.logger);
 }
 
-void learner::print_update(VW::workspace& all, VW::shared_data& sd, const polymorphic_ex ec, VW::io::logger& logger)
+void learner::print_update(VW980::workspace& all, VW980::shared_data& sd, const polymorphic_ex ec, VW980::io::logger& logger)
 {
   debug_log_message(ec, "print_update");
   if (!has_print_update()) { THROW("fatal: learner did not register print_update fn: " + _name); }
   _print_update_f(all, sd, ec, logger);
 }
-void learner::print_update(VW::workspace& all, const polymorphic_ex ec) { print_update(all, *all.sd, ec, all.logger); }
+void learner::print_update(VW980::workspace& all, const polymorphic_ex ec) { print_update(all, *all.sd, ec, all.logger); }
 
 void learner::cleanup_example(polymorphic_ex ec)
 {
@@ -580,8 +580,8 @@ learner* learner::get_learner_by_name_prefix(const std::string& learner_name)
 }
 
 void learner::merge(const std::vector<float>& per_model_weighting,
-    const std::vector<const VW::workspace*>& all_workspaces, const std::vector<const learner*>& all_learners,
-    VW::workspace& output_workspace, learner& output_learner)
+    const std::vector<const VW980::workspace*>& all_workspaces, const std::vector<const learner*>& all_learners,
+    VW980::workspace& output_workspace, learner& output_learner)
 {
   assert(per_model_weighting.size() == all_workspaces.size());
   assert(per_model_weighting.size() == all_learners.size());
@@ -606,8 +606,8 @@ void learner::merge(const std::vector<float>& per_model_weighting,
   else { THROW("learner " << _name << " does not support merging."); }
 }
 
-void learner::add(const VW::workspace& base_ws, const VW::workspace& delta_ws, const learner* base_l,
-    const learner* delta_l, VW::workspace& output_ws, learner* output_l)
+void learner::add(const VW980::workspace& base_ws, const VW980::workspace& delta_ws, const learner* base_l,
+    const learner* delta_l, VW980::workspace& output_ws, learner* output_l)
 {
   auto name = output_l->get_name();
   assert(name == base_l->get_name());
@@ -621,8 +621,8 @@ void learner::add(const VW::workspace& base_ws, const VW::workspace& delta_ws, c
   else { THROW("learner " << name << " does not support adding a delta."); }
 }
 
-void learner::subtract(const VW::workspace& ws1, const VW::workspace& ws2, const learner* l1, const learner* l2,
-    VW::workspace& output_ws, learner* output_l)
+void learner::subtract(const VW980::workspace& ws1, const VW980::workspace& ws2, const learner* l1, const learner* l2,
+    VW980::workspace& output_ws, learner* output_l)
 {
   auto name = output_l->get_name();
   assert(name == l1->get_name());
@@ -674,9 +674,9 @@ std::shared_ptr<learner> learner::create_learner_above_this()
 }
 
 }  // namespace LEARNER
-}  // namespace VW
+}  // namespace VW980
 
-void VW::LEARNER::details::learner_build_diagnostic(VW::string_view this_name, VW::string_view base_name,
+void VW980::LEARNER::details::learner_build_diagnostic(VW980::string_view this_name, VW980::string_view base_name,
     prediction_type_t in_pred_type, prediction_type_t base_out_pred_type, label_type_t out_label_type,
     label_type_t base_in_label_type, details::merge_func merge_f, details::merge_with_all_func merge_with_all_f)
 {
@@ -699,51 +699,51 @@ void VW::LEARNER::details::learner_build_diagnostic(VW::string_view this_name, V
   if (merge_f && merge_with_all_f) { THROW("cannot set both merge and merge_with_all"); }
 }
 
-void VW::LEARNER::details::debug_increment_depth(polymorphic_ex ex)
+void VW980::LEARNER::details::debug_increment_depth(polymorphic_ex ex)
 {
   if (ex.is_multiline())
   {
     if (vw_dbg::TRACK_STACK)
     {
-      for (auto& ec : static_cast<VW::multi_ex&>(ex)) { ++ec->debug_current_reduction_depth; }
+      for (auto& ec : static_cast<VW980::multi_ex&>(ex)) { ++ec->debug_current_reduction_depth; }
     }
   }
   else
   {
-    if (vw_dbg::TRACK_STACK) { ++static_cast<VW::example&>(ex).debug_current_reduction_depth; }
+    if (vw_dbg::TRACK_STACK) { ++static_cast<VW980::example&>(ex).debug_current_reduction_depth; }
   }
 }
 
-void VW::LEARNER::details::debug_decrement_depth(polymorphic_ex ex)
+void VW980::LEARNER::details::debug_decrement_depth(polymorphic_ex ex)
 {
   if (ex.is_multiline())
   {
     if (vw_dbg::TRACK_STACK)
     {
-      for (auto& ec : static_cast<VW::multi_ex&>(ex)) { --ec->debug_current_reduction_depth; }
+      for (auto& ec : static_cast<VW980::multi_ex&>(ex)) { --ec->debug_current_reduction_depth; }
     }
   }
   else
   {
-    if (vw_dbg::TRACK_STACK) { --static_cast<VW::example&>(ex).debug_current_reduction_depth; }
+    if (vw_dbg::TRACK_STACK) { --static_cast<VW980::example&>(ex).debug_current_reduction_depth; }
   }
 }
 
-void VW::LEARNER::details::increment_offset(polymorphic_ex ex, const size_t feature_width_below, const size_t i)
+void VW980::LEARNER::details::increment_offset(polymorphic_ex ex, const size_t feature_width_below, const size_t i)
 {
   if (ex.is_multiline())
   {
-    for (auto& ec : static_cast<VW::multi_ex&>(ex)) { ec->ft_offset += static_cast<uint32_t>(feature_width_below * i); }
+    for (auto& ec : static_cast<VW980::multi_ex&>(ex)) { ec->ft_offset += static_cast<uint32_t>(feature_width_below * i); }
   }
-  else { static_cast<VW::example&>(ex).ft_offset += static_cast<uint32_t>(feature_width_below * i); }
+  else { static_cast<VW980::example&>(ex).ft_offset += static_cast<uint32_t>(feature_width_below * i); }
   debug_increment_depth(ex);
 }
 
-void VW::LEARNER::details::decrement_offset(polymorphic_ex ex, const size_t feature_width_below, const size_t i)
+void VW980::LEARNER::details::decrement_offset(polymorphic_ex ex, const size_t feature_width_below, const size_t i)
 {
   if (ex.is_multiline())
   {
-    for (auto ec : static_cast<VW::multi_ex&>(ex))
+    for (auto ec : static_cast<VW980::multi_ex&>(ex))
     {
       assert(ec->ft_offset >= feature_width_below * i);
       ec->ft_offset -= static_cast<uint32_t>(feature_width_below * i);
@@ -751,8 +751,8 @@ void VW::LEARNER::details::decrement_offset(polymorphic_ex ex, const size_t feat
   }
   else
   {
-    assert(static_cast<VW::example&>(ex).ft_offset >= feature_width_below * i);
-    static_cast<VW::example&>(ex).ft_offset -= static_cast<uint32_t>(feature_width_below * i);
+    assert(static_cast<VW980::example&>(ex).ft_offset >= feature_width_below * i);
+    static_cast<VW980::example&>(ex).ft_offset -= static_cast<uint32_t>(feature_width_below * i);
   }
   debug_decrement_depth(ex);
 }

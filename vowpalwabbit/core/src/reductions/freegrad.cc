@@ -20,8 +20,8 @@
 #include <cmath>
 #include <string>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
@@ -50,7 +50,7 @@ public:
 class freegrad
 {
 public:
-  VW::workspace* all;  // features, finalize, l1, l2,
+  VW980::workspace* all;  // features, finalize, l1, l2,
   float epsilon = 0.f;
   float lipschitz_const = 0.f;
   bool restart;
@@ -61,17 +61,17 @@ public:
   size_t no_win_counter;
   size_t early_stop_thres;
   uint32_t freegrad_size;
-  std::vector<VW::reductions::details::gd_per_model_state> gd_per_model_states;
+  std::vector<VW980::reductions::details::gd_per_model_state> gd_per_model_states;
 };
 
 template <bool audit>
-void predict(freegrad& b, VW::example& ec)
+void predict(freegrad& b, VW980::example& ec)
 {
   size_t num_features_from_interactions = 0;
-  ec.partial_prediction = VW::inline_predict(*b.all, ec, num_features_from_interactions);
+  ec.partial_prediction = VW980::inline_predict(*b.all, ec, num_features_from_interactions);
   ec.num_features_from_interactions = num_features_from_interactions;
-  ec.pred.scalar = VW::details::finalize_prediction(*b.all->sd, b.all->logger, ec.partial_prediction);
-  if (audit) { VW::details::print_audit_features(*(b.all), ec); }
+  ec.pred.scalar = VW980::details::finalize_prediction(*b.all->sd, b.all->logger, ec.partial_prediction);
+  if (audit) { VW980::details::print_audit_features(*(b.all), ec); }
 }
 
 void inner_freegrad_predict(freegrad_update_data& d, float x, float& wref)
@@ -98,7 +98,7 @@ void inner_freegrad_predict(freegrad_update_data& d, float x, float& wref)
   d.predict += w_pred * x;
 }
 
-void freegrad_predict(freegrad& fg, VW::example& ec)
+void freegrad_predict(freegrad& fg, VW980::example& ec)
 {
   fg.update_data.predict = 0.;
   fg.update_data.squared_norm_prediction = 0.;
@@ -108,7 +108,7 @@ void freegrad_predict(freegrad& fg, VW::example& ec)
   float projection_radius;
 
   // Compute the unprojected predict
-  VW::foreach_feature<freegrad_update_data, inner_freegrad_predict>(
+  VW980::foreach_feature<freegrad_update_data, inner_freegrad_predict>(
       *fg.all, ec, fg.update_data, num_features_from_interactions);
   norm_w_pred = sqrtf(fg.update_data.squared_norm_prediction);
 
@@ -123,7 +123,7 @@ void freegrad_predict(freegrad& fg, VW::example& ec)
   ec.partial_prediction = fg.update_data.predict;
 
   ec.num_features_from_interactions = num_features_from_interactions;
-  ec.pred.scalar = VW::details::finalize_prediction(*fg.all->sd, fg.all->logger, ec.partial_prediction);
+  ec.pred.scalar = VW980::details::finalize_prediction(*fg.all->sd, fg.all->logger, ec.partial_prediction);
 }
 
 void gradient_dot_w(freegrad_update_data& d, float x, float& wref)
@@ -240,7 +240,7 @@ void inner_freegrad_update_after_prediction(freegrad_update_data& d, float x, fl
   if (ht > 0) { w[S] += std::fabs(clipped_gradient) / ht + (d.ec_weight - 1) * std::fabs(tilde_gradient) / w[HT]; }
 }
 
-void freegrad_update_after_prediction(freegrad& fg, VW::example& ec)
+void freegrad_update_after_prediction(freegrad& fg, VW980::example& ec)
 {
   float clipped_grad_norm;
   fg.update_data.grad_dot_w = 0.;
@@ -252,10 +252,10 @@ void freegrad_update_after_prediction(freegrad& fg, VW::example& ec)
   fg.update_data.update = fg.all->loss->first_derivative(fg.all->sd.get(), ec.pred.scalar, ec.l.simple.label);
 
   // Compute gradient norm
-  VW::foreach_feature<freegrad_update_data, gradient_dot_w>(*fg.all, ec, fg.update_data);
+  VW980::foreach_feature<freegrad_update_data, gradient_dot_w>(*fg.all, ec, fg.update_data);
 
   // Performing the update
-  VW::foreach_feature<freegrad_update_data, inner_freegrad_update_after_prediction>(*fg.all, ec, fg.update_data);
+  VW980::foreach_feature<freegrad_update_data, inner_freegrad_update_after_prediction>(*fg.all, ec, fg.update_data);
 
   // Update the maximum gradient norm value
   clipped_grad_norm = sqrtf(fg.update_data.squared_norm_clipped_grad);
@@ -272,58 +272,58 @@ void freegrad_update_after_prediction(freegrad& fg, VW::example& ec)
 }
 
 template <bool audit>
-void learn_freegrad(freegrad& a, VW::example& ec)
+void learn_freegrad(freegrad& a, VW980::example& ec)
 {
   // update state based on the example and predict
   freegrad_predict(a, ec);
-  if (audit) { VW::details::print_audit_features(*(a.all), ec); }
+  if (audit) { VW980::details::print_audit_features(*(a.all), ec); }
 
   // update state based on the prediction
   freegrad_update_after_prediction(a, ec);
 }
 
-void save_load(freegrad& fg, VW::io_buf& model_file, bool read, bool text)
+void save_load(freegrad& fg, VW980::io_buf& model_file, bool read, bool text)
 {
-  VW::workspace* all = fg.all;
-  if (read) { VW::details::initialize_regressor(*all); }
+  VW980::workspace* all = fg.all;
+  if (read) { VW980::details::initialize_regressor(*all); }
 
   if (model_file.num_files() != 0)
   {
     bool resume = all->save_resume;
     std::stringstream msg;
     msg << ":" << resume << "\n";
-    VW::details::bin_text_read_write_fixed(
+    VW980::details::bin_text_read_write_fixed(
         model_file, reinterpret_cast<char*>(&resume), sizeof(resume), read, msg, text);
 
     if (resume)
     {
-      VW::details::save_load_online_state_gd(
+      VW980::details::save_load_online_state_gd(
           *all, model_file, read, text, fg.gd_per_model_states, nullptr, fg.freegrad_size);
     }
-    else { VW::details::save_load_regressor_gd(*all, model_file, read, text); }
+    else { VW980::details::save_load_regressor_gd(*all, model_file, read, text); }
   }
 }
 
 void end_pass(freegrad& fg)
 {
-  VW::workspace& all = *fg.all;
+  VW980::workspace& all = *fg.all;
 
   if (!all.holdout_set_off)
   {
-    if (VW::details::summarize_holdout_set(all, fg.no_win_counter))
+    if (VW980::details::summarize_holdout_set(all, fg.no_win_counter))
     {
-      VW::details::finalize_regressor(all, all.final_regressor_name);
+      VW980::details::finalize_regressor(all, all.final_regressor_name);
     }
     if ((fg.early_stop_thres == fg.no_win_counter) &&
         ((all.check_holdout_every_n_passes <= 1) || ((all.current_pass % all.check_holdout_every_n_passes) == 0)))
     {
-      VW::details::set_done(all);
+      VW980::details::set_done(all);
     }
   }
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::freegrad_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::freegrad_setup(VW980::setup_base_i& stack_builder)
 {
   auto& options = *stack_builder.get_options();
   bool freegrad_enabled;
@@ -348,7 +348,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::freegrad_setup(VW::setup_b
 
   if (!options.add_parse_and_check_necessary(new_options)) { return nullptr; }
 
-  auto fg_ptr = VW::make_unique<freegrad>();
+  auto fg_ptr = VW980::make_unique<freegrad>();
   if (options.was_supplied("radius"))
   {
     fg_ptr->radius = radius;
@@ -365,7 +365,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::freegrad_setup(VW::setup_b
   fg_ptr->project = project;
   fg_ptr->adaptiveradius = adaptiveradius;
   fg_ptr->no_win_counter = 0;
-  auto single_model_state = VW::reductions::details::gd_per_model_state();
+  auto single_model_state = VW980::reductions::details::gd_per_model_state();
   single_model_state.normalized_sum_norm_x = 0;
   single_model_state.total_weight = 0.;
   fg_ptr->gd_per_model_states.emplace_back(single_model_state);
@@ -391,14 +391,14 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::freegrad_setup(VW::setup_b
 
   auto predict_ptr = (fg_ptr->all->audit || fg_ptr->all->hash_inv) ? predict<true> : predict<false>;
   auto learn_ptr = (fg_ptr->all->audit || fg_ptr->all->hash_inv) ? learn_freegrad<true> : learn_freegrad<false>;
-  auto l = VW::LEARNER::make_bottom_learner(std::move(fg_ptr), learn_ptr, predict_ptr,
-      stack_builder.get_setupfn_name(freegrad_setup), VW::prediction_type_t::SCALAR, VW::label_type_t::SIMPLE)
+  auto l = VW980::LEARNER::make_bottom_learner(std::move(fg_ptr), learn_ptr, predict_ptr,
+      stack_builder.get_setupfn_name(freegrad_setup), VW980::prediction_type_t::SCALAR, VW980::label_type_t::SIMPLE)
                .set_learn_returns_prediction(true)
                .set_save_load(save_load)
                .set_end_pass(end_pass)
-               .set_output_example_prediction(VW::details::output_example_prediction_simple_label<freegrad>)
-               .set_update_stats(VW::details::update_stats_simple_label<freegrad>)
-               .set_print_update(VW::details::print_update_simple_label<freegrad>)
+               .set_output_example_prediction(VW980::details::output_example_prediction_simple_label<freegrad>)
+               .set_update_stats(VW980::details::update_stats_simple_label<freegrad>)
+               .set_print_update(VW980::details::print_update_simple_label<freegrad>)
                .build();
 
   return l;

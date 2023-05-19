@@ -8,7 +8,7 @@
 #include "vw_clr.h"
 #include "vw_prediction.h"
 
-namespace VW
+namespace VW980
 {
 ref class VowpalWabbitExample;
 ref class VowpalWabbitBase;

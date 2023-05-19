@@ -6,7 +6,7 @@
 
 #include "vw/config/options.h"
 
-using namespace VW::config;
+using namespace VW980::config;
 
 option_group_definition::option_group_definition(const std::string& name) : m_name(name + " Options") {}
 

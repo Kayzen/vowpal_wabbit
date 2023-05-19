@@ -10,14 +10,14 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
-void accumulate(VW::workspace& all, parameters& weights, size_t o);
-float accumulate_scalar(VW::workspace& all, float local_sum);
-void accumulate_weighted_avg(VW::workspace& all, parameters& weights);
-void accumulate_avg(VW::workspace& all, parameters& weights, size_t o);
+void accumulate(VW980::workspace& all, parameters& weights, size_t o);
+float accumulate_scalar(VW980::workspace& all, float local_sum);
+void accumulate_weighted_avg(VW980::workspace& all, parameters& weights);
+void accumulate_avg(VW980::workspace& all, parameters& weights, size_t o);
 template <class T>
 void do_weighting(size_t normalized_idx, uint64_t length, const float* local_weights, T& weights)
 {
@@ -39,4 +39,4 @@ void do_weighting(size_t normalized_idx, uint64_t length, const float* local_wei
 }
 
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980

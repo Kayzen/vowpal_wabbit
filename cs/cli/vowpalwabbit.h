@@ -10,7 +10,7 @@
 #include "vw_prediction.h"
 #include "vw_interface.h"
 
-namespace VW
+namespace VW980
 {
 ref class VowpalWabbitExampleBuilder;
 ref struct VowpalWabbitFeature;

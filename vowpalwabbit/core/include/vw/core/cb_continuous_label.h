@@ -12,7 +12,7 @@
 
 #include <cfloat>
 
-namespace VW
+namespace VW980
 {
 class example;
 namespace cb_continuous
@@ -38,7 +38,7 @@ public:
   void reset_to_default();
 };
 
-extern VW::label_parser the_label_parser;
+extern VW980::label_parser the_label_parser;
 
 }  // namespace cb_continuous
 
@@ -49,13 +49,13 @@ std::string to_string(
 
 namespace model_utils
 {
-size_t read_model_field(io_buf&, VW::cb_continuous::continuous_label_elm&);
-size_t write_model_field(io_buf&, const VW::cb_continuous::continuous_label_elm&, const std::string&, bool);
-size_t read_model_field(io_buf&, VW::cb_continuous::continuous_label&);
-size_t write_model_field(io_buf&, const VW::cb_continuous::continuous_label&, const std::string&, bool);
-size_t read_model_field(io_buf&, VW::continuous_actions::reduction_features&);
-size_t write_model_field(io_buf&, const VW::continuous_actions::reduction_features&, const std::string&, bool);
-size_t read_model_field(io_buf&, VW::continuous_actions::pdf_segment&);
-size_t write_model_field(io_buf&, const VW::continuous_actions::pdf_segment&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::cb_continuous::continuous_label_elm&);
+size_t write_model_field(io_buf&, const VW980::cb_continuous::continuous_label_elm&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::cb_continuous::continuous_label&);
+size_t write_model_field(io_buf&, const VW980::cb_continuous::continuous_label&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::continuous_actions::reduction_features&);
+size_t write_model_field(io_buf&, const VW980::continuous_actions::reduction_features&, const std::string&, bool);
+size_t read_model_field(io_buf&, VW980::continuous_actions::pdf_segment&);
+size_t write_model_field(io_buf&, const VW980::continuous_actions::pdf_segment&, const std::string&, bool);
 }  // namespace model_utils
-}  // namespace VW
+}  // namespace VW980

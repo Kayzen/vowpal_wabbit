@@ -23,7 +23,7 @@ template <typename Mutex>
 class function_ptr_sink : public spdlog::sinks::base_sink<Mutex>
 {
 public:
-  function_ptr_sink(void* context, VW::io::logger_output_func_t func)
+  function_ptr_sink(void* context, VW980::io::logger_output_func_t func)
       : spdlog::sinks::base_sink<Mutex>(), _func(func), _context(context)
   {
   }
@@ -33,12 +33,12 @@ protected:
   {
     spdlog::memory_buf_t formatted;
     spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
-    _func(_context, static_cast<VW::io::log_level>(msg.level), fmt::to_string(formatted));
+    _func(_context, static_cast<VW980::io::log_level>(msg.level), fmt::to_string(formatted));
   }
 
   void flush_() override {}
 
-  VW::io::logger_output_func_t _func;
+  VW980::io::logger_output_func_t _func;
   void* _context;
 };
 
@@ -47,7 +47,7 @@ template <typename Mutex>
 class function_ptr_legacy_sink : public spdlog::sinks::base_sink<Mutex>
 {
 public:
-  function_ptr_legacy_sink(void* context, VW::io::logger_legacy_output_func_t func)
+  function_ptr_legacy_sink(void* context, VW980::io::logger_legacy_output_func_t func)
       : spdlog::sinks::base_sink<Mutex>(), _func(func), _context(context)
   {
   }
@@ -62,12 +62,12 @@ protected:
 
   void flush_() override {}
 
-  VW::io::logger_legacy_output_func_t _func;
+  VW980::io::logger_legacy_output_func_t _func;
   void* _context;
 };
 }  // namespace
 
-namespace VW
+namespace VW980
 {
 namespace io
 {
@@ -198,4 +198,4 @@ logger create_custom_sink_logger_legacy(void* context, logger_legacy_output_func
 }
 
 }  // namespace io
-}  // namespace VW
+}  // namespace VW980

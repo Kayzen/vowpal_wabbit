@@ -18,12 +18,12 @@
 #include <iterator>
 #include <sstream>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 namespace
 {
-template <bool is_learn, VW::generate_func_t<VW::namespace_index> generate_func, bool leave_duplicate_interactions>
-void transform_single_ex(VW::interactions_generator& data, VW::LEARNER::learner& base, VW::example& ec)
+template <bool is_learn, VW980::generate_func_t<VW980::namespace_index> generate_func, bool leave_duplicate_interactions>
+void transform_single_ex(VW980::interactions_generator& data, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   // We pass *ec.interactions here BUT the contract is that this does not change...
   data.update_interactions_if_new_namespace_seen<generate_func, leave_duplicate_interactions>(
@@ -34,7 +34,7 @@ void transform_single_ex(VW::interactions_generator& data, VW::LEARNER::learner&
 
   if (data.store_in_reduction_features)
   {
-    auto& red_features = ec.ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+    auto& red_features = ec.ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
     red_features.generated_interactions = &data.generated_interactions;
   }
 
@@ -43,9 +43,9 @@ void transform_single_ex(VW::interactions_generator& data, VW::LEARNER::learner&
   ec.interactions = saved_interactions;
 }
 
-template <bool is_learn, VW::generate_func_t<VW::namespace_index> generate_func,
-    VW::generate_func_t<VW::extent_term> generate_func_extents, bool leave_duplicate_interactions>
-void transform_single_ex(VW::interactions_generator& data, VW::LEARNER::learner& base, VW::example& ec)
+template <bool is_learn, VW980::generate_func_t<VW980::namespace_index> generate_func,
+    VW980::generate_func_t<VW980::extent_term> generate_func_extents, bool leave_duplicate_interactions>
+void transform_single_ex(VW980::interactions_generator& data, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   // We pass *ec.interactions here BUT the contract is that this does not change...
   data.update_interactions_if_new_namespace_seen<generate_func, leave_duplicate_interactions>(
@@ -62,7 +62,7 @@ void transform_single_ex(VW::interactions_generator& data, VW::LEARNER::learner&
 
   if (data.store_in_reduction_features)
   {
-    auto& red_features = ec.ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+    auto& red_features = ec.ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
     red_features.generated_interactions = &data.generated_interactions;
     red_features.generated_extent_interactions = &data.generated_extent_interactions;
   }
@@ -73,9 +73,9 @@ void transform_single_ex(VW::interactions_generator& data, VW::LEARNER::learner&
   ec.extent_interactions = saved_extent_interactions;
 }
 
-template <VW::generate_func_t<VW::namespace_index> generate_func,
-    VW::generate_func_t<VW::extent_term> generate_func_extents, bool leave_duplicate_interactions>
-void update(VW::interactions_generator& data, VW::LEARNER::learner& base, VW::example& ec)
+template <VW980::generate_func_t<VW980::namespace_index> generate_func,
+    VW980::generate_func_t<VW980::extent_term> generate_func_extents, bool leave_duplicate_interactions>
+void update(VW980::interactions_generator& data, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   // We pass *ec.interactions here BUT the contract is that this does not change...
   data.update_interactions_if_new_namespace_seen<generate_func, leave_duplicate_interactions>(
@@ -92,7 +92,7 @@ void update(VW::interactions_generator& data, VW::LEARNER::learner& base, VW::ex
 
   if (data.store_in_reduction_features)
   {
-    auto& red_features = ec.ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+    auto& red_features = ec.ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
     red_features.generated_interactions = &data.generated_interactions;
     red_features.generated_extent_interactions = &data.generated_extent_interactions;
   }
@@ -102,8 +102,8 @@ void update(VW::interactions_generator& data, VW::LEARNER::learner& base, VW::ex
   ec.extent_interactions = saved_extent_interactions;
 }
 
-template <VW::generate_func_t<VW::namespace_index> generate_func, bool leave_duplicate_interactions>
-void update(VW::interactions_generator& data, VW::LEARNER::learner& base, VW::example& ec)
+template <VW980::generate_func_t<VW980::namespace_index> generate_func, bool leave_duplicate_interactions>
+void update(VW980::interactions_generator& data, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   // We pass *ec.interactions here BUT the contract is that this does not change...
   data.update_interactions_if_new_namespace_seen<generate_func, leave_duplicate_interactions>(
@@ -114,7 +114,7 @@ void update(VW::interactions_generator& data, VW::LEARNER::learner& base, VW::ex
 
   if (data.store_in_reduction_features)
   {
-    auto& red_features = ec.ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+    auto& red_features = ec.ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
     red_features.generated_interactions = &data.generated_interactions;
   }
 
@@ -122,9 +122,9 @@ void update(VW::interactions_generator& data, VW::LEARNER::learner& base, VW::ex
   ec.interactions = saved_interactions;
 }
 
-template <VW::generate_func_t<VW::namespace_index> generate_func, bool leave_duplicate_interactions>
-inline void multipredict(VW::interactions_generator& data, VW::LEARNER::learner& base, VW::example& ec, size_t count,
-    size_t, VW::polyprediction* pred, bool finalize_predictions)
+template <VW980::generate_func_t<VW980::namespace_index> generate_func, bool leave_duplicate_interactions>
+inline void multipredict(VW980::interactions_generator& data, VW980::LEARNER::learner& base, VW980::example& ec, size_t count,
+    size_t, VW980::polyprediction* pred, bool finalize_predictions)
 {
   // We pass *ec.interactions here BUT the contract is that this does not change...
   data.update_interactions_if_new_namespace_seen<generate_func, leave_duplicate_interactions>(
@@ -135,7 +135,7 @@ inline void multipredict(VW::interactions_generator& data, VW::LEARNER::learner&
 
   if (data.store_in_reduction_features)
   {
-    auto& red_features = ec.ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+    auto& red_features = ec.ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
     red_features.generated_interactions = &data.generated_interactions;
   }
 
@@ -143,10 +143,10 @@ inline void multipredict(VW::interactions_generator& data, VW::LEARNER::learner&
   ec.interactions = saved_interactions;
 }
 
-template <VW::generate_func_t<VW::namespace_index> generate_func,
-    VW::generate_func_t<VW::extent_term> generate_func_extents, bool leave_duplicate_interactions>
-inline void multipredict(VW::interactions_generator& data, VW::LEARNER::learner& base, VW::example& ec, size_t count,
-    size_t, VW::polyprediction* pred, bool finalize_predictions)
+template <VW980::generate_func_t<VW980::namespace_index> generate_func,
+    VW980::generate_func_t<VW980::extent_term> generate_func_extents, bool leave_duplicate_interactions>
+inline void multipredict(VW980::interactions_generator& data, VW980::LEARNER::learner& base, VW980::example& ec, size_t count,
+    size_t, VW980::polyprediction* pred, bool finalize_predictions)
 {
   // We pass *ec.interactions here BUT the contract is that this does not change...
   data.update_interactions_if_new_namespace_seen<generate_func, leave_duplicate_interactions>(
@@ -163,7 +163,7 @@ inline void multipredict(VW::interactions_generator& data, VW::LEARNER::learner&
 
   if (data.store_in_reduction_features)
   {
-    auto& red_features = ec.ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+    auto& red_features = ec.ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
     red_features.generated_interactions = &data.generated_interactions;
     red_features.generated_extent_interactions = &data.generated_extent_interactions;
   }
@@ -174,10 +174,10 @@ inline void multipredict(VW::interactions_generator& data, VW::LEARNER::learner&
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::generate_interactions_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::generate_interactions_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
+  VW980::workspace& all = *stack_builder.get_all_pointer();
   bool leave_duplicate_interactions;
   bool store_in_reduction_features = false;
   option_group_definition new_options("[Reduction] Generate Interactions");
@@ -189,7 +189,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::generate_interactions_setu
   auto interactions_spec_contains_wildcards = false;
   for (const auto& inter : all.interactions)
   {
-    if (VW::contains_wildcard(inter))
+    if (VW980::contains_wildcard(inter))
     {
       interactions_spec_contains_wildcards = true;
       break;
@@ -199,7 +199,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::generate_interactions_setu
   auto interactions_spec_contains_extent_wildcards = false;
   for (const auto& inter : all.extent_interactions)
   {
-    if (VW::contains_wildcard(inter))
+    if (VW980::contains_wildcard(inter))
     {
       interactions_spec_contains_extent_wildcards = true;
       break;
@@ -218,9 +218,9 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::generate_interactions_setu
 
   if (options.was_supplied("large_action_space")) { store_in_reduction_features = true; }
 
-  using learn_pred_func_t = void (*)(VW::interactions_generator&, VW::LEARNER::learner&, VW::example&);
+  using learn_pred_func_t = void (*)(VW980::interactions_generator&, VW980::LEARNER::learner&, VW980::example&);
   using multipredict_func_t = void (*)(
-      VW::interactions_generator&, VW::LEARNER::learner&, VW::example&, size_t, size_t, VW::polyprediction*, bool);
+      VW980::interactions_generator&, VW980::LEARNER::learner&, VW980::example&, size_t, size_t, VW980::polyprediction*, bool);
   learn_pred_func_t learn_func;
   learn_pred_func_t pred_func;
   learn_pred_func_t update_func;
@@ -231,44 +231,44 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::generate_interactions_setu
     if (interactions_spec_contains_extent_wildcards)
     {
       learn_func = transform_single_ex<true,  // is_learn
-          VW::details::generate_namespace_permutations_with_repetition<
-              VW::namespace_index>,  // generate_fn<VW::namespace_index>
-          VW::details::generate_namespace_permutations_with_repetition<extent_term>,  // generate_fn<extent_term>
+          VW980::details::generate_namespace_permutations_with_repetition<
+              VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
+          VW980::details::generate_namespace_permutations_with_repetition<extent_term>,  // generate_fn<extent_term>
           true                                                                        // leave_duplicate_interactions
           >;
       pred_func = transform_single_ex<false,  // is_learn
-          VW::details::generate_namespace_permutations_with_repetition<
-              VW::namespace_index>,  // generate_fn<VW::namespace_index>
-          VW::details::generate_namespace_permutations_with_repetition<extent_term>,  // generate_fn<extent_term>
+          VW980::details::generate_namespace_permutations_with_repetition<
+              VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
+          VW980::details::generate_namespace_permutations_with_repetition<extent_term>,  // generate_fn<extent_term>
           true                                                                        // leave_duplicate_interactions
           >;
-      update_func = update<VW::details::generate_namespace_permutations_with_repetition<
-                               VW::namespace_index>,  // generate_fn<VW::namespace_index>
-          VW::details::generate_namespace_permutations_with_repetition<extent_term>,  // generate_fn<extent_term>
+      update_func = update<VW980::details::generate_namespace_permutations_with_repetition<
+                               VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
+          VW980::details::generate_namespace_permutations_with_repetition<extent_term>,  // generate_fn<extent_term>
           true>;
-      multipredict_func = multipredict<VW::details::generate_namespace_permutations_with_repetition<
-                                           VW::namespace_index>,  // generate_fn<VW::namespace_index>
-          VW::details::generate_namespace_permutations_with_repetition<extent_term>,  // generate_fn<extent_term>
+      multipredict_func = multipredict<VW980::details::generate_namespace_permutations_with_repetition<
+                                           VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
+          VW980::details::generate_namespace_permutations_with_repetition<extent_term>,  // generate_fn<extent_term>
           true>;
     }
     else
     {
       learn_func = transform_single_ex<true,  // is_learn
-          VW::details::generate_namespace_permutations_with_repetition<
-              VW::namespace_index>,  // generate_fn<VW::namespace_index>
+          VW980::details::generate_namespace_permutations_with_repetition<
+              VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
           true                       // leave_duplicate_interactions
           >;
       pred_func = transform_single_ex<false,  // is_learn
-          VW::details::generate_namespace_permutations_with_repetition<
-              VW::namespace_index>,  // generate_fn<VW::namespace_index>
+          VW980::details::generate_namespace_permutations_with_repetition<
+              VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
           true                       // leave_duplicate_interactions
           >;
-      update_func = update<VW::details::generate_namespace_permutations_with_repetition<
-                               VW::namespace_index>,  // generate_fn<VW::namespace_index>
+      update_func = update<VW980::details::generate_namespace_permutations_with_repetition<
+                               VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
           true                                        // leave_duplicate_interactions
           >;
-      multipredict_func = multipredict<VW::details::generate_namespace_permutations_with_repetition<
-                                           VW::namespace_index>,  // generate_fn<VW::namespace_index>
+      multipredict_func = multipredict<VW980::details::generate_namespace_permutations_with_repetition<
+                                           VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
           true                                                    // leave_duplicate_interactions
           >;
     }
@@ -278,52 +278,52 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::generate_interactions_setu
     if (interactions_spec_contains_extent_wildcards)
     {
       learn_func = transform_single_ex<true,  // is_learn
-          VW::details::generate_namespace_combinations_with_repetition<
-              VW::namespace_index>,  // generate_fn<VW::namespace_index>
-          VW::details::generate_namespace_combinations_with_repetition<extent_term>,  // generate_fn<extent_term>
+          VW980::details::generate_namespace_combinations_with_repetition<
+              VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
+          VW980::details::generate_namespace_combinations_with_repetition<extent_term>,  // generate_fn<extent_term>
           false                                                                       // leave_duplicate_interactions
           >;
       pred_func = transform_single_ex<false,  // is_learn
-          VW::details::generate_namespace_combinations_with_repetition<
-              VW::namespace_index>,  // generate_fn<VW::namespace_index>
-          VW::details::generate_namespace_combinations_with_repetition<extent_term>,  // generate_fn<extent_term>
+          VW980::details::generate_namespace_combinations_with_repetition<
+              VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
+          VW980::details::generate_namespace_combinations_with_repetition<extent_term>,  // generate_fn<extent_term>
           false                                                                       // leave_duplicate_interactions
           >;
-      update_func = update<VW::details::generate_namespace_combinations_with_repetition<
-                               VW::namespace_index>,  // generate_fn<VW::namespace_index>
-          VW::details::generate_namespace_combinations_with_repetition<extent_term>,  // generate_fn<extent_term>
+      update_func = update<VW980::details::generate_namespace_combinations_with_repetition<
+                               VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
+          VW980::details::generate_namespace_combinations_with_repetition<extent_term>,  // generate_fn<extent_term>
           false                                                                       // leave_duplicate_interactions
           >;
-      multipredict_func = multipredict<VW::details::generate_namespace_combinations_with_repetition<
-                                           VW::namespace_index>,  // generate_fn<VW::namespace_index>
-          VW::details::generate_namespace_combinations_with_repetition<extent_term>,  // generate_fn<extent_term>
+      multipredict_func = multipredict<VW980::details::generate_namespace_combinations_with_repetition<
+                                           VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
+          VW980::details::generate_namespace_combinations_with_repetition<extent_term>,  // generate_fn<extent_term>
           false                                                                       // leave_duplicate_interactions
           >;
     }
     else
     {
       learn_func = transform_single_ex<true,  // is_learn
-          VW::details::generate_namespace_combinations_with_repetition<
-              VW::namespace_index>,  // generate_fn<VW::namespace_index>
+          VW980::details::generate_namespace_combinations_with_repetition<
+              VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
           false                      // leave_duplicate_interactions
           >;
       pred_func = transform_single_ex<false,  // is_learn
-          VW::details::generate_namespace_combinations_with_repetition<
-              VW::namespace_index>,  // generate_fn<VW::namespace_index>
+          VW980::details::generate_namespace_combinations_with_repetition<
+              VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
           false                      // leave_duplicate_interactions
           >;
-      update_func = update<VW::details::generate_namespace_combinations_with_repetition<
-                               VW::namespace_index>,  // generate_fn<VW::namespace_index>
+      update_func = update<VW980::details::generate_namespace_combinations_with_repetition<
+                               VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
           false                                       // leave_duplicate_interactions
           >;
-      multipredict_func = multipredict<VW::details::generate_namespace_combinations_with_repetition<
-                                           VW::namespace_index>,  // generate_fn<VW::namespace_index>
+      multipredict_func = multipredict<VW980::details::generate_namespace_combinations_with_repetition<
+                                           VW980::namespace_index>,  // generate_fn<VW980::namespace_index>
           false                                                   // leave_duplicate_interactions
           >;
     }
   }
 
-  auto data = VW::make_unique<VW::interactions_generator>();
+  auto data = VW980::make_unique<VW980::interactions_generator>();
   data->store_in_reduction_features = store_in_reduction_features;
   auto base = require_singleline(stack_builder.setup_base_learner());
   auto l = make_reduction_learner(

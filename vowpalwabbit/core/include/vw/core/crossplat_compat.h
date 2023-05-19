@@ -14,7 +14,7 @@
 #  define fscanf_s fscanf
 #endif
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -28,4 +28,4 @@ constexpr uint64_t UINT64_ONE = 1i64;
 int string_cpy(char* dest, size_t dest_size, const char* src);
 int file_open(FILE** pf, const char* filename, const char* mode);
 int get_pid();
-}  // namespace VW
+}  // namespace VW980

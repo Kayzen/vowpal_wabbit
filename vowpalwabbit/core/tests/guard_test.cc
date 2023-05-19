@@ -29,7 +29,7 @@ TEST(Guard, SwapGuardExecuteOnScopeEnd)
   {
     EXPECT_EQ(original_location, 1);
     EXPECT_EQ(location_to_swap, 99999);
-    auto guard = VW::swap_guard(original_location, location_to_swap);
+    auto guard = VW980::swap_guard(original_location, location_to_swap);
     EXPECT_EQ(original_location, 99999);
     EXPECT_EQ(location_to_swap, 1);
   }
@@ -45,7 +45,7 @@ TEST(Guard, SwapGuardExecuteOnScopeEndNoCopy)
   {
     EXPECT_EQ(original_location.value, 1);
     EXPECT_EQ(location_to_swap.value, 99999);
-    auto guard = VW::swap_guard(original_location, location_to_swap);
+    auto guard = VW980::swap_guard(original_location, location_to_swap);
     EXPECT_EQ(original_location.value, 99999);
     EXPECT_EQ(location_to_swap.value, 1);
   }
@@ -61,7 +61,7 @@ TEST(Guard, SwapGuardCancel)
   {
     EXPECT_EQ(original_location, 1);
     EXPECT_EQ(location_to_swap, 99999);
-    auto guard = VW::swap_guard(original_location, location_to_swap);
+    auto guard = VW980::swap_guard(original_location, location_to_swap);
     EXPECT_EQ(original_location, 99999);
     EXPECT_EQ(location_to_swap, 1);
     guard.cancel();
@@ -78,7 +78,7 @@ TEST(Guard, SwapGuardExplicitForceSwap)
   {
     EXPECT_EQ(original_location, 1);
     EXPECT_EQ(location_to_swap, 99999);
-    auto guard = VW::swap_guard(original_location, location_to_swap);
+    auto guard = VW980::swap_guard(original_location, location_to_swap);
     EXPECT_EQ(original_location, 99999);
     EXPECT_EQ(location_to_swap, 1);
     EXPECT_EQ(guard.do_swap(), true);
@@ -107,7 +107,7 @@ TEST(Guard, SwapGuardExecuteOnScopeEndSwapPointers)
     EXPECT_EQ(*location_to_swap, 99999);
     EXPECT_EQ(original_location, original_location_pre_swap);
     EXPECT_EQ(location_to_swap, location_to_swap_pre_swap);
-    auto guard = VW::swap_guard(original_location, location_to_swap);
+    auto guard = VW980::swap_guard(original_location, location_to_swap);
     EXPECT_EQ(*original_location, 99999);
     EXPECT_EQ(*location_to_swap, 1);
     EXPECT_EQ(original_location, location_to_swap_pre_swap);
@@ -128,7 +128,7 @@ TEST(Guard, SwapGuardExecuteTempValue)
 
   {
     EXPECT_EQ(original_location, 1);
-    auto guard = VW::swap_guard(original_location, 9999);
+    auto guard = VW980::swap_guard(original_location, 9999);
     EXPECT_EQ(original_location, 9999);
   }
   EXPECT_EQ(original_location, 1);
@@ -140,7 +140,7 @@ TEST(Guard, SwapGuardExecuteTempValueNoCopy)
 
   {
     EXPECT_EQ(original_location.value, 1);
-    auto guard = VW::swap_guard(original_location, non_copyable_class(9999));
+    auto guard = VW980::swap_guard(original_location, non_copyable_class(9999));
     EXPECT_EQ(original_location.value, 9999);
   }
   EXPECT_EQ(original_location.value, 1);
@@ -148,13 +148,13 @@ TEST(Guard, SwapGuardExecuteTempValueNoCopy)
 
 TEST(Guard, SwapGuardUniquePtr)
 {
-  std::unique_ptr<int> original_location = VW::make_unique<int>(1);
+  std::unique_ptr<int> original_location = VW980::make_unique<int>(1);
 
   {
-    std::unique_ptr<int> inner_location = VW::make_unique<int>(9999);
+    std::unique_ptr<int> inner_location = VW980::make_unique<int>(9999);
     EXPECT_EQ(*inner_location, 9999);
     EXPECT_EQ(*original_location, 1);
-    auto guard = VW::swap_guard(original_location, inner_location);
+    auto guard = VW980::swap_guard(original_location, inner_location);
     EXPECT_EQ(*inner_location, 1);
     EXPECT_EQ(*original_location, 9999);
   }
@@ -166,7 +166,7 @@ TEST(Guard, StashGuardExecuteOnScopeEnd)
   int target_location = 999;
   {
     EXPECT_EQ(target_location, 999);
-    auto guard = VW::stash_guard(target_location);
+    auto guard = VW980::stash_guard(target_location);
     EXPECT_EQ(target_location, 0);
   }
   EXPECT_EQ(target_location, 999);
@@ -187,7 +187,7 @@ TEST(Guard, StashGuardUsedDefaultCtor)
   target_location.value = 456;
   {
     EXPECT_EQ(target_location.value, 456);
-    auto guard = VW::stash_guard(target_location);
+    auto guard = VW980::stash_guard(target_location);
     EXPECT_EQ(target_location.value, 123);
   }
   EXPECT_EQ(target_location.value, 456);

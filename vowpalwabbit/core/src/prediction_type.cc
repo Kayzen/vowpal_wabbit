@@ -10,9 +10,9 @@
   case type:       \
     return #type;
 
-VW::string_view VW::to_string(prediction_type_t prediction_type)
+VW980::string_view VW980::to_string(prediction_type_t prediction_type)
 {
-  using namespace VW;
+  using namespace VW980;
 
   switch (prediction_type)
   {
@@ -38,4 +38,4 @@ VW::string_view VW::to_string(prediction_type_t prediction_type)
   return "unknown prediction type enum";
 }
 
-VW::string_view to_string(VW::prediction_type_t prediction_type) { return VW::to_string(prediction_type); }
+VW980::string_view to_string(VW980::prediction_type_t prediction_type) { return VW980::to_string(prediction_type); }

@@ -41,7 +41,7 @@
 ** if the requested number of bytes to be read is larger than the interval size.
 ** This is done to avoid reallocating arrays as much as possible.
 */
-namespace VW
+namespace VW980
 {
 
 class io_buf
@@ -58,8 +58,8 @@ public:
   io_buf(io_buf&& other) = delete;
   io_buf& operator=(io_buf&& other) = delete;
 
-  const std::vector<std::unique_ptr<VW::io::reader>>& get_input_files() const { return _input_files; }
-  const std::vector<std::unique_ptr<VW::io::writer>>& get_output_files() const { return _output_files; }
+  const std::vector<std::unique_ptr<VW980::io::reader>>& get_input_files() const { return _input_files; }
+  const std::vector<std::unique_ptr<VW980::io::writer>>& get_output_files() const { return _output_files; }
 
   void verify_hash(bool verify)
   {
@@ -75,13 +75,13 @@ public:
     return _hash;
   }
 
-  void add_file(std::unique_ptr<VW::io::reader>&& file)
+  void add_file(std::unique_ptr<VW980::io::reader>&& file)
   {
     assert(_output_files.empty());
     _input_files.push_back(std::move(file));
   }
 
-  void add_file(std::unique_ptr<VW::io::writer>&& file)
+  void add_file(std::unique_ptr<VW980::io::writer>&& file)
   {
     assert(_input_files.empty());
     _output_files.push_back(std::move(file));
@@ -113,12 +113,12 @@ public:
 
   // You can definitely call read directly on the reader object. This function hasn't been changed yet to reduce churn
   // in the refactor.
-  static ssize_t read_file(VW::io::reader* f, void* buf, size_t nbytes)
+  static ssize_t read_file(VW980::io::reader* f, void* buf, size_t nbytes)
   {
     return f->read(static_cast<char*>(buf), nbytes);
   }
 
-  ssize_t fill(VW::io::reader* f)
+  ssize_t fill(VW980::io::reader* f)
   {
     // if the loaded values have reached the allocated space
     if (_buffer.end_array - _buffer.end == 0)
@@ -182,7 +182,7 @@ public:
 
   template <typename T,
       typename std::enable_if<!std::is_pointer<T>::value && std::is_trivially_copyable<T>::value, bool>::type = true>
-  T read_value(VW::string_view debug_name = "")
+  T read_value(VW980::string_view debug_name = "")
   {
     char* read_head = nullptr;
     T value;
@@ -197,7 +197,7 @@ public:
 
   template <typename T,
       typename std::enable_if<!std::is_pointer<T>::value && std::is_trivially_copyable<T>::value, bool>::type = true>
-  T read_value_and_accumulate_size(VW::string_view debug_name, size_t& size)
+  T read_value_and_accumulate_size(VW980::string_view debug_name, size_t& size)
   {
     size += sizeof(T);
     return read_value<T>(debug_name);
@@ -216,7 +216,7 @@ public:
       len = buf_read(p, len);
 
       // compute hash for check-sum
-      if (_verify_hash) { _hash = static_cast<uint32_t>(VW::uniform_hash(p, len, _hash)); }
+      if (_verify_hash) { _hash = static_cast<uint32_t>(VW980::uniform_hash(p, len, _hash)); }
       memcpy(data, p, len);
       return len;
     }
@@ -233,7 +233,7 @@ public:
       memcpy(p, data, len);
 
       // compute hash for check-sum
-      if (_verify_hash) { _hash = static_cast<uint32_t>(VW::uniform_hash(p, len, _hash)); }
+      if (_verify_hash) { _hash = static_cast<uint32_t>(VW980::uniform_hash(p, len, _hash)); }
     }
     return len;
   }
@@ -300,8 +300,8 @@ private:
   // file descriptor currently being used.
   size_t _current = 0;
 
-  std::vector<std::unique_ptr<VW::io::reader>> _input_files;
-  std::vector<std::unique_ptr<VW::io::writer>> _output_files;
+  std::vector<std::unique_ptr<VW980::io::reader>> _input_files;
+  std::vector<std::unique_ptr<VW980::io::writer>> _output_files;
 };
 
 namespace details
@@ -372,15 +372,15 @@ inline size_t bin_text_read_write_fixed_validated(
   return nbytes;
 }
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980
 
-using io_buf VW_DEPRECATED("io_buf moved into VW namespace") = VW::io_buf;
+using io_buf VW_DEPRECATED("io_buf moved into VW namespace") = VW980::io_buf;
 
 // Model utils functions should be used instead.
 #define DEPRECATED_WRITEIT(what, str)                                                                  \
   do {                                                                                                 \
     msg << str << " = " << what << " ";                                                                \
-    ::VW::details::bin_text_read_write_fixed(model_file, (char*)&what, sizeof(what), read, msg, text); \
+    ::VW980::details::bin_text_read_write_fixed(model_file, (char*)&what, sizeof(what), read, msg, text); \
   } while (0);
 
 // Model utils functions should be used instead.
@@ -388,5 +388,5 @@ using io_buf VW_DEPRECATED("io_buf moved into VW namespace") = VW::io_buf;
   auto mywhat = (what);                                                                                    \
   do {                                                                                                     \
     msg << str << " = " << mywhat << " ";                                                                  \
-    ::VW::details::bin_text_read_write_fixed(model_file, (char*)&mywhat, sizeof(mywhat), read, msg, text); \
+    ::VW980::details::bin_text_read_write_fixed(model_file, (char*)&mywhat, sizeof(mywhat), read, msg, text); \
   } while (0);

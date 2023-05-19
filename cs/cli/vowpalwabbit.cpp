@@ -23,7 +23,7 @@ using namespace System;
 using namespace System::Collections::Generic;
 using namespace System::Text;
 
-namespace VW
+namespace VW980
 {
 VowpalWabbit::VowpalWabbit(VowpalWabbitSettings^ settings)
   : VowpalWabbitBase(settings)
@@ -67,9 +67,9 @@ void VowpalWabbit::RunMultiPass()
 { if (m_vw->numpasses > 1)
   { try
     { m_vw->do_reset_source = true;
-      VW::start_parser(*m_vw);
+      VW980::start_parser(*m_vw);
       LEARNER::generic_driver(*m_vw);
-      VW::end_parser(*m_vw);
+      VW980::end_parser(*m_vw);
     }
     CATCHRETHROW
   }
@@ -139,7 +139,7 @@ uint64_t VowpalWabbit::HashSpaceNative(String^ s)
   auto handle = GCHandle::Alloc(bytes, GCHandleType::Pinned);
 
   try
-  { return VW::hash_space(*m_vw, reinterpret_cast<char*>(handle.AddrOfPinnedObject().ToPointer()));
+  { return VW980::hash_space(*m_vw, reinterpret_cast<char*>(handle.AddrOfPinnedObject().ToPointer()));
   }
   CATCHRETHROW
   finally
@@ -152,7 +152,7 @@ uint64_t VowpalWabbit::HashFeatureNative(String^ s, uint64_t u)
   auto handle = GCHandle::Alloc(bytes, GCHandleType::Pinned);
 
   try
-  { return VW::hash_feature(*m_vw, reinterpret_cast<char*>(handle.AddrOfPinnedObject().ToPointer()), u);
+  { return VW980::hash_feature(*m_vw, reinterpret_cast<char*>(handle.AddrOfPinnedObject().ToPointer()), u);
   }
   CATCHRETHROW
   finally
@@ -310,7 +310,7 @@ List<VowpalWabbitExample^>^ VowpalWabbit::ParseDecisionServiceJson(cli::array<By
 			auto ex = GetOrCreateNativeExample();
 			state->examples->Add(ex);
 
-			VW::multi_ex examples;
+			VW980::multi_ex examples;
 			example* native_example = ex->m_example;
 			examples.push_back(native_example);
 
@@ -319,15 +319,15 @@ List<VowpalWabbitExample^>^ VowpalWabbit::ParseDecisionServiceJson(cli::array<By
 			pin_ptr<unsigned char> data = &json[0];
 			data += offset;
 
-			VW::parsers::json::decision_service_interaction interaction;
+			VW980::parsers::json::decision_service_interaction interaction;
 
 			if (m_vw->audit)
-				VW::parsers::json::read_line_decision_service_json<true>(*m_vw, examples, reinterpret_cast<char*>(data), length, copyJson, std::bind(get_example_from_pool, &state), &interaction);
+				VW980::parsers::json::read_line_decision_service_json<true>(*m_vw, examples, reinterpret_cast<char*>(data), length, copyJson, std::bind(get_example_from_pool, &state), &interaction);
 			else
-				VW::parsers::json::read_line_decision_service_json<false>(*m_vw, examples, reinterpret_cast<char*>(data), length, copyJson, std::bind(get_example_from_pool, &state), &interaction);
+				VW980::parsers::json::read_line_decision_service_json<false>(*m_vw, examples, reinterpret_cast<char*>(data), length, copyJson, std::bind(get_example_from_pool, &state), &interaction);
 
 			// finalize example
-			VW::setup_examples(*m_vw, examples);
+			VW980::setup_examples(*m_vw, examples);
 
 			// delete native array of pointers, keep examples
 			examples.clear();
@@ -379,19 +379,19 @@ List<VowpalWabbitExample^>^ VowpalWabbit::ParseDecisionServiceJson(cli::array<By
 			  auto ex = GetOrCreateNativeExample();
 			  state->examples->Add(ex);
 
-			  VW::multi_ex examples;
+			  VW980::multi_ex examples;
 			  example* native_example = ex->m_example;
 			  examples.push_back(native_example);
 
 			  interior_ptr<ParseJsonState^> state_ptr = &state;
 
 			  if (m_vw->audit)
-				VW::parsers::json::read_line_json<true>(*m_vw, examples, reinterpret_cast<char*>(valueHandle.AddrOfPinnedObject().ToPointer()), (size_t)bytes->Length, std::bind(get_example_from_pool, &state));
+				VW980::parsers::json::read_line_json<true>(*m_vw, examples, reinterpret_cast<char*>(valueHandle.AddrOfPinnedObject().ToPointer()), (size_t)bytes->Length, std::bind(get_example_from_pool, &state));
 			  else
-				VW::parsers::json::read_line_json<false>(*m_vw, examples, reinterpret_cast<char*>(valueHandle.AddrOfPinnedObject().ToPointer()), (size_t)bytes->Length, std::bind(get_example_from_pool, &state));
+				VW980::parsers::json::read_line_json<false>(*m_vw, examples, reinterpret_cast<char*>(valueHandle.AddrOfPinnedObject().ToPointer()), (size_t)bytes->Length, std::bind(get_example_from_pool, &state));
 
 			  // finalize example
-			  VW::setup_examples(*m_vw, examples);
+			  VW980::setup_examples(*m_vw, examples);
 
 			  // remember the input string for debugging purposes
 			  ex->VowpalWabbitString = line;
@@ -426,10 +426,10 @@ VowpalWabbitExample^ VowpalWabbit::ParseLine(String^ line)
 
   try
   { try
-    { VW::parsers::text::read_line(*m_vw, ex->m_example, reinterpret_cast<char*>(valueHandle.AddrOfPinnedObject().ToPointer()));
+    { VW980::parsers::text::read_line(*m_vw, ex->m_example, reinterpret_cast<char*>(valueHandle.AddrOfPinnedObject().ToPointer()));
 
       // finalize example
-      VW::setup_example(*m_vw, ex->m_example);
+      VW980::setup_example(*m_vw, ex->m_example);
 
       // remember the input string for debugging purposes
       ex->VowpalWabbitString = line;
@@ -792,7 +792,7 @@ VowpalWabbitExample^ VowpalWabbit::GetOrCreateNativeExample()
   if (ex == nullptr)
   { try
     {
-      auto ex = new VW::example;
+      auto ex = new VW980::example;
       m_vw->example_parser->lbl_parser.default_label(ex->l);
       return gcnew VowpalWabbitExample(this, ex);
     }
@@ -800,7 +800,7 @@ VowpalWabbitExample^ VowpalWabbit::GetOrCreateNativeExample()
   }
 
   try
-  { VW::empty_example(*m_vw, *ex->m_example);
+  { VW980::empty_example(*m_vw, *ex->m_example);
     m_vw->example_parser->lbl_parser.default_label(ex->m_example->l);
 
     return ex;
@@ -819,7 +819,7 @@ void VowpalWabbit::ReturnExampleToPool(VowpalWabbitExample^ ex)
     throw gcnew ArgumentNullException("ex");
 
   // make sure we're not a ring based example
-  assert(!VW::is_ring_example(*m_vw, ex->m_example));
+  assert(!VW980::is_ring_example(*m_vw, ex->m_example));
 
   // the bag might have reached it's limit
   if (m_examples != nullptr)
@@ -845,7 +845,7 @@ cli::array<List<VowpalWabbitFeature^>^>^ VowpalWabbit::GetTopicAllocation(int to
   // over topics
   for (int topic = 0; topic < K; topic++)
   {
-    VW::reductions::lda::get_top_weights(m_vw, top, topic, top_weights);
+    VW980::reductions::lda::get_top_weights(m_vw, top, topic, top_weights);
 
     auto clr_weights = gcnew List<VowpalWabbitFeature^>(top);
     allocation[topic] = clr_weights;
@@ -872,7 +872,7 @@ cli::array<cli::array<float>^>^ VowpalWabbit::FillTopicAllocation(T& weights)
 
 	for (auto iter = weights.begin(); iter != weights.end(); ++iter)
 	{   // over topics
-		VW::weight* wp = &(*iter);
+		VW980::weight* wp = &(*iter);
 		for (uint64_t k = 0; k < K; k++)
 			allocation[(int)k][(int)iter.index()] = wp[k] + lda_rho;
 	}

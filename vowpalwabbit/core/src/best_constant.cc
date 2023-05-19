@@ -9,7 +9,7 @@
 
 #include <cmath>
 
-bool VW::get_best_constant(
+bool VW980::get_best_constant(
     const loss_function& loss_func, const shared_data& sd, float& best_constant, float& best_constant_loss)
 {
   if (sd.first_observed_label == FLT_MAX)  // no non-test labels observed or function was never called

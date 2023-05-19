@@ -35,7 +35,7 @@ license as described in the file LICENSE.
 #include <cstdint>
 #include <cstring>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
@@ -125,10 +125,10 @@ VW_STD14_CONSTEXPR inline uint32_t uniform_hash(const char* data, size_t len, ui
 {
   return details::murmurhash_x86_32(data, len, seed);
 }
-}  // namespace VW
+}  // namespace VW980
 
 VW_DEPRECATED("uniform_hash has been moved into VW namespace")
 inline uint64_t uniform_hash(const void* key, size_t len, uint64_t seed)
 {
-  return VW::uniform_hash(reinterpret_cast<const char*>(key), len, static_cast<uint32_t>(seed));
+  return VW980::uniform_hash(reinterpret_cast<const char*>(key), len, static_cast<uint32_t>(seed));
 }

@@ -11,13 +11,13 @@
 
 #include <string>
 
-namespace VW
+namespace VW980
 {
 namespace parsers
 {
 namespace csv
 {
-int parse_csv_examples(VW::workspace* all, io_buf& buf, VW::multi_ex& examples)
+int parse_csv_examples(VW980::workspace* all, io_buf& buf, VW980::multi_ex& examples)
 {
   bool keep_reading = all->custom_parser->next(*all, buf, examples);
   return keep_reading ? 1 : 0;
@@ -50,24 +50,24 @@ void csv_parser::set_csv_separator(std::string& str, const std::string& name)
   }
 }
 
-void csv_parser::set_parse_args(VW::config::option_group_definition& in_options, csv_parser_options& parsed_options)
+void csv_parser::set_parse_args(VW980::config::option_group_definition& in_options, csv_parser_options& parsed_options)
 {
   in_options
-      .add(VW::config::make_option("csv", parsed_options.enabled)
+      .add(VW980::config::make_option("csv", parsed_options.enabled)
                .help("Data file will be interpreted as a CSV file")
                .experimental())
-      .add(VW::config::make_option("csv_separator", parsed_options.csv_separator)
+      .add(VW980::config::make_option("csv_separator", parsed_options.csv_separator)
                .default_value(",")
                .help("CSV Parser: Specify field separator in one character, "
                      "\" | : are not allowed for reservation.")
                .experimental())
-      .add(VW::config::make_option("csv_no_file_header", parsed_options.csv_no_file_header)
+      .add(VW980::config::make_option("csv_no_file_header", parsed_options.csv_no_file_header)
                .default_value(false)
                .help("CSV Parser: First line is NOT a header. By default, CSV files "
                      "are assumed to have a header with feature and/or namespaces names. "
                      "You MUST specify the header with --csv_header if you use this option.")
                .experimental())
-      .add(VW::config::make_option("csv_header", parsed_options.csv_header)
+      .add(VW980::config::make_option("csv_header", parsed_options.csv_header)
                .default_value("")
                .help("CSV Parser: Override the CSV header by providing (namespace, '|' and) "
                      "feature name separated with ','. By default, CSV files are assumed to "
@@ -75,7 +75,7 @@ void csv_parser::set_parse_args(VW::config::option_group_definition& in_options,
                      "You can override it by specifying here. Combined with --csv_no_file_header, "
                      "we assume that there is no header in the CSV file.")
                .experimental())
-      .add(VW::config::make_option("csv_ns_value", parsed_options.csv_ns_value)
+      .add(VW980::config::make_option("csv_ns_value", parsed_options.csv_ns_value)
                .default_value("")
                .help("CSV Parser: Scale the namespace values by specifying the float "
                      "ratio. e.g. --csv_ns_value=a:0.5,b:0.3,:8 ")
@@ -107,7 +107,7 @@ void csv_parser::handle_parse_args(csv_parser_options& parsed_options)
 class CSV_parser
 {
 public:
-  CSV_parser(VW::workspace* all, VW::example* ae, VW::string_view csv_line, VW::parsers::csv::csv_parser* parser)
+  CSV_parser(VW980::workspace* all, VW980::example* ae, VW980::string_view csv_line, VW980::parsers::csv::csv_parser* parser)
       : _parser(parser), _all(all), _ae(ae)
   {
     if (csv_line.empty()) { THROW("Malformed CSV, empty line at " << _parser->line_num << "!"); }
@@ -120,10 +120,10 @@ public:
   ~CSV_parser() {}
 
 private:
-  VW::parsers::csv::csv_parser* _parser;
-  VW::workspace* _all;
-  VW::example* _ae;
-  VW::v_array<VW::string_view> _csv_line;
+  VW980::parsers::csv::csv_parser* _parser;
+  VW980::workspace* _all;
+  VW980::example* _ae;
+  VW980::v_array<VW980::string_view> _csv_line;
   std::vector<std::string> _token_storage;
   size_t _anon{};
   uint64_t _channel_hash{};
@@ -138,7 +138,7 @@ private:
       if (_parser->options.csv_header.empty()) { parse_header(_csv_line); }
       else
       {
-        VW::v_array<VW::string_view> header_elements = split(_parser->options.csv_header, ',');
+        VW980::v_array<VW980::string_view> header_elements = split(_parser->options.csv_header, ',');
         parse_header(header_elements);
       }
 
@@ -158,10 +158,10 @@ private:
 
   inline FORCE_INLINE void parse_ns_value()
   {
-    VW::v_array<VW::string_view> ns_values = split(_parser->options.csv_ns_value, ',', true);
+    VW980::v_array<VW980::string_view> ns_values = split(_parser->options.csv_ns_value, ',', true);
     for (size_t i = 0; i < ns_values.size(); i++)
     {
-      VW::v_array<VW::string_view> pair = split(ns_values[i], ':', true);
+      VW980::v_array<VW980::string_view> pair = split(ns_values[i], ':', true);
       std::string ns = " ";
       float value = 1.f;
       if (pair.size() != 2 || pair[1].empty())
@@ -176,7 +176,7 @@ private:
     }
   }
 
-  inline FORCE_INLINE void parse_header(VW::v_array<VW::string_view>& header_elements)
+  inline FORCE_INLINE void parse_header(VW980::v_array<VW980::string_view>& header_elements)
   {
     for (size_t i = 0; i < header_elements.size(); i++)
     {
@@ -197,9 +197,9 @@ private:
 
       // Handle other column names as feature names
       // Seperate the feature name and namespace from the header.
-      VW::v_array<VW::string_view> splitted = split(header_elements[i], '|');
-      VW::string_view feature_name;
-      VW::string_view ns;
+      VW980::v_array<VW980::string_view> splitted = split(header_elements[i], '|');
+      VW980::string_view feature_name;
+      VW980::string_view ns;
       if (splitted.size() == 1) { feature_name = header_elements[i]; }
       else if (splitted.size() == 2)
       {
@@ -233,11 +233,11 @@ private:
 
   inline FORCE_INLINE void parse_label()
   {
-    VW::string_view label_content = _csv_line[_parser->label_list[0]];
+    VW980::string_view label_content = _csv_line[_parser->label_list[0]];
     if (_parser->options.csv_remove_outer_quotes) { remove_quotation_marks(label_content); }
 
     _all->example_parser->words.clear();
-    VW::tokenize(' ', label_content, _all->example_parser->words);
+    VW980::tokenize(' ', label_content, _all->example_parser->words);
 
     if (!_all->example_parser->words.empty())
     {
@@ -249,7 +249,7 @@ private:
 
   inline FORCE_INLINE void parse_tag()
   {
-    VW::string_view tag = _csv_line[_parser->tag_list[0]];
+    VW980::string_view tag = _csv_line[_parser->tag_list[0]];
     if (_parser->options.csv_remove_outer_quotes) { remove_quotation_marks(tag); }
     if (!tag.empty() && tag.front() == '\'') { tag.remove_prefix(1); }
     _ae->tag.insert(_ae->tag.end(), tag.begin(), tag.end());
@@ -262,12 +262,12 @@ private:
     for (auto& f : _parser->feature_list)
     {
       _anon = 0;
-      VW::string_view ns;
+      VW980::string_view ns;
       bool new_index = false;
       if (f.first.empty())
       {
         ns = " ";
-        _channel_hash = _all->hash_seed == 0 ? 0 : VW::uniform_hash("", 0, _all->hash_seed);
+        _channel_hash = _all->hash_seed == 0 ? 0 : VW980::uniform_hash("", 0, _all->hash_seed);
       }
       else
       {
@@ -299,10 +299,10 @@ private:
     _ae->is_newline = empty_line;
   }
 
-  inline FORCE_INLINE void parse_features(features& fs, size_t column_index, float cur_channel_v, VW::string_view ns)
+  inline FORCE_INLINE void parse_features(features& fs, size_t column_index, float cur_channel_v, VW980::string_view ns)
   {
-    VW::string_view feature_name = _parser->header_fn[column_index];
-    VW::string_view string_feature_value = _csv_line[column_index];
+    VW980::string_view feature_name = _parser->header_fn[column_index];
+    VW980::string_view string_feature_value = _csv_line[column_index];
 
     uint64_t word_hash;
     float _v;
@@ -349,22 +349,22 @@ private:
       if (!is_feature_float)
       {
         fs.space_names.emplace_back(
-            VW::audit_strings(std::string{ns}, std::string{feature_name}, std::string{string_feature_value}));
+            VW980::audit_strings(std::string{ns}, std::string{feature_name}, std::string{string_feature_value}));
       }
-      else { fs.space_names.emplace_back(VW::audit_strings(std::string{ns}, std::string{feature_name})); }
+      else { fs.space_names.emplace_back(VW980::audit_strings(std::string{ns}, std::string{feature_name})); }
     }
   }
 
-  inline FORCE_INLINE VW::v_array<VW::string_view> split(VW::string_view sv, const char ch, bool use_quotes = false)
+  inline FORCE_INLINE VW980::v_array<VW980::string_view> split(VW980::string_view sv, const char ch, bool use_quotes = false)
   {
-    VW::v_array<VW::string_view> collections;
+    VW980::v_array<VW980::string_view> collections;
     size_t pointer = 0;
     // Trim extra characters that are useless for us to read
     const char* trim_list = "\r\n\xef\xbb\xbf\f\v";
     sv.remove_prefix(std::min(sv.find_first_not_of(trim_list), sv.size()));
     sv.remove_suffix(std::min(sv.size() - sv.find_last_not_of(trim_list) - 1, sv.size()));
 
-    VW::v_array<size_t> unquoted_quotes_index;
+    VW980::v_array<size_t> unquoted_quotes_index;
     bool inside_quotes = false;
 
     if (sv.empty())
@@ -402,8 +402,8 @@ private:
       }
       else if (i == sv.length() || (!inside_quotes && sv[i] == ch))
       {
-        VW::string_view element(&sv[pointer], i - pointer);
-        if (i == sv.length() && sv[i - 1] == ch) { element = VW::string_view(); }
+        VW980::string_view element(&sv[pointer], i - pointer);
+        if (i == sv.length() && sv[i - 1] == ch) { element = VW980::string_view(); }
 
         if (unquoted_quotes_index.empty()) { collections.emplace_back(element); }
         else
@@ -417,7 +417,7 @@ private:
             size_t sv_size = unquoted_quotes_index[j] - quotes_pointer;
             if (sv_size > 0 && quotes_pointer < element.size())
             {
-              VW::string_view str_part(&element[quotes_pointer], sv_size);
+              VW980::string_view str_part(&element[quotes_pointer], sv_size);
               new_string += {str_part.begin(), str_part.end()};
             }
             quotes_pointer = unquoted_quotes_index[j] + 1;
@@ -433,7 +433,7 @@ private:
     return collections;
   }
 
-  inline FORCE_INLINE void remove_quotation_marks(VW::string_view& sv)
+  inline FORCE_INLINE void remove_quotation_marks(VW980::string_view& sv)
   {
     // When the outer quotes pair, we just remove them.
     // If they don't, we just keep them without throwing any errors.
@@ -444,10 +444,10 @@ private:
     }
   }
 
-  inline FORCE_INLINE float string_to_float(VW::string_view sv)
+  inline FORCE_INLINE float string_to_float(VW980::string_view sv)
   {
     size_t end_read = 0;
-    float parsed = VW::details::parse_float(sv.data(), end_read, sv.data() + sv.size());
+    float parsed = VW980::details::parse_float(sv.data(), end_read, sv.data() + sv.size());
     // Not a valid float, return NaN
     if (!(end_read == sv.size())) { parsed = std::numeric_limits<float>::quiet_NaN(); }
     return parsed;
@@ -467,7 +467,7 @@ void csv_parser::reset()
   line_num = 0;
 }
 
-int csv_parser::parse_csv(VW::workspace* all, VW::example* ae, io_buf& buf)
+int csv_parser::parse_csv(VW980::workspace* all, VW980::example* ae, io_buf& buf)
 {
   // This function consumes input until it reaches a '\n' then it walks back the '\n' and '\r' if it exists.
   size_t num_bytes_consumed = read_line(all, ae, buf);
@@ -476,7 +476,7 @@ int csv_parser::parse_csv(VW::workspace* all, VW::example* ae, io_buf& buf)
   return static_cast<int>(num_bytes_consumed);
 }
 
-size_t csv_parser::read_line(VW::workspace* all, VW::example* ae, io_buf& buf)
+size_t csv_parser::read_line(VW980::workspace* all, VW980::example* ae, io_buf& buf)
 {
   char* line = nullptr;
   size_t num_chars_initial = buf.readto(line, '\n');
@@ -493,7 +493,7 @@ size_t csv_parser::read_line(VW::workspace* all, VW::example* ae, io_buf& buf)
     if (num_chars > 0 && line[num_chars - 1] == '\r') { num_chars--; }
 
     line_num++;
-    VW::string_view csv_line(line, num_chars);
+    VW980::string_view csv_line(line, num_chars);
     CSV_parser parse_line(all, ae, csv_line, this);
   }
   // EOF is reached, reset for possible next file.
@@ -503,4 +503,4 @@ size_t csv_parser::read_line(VW::workspace* all, VW::example* ae, io_buf& buf)
 
 }  // namespace csv
 }  // namespace parsers
-}  // namespace VW
+}  // namespace VW980

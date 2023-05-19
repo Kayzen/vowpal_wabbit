@@ -23,8 +23,8 @@
 #include <iostream>
 #include <numeric>
 
-using namespace VW::LEARNER;
-using namespace VW::config;
+using namespace VW980::LEARNER;
+using namespace VW980::config;
 
 namespace
 {
@@ -47,26 +47,26 @@ public:
   uint64_t errors = 0;
   float class_boundary = 0.f;
 
-  VW::v_array<direction> directions;  // The nodes of the tournament datastructure
+  VW980::v_array<direction> directions;  // The nodes of the tournament datastructure
 
-  std::vector<std::vector<VW::v_array<uint32_t>>> all_levels;
+  std::vector<std::vector<VW980::v_array<uint32_t>>> all_levels;
 
-  VW::v_array<uint32_t> final_nodes;  // The final nodes of each tournament.
+  VW980::v_array<uint32_t> final_nodes;  // The final nodes of each tournament.
 
-  VW::v_array<size_t> up_directions;    // On edge e, which node n is in the up direction?
-  VW::v_array<size_t> down_directions;  // On edge e, which node n is in the down direction?
+  VW980::v_array<size_t> up_directions;    // On edge e, which node n is in the up direction?
+  VW980::v_array<size_t> down_directions;  // On edge e, which node n is in the down direction?
 
   size_t tree_height = 0;  // The height of the final tournament.
 
   uint32_t last_pair = 0;
 
-  VW::v_array<bool> tournaments_won;
-  VW::io::logger logger;
+  VW980::v_array<bool> tournaments_won;
+  VW980::io::logger logger;
 
-  explicit ect(VW::io::logger logger) : logger(std::move(logger)) {}
+  explicit ect(VW980::io::logger logger) : logger(std::move(logger)) {}
 };
 
-size_t final_depth(size_t eliminations, VW::io::logger& logger)
+size_t final_depth(size_t eliminations, VW980::io::logger& logger)
 {
   eliminations--;
   for (size_t i = 0; i < 32; i++)
@@ -77,10 +77,10 @@ size_t final_depth(size_t eliminations, VW::io::logger& logger)
   return 31;
 }
 
-bool not_empty(std::vector<VW::v_array<uint32_t>> const& tournaments)
+bool not_empty(std::vector<VW980::v_array<uint32_t>> const& tournaments)
 {
   auto const first_non_empty_tournament = std::find_if(tournaments.cbegin(), tournaments.cend(),
-      [](const VW::v_array<uint32_t>& tournament) { return !tournament.empty(); });
+      [](const VW980::v_array<uint32_t>& tournament) { return !tournament.empty(); });
   return first_non_empty_tournament != tournaments.cend();
 }
 
@@ -88,8 +88,8 @@ size_t create_circuit(ect& e, uint64_t max_label, uint64_t eliminations)
 {
   if (max_label == 1) { return 0; }
 
-  std::vector<VW::v_array<uint32_t>> tournaments;
-  VW::v_array<uint32_t> t;
+  std::vector<VW980::v_array<uint32_t>> tournaments;
+  VW980::v_array<uint32_t> t;
 
   for (uint32_t i = 0; i < max_label; i++)
   {
@@ -100,7 +100,7 @@ size_t create_circuit(ect& e, uint64_t max_label, uint64_t eliminations)
 
   tournaments.push_back(t);
 
-  for (size_t i = 0; i < eliminations - 1; i++) { tournaments.push_back(VW::v_array<uint32_t>()); }
+  for (size_t i = 0; i < eliminations - 1; i++) { tournaments.push_back(VW980::v_array<uint32_t>()); }
 
   e.all_levels.push_back(tournaments);
 
@@ -110,12 +110,12 @@ size_t create_circuit(ect& e, uint64_t max_label, uint64_t eliminations)
 
   while (not_empty(e.all_levels[level]))
   {
-    std::vector<VW::v_array<uint32_t>> new_tournaments;
+    std::vector<VW980::v_array<uint32_t>> new_tournaments;
     tournaments = e.all_levels[level];
 
     for (size_t i = 0; i < tournaments.size(); i++)
     {
-      VW::v_array<uint32_t> empty;
+      VW980::v_array<uint32_t> empty;
       new_tournaments.push_back(empty);
     }
 
@@ -166,7 +166,7 @@ size_t create_circuit(ect& e, uint64_t max_label, uint64_t eliminations)
   return e.last_pair + (eliminations - 1);
 }
 
-uint32_t ect_predict(ect& e, learner& base, VW::example& ec)
+uint32_t ect_predict(ect& e, learner& base, VW980::example& ec)
 {
   if (e.k == static_cast<size_t>(1)) { return 1; }
 
@@ -174,7 +174,7 @@ uint32_t ect_predict(ect& e, learner& base, VW::example& ec)
 
   // Binary final elimination tournament first
   ec.l.simple = {FLT_MAX};
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
 
   for (size_t i = e.tree_height - 1; i != static_cast<size_t>(0) - 1; i--)
   {
@@ -201,15 +201,15 @@ uint32_t ect_predict(ect& e, learner& base, VW::example& ec)
   return id + 1;
 }
 
-void ect_train(ect& e, learner& base, VW::example& ec)
+void ect_train(ect& e, learner& base, VW980::example& ec)
 {
   if (e.k == 1)
   {  // nothing to do
     return;
   }
-  VW::multiclass_label mc = ec.l.multi;
+  VW980::multiclass_label mc = ec.l.multi;
 
-  VW::simple_label simple_temp;
+  VW980::simple_label simple_temp;
 
   e.tournaments_won.clear();
 
@@ -287,11 +287,11 @@ void ect_train(ect& e, learner& base, VW::example& ec)
   }
 }
 
-void predict(ect& e, learner& base, VW::example& ec) { ec.pred.multiclass = ect_predict(e, base, ec); }
+void predict(ect& e, learner& base, VW980::example& ec) { ec.pred.multiclass = ect_predict(e, base, ec); }
 
-void learn(ect& e, learner& base, VW::example& ec)
+void learn(ect& e, learner& base, VW980::example& ec)
 {
-  VW::multiclass_label mc = ec.l.multi;
+  VW980::multiclass_label mc = ec.l.multi;
   uint32_t pred = ec.pred.multiclass;
 
   if (mc.label != static_cast<uint32_t>(-1)) { ect_train(e, base, ec); }
@@ -300,11 +300,11 @@ void learn(ect& e, learner& base, VW::example& ec)
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::ect_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::ect_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto data = VW::make_unique<ect>(all.logger);
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto data = VW980::make_unique<ect>(all.logger);
   std::string link;
   option_group_definition new_options("[Reduction] Error Correcting Tournament");
   new_options.add(make_option("ect", data->k).keep().necessary().help("Error correcting tournament with <k> labels"))
@@ -329,13 +329,13 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::ect_setup(VW::setup_base_i
   auto l = make_reduction_learner(
       std::move(data), require_singleline(base), learn, predict, stack_builder.get_setupfn_name(ect_setup))
                .set_feature_width(feature_width)
-               .set_input_label_type(VW::label_type_t::MULTICLASS)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
-               .set_output_prediction_type(VW::prediction_type_t::MULTICLASS)
-               .set_update_stats(VW::details::update_stats_multiclass_label<ect>)
-               .set_output_example_prediction(VW::details::output_example_prediction_multiclass_label<ect>)
-               .set_print_update(VW::details::print_update_multiclass_label<ect>)
+               .set_input_label_type(VW980::label_type_t::MULTICLASS)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
+               .set_output_prediction_type(VW980::prediction_type_t::MULTICLASS)
+               .set_update_stats(VW980::details::update_stats_multiclass_label<ect>)
+               .set_output_example_prediction(VW980::details::output_example_prediction_multiclass_label<ect>)
+               .set_print_update(VW980::details::print_update_multiclass_label<ect>)
                .build();
   return l;
 }

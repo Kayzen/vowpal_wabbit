@@ -40,13 +40,13 @@
 #  include <thread>
 #endif
 
-using vw VW_DEPRECATED("Use VW::workspace instead of ::vw. ::vw will be removed in VW 10.") = VW::workspace;
+using vw VW_DEPRECATED("Use VW980::workspace instead of ::vw. ::vw will be removed in VW 10.") = VW980::workspace;
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
-using feature_dict = std::unordered_map<std::string, std::unique_ptr<VW::features>>;
+using feature_dict = std::unordered_map<std::string, std::unique_ptr<VW980::features>>;
 class dictionary_info
 {
 public:
@@ -56,7 +56,7 @@ public:
 };
 }  // namespace details
 
-using options_deleter_type = void (*)(VW::config::options_i*);
+using options_deleter_type = void (*)(VW980::config::options_i*);
 class workspace;
 
 class all_reduce_base;
@@ -86,9 +86,9 @@ class trace_message_wrapper
 {
 public:
   void* inner_context;
-  VW::trace_message_t trace_message;
+  VW980::trace_message_t trace_message;
 
-  trace_message_wrapper(void* context, VW::trace_message_t trace_message)
+  trace_message_wrapper(void* context, VW980::trace_message_t trace_message)
       : inner_context(context), trace_message(trace_message)
   {
   }
@@ -98,7 +98,7 @@ public:
 class invert_hash_info
 {
 public:
-  std::vector<VW::audit_strings> weight_components;
+  std::vector<VW980::audit_strings> weight_components;
   uint64_t offset;
   uint64_t stride_shift;
 };
@@ -107,7 +107,7 @@ public:
 class workspace
 {
 public:
-  std::shared_ptr<VW::shared_data> sd;
+  std::shared_ptr<VW980::shared_data> sd;
 
   std::unique_ptr<parser> example_parser;
   std::thread parse_thread;
@@ -117,7 +117,7 @@ public:
 
   bool chain_hash_json = false;
 
-  std::shared_ptr<VW::LEARNER::learner> l;  // the top level learner
+  std::shared_ptr<VW980::LEARNER::learner> l;  // the top level learner
 
   void learn(example&);
   void learn(multi_ex&);
@@ -141,7 +141,7 @@ public:
   std::string dump_weights_to_json_experimental();
 
   // Function to set min_label and max_label in shared_data
-  // Should be bound to a VW::shared_data pointer upon creating the function
+  // Should be bound to a VW980::shared_data pointer upon creating the function
   // May be nullptr, so you must check before calling it
   std::function<void(float)> set_minmax;
 
@@ -153,14 +153,14 @@ public:
   uint32_t hash_seed;
 
 #ifdef BUILD_FLATBUFFERS
-  std::unique_ptr<VW::parsers::flatbuffer::parser> flat_converter;
+  std::unique_ptr<VW980::parsers::flatbuffer::parser> flat_converter;
 #endif
 
-  VW::metrics_collector global_metrics;
+  VW980::metrics_collector global_metrics;
 
   // Experimental field.
   // Generic parser interface to make it possible to use any external parser.
-  std::unique_ptr<VW::details::input_parser> custom_parser;
+  std::unique_ptr<VW980::details::input_parser> custom_parser;
 
   std::string data_filename;
 
@@ -176,20 +176,20 @@ public:
   bool preserve_performance_counters;
   std::string id;
 
-  VW::version_struct model_file_ver;
+  VW980::version_struct model_file_ver;
   bool vw_is_main = false;  // true if vw is executable; false in library mode
 
   // error reporting
   std::shared_ptr<details::trace_message_wrapper> trace_message_wrapper_context;
   std::shared_ptr<std::ostream> trace_message;
 
-  std::unique_ptr<VW::config::options_i, options_deleter_type> options;
+  std::unique_ptr<VW980::config::options_i, options_deleter_type> options;
 
   void* /*Search::search*/ searchstr;
 
   uint32_t total_feature_width;
 
-  std::unique_ptr<VW::io::writer> stdout_adapter;
+  std::unique_ptr<VW980::io::writer> stdout_adapter;
 
   std::vector<std::string> initial_regressors;
 
@@ -224,7 +224,7 @@ public:
 
   bool redefine_some;                                  // --redefine param was used
   std::array<unsigned char, NUM_NAMESPACES> redefine;  // keeps new chars for namespaces
-  std::unique_ptr<VW::kskip_ngram_transformer> skip_gram_transformer;
+  std::unique_ptr<VW980::kskip_ngram_transformer> skip_gram_transformer;
   std::vector<std::string> limit_strings;      // descriptor of feature limits
   std::array<uint32_t, NUM_NAMESPACES> limit;  // count to limit features by
   std::array<uint64_t, NUM_NAMESPACES>
@@ -240,11 +240,11 @@ public:
   std::array<std::vector<std::shared_ptr<details::feature_dict>>, NUM_NAMESPACES>
       namespace_dictionaries{};  // each namespace has a list of dictionaries attached to it
 
-  VW::io::logger logger;
+  VW980::io::logger logger;
   bool quiet;
   bool audit;  // should I print lots of debugging information?
   std::shared_ptr<std::vector<char>> audit_buffer;
-  std::unique_ptr<VW::io::writer> audit_writer;
+  std::unique_ptr<VW980::io::writer> audit_writer;
   bool training;  // Should I train if lable data is available?
   bool active;
   bool invariant_updates;  // Should we use importance aware/safe updates
@@ -262,7 +262,7 @@ public:
   size_t check_holdout_every_n_passes;  // default: 1, but search might want to set it higher if you spend multiple
                                         // passes learning a single policy
 
-  VW::details::generate_interactions_object_cache generate_interactions_object_cache_state;
+  VW980::details::generate_interactions_object_cache generate_interactions_object_cache_state;
 
   size_t normalized_idx;  // offset idx where the norm is stored (1 or 2 depending on whether adaptive is true)
 
@@ -277,11 +277,11 @@ public:
   size_t length() { return (static_cast<size_t>(1)) << num_bits; };
 
   // Prediction output
-  std::vector<std::unique_ptr<VW::io::writer>> final_prediction_sink;  // set to send global predictions to.
-  std::unique_ptr<VW::io::writer> raw_prediction;                      // file descriptors for text output.
+  std::vector<std::unique_ptr<VW980::io::writer>> final_prediction_sink;  // set to send global predictions to.
+  std::unique_ptr<VW980::io::writer> raw_prediction;                      // file descriptors for text output.
 
-  void (*print_by_ref)(VW::io::writer*, float, float, const v_array<char>&, VW::io::logger&);
-  void (*print_text_by_ref)(VW::io::writer*, const std::string&, const v_array<char>&, VW::io::logger&);
+  void (*print_by_ref)(VW980::io::writer*, float, float, const v_array<char>&, VW980::io::logger&);
+  void (*print_text_by_ref)(VW980::io::writer*, const std::string&, const v_array<char>&, VW980::io::logger&);
   std::unique_ptr<loss_function> loss;
 
   // runtime accounting variables.
@@ -299,7 +299,7 @@ public:
   bool print_invert;
   bool hexfloat_weights;
 
-  std::map<uint64_t, VW::details::invert_hash_info> index_name_map;
+  std::map<uint64_t, VW980::details::invert_hash_info> index_name_map;
 
   // hack to support cb model loading into ccb learner
   bool is_ccb_input_model = false;
@@ -307,31 +307,31 @@ public:
   // Default value of 2 follows behavior of 1-indexing and can change to 0-indexing if detected
   uint32_t indexing = 2;  // for 0 or 1 indexing
 
-  explicit workspace(VW::io::logger logger);
+  explicit workspace(VW980::io::logger logger);
   ~workspace();
-  std::shared_ptr<VW::rand_state> get_random_state() { return _random_state_sp; }
+  std::shared_ptr<VW980::rand_state> get_random_state() { return _random_state_sp; }
 
-  workspace(const VW::workspace&) = delete;
-  VW::workspace& operator=(const VW::workspace&) = delete;
+  workspace(const VW980::workspace&) = delete;
+  VW980::workspace& operator=(const VW980::workspace&) = delete;
 
   // vw object cannot be moved as many objects hold a pointer to it.
   // That pointer would be invalidated if it were to be moved.
-  workspace(const VW::workspace&&) = delete;
-  VW::workspace& operator=(const VW::workspace&&) = delete;
+  workspace(const VW980::workspace&&) = delete;
+  VW980::workspace& operator=(const VW980::workspace&&) = delete;
 
 private:
-  std::shared_ptr<VW::rand_state> _random_state_sp;  // per instance random_state
+  std::shared_ptr<VW980::rand_state> _random_state_sp;  // per instance random_state
 };
 
 namespace details
 {
 void print_result_by_ref(
-    VW::io::writer* f, float res, float weight, const VW::v_array<char>& tag, VW::io::logger& logger);
+    VW980::io::writer* f, float res, float weight, const VW980::v_array<char>& tag, VW980::io::logger& logger);
 
-void compile_limits(std::vector<std::string> limits, std::array<uint32_t, VW::NUM_NAMESPACES>& dest, bool quiet,
-    VW::io::logger& logger);
+void compile_limits(std::vector<std::string> limits, std::array<uint32_t, VW980::NUM_NAMESPACES>& dest, bool quiet,
+    VW980::io::logger& logger);
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980
 
-using reduction_setup_fn VW_DEPRECATED("") = VW::reduction_setup_fn;
-using options_deleter_type VW_DEPRECATED("") = VW::options_deleter_type;
+using reduction_setup_fn VW_DEPRECATED("") = VW980::reduction_setup_fn;
+using options_deleter_type VW_DEPRECATED("") = VW980::options_deleter_type;

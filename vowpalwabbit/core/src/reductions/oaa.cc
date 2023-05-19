@@ -22,7 +22,7 @@
 #include <cstddef>
 #include <sstream>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 namespace
 {
@@ -34,16 +34,16 @@ class oaa
 {
 public:
   uint64_t k = 0;
-  VW::workspace* all = nullptr;         // for raw
-  VW::polyprediction* pred = nullptr;   // for multipredict
+  VW980::workspace* all = nullptr;         // for raw
+  VW980::polyprediction* pred = nullptr;   // for multipredict
   uint64_t num_subsample = 0;           // for randomized subsampling, how many negatives to draw?
   uint32_t* subsample_order = nullptr;  // for randomized subsampling, in what order should we touch classes
   size_t subsample_id = 0;              // for randomized subsampling, where do we live in the list
-  VW::io::logger logger;
+  VW980::io::logger logger;
   // Default value of 2 follows behavior of 1-indexing and can change to 0-indexing if detected
   uint32_t& indexing;  // for 0 or 1 indexing
 
-  oaa(VW::io::logger logger, uint32_t& indexing) : logger(std::move(logger)), indexing(indexing) {}
+  oaa(VW980::io::logger logger, uint32_t& indexing) : logger(std::move(logger)), indexing(indexing) {}
 
   ~oaa()
   {
@@ -52,7 +52,7 @@ public:
   }
 };
 
-void learn_randomized(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
+void learn_randomized(oaa& o, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   // Update indexing
   if (o.indexing == 2 && ec.l.multi.label == 0)
@@ -66,7 +66,7 @@ void learn_randomized(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
     o.indexing = 1;
   }
 
-  VW::multiclass_label ld = ec.l.multi;
+  VW980::multiclass_label ld = ec.l.multi;
 
   // Label validation
   if (o.indexing == 0 && ld.label >= o.k)
@@ -81,7 +81,7 @@ void learn_randomized(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
   }
 
   ec.l.simple.label = 1.;  // truth
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
   uint32_t lbl_ind = (o.indexing == 0) ? ld.label : ld.label - 1;
 
   base.learn(ec, lbl_ind);
@@ -116,7 +116,7 @@ void learn_randomized(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
 }
 
 template <bool print_all, bool scores, bool probabilities>
-void learn(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
+void learn(oaa& o, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   // Update indexing
   if (o.indexing == 2 && ec.l.multi.label == 0)
@@ -131,7 +131,7 @@ void learn(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
   }
 
   // Save label
-  VW::multiclass_label mc_label_data = ec.l.multi;
+  VW980::multiclass_label mc_label_data = ec.l.multi;
 
   // Label validation
   if (o.indexing == 0 && mc_label_data.label >= o.k)
@@ -148,7 +148,7 @@ void learn(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
   }
 
   ec.l.simple = {FLT_MAX};
-  ec.ex_reduction_features.template get<VW::simple_label_reduction_features>().reset_to_default();
+  ec.ex_reduction_features.template get<VW980::simple_label_reduction_features>().reset_to_default();
 
   for (uint32_t i = 0; i < o.k; i++)
   {
@@ -166,7 +166,7 @@ void learn(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
 }
 
 template <bool print_all, bool scores, bool probabilities>
-void predict(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
+void predict(oaa& o, VW980::LEARNER::learner& base, VW980::example& ec)
 {
   // The predictions are either an array of scores or a single
   // class id of a multiclass label
@@ -174,7 +174,7 @@ void predict(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
   // In the case we return scores, we need to save a copy of
   // the pre-allocated scores array since ec.pred will be
   // used for other predictions.
-  VW::v_array<float> scores_array;
+  VW980::v_array<float> scores_array;
   if (scores) { scores_array = ec.pred.scalars; }
 
   // oaa.pred - Predictions will get stored in this array
@@ -232,7 +232,7 @@ void predict(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
       float sum_prob = 0;
       for (uint32_t i = 0; i < o.k; i++)
       {
-        ec.pred.scalars[i] = 1.f / (1.f + VW::details::correctedExp(-o.pred[i].scalar));
+        ec.pred.scalars[i] = 1.f / (1.f + VW980::details::correctedExp(-o.pred[i].scalar));
         sum_prob += ec.pred.scalars[i];
       }
       const float inv_sum_prob = 1.f / sum_prob;
@@ -243,8 +243,8 @@ void predict(oaa& o, VW::LEARNER::learner& base, VW::example& ec)
 }
 
 template <bool probabilities>
-void update_stats_oaa(const VW::workspace& /* all */, VW::shared_data& sd, const oaa& data, const VW::example& ec,
-    VW::io::logger& /* logger */)
+void update_stats_oaa(const VW980::workspace& /* all */, VW980::shared_data& sd, const oaa& data, const VW980::example& ec,
+    VW980::io::logger& /* logger */)
 {
   // === Compute multiclass_log_loss
   // TODO:
@@ -287,7 +287,7 @@ void update_stats_oaa(const VW::workspace& /* all */, VW::shared_data& sd, const
 
 template <bool probabilities>
 void print_update_oaa(
-    VW::workspace& all, VW::shared_data& /* sd */, const oaa& data, const VW::example& ec, VW::io::logger& /* unused */)
+    VW980::workspace& all, VW980::shared_data& /* sd */, const oaa& data, const VW980::example& ec, VW980::io::logger& /* unused */)
 {
   // === Compute `prediction` and zero_one_loss
   // We have already computed `prediction` in predict_or_learn,
@@ -300,12 +300,12 @@ void print_update_oaa(
   uint32_t pred_lbl = (data.indexing == 0) ? prediction_ind : prediction_ind + 1;
 
   // === Print progress report
-  if (probabilities) { VW::details::print_multiclass_update_with_probability(all, ec, pred_lbl); }
-  else { VW::details::print_multiclass_update_with_score(all, ec, pred_lbl); }
+  if (probabilities) { VW980::details::print_multiclass_update_with_probability(all, ec, pred_lbl); }
+  else { VW980::details::print_multiclass_update_with_score(all, ec, pred_lbl); }
 }
 
 void output_example_prediction_oaa(
-    VW::workspace& all, const oaa& data, const VW::example& ec, VW::io::logger& /* unused */)
+    VW980::workspace& all, const oaa& data, const VW980::example& ec, VW980::io::logger& /* unused */)
 {
   // === Print probabilities for all classes
   std::ostringstream output_string_stream;
@@ -322,11 +322,11 @@ void output_example_prediction_oaa(
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::oaa_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::oaa_setup(VW980::setup_base_i& stack_builder)
 {
   options_i& options = *stack_builder.get_options();
-  VW::workspace& all = *stack_builder.get_all_pointer();
-  auto data = VW::make_unique<oaa>(all.logger, all.indexing);
+  VW980::workspace& all = *stack_builder.get_all_pointer();
+  auto data = VW980::make_unique<oaa>(all.logger, all.indexing);
   bool probabilities = false;
   bool scores = false;
   option_group_definition new_options("[Reduction] One Against All");
@@ -348,7 +348,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::oaa_setup(VW::setup_base_i
     THROW("There are " << all.sd->ldict->getK() << " named labels. Use that as the argument to oaa.")
 
   data->all = &all;
-  data->pred = VW::details::calloc_or_throw<VW::polyprediction>(data->k);
+  data->pred = VW980::details::calloc_or_throw<VW980::polyprediction>(data->k);
   data->subsample_order = nullptr;
   data->subsample_id = 0;
   if (data->num_subsample > 0)
@@ -360,7 +360,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::oaa_setup(VW::setup_base_i
     }
     else
     {
-      data->subsample_order = VW::details::calloc_or_throw<uint32_t>(data->k);
+      data->subsample_order = VW980::details::calloc_or_throw<uint32_t>(data->k);
       for (size_t i = 0; i < data->k; i++) { data->subsample_order[i] = static_cast<uint32_t>(i); }
       for (size_t i = 0; i < data->k; i++)
       {
@@ -376,18 +376,18 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::oaa_setup(VW::setup_base_i
   oaa* data_ptr = data.get();
   uint64_t k_value = data->k;
   auto base = require_singleline(stack_builder.setup_base_learner(k_value));
-  void (*learn_ptr)(oaa&, VW::LEARNER::learner&, VW::example&) = nullptr;
-  void (*pred_ptr)(oaa&, VW::LEARNER::learner&, VW::example&) = nullptr;
+  void (*learn_ptr)(oaa&, VW980::LEARNER::learner&, VW980::example&) = nullptr;
+  void (*pred_ptr)(oaa&, VW980::LEARNER::learner&, VW980::example&) = nullptr;
   std::string name_addition;
-  VW::prediction_type_t pred_type;
+  VW980::prediction_type_t pred_type;
 
-  VW::learner_update_stats_func<oaa, VW::example>* update_stats_func = nullptr;
-  VW::learner_output_example_prediction_func<oaa, VW::example>* output_example_prediction_func =
+  VW980::learner_update_stats_func<oaa, VW980::example>* update_stats_func = nullptr;
+  VW980::learner_output_example_prediction_func<oaa, VW980::example>* output_example_prediction_func =
       output_example_prediction_oaa;
-  VW::learner_print_update_func<oaa, VW::example>* print_update_func = nullptr;
+  VW980::learner_print_update_func<oaa, VW980::example>* print_update_func = nullptr;
   if (probabilities || scores)
   {
-    pred_type = VW::prediction_type_t::SCALARS;
+    pred_type = VW980::prediction_type_t::SCALARS;
     if (probabilities)
     {
       auto loss_function_type = all.loss->get_type();
@@ -415,10 +415,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::oaa_setup(VW::setup_base_i
   }
   else
   {
-    pred_type = VW::prediction_type_t::MULTICLASS;
-    update_stats_func = VW::details::update_stats_multiclass_label<oaa>;
-    output_example_prediction_func = VW::details::output_example_prediction_multiclass_label<oaa>;
-    print_update_func = VW::details::print_update_multiclass_label<oaa>;
+    pred_type = VW980::prediction_type_t::MULTICLASS;
+    update_stats_func = VW980::details::update_stats_multiclass_label<oaa>;
+    output_example_prediction_func = VW980::details::output_example_prediction_multiclass_label<oaa>;
+    print_update_func = VW980::details::print_update_multiclass_label<oaa>;
     if (all.raw_prediction != nullptr)
     {
       learn_ptr = learn<PRINT_ALL, !SCORES, !PROBABILITIES>;
@@ -437,8 +437,8 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::oaa_setup(VW::setup_base_i
   {
     learn_ptr = learn_randomized;
     // Override the update stats func.
-    update_stats_func = [](const VW::workspace& /* all */, shared_data& sd, const oaa&, const VW::example& ec,
-                            VW::io::logger& /* logger */)
+    update_stats_func = [](const VW980::workspace& /* all */, shared_data& sd, const oaa&, const VW980::example& ec,
+                            VW980::io::logger& /* logger */)
     {
       float loss = 0;
       if (ec.l.multi.label != ec.pred.multiclass && ec.l.multi.is_labeled()) { loss = ec.weight; }
@@ -454,9 +454,9 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::oaa_setup(VW::setup_base_i
   auto l = make_reduction_learner(
       std::move(data), base, learn_ptr, pred_ptr, stack_builder.get_setupfn_name(oaa_setup) + name_addition)
                .set_feature_width(k_value)
-               .set_input_label_type(VW::label_type_t::MULTICLASS)
-               .set_output_label_type(VW::label_type_t::SIMPLE)
-               .set_input_prediction_type(VW::prediction_type_t::SCALAR)
+               .set_input_label_type(VW980::label_type_t::MULTICLASS)
+               .set_output_label_type(VW980::label_type_t::SIMPLE)
+               .set_input_prediction_type(VW980::prediction_type_t::SCALAR)
                .set_output_prediction_type(pred_type)
                .set_update_stats(update_stats_func)
                .set_output_example_prediction(output_example_prediction_func)

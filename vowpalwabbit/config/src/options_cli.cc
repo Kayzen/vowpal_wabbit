@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-using namespace VW::config;
+using namespace VW980::config;
 
 bool is_number(const std::string& str)
 {
@@ -36,7 +36,7 @@ bool is_number(const std::string& str)
   return (*ptr) == '\0';
 }
 
-bool is_number(VW::string_view str) { return is_number(std::string{str}); }
+bool is_number(VW980::string_view str) { return is_number(std::string{str}); }
 
 template <typename T>
 std::vector<T> flatten_vectors(const std::vector<std::vector<T>>& vec_of_vecs)
@@ -55,13 +55,13 @@ void check_disagreeing_option_values(T value, const std::string& name, const std
     {
       std::stringstream ss;
       ss << "Disagreeing option values for '" << name << "': '" << value << "' vs '" << item << "'";
-      THROW_EX(VW::vw_argument_disagreement_exception, ss.str());
+      THROW_EX(VW980::vw_argument_disagreement_exception, ss.str());
     }
   }
 }
 
-void check_disagreeing_option_values(const VW::string_view& ref_value, const std::string& option_name,
-    const std::vector<VW::string_view>& final_arguments)
+void check_disagreeing_option_values(const VW980::string_view& ref_value, const std::string& option_name,
+    const std::vector<VW980::string_view>& final_arguments)
 {
   for (auto const& item : final_arguments)
   {
@@ -69,7 +69,7 @@ void check_disagreeing_option_values(const VW::string_view& ref_value, const std
     {
       std::stringstream ss;
       ss << "Disagreeing option values for '" << option_name << "': '" << ref_value << "' vs '" << item << "'";
-      THROW_EX(VW::vw_argument_disagreement_exception, ss.str())
+      THROW_EX(VW980::vw_argument_disagreement_exception, ss.str())
     }
   }
 }
@@ -88,21 +88,21 @@ option_type get_option_type(const base_option& option)
   return option_type::SCALAR;
 }
 
-bool is_terminator(VW::string_view token) { return token == "--"; }
+bool is_terminator(VW980::string_view token) { return token == "--"; }
 
-bool is_long_option_like(VW::string_view token) { return token.find("--") == 0 && token.size() > 2; }
+bool is_long_option_like(VW980::string_view token) { return token.find("--") == 0 && token.size() > 2; }
 
-bool is_short_option_like(VW::string_view token)
+bool is_short_option_like(VW980::string_view token)
 {
   return (token.find('-') == 0 && token.size() > 1 && token[1] != '-' && !is_number(token));
 }
 
-bool is_option_like(VW::string_view token)
+bool is_option_like(VW980::string_view token)
 {
   return is_long_option_like(token) || is_short_option_like(token) || is_terminator(token);
 }
 
-void consume_until_next_option_like(std::queue<VW::string_view>& command_line, std::vector<VW::string_view>& output)
+void consume_until_next_option_like(std::queue<VW980::string_view>& command_line, std::vector<VW980::string_view>& output)
 {
   while (!command_line.empty())
   {
@@ -114,7 +114,7 @@ void consume_until_next_option_like(std::queue<VW::string_view>& command_line, s
 }
 
 void consume_tokens(
-    const base_option& opt, std::queue<VW::string_view>& command_line, std::vector<VW::string_view>& current_tokens)
+    const base_option& opt, std::queue<VW980::string_view>& command_line, std::vector<VW980::string_view>& current_tokens)
 {
   const auto type = get_option_type(opt);
 
@@ -151,13 +151,13 @@ void consume_tokens(
 }
 
 void consume_long_option(const std::map<std::string, std::shared_ptr<base_option>>& known_options,
-    /*in-out*/ std::queue<VW::string_view>& command_line,
-    /*out*/ std::unordered_map<VW::string_view, std::vector<VW::string_view>>& result)
+    /*in-out*/ std::queue<VW980::string_view>& command_line,
+    /*out*/ std::unordered_map<VW980::string_view, std::vector<VW980::string_view>>& result)
 {
   auto current_token = command_line.front();
   auto current_opt = current_token.substr(2);
   const auto equal_sign_pos = current_opt.find('=');
-  std::vector<VW::string_view> current_tokens;
+  std::vector<VW980::string_view> current_tokens;
   if (equal_sign_pos != std::string::npos)
   {
     auto opt_value = current_opt.substr(equal_sign_pos + 1);
@@ -190,8 +190,8 @@ void consume_long_option(const std::map<std::string, std::shared_ptr<base_option
 }
 
 void consume_short_option(const std::map<char, std::shared_ptr<base_option>>& known_short_options,
-    /*in-out*/ std::queue<VW::string_view>& command_line,
-    /*out*/ std::unordered_map<VW::string_view, std::vector<VW::string_view>>& result)
+    /*in-out*/ std::queue<VW980::string_view>& command_line,
+    /*out*/ std::unordered_map<VW980::string_view, std::vector<VW980::string_view>>& result)
 {
   auto current_token = command_line.front();
 
@@ -206,7 +206,7 @@ void consume_short_option(const std::map<char, std::shared_ptr<base_option>>& kn
 
   auto current_opt = current_token[1];
 
-  std::vector<VW::string_view> current_tokens;
+  std::vector<VW980::string_view> current_tokens;
   if (current_token.size() > 2)
   {
     auto opt_value = current_token.substr(2);
@@ -234,20 +234,20 @@ void consume_short_option(const std::map<char, std::shared_ptr<base_option>>& kn
 }
 
 template <typename T>
-T convert_token_value(const VW::string_view& token)
+T convert_token_value(const VW980::string_view& token)
 {
   T result;
   std::stringstream ss(std::string{token});
   ss >> result;
   if (ss.fail() || ss.rdbuf()->in_avail() != 0)
   {
-    THROW_EX(VW::vw_argument_invalid_value_exception, "Failed to convert " << token << " to " << typeid(T).name())
+    THROW_EX(VW980::vw_argument_invalid_value_exception, "Failed to convert " << token << " to " << typeid(T).name())
   }
   return result;
 }
 
 template <>
-std::string convert_token_value<std::string>(const VW::string_view& token)
+std::string convert_token_value<std::string>(const VW980::string_view& token)
 {
   return std::string{token};
 }
@@ -255,9 +255,9 @@ std::string convert_token_value<std::string>(const VW::string_view& token)
 class cli_typed_option_handler : public typed_option_visitor
 {
 public:
-  std::unordered_map<VW::string_view, std::vector<VW::string_view>>& m_tokens;
+  std::unordered_map<VW980::string_view, std::vector<VW980::string_view>>& m_tokens;
 
-  cli_typed_option_handler(std::unordered_map<VW::string_view, std::vector<VW::string_view>>& tokens) : m_tokens(tokens)
+  cli_typed_option_handler(std::unordered_map<VW980::string_view, std::vector<VW980::string_view>>& tokens) : m_tokens(tokens)
   {
   }
 
@@ -340,13 +340,13 @@ public:
 
 // __positional__ contains everything we don't know about
 // IMPORTANT holds views into the given command line args
-std::unordered_map<VW::string_view, std::vector<VW::string_view>> parse_token_map_with_current_info(
+std::unordered_map<VW980::string_view, std::vector<VW980::string_view>> parse_token_map_with_current_info(
     const std::vector<std::string>& command_line,
     const std::map<std::string, std::shared_ptr<base_option>>& known_options,
     const std::map<char, std::shared_ptr<base_option>>& known_short_options, bool should_handle_terminator)
 {
-  std::unordered_map<VW::string_view, std::vector<VW::string_view>> m_map;
-  std::queue<VW::string_view> tokens;
+  std::unordered_map<VW980::string_view, std::vector<VW980::string_view>> m_map;
+  std::queue<VW980::string_view> tokens;
   for (auto& arg : command_line) { tokens.push(arg); }
 
   while (!tokens.empty())
@@ -423,7 +423,7 @@ bool options_cli::was_supplied(const std::string& key) const
   // Short option
   const auto short_key = "-" + key;
   auto short_option_found = std::any_of(_command_line.begin(), _command_line.end(),
-      [&short_key](const std::string& arg) { return VW::starts_with(arg, short_key); });
+      [&short_key](const std::string& arg) { return VW980::starts_with(arg, short_key); });
   if (short_option_found) { return true; }
 
   const auto long_key = "--" + key;
@@ -433,7 +433,7 @@ bool options_cli::was_supplied(const std::string& key) const
         // We need to check that the option starts with --key_name, but we also need to ensure that either the whole
         // token matches or we hit an equals sign denoting the end of the option name. If we don't do this --csoaa and
         // --csoaa_ldf would incorrectly match.
-        return VW::starts_with(arg, long_key) && ((arg.size() == long_key.size()) || (arg[long_key.size()] == '='));
+        return VW980::starts_with(arg, long_key) && ((arg.size() == long_key.size()) || (arg[long_key.size()] == '='));
       });
 
   return long_option_found;
@@ -447,7 +447,7 @@ std::vector<std::string> options_cli::check_unregistered()
 
   for (auto str : _prog_parsed_token_map["__POSITIONAL__"])
   {
-    if (is_option_like(str)) { THROW_EX(VW::vw_unrecognised_option_exception, "unrecognised option '" << str << "'") }
+    if (is_option_like(str)) { THROW_EX(VW980::vw_unrecognised_option_exception, "unrecognised option '" << str << "'") }
   }
 
   std::vector<std::string> warnings;

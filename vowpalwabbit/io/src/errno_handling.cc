@@ -14,7 +14,7 @@
 #  include <clocale>
 #endif
 
-std::string VW::io::strerror_to_string(int error_number)
+std::string VW980::io::strerror_to_string(int error_number)
 {
 #ifdef _WIN32
   static constexpr auto BUFFER_SIZE = 256;

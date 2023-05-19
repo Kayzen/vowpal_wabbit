@@ -9,7 +9,7 @@
 
 #include <cstdint>
 
-namespace VW
+namespace VW980
 {
 namespace parsers
 {
@@ -17,15 +17,15 @@ namespace text
 {
 namespace details
 {
-void substring_to_example(VW::workspace* all, VW::example* ae, VW::string_view example);
+void substring_to_example(VW980::workspace* all, VW980::example* ae, VW980::string_view example);
 size_t read_features(io_buf& buf, char*& line, size_t& num_chars);
 }  // namespace details
 
-void read_line(VW::workspace& all, example* ex, VW::string_view line);  // read example from the line.
-void read_lines(VW::workspace* all, VW::string_view lines_view,
-    VW::multi_ex& examples);  // read examples from the new line separated strings.
+void read_line(VW980::workspace& all, example* ex, VW980::string_view line);  // read example from the line.
+void read_lines(VW980::workspace* all, VW980::string_view lines_view,
+    VW980::multi_ex& examples);  // read examples from the new line separated strings.
 
-int read_features_string(VW::workspace* all, io_buf& buf, VW::multi_ex& examples);
+int read_features_string(VW980::workspace* all, io_buf& buf, VW980::multi_ex& examples);
 }  // namespace text
 }  // namespace parsers
-}  // namespace VW
+}  // namespace VW980

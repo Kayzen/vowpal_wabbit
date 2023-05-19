@@ -16,13 +16,13 @@
 #include <cstdint>
 #include <string>
 #include <vector>
-namespace VW
+namespace VW980
 {
 namespace details
 {
 
 // This function returns a vector of strings (not string_views) because we need to remove the escape characters
-std::vector<std::string> escaped_tokenize(char delim, VW::string_view s, bool allow_empty = false);
+std::vector<std::string> escaped_tokenize(char delim, VW980::string_view s, bool allow_empty = false);
 
 // The following function is a home made strtof. The
 // differences are :
@@ -77,7 +77,7 @@ inline FORCE_INLINE float parse_float(const char* p, size_t& end_idx, const char
   }
   if (*p == ' ' || *p == '\n' || *p == '\t' || p == end_line)  // easy case succeeded.
   {
-    acc *= VW::fast_pow10(static_cast<int8_t>(exp_acc - num_dec));
+    acc *= VW980::fast_pow10(static_cast<int8_t>(exp_acc - num_dec));
     end_idx = p - start;
     return s * acc;
   }
@@ -91,7 +91,7 @@ inline FORCE_INLINE float parse_float(const char* p, size_t& end_idx, const char
   }
 }
 
-inline float float_of_string(VW::string_view s, VW::io::logger& logger)
+inline float float_of_string(VW980::string_view s, VW980::io::logger& logger)
 {
   size_t end_idx;
   float f = parse_float(s.data(), end_idx, s.data() + s.size());
@@ -103,7 +103,7 @@ inline float float_of_string(VW::string_view s, VW::io::logger& logger)
   return f;
 }
 
-inline int int_of_string(VW::string_view s, char*& end, VW::io::logger& logger)
+inline int int_of_string(VW980::string_view s, char*& end, VW980::io::logger& logger)
 {
   // can't use stol because that throws an exception. Use strtol instead.
   int i = strtol(s.data(), &end, 10);
@@ -116,7 +116,7 @@ inline int int_of_string(VW::string_view s, char*& end, VW::io::logger& logger)
   return i;
 }
 
-inline int int_of_string(VW::string_view s, VW::io::logger& logger)
+inline int int_of_string(VW980::string_view s, VW980::io::logger& logger)
 {
   char* end = nullptr;
   return int_of_string(s, end, logger);
@@ -137,7 +137,7 @@ std::string trim_whitespace(const std::string& s);
  * @param s The string to trim
  * @return std::string The trimmed string
  */
-VW::string_view trim_whitespace(VW::string_view str);
+VW980::string_view trim_whitespace(VW980::string_view str);
 
 /**
  * @brief Split a string like a shell splits a command line. This function handles quotes and escapes.
@@ -153,7 +153,7 @@ std::vector<std::string> split_command_line(const std::string& cmd_line);
  * @param cmd_line The command line to split
  * @return std::vector<std::string> A vector of strings representing the split command line
  */
-std::vector<std::string> split_command_line(VW::string_view cmd_line);
+std::vector<std::string> split_command_line(VW980::string_view cmd_line);
 
-std::vector<VW::string_view> split_by_limit(const VW::string_view& s, size_t limit);
-}  // namespace VW
+std::vector<VW980::string_view> split_by_limit(const VW980::string_view& s, size_t limit);
+}  // namespace VW980

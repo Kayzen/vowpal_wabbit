@@ -13,7 +13,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace VW
+namespace VW980
 {
 namespace config
 {
@@ -143,4 +143,4 @@ option_builder<typed_option_with_location<T>> make_option(const std::string& nam
 }
 
 }  // namespace config
-}  // namespace VW
+}  // namespace VW980

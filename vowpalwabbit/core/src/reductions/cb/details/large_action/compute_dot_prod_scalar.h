@@ -8,7 +8,7 @@
 #include "kernel_impl.h"
 #include "vw/core/reductions/gd.h"
 
-namespace VW
+namespace VW980
 {
 namespace cb_explore_adf
 {
@@ -48,14 +48,14 @@ private:
   float& _final_dot_product;
 };
 
-inline float compute_dot_prod_scalar(uint64_t col, VW::workspace* _all, uint64_t _seed, VW::example* ex)
+inline float compute_dot_prod_scalar(uint64_t col, VW980::workspace* _all, uint64_t _seed, VW980::example* ex)
 {
-  const auto& red_features = ex->ex_reduction_features.template get<VW::large_action_space::las_reduction_features>();
+  const auto& red_features = ex->ex_reduction_features.template get<VW980::large_action_space::las_reduction_features>();
   float final_dot_prod = 0.f;
 
   AO_triplet_constructor tc(_all->weights.mask(), col, _seed, final_dot_prod);
 
-  VW::foreach_feature<AO_triplet_constructor, uint64_t, triplet_construction, dense_parameters>(
+  VW980::foreach_feature<AO_triplet_constructor, uint64_t, triplet_construction, dense_parameters>(
       _all->weights.dense_weights, _all->ignore_some_linear, _all->ignore_linear,
       (red_features.generated_interactions ? *red_features.generated_interactions : *ex->interactions),
       (red_features.generated_extent_interactions ? *red_features.generated_extent_interactions
@@ -66,4 +66,4 @@ inline float compute_dot_prod_scalar(uint64_t col, VW::workspace* _all, uint64_t
 }
 
 }  // namespace cb_explore_adf
-}  // namespace VW
+}  // namespace VW980

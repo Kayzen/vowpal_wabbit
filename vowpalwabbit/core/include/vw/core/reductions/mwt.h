@@ -8,20 +8,20 @@
 
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace reductions
 {
-std::shared_ptr<VW::LEARNER::learner> mwt_setup(VW::setup_base_i& stack_builder);
+std::shared_ptr<VW980::LEARNER::learner> mwt_setup(VW980::setup_base_i& stack_builder);
 }
-}  // namespace VW
+}  // namespace VW980
 
 // TODO: move this somewhere else
-namespace VW
+namespace VW980
 {
 namespace details
 {
 void print_scalars(
-    VW::io::writer* f, const VW::v_array<float>& scalars, const VW::v_array<char>& tag, VW::io::logger& logger);
+    VW980::io::writer* f, const VW980::v_array<float>& scalars, const VW980::v_array<char>& tag, VW980::io::logger& logger);
 }
-}  // namespace VW
+}  // namespace VW980

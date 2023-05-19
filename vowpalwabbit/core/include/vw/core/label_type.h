@@ -9,7 +9,7 @@
 
 #include <cstdint>
 
-namespace VW
+namespace VW980
 {
 enum class label_type_t : uint32_t
 {
@@ -24,20 +24,20 @@ enum class label_type_t : uint32_t
   NOLABEL,
   CONTINUOUS,  // continuous actions
   // clang-format off
-  simple VW_DEPRECATED("VW::label_type_t::simple has been renamed to VW::label_type_t::SIMPLE") = SIMPLE, // NOLINT
-  cb VW_DEPRECATED("VW::label_type_t::cb has been renamed to VW::label_type_t::CB") = CB, // NOLINT
-  cb_eval VW_DEPRECATED("VW::label_type_t::cb_eval has been renamed to VW::label_type_t::CB_EVAL") = CB_EVAL, // NOLINT
-  cs VW_DEPRECATED("VW::label_type_t::cs has been renamed to VW::label_type_t::CS") = CS, // NOLINT
-  multilabel VW_DEPRECATED("VW::label_type_t::multilabel has been renamed to VW::label_type_t::MULTILABEL") = MULTILABEL, // NOLINT
-  multiclass VW_DEPRECATED("VW::label_type_t::multiclass has been renamed to VW::label_type_t::MULTICLASS") = MULTICLASS, // NOLINT
-  ccb VW_DEPRECATED("VW::label_type_t::ccb has been renamed to VW::label_type_t::CCB") = CCB, // NOLINT
-  slates VW_DEPRECATED("VW::label_type_t::slates has been renamed to VW::label_type_t::SLATES") = SLATES, // NOLINT
-  nolabel VW_DEPRECATED("VW::label_type_t::nolabel has been renamed to VW::label_type_t::NOLABEL") = NOLABEL, // NOLINT
-  continuous VW_DEPRECATED("VW::label_type_t::continuous has been renamed to VW::label_type_t::CONTINUOUS") = CONTINUOUS // NOLINT
+  simple VW_DEPRECATED("VW980::label_type_t::simple has been renamed to VW980::label_type_t::SIMPLE") = SIMPLE, // NOLINT
+  cb VW_DEPRECATED("VW980::label_type_t::cb has been renamed to VW980::label_type_t::CB") = CB, // NOLINT
+  cb_eval VW_DEPRECATED("VW980::label_type_t::cb_eval has been renamed to VW980::label_type_t::CB_EVAL") = CB_EVAL, // NOLINT
+  cs VW_DEPRECATED("VW980::label_type_t::cs has been renamed to VW980::label_type_t::CS") = CS, // NOLINT
+  multilabel VW_DEPRECATED("VW980::label_type_t::multilabel has been renamed to VW980::label_type_t::MULTILABEL") = MULTILABEL, // NOLINT
+  multiclass VW_DEPRECATED("VW980::label_type_t::multiclass has been renamed to VW980::label_type_t::MULTICLASS") = MULTICLASS, // NOLINT
+  ccb VW_DEPRECATED("VW980::label_type_t::ccb has been renamed to VW980::label_type_t::CCB") = CCB, // NOLINT
+  slates VW_DEPRECATED("VW980::label_type_t::slates has been renamed to VW980::label_type_t::SLATES") = SLATES, // NOLINT
+  nolabel VW_DEPRECATED("VW980::label_type_t::nolabel has been renamed to VW980::label_type_t::NOLABEL") = NOLABEL, // NOLINT
+  continuous VW_DEPRECATED("VW980::label_type_t::continuous has been renamed to VW980::label_type_t::CONTINUOUS") = CONTINUOUS // NOLINT
   // clang-format on
 };
-string_view to_string(VW::label_type_t);
-}  // namespace VW
+string_view to_string(VW980::label_type_t);
+}  // namespace VW980
 
 using label_type_t VW_DEPRECATED(
-    "Global namespace label_type_t is deprecated. Use VW::label_type_t.") = VW::label_type_t;
+    "Global namespace label_type_t is deprecated. Use VW980::label_type_t.") = VW980::label_type_t;

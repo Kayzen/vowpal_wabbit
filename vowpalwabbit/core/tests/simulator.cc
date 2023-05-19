@@ -84,11 +84,11 @@ std::pair<int, float> cb_sim::sample_custom_pmf(std::vector<float>& pmf)
   THROW("Error: No prob selected");
 }
 
-std::pair<std::string, float> cb_sim::get_action(VW::workspace* vw, const std::map<std::string, std::string>& context)
+std::pair<std::string, float> cb_sim::get_action(VW980::workspace* vw, const std::map<std::string, std::string>& context)
 {
   std::vector<std::string> multi_ex_str = cb_sim::to_vw_example_format(context, "");
-  VW::multi_ex examples;
-  for (const std::string& ex : multi_ex_str) { examples.push_back(VW::read_example(*vw, ex)); }
+  VW980::multi_ex examples;
+  for (const std::string& ex : multi_ex_str) { examples.push_back(VW980::read_example(*vw, ex)); }
   vw->predict(examples);
 
   auto const& scores = examples[0]->pred.a_s;
@@ -112,7 +112,7 @@ const std::string& cb_sim::choose_time_of_day()
   return times_of_day[rand_ind];
 }
 
-void cb_sim::call_if_exists(VW::workspace& vw, VW::multi_ex& ex, const callback_map& callbacks, const size_t event)
+void cb_sim::call_if_exists(VW980::workspace& vw, VW980::multi_ex& ex, const callback_map& callbacks, const size_t event)
 {
   auto iter = callbacks.find(event);
   if (iter != callbacks.end())
@@ -122,14 +122,14 @@ void cb_sim::call_if_exists(VW::workspace& vw, VW::multi_ex& ex, const callback_
   }
 }
 
-std::vector<float> cb_sim::run_simulation_hook(VW::workspace* vw, size_t num_iterations, callback_map& callbacks,
+std::vector<float> cb_sim::run_simulation_hook(VW980::workspace* vw, size_t num_iterations, callback_map& callbacks,
     bool do_learn, size_t shift, bool add_noise, uint64_t num_useless_features, const std::vector<uint64_t>& swap_after,
     float scale_reward)
 {
   // check if there's a callback for the first possible element,
   // in this case most likely 0th event
   // i.e. right before sending any event to VW
-  VW::multi_ex dummy;
+  VW980::multi_ex dummy;
   call_if_exists(*vw, dummy, callbacks, shift - 1);
 
   bool swap_reward = false;
@@ -171,8 +171,8 @@ std::vector<float> cb_sim::run_simulation_hook(VW::workspace* vw, size_t num_ite
     {
       // 5. Inform VW of what happened so we can learn from it
       std::vector<std::string> multi_ex_str = to_vw_example_format(context, chosen_action, cost, prob);
-      VW::multi_ex examples;
-      for (const std::string& ex : multi_ex_str) { examples.push_back(VW::read_example(*vw, ex)); }
+      VW980::multi_ex examples;
+      for (const std::string& ex : multi_ex_str) { examples.push_back(VW980::read_example(*vw, ex)); }
 
       // 6. Learn
       vw->learn(examples);
@@ -198,7 +198,7 @@ std::vector<float> cb_sim::run_simulation_hook(VW::workspace* vw, size_t num_ite
 }
 
 std::vector<float> cb_sim::run_simulation(
-    VW::workspace* vw, size_t num_iterations, bool do_learn, size_t shift, const std::vector<uint64_t>& swap_after)
+    VW980::workspace* vw, size_t num_iterations, bool do_learn, size_t shift, const std::vector<uint64_t>& swap_after)
 {
   callback_map callbacks;
   return cb_sim::run_simulation_hook(vw, num_iterations, callbacks, do_learn, shift, false, 0, swap_after);
@@ -206,7 +206,7 @@ std::vector<float> cb_sim::run_simulation(
 
 std::vector<float> _test_helper(const std::vector<std::string>& vw_arg, size_t num_iterations, int seed)
 {
-  auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(vw_arg));
+  auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(vw_arg));
   simulator::cb_sim sim(seed);
   auto ctr = sim.run_simulation(vw.get(), num_iterations);
   vw->finish();
@@ -219,16 +219,16 @@ std::vector<float> _test_helper_save_load(const std::vector<std::string>& vw_arg
   assert(num_iterations > split);
   size_t before_save = num_iterations - split;
 
-  auto first_vw = VW::initialize(VW::make_unique<VW::config::options_cli>(vw_arg));
+  auto first_vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(vw_arg));
   simulator::cb_sim sim(seed);
   // first chunk
   auto ctr = sim.run_simulation(first_vw.get(), before_save, true, 1, swap_after);
 
   auto backing_vector = std::make_shared<std::vector<char>>();
   {
-    VW::io_buf io_writer;
-    io_writer.add_file(VW::io::create_vector_writer(backing_vector));
-    VW::save_predictor(*first_vw, io_writer);
+    VW980::io_buf io_writer;
+    io_writer.add_file(VW980::io::create_vector_writer(backing_vector));
+    VW980::save_predictor(*first_vw, io_writer);
     io_writer.flush();
   }
 
@@ -238,8 +238,8 @@ std::vector<float> _test_helper_save_load(const std::vector<std::string>& vw_arg
   // reload in another instance
   auto load_options = vw_arg;
   load_options.emplace_back("--quiet");
-  auto other_vw = VW::initialize(VW::make_unique<VW::config::options_cli>(load_options),
-      VW::io::create_buffer_view(backing_vector->data(), backing_vector->size()));
+  auto other_vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(load_options),
+      VW980::io::create_buffer_view(backing_vector->data(), backing_vector->size()));
 
   // continue
   ctr = sim.run_simulation(other_vw.get(), split, true, before_save + 1, swap_after);
@@ -250,7 +250,7 @@ std::vector<float> _test_helper_save_load(const std::vector<std::string>& vw_arg
 std::vector<float> _test_helper_hook(const std::vector<std::string>& vw_arg, callback_map& hooks, size_t num_iterations,
     int seed, const std::vector<uint64_t>& swap_after, float scale_reward)
 {
-  auto vw = VW::initialize(VW::make_unique<VW::config::options_cli>(vw_arg));
+  auto vw = VW980::initialize(VW980::make_unique<VW980::config::options_cli>(vw_arg));
   simulator::cb_sim sim(seed);
   auto ctr = sim.run_simulation_hook(vw.get(), num_iterations, hooks, true, 1, false, 0, swap_after, scale_reward);
   vw->finish();

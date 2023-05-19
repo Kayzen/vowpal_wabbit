@@ -12,7 +12,7 @@
 #include "vw/core/setup_base.h"
 #include "vw/core/vw.h"
 
-void VW::reductions::cb_actions_mask::update_predictions(multi_ex& examples, size_t initial_action_size)
+void VW980::reductions::cb_actions_mask::update_predictions(multi_ex& examples, size_t initial_action_size)
 {
   auto& preds = examples[0]->pred.a_s;
   std::vector<bool> actions_present(initial_action_size);
@@ -25,14 +25,14 @@ void VW::reductions::cb_actions_mask::update_predictions(multi_ex& examples, siz
 }
 
 template <bool is_learn>
-void learn_or_predict(VW::reductions::cb_actions_mask& data, VW::LEARNER::learner& base, VW::multi_ex& examples)
+void learn_or_predict(VW980::reductions::cb_actions_mask& data, VW980::LEARNER::learner& base, VW980::multi_ex& examples)
 {
   auto initial_action_size = examples.size();
   if (is_learn)
   {
     base.learn(examples);
 
-    VW::example* label_example = VW::test_cb_adf_sequence(examples);
+    VW980::example* label_example = VW980::test_cb_adf_sequence(examples);
 
     if (base.learn_returns_prediction || label_example == nullptr)
     {
@@ -46,10 +46,10 @@ void learn_or_predict(VW::reductions::cb_actions_mask& data, VW::LEARNER::learne
   }
 }
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_actions_mask_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::cb_actions_mask_setup(VW980::setup_base_i& stack_builder)
 {
-  VW::config::options_i& options = *stack_builder.get_options();
-  auto data = VW::make_unique<VW::reductions::cb_actions_mask>();
+  VW980::config::options_i& options = *stack_builder.get_options();
+  auto data = VW980::make_unique<VW980::reductions::cb_actions_mask>();
 
   if (!options.was_supplied("large_action_space")) { return nullptr; }
 
@@ -57,10 +57,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::cb_actions_mask_setup(VW::
 
   auto l = make_reduction_learner(std::move(data), base, learn_or_predict<true>, learn_or_predict<false>,
       stack_builder.get_setupfn_name(cb_actions_mask_setup))
-               .set_input_label_type(VW::label_type_t::CB)
-               .set_output_label_type(VW::label_type_t::CB)
-               .set_input_prediction_type(VW::prediction_type_t::ACTION_PROBS)
-               .set_output_prediction_type(VW::prediction_type_t::ACTION_PROBS)
+               .set_input_label_type(VW980::label_type_t::CB)
+               .set_output_label_type(VW980::label_type_t::CB)
+               .set_input_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
+               .set_output_prediction_type(VW980::prediction_type_t::ACTION_PROBS)
                .set_learn_returns_prediction(base->learn_returns_prediction)
                .build();
   return l;

@@ -5,7 +5,7 @@
 #pragma once
 
 // forward declarations
-namespace VW
+namespace VW980
 {
 class parameters;
 class dense_parameters;
@@ -56,4 +56,4 @@ class cache_temp_buffer;
 }  // namespace cache
 }  // namespace parsers
 
-}  // namespace VW
+}  // namespace VW980

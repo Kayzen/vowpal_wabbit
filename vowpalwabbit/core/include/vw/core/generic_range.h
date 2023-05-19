@@ -6,7 +6,7 @@
 
 #include <type_traits>
 
-namespace VW
+namespace VW980
 {
 /// generic_range is simply an adapter that given a begin and end iterator acts
 /// as an adapter enabling usage in a range based for loop.
@@ -41,4 +41,4 @@ private:
   IteratorT _end;
 };
 
-}  // namespace VW
+}  // namespace VW980

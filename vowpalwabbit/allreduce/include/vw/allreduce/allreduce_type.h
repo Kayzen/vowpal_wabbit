@@ -4,11 +4,11 @@
 
 #pragma once
 
-namespace VW
+namespace VW980
 {
 enum class all_reduce_type
 {
   SOCKET,
   THREAD
 };
-}  // namespace VW
+}  // namespace VW980

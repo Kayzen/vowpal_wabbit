@@ -11,8 +11,8 @@
 
 TEST(ChainHashing, BetweenFormats)
 {
-  VW::feature_index txt_idx;
-  VW::feature_index json_idx;
+  VW980::feature_index txt_idx;
+  VW980::feature_index json_idx;
 
   std::string text("1 |f a:b");
   std::string json_text = R"(
@@ -23,18 +23,18 @@ TEST(ChainHashing, BetweenFormats)
       }
     })";
 
-  auto vw = VW::initialize(vwtest::make_args("--quiet", "--chain_hash"));
+  auto vw = VW980::initialize(vwtest::make_args("--quiet", "--chain_hash"));
   {
-    VW::multi_ex examples;
-    examples.push_back(&VW::get_unused_example(vw.get()));
+    VW980::multi_ex examples;
+    examples.push_back(&VW980::get_unused_example(vw.get()));
     auto example = examples[0];
 
-    VW::parsers::text::read_line(*vw, example, text.c_str());
+    VW980::parsers::text::read_line(*vw, example, text.c_str());
     setup_example(*vw, example);
 
     auto& indices = example->feature_space['f'].indices;
     txt_idx = indices[0];
-    VW::finish_example(*vw, examples);
+    VW980::finish_example(*vw, examples);
   }
   {
     auto examples = vwtest::parse_json(*vw, json_text);
@@ -42,7 +42,7 @@ TEST(ChainHashing, BetweenFormats)
 
     auto& indices = example->feature_space['f'].indices;
     json_idx = indices[0];
-    VW::finish_example(*vw, examples);
+    VW980::finish_example(*vw, examples);
   }
   EXPECT_EQ(txt_idx, json_idx);
 }

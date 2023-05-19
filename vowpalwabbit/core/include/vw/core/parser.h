@@ -30,18 +30,18 @@
 #include <atomic>
 #include <memory>
 
-namespace VW
+namespace VW980
 {
 namespace details
 {
 class dsjson_metrics;
 }
 
-void parse_example_label(string_view label, const VW::label_parser& lbl_parser, const named_labels* ldict,
-    label_parser_reuse_mem& reuse_mem, example& ec, VW::io::logger& logger);
-void setup_examples(VW::workspace& all, VW::multi_ex& examples);
+void parse_example_label(string_view label, const VW980::label_parser& lbl_parser, const named_labels* ldict,
+    label_parser_reuse_mem& reuse_mem, example& ec, VW980::io::logger& logger);
+void setup_examples(VW980::workspace& all, VW980::multi_ex& examples);
 
-VW::example& get_unused_example(VW::workspace* all);
+VW980::example& get_unused_example(VW980::workspace* all);
 
 class parser
 {
@@ -53,10 +53,10 @@ public:
   parser& operator=(const parser&) = delete;
 
   // helper(s) for text parsing
-  std::vector<VW::string_view> words;
+  std::vector<VW980::string_view> words;
 
-  VW::object_pool<VW::example> example_pool;
-  VW::thread_safe_queue<VW::example*> ready_parsed_examples;
+  VW980::object_pool<VW980::example> example_pool;
+  VW980::thread_safe_queue<VW980::example*> ready_parsed_examples;
 
   io_buf input;  // Input source(s)
 
@@ -66,14 +66,14 @@ public:
   /// parsers multiple are produced which all correspond the the same overall
   /// logical example. examples must have a single empty example in it when this
   /// call is made.
-  int (*reader)(VW::workspace*, io_buf&, VW::multi_ex& examples);
+  int (*reader)(VW980::workspace*, io_buf&, VW980::multi_ex& examples);
   /// text_reader consumes the char* input and is for text based parsing
-  void (*text_reader)(VW::workspace*, VW::string_view, VW::multi_ex&);
+  void (*text_reader)(VW980::workspace*, VW980::string_view, VW980::multi_ex&);
 
   hash_func_t hasher;
   bool resettable;  // Whether or not the input can be reset.
   io_buf output;    // Where to output the cache.
-  VW::parsers::cache::details::cache_temp_buffer cache_temp_buffer_obj;
+  VW980::parsers::cache::details::cache_temp_buffer cache_temp_buffer_obj;
   std::string currentname;
   std::string finalname;
 
@@ -95,9 +95,9 @@ public:
 
   int bound_sock = 0;
 
-  VW::label_parser_reuse_mem parser_memory_to_reuse;
+  VW980::label_parser_reuse_mem parser_memory_to_reuse;
 
-  VW::label_parser lbl_parser;  // moved from vw
+  VW980::label_parser lbl_parser;  // moved from vw
 
   bool audit = false;
   bool decision_service_json = false;
@@ -128,16 +128,16 @@ public:
   std::string last_event_time;
 };
 
-void enable_sources(VW::workspace& all, bool quiet, size_t passes, const VW::details::input_options& input_options);
+void enable_sources(VW980::workspace& all, bool quiet, size_t passes, const VW980::details::input_options& input_options);
 
 // parser control
 void lock_done(parser& p);
-void set_done(VW::workspace& all);
+void set_done(VW980::workspace& all);
 
 // source control functions
-void reset_source(VW::workspace& all, size_t numbits);
-void free_parser(VW::workspace& all);
+void reset_source(VW980::workspace& all, size_t numbits);
+void free_parser(VW980::workspace& all);
 }  // namespace details
-}  // namespace VW
+}  // namespace VW980
 
-using parser VW_DEPRECATED("Use VW::parser instead of ::parser. ::parser will be removed in VW 10.") = VW::parser;
+using parser VW_DEPRECATED("Use VW980::parser instead of ::parser. ::parser will be removed in VW 10.") = VW980::parser;

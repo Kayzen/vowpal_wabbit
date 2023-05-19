@@ -27,7 +27,7 @@
 
 #  define VW_LINE __LINE__
 
-namespace VW
+namespace VW980
 {
 class VW_EXPORT_EXCEPTION vw_exception : public std::exception
 {
@@ -43,10 +43,10 @@ public:
   ~vw_exception() noexcept override = default;
 
   const char* what() const noexcept override { return _message.c_str(); }
-  VW_DEPRECATED("VW::vw_exception::Filename renamed to VW::vw_exception::filename")
+  VW_DEPRECATED("VW980::vw_exception::Filename renamed to VW980::vw_exception::filename")
   const char* Filename() const { return _file; }  // NOLINT
   const char* filename() const { return _file; }
-  VW_DEPRECATED("VW::vw_exception::LineNumber renamed to VW::vw_exception::line_number")
+  VW_DEPRECATED("VW980::vw_exception::LineNumber renamed to VW980::vw_exception::line_number")
   int LineNumber() const { return _line_number; }  // NOLINT
   int line_number() const { return _line_number; }
 
@@ -134,5 +134,5 @@ public:
   strict_parse_exception& operator=(strict_parse_exception&& other) noexcept = default;
   ~strict_parse_exception() noexcept override = default;
 };
-}  // namespace VW
+}  // namespace VW980
 #endif

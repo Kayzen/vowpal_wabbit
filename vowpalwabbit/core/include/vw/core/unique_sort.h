@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-namespace VW
+namespace VW980
 {
 /**
  * \brief Remove all non unique features from a feature group.
@@ -19,5 +19,5 @@ namespace VW
  */
 void unique_features(features& fs, int max = -1);
 
-void unique_sort_features(uint64_t parse_mask, VW::example& ae);
-}  // namespace VW
+void unique_sort_features(uint64_t parse_mask, VW980::example& ae);
+}  // namespace VW980

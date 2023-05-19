@@ -20,38 +20,38 @@ namespace
 class reduction_data
 {
 public:
-  VW::workspace* all = nullptr;
-  VW::LEARNER::learner* base = nullptr;
+  VW980::workspace* all = nullptr;
+  VW980::LEARNER::learner* base = nullptr;
 
-  explicit reduction_data(VW::workspace* all, VW::LEARNER::learner* base) : all(all), base(base) {}
+  explicit reduction_data(VW980::workspace* all, VW980::LEARNER::learner* base) : all(all), base(base) {}
 };
 
 template <bool is_learn>
-void count_label_single(reduction_data& data, VW::LEARNER::learner& base, VW::example& ec)
+void count_label_single(reduction_data& data, VW980::LEARNER::learner& base, VW980::example& ec)
 {
-  VW::shared_data* sd = data.all->sd.get();
-  VW::count_label(*sd, ec.l.simple.label);
+  VW980::shared_data* sd = data.all->sd.get();
+  VW980::count_label(*sd, ec.l.simple.label);
 
   if VW_STD17_CONSTEXPR (is_learn) { base.learn(ec); }
   else { base.predict(ec); }
 }
 
 template <bool is_learn>
-void count_label_multi(reduction_data& data, VW::LEARNER::learner& base, VW::multi_ex& ec_seq)
+void count_label_multi(reduction_data& data, VW980::LEARNER::learner& base, VW980::multi_ex& ec_seq)
 {
-  VW::shared_data* sd = data.all->sd.get();
-  for (const auto* ex : ec_seq) { VW::count_label(*sd, ex->l.simple.label); }
+  VW980::shared_data* sd = data.all->sd.get();
+  for (const auto* ex : ec_seq) { VW980::count_label(*sd, ex->l.simple.label); }
 
   if VW_STD17_CONSTEXPR (is_learn) { base.learn(ec_seq); }
   else { base.predict(ec_seq); }
 }
 }  // namespace
 
-std::shared_ptr<VW::LEARNER::learner> VW::reductions::count_label_setup(VW::setup_base_i& stack_builder)
+std::shared_ptr<VW980::LEARNER::learner> VW980::reductions::count_label_setup(VW980::setup_base_i& stack_builder)
 {
   bool dont_output_best_constant = false;
-  VW::config::option_group_definition reduction_options("[Reduction] Count label");
-  reduction_options.add(VW::config::make_option("dont_output_best_constant", dont_output_best_constant)
+  VW980::config::option_group_definition reduction_options("[Reduction] Count label");
+  reduction_options.add(VW980::config::make_option("dont_output_best_constant", dont_output_best_constant)
                             .help("Don't track the best constant used in the output"));
 
   stack_builder.get_options()->add_and_parse(reduction_options);
@@ -80,10 +80,10 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::count_label_setup(VW::setu
   // constructed but it works because we aren't part of it
   if (base_label_type != label_type_t::SIMPLE) { return base; }
 
-  auto data = VW::make_unique<reduction_data>(all, base.get());
+  auto data = VW980::make_unique<reduction_data>(all, base.get());
   if (base->is_multiline())
   {
-    auto learner = VW::LEARNER::make_reduction_learner(std::move(data), VW::LEARNER::require_multiline(base),
+    auto learner = VW980::LEARNER::make_reduction_learner(std::move(data), VW980::LEARNER::require_multiline(base),
         count_label_multi<true>, count_label_multi<false>, stack_builder.get_setupfn_name(count_label_setup))
                        .set_learn_returns_prediction(base->learn_returns_prediction)
                        .set_output_prediction_type(base->get_output_prediction_type())
@@ -92,7 +92,7 @@ std::shared_ptr<VW::LEARNER::learner> VW::reductions::count_label_setup(VW::setu
     return learner;
   }
 
-  auto learner = VW::LEARNER::make_reduction_learner(std::move(data), VW::LEARNER::require_singleline(base),
+  auto learner = VW980::LEARNER::make_reduction_learner(std::move(data), VW980::LEARNER::require_singleline(base),
       count_label_single<true>, count_label_single<false>, stack_builder.get_setupfn_name(count_label_setup))
                      .set_learn_returns_prediction(base->learn_returns_prediction)
                      .set_input_prediction_type(base->get_output_prediction_type())

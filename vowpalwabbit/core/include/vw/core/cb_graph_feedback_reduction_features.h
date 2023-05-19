@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 namespace cb_graph_feedback
 {
@@ -32,4 +32,4 @@ public:
 };
 
 }  // namespace cb_graph_feedback
-}  // namespace VW
+}  // namespace VW980

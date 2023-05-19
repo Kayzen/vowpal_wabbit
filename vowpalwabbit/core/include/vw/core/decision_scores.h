@@ -10,18 +10,18 @@
 
 #include <vector>
 
-namespace VW
+namespace VW980
 {
 // Each position in outer array is implicitly the decision corresponding to that index. Each inner array is the result
 // of CB for that call.
-using decision_scores_t = std::vector<VW::action_scores>;
+using decision_scores_t = std::vector<VW980::action_scores>;
 
-void print_decision_scores(VW::io::writer* f, const VW::decision_scores_t& decision_scores, VW::io::logger& logger);
+void print_decision_scores(VW980::io::writer* f, const VW980::decision_scores_t& decision_scores, VW980::io::logger& logger);
 std::string to_string(
-    const VW::decision_scores_t& decision_scores, int decimal_precision = VW::details::DEFAULT_FLOAT_PRECISION);
+    const VW980::decision_scores_t& decision_scores, int decimal_precision = VW980::details::DEFAULT_FLOAT_PRECISION);
 
-void print_update_ccb(VW::workspace& all, const std::vector<example*>& slots,
-    const VW::decision_scores_t& decision_scores, size_t num_features);
-void print_update_slates(VW::workspace& all, const std::vector<example*>& slots,
-    const VW::decision_scores_t& decision_scores, size_t num_features);
-}  // namespace VW
+void print_update_ccb(VW980::workspace& all, const std::vector<example*>& slots,
+    const VW980::decision_scores_t& decision_scores, size_t num_features);
+void print_update_slates(VW980::workspace& all, const std::vector<example*>& slots,
+    const VW980::decision_scores_t& decision_scores, size_t num_features);
+}  // namespace VW980
