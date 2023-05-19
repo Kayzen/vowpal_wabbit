@@ -1,4 +1,4 @@
-#include "vowpalWabbit_learner_VWLearners.h"
+#include "vw980_vowpalWabbit_learner_VWLearners.h"
 
 #include "jni_base_learner.h"
 #include "vw/core/vw.h"

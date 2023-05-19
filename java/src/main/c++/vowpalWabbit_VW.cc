@@ -1,4 +1,4 @@
-#include "vowpalWabbit_VW.h"
+#include "vw980_vowpalWabbit_VW.h"
 
 #include "vw/core/vw.h"
 
