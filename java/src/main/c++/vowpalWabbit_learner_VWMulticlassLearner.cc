@@ -17,7 +17,6 @@ JNIEXPORT jint JNICALL Java_vw980_vowpalWabbit_learner_VWMulticlassLearner_predi
   return base_predict<jint>(env, example_strings, learn, vwPtr, multiclass_predictor);
 }
 
-
 jfloatArray multiclass_raw_predictor(example* vec, JNIEnv *env)
 {
   size_t num_values = vec->l.cs.costs.size();
